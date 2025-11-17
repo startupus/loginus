@@ -36,8 +36,8 @@ export interface ModalProps {
    */
   className?: string;
 }
-
-/**
+  
+  /**
  * Modal - модальное окно на базе TailGrids
  * 
  * @source tailgrids-bank/application/Modal/Modal1.jsx
@@ -68,18 +68,18 @@ export const Modal: React.FC<ModalProps> = ({
     document.addEventListener('click', clickHandler);
     return () => document.removeEventListener('click', clickHandler);
   }, [isOpen, onClose]);
-  
+
   // Закрытие по ESC - из TailGrids Modal1.jsx
   useEffect(() => {
     const keyHandler = (event: KeyboardEvent) => {
       if (!isOpen || event.key !== 'Escape') return;
-      onClose();
+        onClose();
     };
-    
+
     document.addEventListener('keydown', keyHandler);
     return () => document.removeEventListener('keydown', keyHandler);
   }, [isOpen, onClose]);
-  
+
   // Размеры - адаптировано из TailGrids
   const sizeClasses = {
     sm: 'max-w-md',
@@ -90,17 +90,17 @@ export const Modal: React.FC<ModalProps> = ({
   };
   
   if (!isOpen) return null;
-  
+
   return (
     // Overlay - ТОЧНЫЕ классы из TailGrids Modal1.jsx
     <div className="fixed left-0 top-0 z-50 flex h-full min-h-screen w-full items-center justify-center bg-dark/90 px-4 py-5">
       {/* Modal Content - классы из TailGrids Modal1.jsx */}
-      <div
+        <div
         ref={modalRef}
         className={`w-full ${sizeClasses[size]} rounded-[20px] bg-white px-8 py-12 text-center dark:bg-dark-2 md:px-[70px] md:py-[60px] ${className}`}
-      >
+        >
         {/* Title - из TailGrids Modal1.jsx */}
-        {title && (
+          {title && (
           <>
             <h3 className="pb-[18px] text-xl font-semibold text-dark dark:text-white sm:text-2xl">
               {title}
@@ -108,19 +108,19 @@ export const Modal: React.FC<ModalProps> = ({
             {/* Separator - из TailGrids Modal1.jsx */}
             <span className="mx-auto mb-6 inline-block h-1 w-[90px] rounded-sm bg-primary"></span>
           </>
-        )}
-        
+          )}
+
         {/* Content - из TailGrids Modal1.jsx */}
         <div className="mb-10 text-base leading-relaxed text-body-color dark:text-dark-6">
           {children}
         </div>
-        
-        {/* Footer */}
-        {footer && (
+
+          {/* Footer */}
+          {footer && (
           <div className="-mx-3 flex flex-wrap">
-            {footer}
-          </div>
-        )}
+              {footer}
+            </div>
+          )}
       </div>
     </div>
   );

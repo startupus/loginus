@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../design-system/contexts';
+import { Button } from '../design-system/primitives/Button';
 
 /**
  * LandingPage - приветственная страница Loginus ID
@@ -21,16 +22,17 @@ const LandingPage: React.FC = () => {
       <header className="fixed left-0 top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-2 dark:bg-dark/80 dark:border-dark-3">
         <div className="container mx-auto">
           <div className="relative flex items-center justify-between py-4 px-4">
-            {/* Logo - ВСЕГДА контрастный */}
+            {/* Logo - новый знак: iD + текст Loginus */}
             <a href="/" className="flex items-center gap-3">
               <div className="relative">
-                <div className="w-10 h-10 bg-gradient-to-br from-primary to-blue-600 rounded-xl flex items-center justify-center shadow-lg ring-2 ring-primary/20">
-                  <span className="text-white font-bold text-xl drop-shadow-lg">L</span>
+                {/* Знак: всегда контрастный — темный на светлой теме и светлый на темной */}
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg ring-1 ring-black/5 bg-dark text-white dark:bg-white dark:text-dark">
+                  <span className="text-[18px] font-extrabold leading-none tracking-tight">iD</span>
                 </div>
                 <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green rounded-full border-2 border-white dark:border-dark shadow-sm"></div>
               </div>
               <span className="text-2xl font-bold text-dark dark:text-white">
-                Loginus ID
+                Loginus
               </span>
             </a>
             
@@ -76,20 +78,16 @@ const LandingPage: React.FC = () => {
                   )}
                 </button>
                 
-                {/* Login Button - с градиентом из дизайн-системы */}
-                <Button
-                  variant="primary"
-                  size="lg"
-                  gradient
-                  leftIcon={
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                    </svg>
-                  }
+                {/* Login Button - всегда брендовая (не белая) на светлой теме */}
+                <button
                   onClick={() => navigate('/login')}
+                  className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-primary-600 text-base font-semibold text-white hover:bg-primary-700 shadow-md hover:shadow-lg transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
                 >
-                  Войти через Loginus ID
-                </Button>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                  </svg>
+                  Войти
+                </button>
               </div>
             </div>
           </div>
@@ -336,8 +334,8 @@ const LandingPage: React.FC = () => {
         <div className="container mx-auto">
           <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary to-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold">L</span>
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-dark text-white dark:bg-white dark:text-dark ring-1 ring-black/5">
+                <span className="text-sm font-extrabold leading-none">iD</span>
               </div>
               <p className="text-sm text-body-color dark:text-dark-6">
                 © {new Date().getFullYear()} Loginus ID. Все права защищены.
