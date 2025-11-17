@@ -1,176 +1,370 @@
-# ТЗ: Попап профиля (Profile Popup)
+# ТЗ: Попап профиля
 
 ## Триггер
-Кнопка "Ваш профиль" в header (правый верхний угол)
+Клик на кнопку "Ваш профиль" (с аватаром и badge уведомлений) в header
+
+## URL источник
+https://id.yandex.ru/ (любая страница)
 
 ## Описание
-Выпадающий попап с быстрым доступом к ключевым функциям и настройкам аккаунта. Открывается как модальное окно в iframe для изоляции контента.
+Модальное окно с информацией о профиле пользователя и быстрым доступом к ключевым функциям. Открывается поверх текущей страницы справа от кнопки триггера.
+
+## Визуальный референс
+Скриншот: `.playwright-mcp/yandex-id-audit/popup-profile.png`
 
 ## Структура попапа
 
 ### Header попапа
-```jsx
+
+```tsx
 <div className="popup-header">
-  <Link to="/">
-    <img src="logo.svg" alt="Яндекс ID" />
+  <Link to="/" className="logo">
+    <Icon name="yandex-id" />
     <span>Яндекс ID</span>
   </Link>
-  <Button onClick={closePopup} variant="ghost" size="sm">
+  <Button variant="icon" onClick={closePopup}>
     <Icon name="close" />
   </Button>
 </div>
 ```
 
-### Основная информация
-```jsx
-<div className="profile-info">
-  <Link to="/">Управление аккаунтом</Link>
-  <h3>{user.name}</h3>
-  <p>{user.phone} • {user.email}</p>
+**Элементы:**
+- Логотип "Яндекс ID" (ссылка на главную)
+- Кнопка "Закрыть" (X)
+
+### Информация о пользователе
+
+```tsx
+<div className="user-info">
+  <Link to="/" className="account-link">
+    <Icon name="settings" />
+    <span>Управление аккаунтом</span>
+  </Link>
+  <div className="user-details">
+    <p className="user-name">Дмитрий Лукьян</p>
+    <p className="user-contacts">+7 905 ***‒**‒81 • dmitriy-ldm</p>
+  </div>
 </div>
 ```
 
-### Промо-блок дня рождения
-```jsx
-<Button 
-  variant="promo" 
-  onClick={openBirthdayModal}
-  className="birthday-promo"
->
-  <div className="content">
-    <h4>Добавьте день рождения</h4>
-    <p>Подготовим для вас сюрпризы</p>
+**Тексты:**
+- "Управление аккаунтом"
+- Имя пользователя
+- Телефон (частично скрыт) и логин
+
+### Промо-блок актуальности номера
+
+```tsx
+<div className="phone-verification-card">
+  <div className="card-content">
+    <p className="question">Этот номер ещё актуален?</p>
+    <p className="phone">+7 905 730‒81‒81</p>
   </div>
-  <Button size="sm" variant="primary">Добавить</Button>
-  <img src="gift-icon.svg" alt="" />
+  <div className="card-actions">
+    <Button variant="secondary">Да</Button>
+    <Button variant="secondary">Нет</Button>
+  </div>
+  <img src="/phone-illustration.svg" alt="" className="illustration" />
+</div>
+```
+
+**Тексты:**
+- "Этот номер ещё актуален?"
+- Полный номер телефона
+- Кнопки: "Да", "Нет"
+
+### Кнопка выбора организации
+
+```tsx
+<Button variant="card" className="organization-selector">
+  <Icon name="briefcase" />
+  <span>Выбрать организацию</span>
+  <Icon name="chevron-right" />
 </Button>
 ```
 
-### Быстрые ссылки
-```jsx
-<nav className="quick-links">
-  <Link to="/mail" className="quick-link">
+**Текст:** "Выбрать организацию"
+
+### Быстрые ссылки на сервисы
+
+```tsx
+<div className="service-links">
+  <Link to="https://mail.yandex.ru" className="service-link">
     <Icon name="mail" />
-    <div>
-      <span>Почта</span>
-      <Badge count={48}>непрочитанных писем</Badge>
+    <div className="service-info">
+      <span className="service-name">Почта</span>
+      <span className="service-status">
+        <Badge count={1420} />
+        <span>непрочитанных писем</span>
+      </span>
     </div>
   </Link>
   
-  <Link to="/plus" className="quick-link">
-    <Icon name="star" />
-    <div>
-      <span>Подключить Плюс</span>
-      <p>Все развлечения и выгода в одной подписке</p>
+  <Separator />
+  
+  <Link to="https://plus.yandex.ru" className="service-link">
+    <Icon name="plus" />
+    <div className="service-info">
+      <div className="service-title">
+        <span className="service-name">Плюс</span>
+        <span className="service-status">Подписка активна</span>
+      </div>
+      <div className="service-balance">
+        <Icon name="plus-coin" size="sm" />
+        <span>нет баллов</span>
+      </div>
     </div>
   </Link>
   
-  <Link to="/personal?dialog=personal-data" className="quick-link">
+  <Separator />
+  
+  <Link to="/personal?dialog=personal-data" className="service-link">
     <Icon name="user" />
-    <div>
-      <span>Личные данные</span>
-      <p>ФИО, день рождения, пол</p>
+    <div className="service-info">
+      <span className="service-name">Личные данные</span>
+      <span className="service-desc">ФИО, день рождения, пол</span>
     </div>
   </Link>
   
-  <Link to="/security/phones" className="quick-link">
+  <Separator />
+  
+  <Link to="/security/phones" className="service-link">
     <Icon name="phone" />
-    <div>
-      <span>Телефон</span>
-      <p>{user.phone}</p>
+    <div className="service-info">
+      <span className="service-name">Телефон</span>
+      <span className="service-desc">+7 905 ***‒**‒81</span>
     </div>
   </Link>
-</nav>
+</div>
 ```
 
-### Настройки
-```jsx
-<div className="settings-links">
-  <Button onClick={openAppearance} variant="ghost">
-    <Icon name="palette" />
+**Сервисы:**
+1. **Почта**: 1,420 непрочитанных писем
+2. **Плюс**: Подписка активна, нет баллов
+3. **Личные данные**: ФИО, день рождения, пол
+4. **Телефон**: +7 905 ***‒**‒81
+
+### Нижние ссылки
+
+```tsx
+<div className="bottom-links">
+  <Button variant="card">
+    <Icon name="theme" />
     <span>Внешний вид</span>
   </Button>
   
-  <Link to="/tune">
+  <Link to="https://yandex.ru/tune" className="link-item">
     <Icon name="settings" />
     <span>Настройки</span>
   </Link>
   
-  <Link to="/support">
+  <Link to="https://yandex.ru/support/id/" className="link-item">
     <Icon name="help" />
     <span>Справка</span>
   </Link>
 </div>
 ```
 
-### Смена аккаунта
-```jsx
-<Button variant="ghost" onClick={switchAccount} className="switch-account">
+**Ссылки:**
+- Внешний вид
+- Настройки
+- Справка
+
+### Кнопка смены аккаунта
+
+```tsx
+<Button variant="outline" className="switch-account">
   <Icon name="switch" />
   <span>Сменить аккаунт</span>
 </Button>
 ```
 
-## План модернизации для Loginus
+**Текст:** "Сменить аккаунт"
 
-### Реализация через Modal компонент
+## Состояния
+
+### Открыто
+- Попап видим
+- Оверлей затемняет фон
+- Кнопка триггера имеет состояние `expanded`
+
+### Закрыто
+- Попап скрыт
+- Оверлей скрыт
+- Кнопка триггера в обычном состоянии
+
+## Взаимодействие
+
+### Открытие
+- Клик на кнопку "Ваш профиль" в header
+
+### Закрытие
+- Клик на кнопку "Закрыть"
+- Клик на оверлей вне попапа
+- Клавиша Escape
+
+### Переходы
+- Все ссылки закрывают попап и ведут на соответствующие страницы
+- Кнопка "Выбрать организацию" - открывает модалку выбора
+- Кнопка "Внешний вид" - открывает модалку смены темы
+
+## Компоненты для создания
+
+### Loginus компоненты (использовать существующие)
+- `Modal` - базовое модальное окно
+- `Button` - кнопки
+- `Icon` - иконки
+- `Badge` - бейдж с количеством
+- `Separator` - разделители
+
+### Новые композиты
+- `ProfilePopup` - полный попап профиля
+- `ServiceLink` - ссылка на сервис с иконкой и описанием
+- `PhoneVerificationCard` - карточка проверки актуальности номера
+
+## TailGrids источники
+
+### Для референса
+- `dashboard/Popover/Popover*.jsx` - структура popover
+- `dashboard/Profile/Profile*.jsx` - карточки профиля
+- `application/Modal/Modal*.jsx` - модальные окна
+
+## Адаптация для Loginus
+
 ```tsx
-import { Modal } from '@/design-system/composites';
-import { Avatar, Badge, Button, Icon } from '@/design-system';
-import { useTranslation } from 'react-i18next';
-import { useAuthStore } from '@/store';
+// ProfilePopup.tsx
+import React from 'react';
+import { Modal, Button, Icon, Badge, Separator } from '@/design-system';
 
 interface ProfilePopupProps {
   isOpen: boolean;
   onClose: () => void;
+  user: {
+    name: string;
+    phone: string;
+    login: string;
+    avatar: string;
+    unreadMail: number;
+    plusActive: boolean;
+    plusPoints: number;
+  };
 }
 
-export const ProfilePopup: React.FC<ProfilePopupProps> = ({
-  isOpen,
-  onClose,
+export const ProfilePopup: React.FC<ProfilePopupProps> = ({ 
+  isOpen, 
+  onClose, 
+  user 
 }) => {
-  const { t } = useTranslation();
-  const { user } = useAuthStore();
-  
   return (
-    <Modal
-      isOpen={isOpen}
+    <Modal 
+      isOpen={isOpen} 
       onClose={onClose}
-      variant="dropdown"
-      anchor="header-right"
+      position="top-right"
       className="profile-popup"
     >
-      <Modal.Header>
-        <Link to="/" onClick={onClose}>
-          <Icon name="logo" />
-          <span>{t('app.name')}</span>
+      {/* Header */}
+      <div className="popup-header">
+        <Link to="/">
+          <Icon name="yandex-id" />
+          <span>Яндекс ID</span>
         </Link>
-        <Button onClick={onClose} variant="ghost" size="sm">
+        <Button variant="icon" onClick={onClose}>
           <Icon name="close" />
         </Button>
-      </Modal.Header>
+      </div>
       
-      <Modal.Body>
-        <ProfileInfo user={user} />
-        <BirthdayPromo onAdd={openBirthdayModal} />
-        <QuickLinks user={user} />
-        <SettingsLinks />
-        <SwitchAccountButton />
-      </Modal.Body>
+      {/* User Info */}
+      <div className="user-info">
+        <Link to="/">
+          <Icon name="settings" />
+          <span>Управление аккаунтом</span>
+        </Link>
+        <div className="user-details">
+          <p>{user.name}</p>
+          <p>{user.phone} • {user.login}</p>
+        </div>
+      </div>
+      
+      {/* Phone Verification Card */}
+      <PhoneVerificationCard phone={user.phone} />
+      
+      {/* Organization Selector */}
+      <Button variant="card">
+        <Icon name="briefcase" />
+        <span>Выбрать организацию</span>
+        <Icon name="chevron-right" />
+      </Button>
+      
+      {/* Service Links */}
+      <div className="service-links">
+        <ServiceLink
+          icon="mail"
+          name="Почта"
+          status={
+            <>
+              <Badge count={user.unreadMail} />
+              <span>непрочитанных писем</span>
+            </>
+          }
+          href="https://mail.yandex.ru"
+        />
+        
+        <Separator />
+        
+        <ServiceLink
+          icon="plus"
+          name="Плюс"
+          status="Подписка активна"
+          extra={user.plusPoints > 0 ? `${user.plusPoints} баллов` : 'нет баллов'}
+          href="https://plus.yandex.ru"
+        />
+        
+        {/* ... другие ссылки */}
+      </div>
+      
+      {/* Bottom Links */}
+      <div className="bottom-links">
+        <Button variant="card">
+          <Icon name="theme" />
+          <span>Внешний вид</span>
+        </Button>
+        
+        <Link to="https://yandex.ru/tune">
+          <Icon name="settings" />
+          <span>Настройки</span>
+        </Link>
+        
+        <Link to="https://yandex.ru/support/id/">
+          <Icon name="help" />
+          <span>Справка</span>
+        </Link>
+      </div>
+      
+      {/* Switch Account */}
+      <Button variant="outline">
+        <Icon name="switch" />
+        <span>Сменить аккаунт</span>
+      </Button>
     </Modal>
   );
 };
 ```
 
-### Особенности реализации
-- Использовать Modal компонент из design-system
-- Поддержка темной темы
-- i18n для всех текстов
-- Keyboard navigation (ESC для закрытия)
-- Focus trap внутри модального окна
+## Приоритет
+**Высокий** - попап профиля используется на всех страницах и является ключевым элементом навигации
+
+## Зависимости
+- Modal (✅ готов)
+- Button (✅ готов)
+- Icon (✅ готов)
+- Badge (✅ готов)
+- Separator (✅ готов)
+- ServiceLink (❌ нужно создать)
+- PhoneVerificationCard (❌ нужно создать)
 
 ---
 
 **Дата создания:** 2025-01-17  
-**Статус:** Готово к реализации
-
+**Статус:** ТЗ готово
+**Сложность:** Средняя
+**Оценка:** 8 часов

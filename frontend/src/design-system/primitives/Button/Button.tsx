@@ -109,7 +109,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     // Width style
     const widthStyle = fullWidth ? 'w-full' : '';
-    
+
     // Rounded (для современного вида)
     const roundedStyle = size === 'xs' || size === 'sm' ? 'rounded-lg' : 'rounded-xl';
 
