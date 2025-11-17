@@ -1,0 +1,28 @@
+{
+  "name": "loginus-ui",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Loginus ID - Unified Identity Platform for Startapus Ecosystem",
+  "author": "Startapus",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "scripts": {
+    "dev": "pnpm --filter frontend dev & pnpm --filter backend-mock start:dev",
+    "dev:frontend": "pnpm --filter frontend dev",
+    "dev:backend": "pnpm --filter backend-mock start:dev",
+    "build": "pnpm --filter frontend build",
+    "build:all": "pnpm --filter frontend build && pnpm --filter backend-mock build",
+    "test": "pnpm --filter frontend test",
+    "test:e2e": "pnpm --filter frontend test:e2e",
+    "lint": "pnpm --filter frontend lint && pnpm --filter backend-mock lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "clean": "pnpm --filter frontend clean && pnpm --filter backend-mock clean"
+  },
+  "devDependencies": {
+    "prettier": "^3.1.1"
+  }
+}
+

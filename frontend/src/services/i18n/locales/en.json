@@ -1,0 +1,267 @@
+{
+  "common": {
+    "login": "Login",
+    "logout": "Logout",
+    "register": "Register",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "search": "Search"
+  },
+  "auth": {
+    "loginTitle": "Login to Loginus ID",
+    "registerTitle": "Register",
+    "email": "Email",
+    "phone": "Phone",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "dontHaveAccount": "Don't have an account?",
+    "alreadyHaveAccount": "Already have an account?",
+    "loginWith": "Login with",
+    "forgotTitle": "Password Recovery",
+    "forgotDescription": "Enter your email or phone to receive a recovery code",
+    "sendCode": "Send Code",
+    "codeSent": "Code sent to",
+    "codeSentDescription": "Check your email or SMS and follow the instructions",
+    "backToLogin": "Back to Login",
+    "resetTitle": "New Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "savePassword": "Save Password",
+    "passwordMismatch": "Passwords do not match",
+    "passwordTooShort": "Password must be at least 8 characters"
+  },
+  "about": {
+    "title": "Loginus ID",
+    "subtitle": "Unified account for Startapus ecosystem",
+    "createAccount": "Create Account",
+    "advantagesTitle": "Advantages",
+    "feature1Title": "Maximum Security",
+    "feature1Description": "Two-factor authentication, biometrics, action audit",
+    "feature2Title": "Quick Login",
+    "feature2Description": "QR-code, biometrics, one-time codes - choose your way",
+    "feature3Title": "Unified Profile",
+    "feature3Description": "All your data in one place, access from any service"
+  },
+  "profile": {
+    "title": "Profile",
+    "personalInfo": "Personal Information",
+    "security": "Security",
+    "sessions": "Sessions",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "birthDate": "Birth Date",
+    "gender": "Gender",
+    "edit": "Edit Profile",
+    "confirmed": "Confirmed"
+  },
+  "security": {
+    "title": "Security",
+    "changePassword": "Change Password",
+    "twoFactor": "Two-Factor Authentication",
+    "devices": "Devices",
+    "activity": "Activity",
+    "loginMethod": "Login Method",
+    "normalPassword": "Regular Password",
+    "passwordLastChanged": "Changed",
+    "monthsAgo": "months ago",
+    "twoFactorAuth": "Two-Factor Authentication",
+    "additionalProtection": "Additional account protection",
+    "notConfigured": "Not configured",
+    "biometric": "Biometric",
+    "faceOrFingerprint": "Login with face or fingerprint",
+    "notConnected": "Not connected",
+    "logoutAll": "Logout Everywhere",
+    "currentDevice": "Current"
+  },
+  "admin": {
+    "dashboard": "Admin Dashboard",
+    "users": "Users",
+    "settings": "Settings",
+    "logs": "Logs",
+    "analytics": "Analytics",
+    "adminMode": "Admin Mode",
+    "totalUsers": "Total Users",
+    "activeUsers": "Active Users",
+    "newToday": "today",
+    "sessions": "Sessions",
+    "incidents": "Incidents"
+  },
+  "kyc": {
+    "title": "Identity Verification (KYC)",
+    "description": "Confirm your identity for full access to features",
+    "step1": "Step 1: Personal Data",
+    "step2": "Step 2: Upload Documents",
+    "step3": "Verification",
+    "personalData": "Data",
+    "documents": "Documents",
+    "verification": "Verification",
+    "submitted": "Documents submitted for review",
+    "processingTime": "Verification may take up to 3 business days",
+    "underReview": "Under Review"
+  },
+  "sidebar": {
+    "overview": "Overview",
+    "personal": "Personal Data",
+    "security": "Security",
+    "devices": "Devices",
+    "activity": "Activity",
+    "documents": "Documents",
+    "addresses": "Addresses"
+  },
+  "errors": {
+    "404Title": "Page Not Found",
+    "404Description": "The requested page does not exist or has been removed",
+    "403Title": "Access Denied",
+    "403Description": "You don't have permission to view this page",
+    "500Title": "Server Error",
+    "500Description": "Something went wrong. We're already working on a fix.",
+    "503Title": "Service Temporarily Unavailable",
+    "503Description": "Maintenance in progress. Will be back soon.",
+    "401Title": "Authentication Required",
+    "401Description": "You need to login to access this page",
+    "goHome": "Go to Home",
+    "reload": "Reload Page",
+    "tryAgain": "Try Again"
+  },
+  "dashboard": {
+    "title": "Home",
+    "quickAccess": "Quick Access",
+    "recentActivity": "Recent Activity",
+    "activeDevices": "Active Devices",
+    "documentsCount": "Documents",
+    "connectedApps": "Connected Apps"
+  },
+  "personalData": {
+    "title": "Personal Data",
+    "subtitle": "Manage your documents, addresses and other personal data",
+    "documents": {
+      "title": "Documents",
+      "description": "Your documents are always at hand in ID. We keep them safe",
+      "viewAll": "All documents",
+      "addDocument": "Add document",
+      "passportRF": "RF Passport",
+      "foreignPassport": "International Passport",
+      "birthCertificate": "Birth Certificate",
+      "driverLicense": "DL",
+      "vehicleRegistration": "VR",
+      "healthInsurance": "Health Insurance",
+      "voluntaryInsurance": "Voluntary Insurance",
+      "inn": "INN",
+      "snils": "SNILS"
+    },
+    "vehicles": {
+      "title": "Vehicles",
+      "description": "Add information about your vehicles",
+      "viewAll": "All vehicles",
+      "addVehicle": "Add vehicle"
+    },
+    "pets": {
+      "title": "Pets",
+      "description": "Information about your pets",
+      "viewAll": "All pets",
+      "addPet": "Add pet"
+    },
+    "addresses": {
+      "title": "Addresses",
+      "description": "Save addresses for quick form filling",
+      "viewAll": "All addresses",
+      "addAddress": "Add address",
+      "home": "Home",
+      "work": "Work"
+    },
+    "contacts": {
+      "title": "Contacts",
+      "description": "Phone numbers and email addresses"
+    },
+    "publicData": {
+      "title": "Public Data",
+      "description": "This data can be seen by other users",
+      "nameAndSurname": "Name and surname",
+      "birthDate": "Birth date",
+      "gender": "Gender",
+      "male": "Male",
+      "female": "Female"
+    },
+    "dataManagement": {
+      "title": "Data Management",
+      "description": "Export, delete and other actions with your data",
+      "downloadData": "Export data",
+      "archiveProfile": "Archive profile",
+      "deleteAccount": "Delete profile"
+    }
+  },
+  "family": {
+    "title": "Family",
+    "subtitle": "Manage your family group and its members",
+    "group": "Family group",
+    "members": "members",
+    "inviteMember": "Invite family member",
+    "features": {
+      "title": "Family group features",
+      "description": "What members can do",
+      "sharedSubscriptions": "Shared subscriptions",
+      "sharedSubscriptionsDesc": "All members can use group subscriptions",
+      "parentalControl": "Parental control",
+      "parentalControlDesc": "Manage access for children's accounts"
+    },
+    "roles": {
+      "admin": "Administrator",
+      "member": "Member",
+      "child": "Child"
+    }
+  },
+  "pay": {
+    "title": "Payments",
+    "subtitle": "Manage payment methods and payment history",
+    "methods": {
+      "title": "Payment methods",
+      "description": "Your cards and accounts",
+      "addMethod": "Add payment method",
+      "card": "Card",
+      "bankAccount": "Bank account",
+      "active": "Active"
+    },
+    "history": {
+      "title": "Payment history",
+      "description": "Recent transactions",
+      "completed": "Completed",
+      "pending": "Pending"
+    }
+  },
+  "support": {
+    "title": "Support",
+    "subtitle": "Help and frequently asked questions",
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "description": "Answers to popular questions",
+      "q1": "How to change password?",
+      "a1": "Go to Security section and click \"Change Password\"",
+      "q2": "How to add a document?",
+      "a2": "Open Data → Documents and select document type",
+      "q3": "How to invite family member?",
+      "a3": "In Family section click \"Invite family member\""
+    },
+    "contact": {
+      "title": "Contact support",
+      "description": "Describe your problem",
+      "placeholder": "Describe your problem...",
+      "send": "Send message"
+    }
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "Auto",
+    "current": "Current theme"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "common": {
+    "welcomeMessage": "Добро пожаловать в Loginus ID",
+    "description": "Единый аккаунт для экосистемы Startapus"
+  },
+  "errors": {
+    "invalidCredentials": "Неверный логин или пароль",
+    "userNotFound": "Пользователь не найден",
+    "serverError": "Ошибка сервера"
+  }
+}
+
