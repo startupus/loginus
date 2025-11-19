@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 // Прямые импорты для tree-shaking
@@ -6,7 +6,8 @@ import { Button } from '../../primitives/Button';
 import { Avatar } from '../../primitives/Avatar';
 import { Icon } from '../../primitives/Icon';
 import { Logo } from '../../primitives/Logo';
-import { ProfilePopup } from '../../composites/ProfilePopup';
+// Lazy load ProfilePopup - загружается только при открытии (оптимизация первой загрузки)
+const ProfilePopup = lazy(() => import('../../composites/ProfilePopup').then(m => ({ default: m.ProfilePopup })));
 import { useTheme } from '../../contexts';
 import { getInitials } from '@/utils/stringUtils';
 import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';
@@ -214,17 +215,19 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
       </div>
     </header>
 
-    {/* Profile Popup для авторизованных пользователей */}
-    {isAuthenticated && userData && (
-      <ProfilePopup
-        isOpen={isProfilePopupOpen}
-        onClose={() => setIsProfilePopupOpen(false)}
-        user={userData}
-        onSwitchAccount={() => {
-          onLogout?.();
-          navigate(buildPathWithLang('/auth', currentLang));
-        }}
-      />
+    {/* Profile Popup для авторизованных пользователей - lazy loaded для оптимизации */}
+    {isAuthenticated && userData && isProfilePopupOpen && (
+      <Suspense fallback={null}>
+        <ProfilePopup
+          isOpen={isProfilePopupOpen}
+          onClose={() => setIsProfilePopupOpen(false)}
+          user={userData}
+          onSwitchAccount={() => {
+            onLogout?.();
+            navigate(buildPathWithLang('/auth', currentLang));
+          }}
+        />
+      </Suspense>
     )}
     </>
   );

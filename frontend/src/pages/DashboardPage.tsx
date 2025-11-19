@@ -9,6 +9,8 @@ import { useAuthStore } from '../store';
 import { useWidgetPreferences } from '../hooks/useWidgetPreferences';
 import { useModal } from '../hooks/useModal';
 import type { DocumentType, AddressType } from '../components/Modals';
+// ProfileCard - lazy loaded для оптимизации первой загрузки (не критичен для первого рендера)
+const ProfileCard = lazy(() => import('../components/Dashboard/ProfileCard').then(m => ({ default: m.ProfileCard })));
 
 // Lazy loading для тяжелых компонентов
 const MasonryGrid = lazy(() => import('../design-system/composites/MasonryGrid').then(m => ({ default: m.MasonryGrid })));
@@ -33,8 +35,7 @@ export type AvailableWidget = {
   enabled: boolean;
 };
 
-// Lazy loading компонентов Dashboard для оптимизации производительности
-const ProfileCard = lazy(() => import('../components/Dashboard/ProfileCard').then(m => ({ default: m.ProfileCard })));
+// Lazy loading для виджетов - загружаются по мере необходимости
 const CoursesWidget = lazy(() => import('../components/Dashboard/CoursesWidget').then(m => ({ default: m.CoursesWidget })));
 const EventsWidget = lazy(() => import('../components/Dashboard/EventsWidget').then(m => ({ default: m.EventsWidget })));
 const RoadmapWidget = lazy(() => import('../components/Dashboard/RoadmapWidget').then(m => ({ default: m.RoadmapWidget })));
@@ -143,7 +144,9 @@ const DashboardPage: React.FC = () => {
     reorderWidgets,
   } = useWidgetPreferences();
   
-  const { data, isLoading, error } = useQuery({
+  // Оптимизация: используем initialData и placeholderData для мгновенного отображения контента
+  // Показываем контент сразу, даже если данные еще загружаются
+  const { data, isLoading, error, isFetching } = useQuery({
     queryKey: ['dashboard'],
     queryFn: async () => {
       const startTime = performance.now();
@@ -169,6 +172,14 @@ const DashboardPage: React.FC = () => {
     refetchOnReconnect: false, // Не перезагружать при переподключении
     retry: 1, // Быстрая обработка ошибок
     retryDelay: 1000, // Задержка перед повтором
+    // Используем placeholderData для мгновенного отображения (если есть кэш)
+    placeholderData: (previousData) => previousData,
+    // Используем initialData из кэша React Query для мгновенного отображения
+    initialData: () => {
+      // Пытаемся получить данные из кэша React Query
+      const cachedData = queryClient.getQueryData(['dashboard']);
+      return cachedData || undefined;
+    },
   });
 
   // Синхронизируем данные пользователя из API с authStore
@@ -185,38 +196,10 @@ const DashboardPage: React.FC = () => {
     }
   }, [data, updateUser]);
 
-  if (isLoading) {
-    return (
-      <PageTemplate title={t('dashboard.title', 'Профиль')} showSidebar={true}>
-        <div className="space-y-4 sm:space-y-6">
-          {/* Skeleton для ProfileCard */}
-          <div className="w-full animate-pulse">
-            <div className="bg-background dark:bg-surface rounded-xl p-6 border border-border">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-gray-2 dark:bg-gray-3"></div>
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-gray-2 dark:bg-gray-3 rounded w-1/3"></div>
-                  <div className="h-3 bg-gray-2 dark:bg-gray-3 rounded w-1/2"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          {/* Skeleton для виджетов */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="w-full animate-pulse">
-                <div className="bg-background dark:bg-surface rounded-xl p-6 border border-border h-32">
-                  <div className="h-4 bg-gray-2 dark:bg-gray-3 rounded w-1/2 mb-4"></div>
-                  <div className="h-8 bg-gray-2 dark:bg-gray-3 rounded w-1/3"></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </PageTemplate>
-    );
-  }
+  // Оптимизация: показываем skeleton сразу при первой загрузке для мгновенного отображения
+  // Не дожидаемся isLoading, чтобы избежать задержки рендера
+  // Если есть кэш (data) - показываем контент сразу
+  const showSkeleton = !data && (isLoading || isFetching);
 
   if (error) {
     return (
@@ -363,6 +346,41 @@ const DashboardPage: React.FC = () => {
     queryClient.invalidateQueries({ queryKey: ['dashboard'] });
   };
 
+  // Оптимизация: показываем skeleton только при первой загрузке без данных
+  if (showSkeleton) {
+    return (
+      <PageTemplate title={t('dashboard.title', 'Профиль')} showSidebar={true}>
+        <div className="space-y-4 sm:space-y-6">
+          {/* Skeleton для ProfileCard */}
+          <div className="w-full animate-pulse">
+            <div className="bg-background dark:bg-surface rounded-xl p-6 border border-border">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full bg-gray-2 dark:bg-gray-3"></div>
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 bg-gray-2 dark:bg-gray-3 rounded w-1/3"></div>
+                  <div className="h-3 bg-gray-2 dark:bg-gray-3 rounded w-1/2"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Skeleton для виджетов */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="w-full animate-pulse">
+                <div className="bg-background dark:bg-surface rounded-xl p-6 border border-border h-32">
+                  <div className="h-4 bg-gray-2 dark:bg-gray-3 rounded w-1/2 mb-4"></div>
+                  <div className="h-8 bg-gray-2 dark:bg-gray-3 rounded w-1/3"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </PageTemplate>
+    );
+  }
+
+  // Если нет данных после загрузки - показываем сообщение
   if (!dashboard || !user) {
     return (
       <PageTemplate title={t('dashboard.title', 'Профиль')} showSidebar={true}>
@@ -391,10 +409,28 @@ const DashboardPage: React.FC = () => {
         gamePoints: dashboard.gamePoints,
       }}
     >
+      {/* Индикатор обновления данных (не блокирует контент) */}
+      {isFetching && !isLoading && (
+        <div className="fixed top-20 right-4 z-50 bg-primary/10 border border-primary/20 rounded-lg px-3 py-2 text-xs text-primary animate-pulse">
+          {t('common.updating', 'Обновление...')}
+        </div>
+      )}
       <div className="space-y-4 sm:space-y-6">
-        {/* Profile Card - полная ширина на всех устройствах */}
-        <div className="w-full animate-fade-in" style={{ animationDelay: '0ms' }}>
-          <Suspense fallback={<SectionSkeleton />}>
+        {/* Profile Card - lazy loaded для оптимизации первой загрузки */}
+        <Suspense fallback={
+          <div className="w-full animate-pulse">
+            <div className="bg-background dark:bg-surface rounded-xl p-6 border border-border">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full bg-gray-2 dark:bg-gray-3"></div>
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 bg-gray-2 dark:bg-gray-3 rounded w-1/3"></div>
+                  <div className="h-3 bg-gray-2 dark:bg-gray-3 rounded w-1/2"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        }>
+          <div className="w-full animate-fade-in" style={{ animationDelay: '0ms' }}>
             <ProfileCard
               user={{
                 name: user.name,
@@ -408,8 +444,8 @@ const DashboardPage: React.FC = () => {
               onEdit={editProfileModal.open}
               onEditAvatar={editAvatarModal.open}
             />
-          </Suspense>
-        </div>
+          </div>
+        </Suspense>
 
         {/* Widgets Section - объединенный Suspense для всех виджетов */}
         <div className="w-full">

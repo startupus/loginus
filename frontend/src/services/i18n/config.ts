@@ -113,21 +113,34 @@ i18n.use(initReactI18next).init({
 
 // Загружаем критический модуль common и profile при старте для быстрой инициализации
 // Profile нужен для Header/ProfileMenu, который рендерится сразу
+// Оптимизация: загружаем common модуль сразу (критично), profile модуль - асинхронно после первого рендера
 (async () => {
   try {
-    const [commonData, profileData] = await Promise.all([
-      loadCriticalModule(initialLanguage),
-      loadModule(initialLanguage, 'profile'),
-    ]);
-    
-    // Добавляем common модуль
+    // Загружаем common модуль сразу (критично для базовых переводов)
+    const commonData = await loadCriticalModule(initialLanguage);
     if (Object.keys(commonData).length > 0) {
       i18n.addResourceBundle(initialLanguage, 'translation', commonData, true, true);
     }
     
-    // Добавляем profile модуль (критично для ProfileMenu)
-    if (Object.keys(profileData).length > 0) {
-      i18n.addResourceBundle(initialLanguage, 'translation', profileData, true, true);
+    // Загружаем profile модуль асинхронно после первого рендера (не блокируем)
+    // Используем requestIdleCallback для неблокирующей загрузки
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      (window as any).requestIdleCallback(() => {
+        loadModule(initialLanguage, 'profile').then((profileData) => {
+          if (Object.keys(profileData).length > 0) {
+            i18n.addResourceBundle(initialLanguage, 'translation', profileData, true, true);
+          }
+        }).catch(() => {});
+      }, { timeout: 2000 });
+    } else {
+      // Fallback для браузеров без requestIdleCallback
+      setTimeout(() => {
+        loadModule(initialLanguage, 'profile').then((profileData) => {
+          if (Object.keys(profileData).length > 0) {
+            i18n.addResourceBundle(initialLanguage, 'translation', profileData, true, true);
+          }
+        }).catch(() => {});
+      }, 100);
     }
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {

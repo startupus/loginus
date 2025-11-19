@@ -40,19 +40,23 @@ const PersonalPage: React.FC = () => {
   const [selectedDocumentType, setSelectedDocumentType] = useState<DocumentType | undefined>();
   const [selectedAddressType, setSelectedAddressType] = useState<AddressType | undefined>();
 
+  // Оптимизация: используем placeholderData для мгновенного отображения контента
   const { data: documentsData, isLoading: isDocsLoading } = useQuery({
     queryKey: ['personal-documents'],
     queryFn: () => personalApi.getDocuments(),
+    placeholderData: (previousData) => previousData,
   });
 
   const { data: addressesData, isLoading: isAddrLoading } = useQuery({
     queryKey: ['personal-addresses'],
     queryFn: () => personalApi.getAddresses(),
+    placeholderData: (previousData) => previousData,
   });
 
    const { data: petsData, isLoading: isPetsLoading } = useQuery({
     queryKey: ['personal-pets'],
     queryFn: () => personalApi.getPets(),
+    placeholderData: (previousData) => previousData,
   });
 
   const refreshData = () => {
@@ -83,7 +87,8 @@ const PersonalPage: React.FC = () => {
     }
   };
 
-  const isLoading = isDocsLoading || isAddrLoading || isPetsLoading;
+  // Показываем loading только если нет данных вообще (первая загрузка)
+  const isLoading = (isDocsLoading && !documentsData) || (isAddrLoading && !addressesData) || (isPetsLoading && !petsData);
 
   if (isLoading) {
     return (

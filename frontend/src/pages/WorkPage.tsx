@@ -33,12 +33,14 @@ const WorkPage: React.FC = () => {
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<{ id: string; name: string } | null>(null);
 
+  // Оптимизация: используем placeholderData для мгновенного отображения контента
   const { data, isLoading, error } = useQuery({
     queryKey: ['work-groups'],
     queryFn: async () => {
       const response = await profileApi.getDashboard();
       return response.data;
     },
+    placeholderData: (previousData) => previousData,
   });
 
   // Синхронизируем данные пользователя из API с authStore
@@ -67,7 +69,10 @@ const WorkPage: React.FC = () => {
     await workApi.inviteMember(selectedGroup.id, { email, role });
   };
 
-  if (isLoading) {
+  // Показываем skeleton только при первой загрузке без данных
+  const showSkeleton = isLoading && !data;
+  
+  if (showSkeleton) {
     return (
       <PageTemplate title={t('sidebar.work', 'Работа')} showSidebar={true}>
         <div className="space-y-6">

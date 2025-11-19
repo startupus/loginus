@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { type SidebarItem, Sidebar } from '../Sidebar';
-import { Footer } from '../Footer';
+// Lazy load Sidebar - не критичен для первого рендера (оптимизация первой загрузки)
+const Sidebar = lazy(() => import('../Sidebar').then(m => ({ default: m.Sidebar })));
+import type { SidebarItem } from '../Sidebar/Sidebar';
+// Lazy load Footer - не критичен для первой загрузки (оптимизация производительности)
+const Footer = lazy(() => import('../Footer').then(m => ({ default: m.Footer })));
 import { Header } from '../Header';
 import { useAuthStore } from '@/store';
 import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';
@@ -129,10 +132,23 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
   return (
     <section className="bg-[#f7f8fa] dark:bg-dark relative flex min-h-screen w-full items-start">
       {shouldShowSidebar && finalSidebarItems && (
-        <Sidebar 
-          items={finalSidebarItems}
-          onNavigate={(path) => navigate(path)}
-        />
+        <Suspense fallback={
+          <div className="hidden xl:block fixed left-0 top-0 h-full w-[300px] bg-white dark:bg-dark-2 border-r border-stroke dark:border-dark-3 animate-pulse">
+            <div className="p-6">
+              <div className="h-8 bg-gray-2 dark:bg-gray-3 rounded w-32 mb-8"></div>
+              <div className="space-y-2">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="h-10 bg-gray-2 dark:bg-gray-3 rounded"></div>
+                ))}
+              </div>
+            </div>
+          </div>
+        }>
+          <Sidebar 
+            items={finalSidebarItems}
+            onNavigate={(path) => navigate(path)}
+          />
+        </Suspense>
       )}
 
       <div className={`w-full flex flex-col min-h-screen ${shouldShowSidebar ? 'xl:pl-[300px]' : 'pl-0'}`}>
@@ -153,7 +169,9 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
         
         {showFooter && (
           <div className="flex-shrink-0">
-            <Footer />
+            <Suspense fallback={null}>
+              <Footer />
+            </Suspense>
           </div>
         )}
       </div>

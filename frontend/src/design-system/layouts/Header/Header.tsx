@@ -1,11 +1,12 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, Suspense, lazy } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 // Прямые импорты для tree-shaking
 import { Icon } from '../../primitives/Icon';
 import { Input } from '../../primitives/Input';
 import { ProfileMenu } from './ProfileMenu';
-import { ProfilePopup } from '../../composites/ProfilePopup';
+// Lazy load ProfilePopup - загружается только при открытии (оптимизация первой загрузки)
+const ProfilePopup = lazy(() => import('../../composites/ProfilePopup').then(m => ({ default: m.ProfilePopup })));
 import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';
 import { useAuthStore } from '@/store';
 
@@ -138,26 +139,28 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Profile Popup */}
-      {userData && (
-        <ProfilePopup
-          isOpen={isProfilePopupOpen}
-          onClose={() => setIsProfilePopupOpen(false)}
-          user={{
-            id: userData.id,
-            name: userData.name,
-            phone: userData.phone || '',
-            email: userData.email,
-            login: userData.login,
-            avatar: userData.avatar,
-            unreadMail: userData.unreadMail,
-            plusActive: userData.plusActive,
-            plusPoints: userData.plusPoints,
-          }}
-          onSwitchAccount={handleLogout}
-          onEdit={handleEdit}
-          anchorRef={avatarButtonRef}
-        />
+      {/* Profile Popup - lazy loaded для оптимизации первой загрузки */}
+      {userData && isProfilePopupOpen && (
+        <Suspense fallback={null}>
+          <ProfilePopup
+            isOpen={isProfilePopupOpen}
+            onClose={() => setIsProfilePopupOpen(false)}
+            user={{
+              id: userData.id,
+              name: userData.name,
+              phone: userData.phone || '',
+              email: userData.email,
+              login: userData.login,
+              avatar: userData.avatar,
+              unreadMail: userData.unreadMail,
+              plusActive: userData.plusActive,
+              plusPoints: userData.plusPoints,
+            }}
+            onSwitchAccount={handleLogout}
+            onEdit={handleEdit}
+            anchorRef={avatarButtonRef}
+          />
+        </Suspense>
       )}
     </header>
   );
