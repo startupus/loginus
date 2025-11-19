@@ -64,13 +64,15 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       : 'border-stroke dark:border-dark-3'; // Из DefaultInput.jsx
     
     // Классы фона и текста (из TailGrids)
-    const bgClasses = 'bg-transparent text-dark-6';
+    // text-dark для введенного значения, placeholder будет серым автоматически
+    const bgClasses = 'bg-transparent text-dark dark:text-white placeholder:text-body-color placeholder:dark:text-dark-6';
     
     // Disabled классы для темной темы (из TailGrids)
     const disabledDarkClasses = 'dark:disabled:border-dark-4 dark:disabled:bg-dark-4';
     
     // Если есть иконки - добавить padding
-    const paddingClasses = leftIcon ? 'pl-12' : rightIcon ? 'pr-12' : '';
+    // Для leftIcon с +7 нужен отступ, но не слишком большой
+    const paddingClasses = leftIcon ? 'pl-16' : rightIcon ? 'pr-12' : '';
 
     const inputClassName = `${baseInputClasses} ${borderClasses} ${bgClasses} ${disabledDarkClasses} ${paddingClasses} ${className}`.trim();
     

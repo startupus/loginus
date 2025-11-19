@@ -1,10 +1,12 @@
 import { useMutation } from '@tanstack/react-query';
 import { authApi } from '@/services/api';
-import { useAuthStore } from '@/store';
+import { useAuthStore, useLanguageStore } from '@/store';
 import { useNavigate } from 'react-router-dom';
+import { buildPathWithLang } from '@/utils/routing';
 
 export const useLogin = () => {
   const { login } = useAuthStore();
+  const { language } = useLanguageStore();
   const navigate = useNavigate();
 
   return useMutation({
@@ -13,7 +15,8 @@ export const useLogin = () => {
     onSuccess: (response) => {
       const { user, tokens } = response.data.data;
       login(user, tokens.accessToken, tokens.refreshToken);
-      navigate('/');
+      const currentLang = language || 'ru';
+      navigate(buildPathWithLang('/dashboard', currentLang));
     },
   });
 };

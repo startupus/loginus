@@ -15,7 +15,9 @@
     "next": "Next",
     "previous": "Previous",
     "submit": "Submit",
-    "search": "Search"
+    "search": "Search",
+    "noData": "No data",
+    "retry": "Try again"
   },
   "auth": {
     "loginTitle": "Login to Loginus ID",
@@ -38,7 +40,72 @@
     "confirmPassword": "Confirm Password",
     "savePassword": "Save Password",
     "passwordMismatch": "Passwords do not match",
-    "passwordTooShort": "Password must be at least 8 characters"
+    "passwordTooShort": "Password must be at least 8 characters",
+    "title": "Enter",
+    "titleField": "phone or email",
+    "subtitle": "Enter phone or email to login or register",
+    "phoneOrEmail": "Phone or email",
+    "continue": "Continue",
+    "biometric": "Face or fingerprint",
+    "qrCode": "QR code",
+    "footer": {
+      "text": "By clicking \"Continue\", you accept",
+      "terms": "terms of service",
+      "privacy": "privacy policy",
+      "and": "and",
+      "dataTransfer": "Data transfer"
+    },
+    "errors": {
+      "invalidInput": "Enter a valid phone or email",
+      "genericError": "An error occurred. Please try again.",
+      "timeout": "Request timeout. Please check your internet connection.",
+      "networkError": "Network error. Please check your internet connection.",
+      "sessionNotFound": "Session not found",
+      "sessionNotFoundOrExpired": "Session not found or expired",
+      "invalidCode": "Incorrect code, please try again",
+      "codeExpired": "Code expired. Request a new one",
+      "resendFailed": "Failed to send code. Please try again."
+    },
+    "verifyCode": {
+      "title": "Enter",
+      "titleField": "verification code",
+      "description": "We sent a 6-digit verification code",
+      "subtitle": "to",
+      "hint": "Enter the code from the SMS message",
+      "resendTimer": "Code can be resent in",
+      "resendButton": "Didn't receive the code? Resend"
+    },
+    "register": {
+      "title": "Creating your account",
+      "subtitle": "No account found with this number. We will create a new account automatically.",
+      "createAccount": "Create account"
+    }
+  },
+  "onboarding": {
+    "step1": {
+      "title": "What's your name?",
+      "subtitle": "Enter your first and last name",
+      "firstName": "First name",
+      "lastName": "Last name"
+    },
+    "step2": {
+      "title": "Create password",
+      "subtitle": "Password is needed for additional security. You can skip and create it later.",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "passwordHint": "Minimum 8 characters",
+      "skipPassword": "Skip, create later"
+    },
+    "step3": {
+      "title": "Almost done!",
+      "subtitle": "Just need to accept terms of use",
+      "acceptTerms": "I accept",
+      "userAgreement": "terms of service",
+      "and": "and",
+      "privacyPolicy": "privacy policy",
+      "acceptNewsletter": "I want to receive news and offers"
+    },
+    "finish": "Finish"
   },
   "about": {
     "title": "Loginus ID",
@@ -131,7 +198,11 @@
     "401Description": "You need to login to access this page",
     "goHome": "Go to Home",
     "reload": "Reload Page",
-    "tryAgain": "Try Again"
+    "tryAgain": "Try Again",
+    "somethingWentWrong": "Something went wrong",
+    "unexpectedError": "An unexpected error occurred",
+    "reloadPage": "Reload page",
+    "helpText": "If the problem persists, please contact support"
   },
   "dashboard": {
     "title": "Home",
@@ -139,7 +210,26 @@
     "recentActivity": "Recent Activity",
     "activeDevices": "Active Devices",
     "documentsCount": "Documents",
-    "connectedApps": "Connected Apps"
+    "connectedApps": "Connected Apps",
+    "mergeAccounts": "Merge accounts",
+    "family": {
+      "title": "Family",
+      "description": "Manage family members",
+      "add": "Add",
+      "member": "Family member"
+    },
+    "mail": {
+      "title": "Mail",
+      "noUnread": "No unread",
+      "unreadOne": "unread letter",
+      "unreadFew": "unread letters",
+      "unreadMany": "unread letters"
+    },
+    "pay": {
+      "title": "Yandex Pay",
+      "openCard": "Open Pay card",
+      "spendUpTo": "Spend up to"
+    }
   },
   "personalData": {
     "title": "Personal Data",
@@ -263,5 +353,79 @@
     "dark": "Dark",
     "system": "Auto",
     "current": "Current theme"
+  },
+  "landing": {
+    "hero": {
+      "badge": "New",
+      "badgeText": "Two-factor authentication",
+      "title": "Unified account",
+      "titleHighlight": "Loginus ID",
+      "description": "Fast and secure authentication for all your services. Manage data, payments and family access in one place.",
+      "ctaLogin": "Login with Loginus ID",
+      "ctaLearnMore": "Learn more",
+      "trustSafe": "Secure",
+      "trustFast": "Fast",
+      "trustConvenient": "Convenient"
+    },
+    "services": {
+      "security": {
+        "title": "Security",
+        "description": "2FA protection"
+      },
+      "fastLogin": {
+        "title": "Quick login",
+        "description": "1 click - and you're in"
+      },
+      "everywhere": {
+        "title": "Everywhere with you",
+        "description": "Web, iOS, Android"
+      },
+      "unifiedProfile": {
+        "title": "Unified profile",
+        "description": "All in one place"
+      }
+    },
+    "features": {
+      "title": "Loginus ID Features",
+      "subtitle": "Unified account for managing all your data and services",
+      "personalData": {
+        "title": "Personal data",
+        "description": "Documents, addresses, contacts - everything at hand"
+      },
+      "payments": {
+        "title": "Payments",
+        "description": "Secure storage and fast payment"
+      },
+      "family": {
+        "title": "Family access",
+        "description": "Share subscriptions with loved ones"
+      },
+      "security": {
+        "title": "Security",
+        "description": "Session and access control"
+      }
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "q1": "How to create an account?",
+      "a1": "On first login, the system will automatically create an account. Just enter your phone or email.",
+      "q2": "Is data secure?",
+      "a2": "We use modern encryption and two-factor authentication for protection.",
+      "q3": "How does family access work?",
+      "a3": "Create a family group, invite members and share subscriptions.",
+      "q4": "How to recover access?",
+      "a4": "Use the recovery form via email or phone at any time."
+    },
+    "footer": {
+      "copyright": "© {{year}} Loginus ID. All rights reserved.",
+      "about": "About",
+      "privacy": "Privacy",
+      "terms": "Terms"
+    },
+    "nav": {
+      "about": "About Loginus ID",
+      "features": "Features",
+      "faq": "FAQ"
+    }
   }
 }

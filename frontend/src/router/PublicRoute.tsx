@@ -9,7 +9,7 @@ export const PublicRoute: React.FC<PublicRouteProps> = ({ children }) => {
   const { isAuthenticated } = useAuthStore();
 
   if (isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/ru/dashboard" replace />;
   }
 
   return <>{children}</>;

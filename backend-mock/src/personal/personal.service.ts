@@ -23,9 +23,43 @@ export class PersonalService {
 
   // Documents
   getDocuments() {
+    // Возвращаем мок данные из profile.json для соответствия структуре
     return {
       success: true,
-      data: this.documents,
+      data: {
+        documents: [
+          {
+            type: 'passport',
+            label: 'Паспорт',
+            icon: 'document',
+            added: false,
+          },
+          {
+            type: 'foreign-passport',
+            label: 'Загранпаспорт',
+            icon: 'document',
+            added: false,
+          },
+          {
+            type: 'driver-license',
+            label: 'ВУ',
+            icon: 'car',
+            added: false,
+          },
+          {
+            type: 'oms',
+            label: 'ОМС',
+            icon: 'medical',
+            added: false,
+          },
+          {
+            type: 'snils',
+            label: 'СНИЛС',
+            icon: 'document',
+            added: false,
+          },
+        ],
+      },
     };
   }
 
@@ -84,9 +118,31 @@ export class PersonalService {
 
   // Addresses
   getAddresses() {
+    // Возвращаем мок данные из profile.json для соответствия структуре
     return {
       success: true,
-      data: this.addresses,
+      data: {
+        addresses: [
+          {
+            type: 'home',
+            label: 'Дом',
+            icon: 'home',
+            added: false,
+          },
+          {
+            type: 'work',
+            label: 'Работа',
+            icon: 'briefcase',
+            added: false,
+          },
+          {
+            type: 'other',
+            label: 'Другие',
+            icon: 'map-pin',
+            added: false,
+          },
+        ],
+      },
     };
   }
 

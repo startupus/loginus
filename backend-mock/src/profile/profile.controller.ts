@@ -24,5 +24,10 @@ export class ProfileController {
   getSessions() {
     return this.profileService.getSessions();
   }
+
+  @Get('dashboard')
+  getDashboard() {
+    return this.profileService.getDashboard();
+  }
 }
 

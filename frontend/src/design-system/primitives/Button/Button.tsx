@@ -70,8 +70,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const variantStyles = {
       // Primary с градиентом или без
       primary: gradient 
-        ? 'border-0 bg-gradient-to-r from-primary via-blue-600 to-primary bg-size-200 bg-pos-0 hover:bg-pos-100 text-white shadow-lg hover:shadow-xl'
-        : 'border-primary bg-primary text-white hover:bg-[#1B44C8] hover:border-[#1B44C8] shadow-lg hover:shadow-xl',
+        ? 'border-0 bg-gradient-to-r from-[#3758F9] via-blue-600 to-[#3758F9] bg-size-200 bg-pos-0 hover:bg-pos-100 text-white shadow-lg hover:shadow-xl'
+        : 'border-[#3758F9] bg-[#3758F9] text-white hover:bg-[#1B44C8] hover:border-[#1B44C8] shadow-lg hover:shadow-xl',
       
       // Secondary из TailGrids
       secondary: 'border-secondary bg-secondary text-white hover:bg-[#0BB489] hover:border-[#0BB489]',

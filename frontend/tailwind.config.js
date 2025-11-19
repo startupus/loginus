@@ -6,6 +6,7 @@ export default {
     extend: {
       colors: {
         primary: {
+          DEFAULT: '#3758F9', // Основной цвет TailGrids
           50: '#f0f9ff',
           100: '#e0f2fe',
           200: '#bae6fd',
@@ -19,6 +20,7 @@ export default {
           950: '#082f49',
         },
         secondary: {
+          DEFAULT: '#13C296', // Основной цвет TailGrids (зеленый)
           50: '#f8fafc',
           100: '#f1f5f9',
           200: '#e2e8f0',
@@ -32,6 +34,19 @@ export default {
           950: '#020617',
         },
         success: {
+          50: '#f0fdf4',
+          100: '#dcfce7',
+          200: '#bbf7d0',
+          300: '#86efac',
+          400: '#4ade80',
+          500: '#22c55e',
+          600: '#16a34a',
+          700: '#15803d',
+          800: '#166534',
+          900: '#14532d',
+        },
+        green: {
+          DEFAULT: '#22c55e', // Основной зеленый цвет (success-500)
           50: '#f0fdf4',
           100: '#dcfce7',
           200: '#bbf7d0',

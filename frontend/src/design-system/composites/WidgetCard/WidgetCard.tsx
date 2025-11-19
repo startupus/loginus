@@ -56,7 +56,8 @@ export const WidgetCard: React.FC<WidgetCardProps> = ({
   className = '',
 }) => {
   // Базовые классы из TailGrids Card1.jsx SingleCard - ТОЧНЫЕ из исходника
-  const baseClasses = 'overflow-hidden rounded-lg shadow-1 duration-300 hover:shadow-3 dark:shadow-card dark:hover:shadow-3';
+  // Добавлены анимации из mega шаблона: hover:-translate-y-1 для поднятия карточки
+  const baseClasses = 'overflow-hidden rounded-lg shadow-1 duration-300 hover:shadow-3 hover:-translate-y-1 dark:shadow-card dark:hover:shadow-3 transition-all';
   
   // Варианты фона из TailGrids
   const variantClasses = {
@@ -81,7 +82,7 @@ export const WidgetCard: React.FC<WidgetCardProps> = ({
   return (
     <Component
       onClick={onClick}
-      className={combinedClassName}
+      className={`group ${combinedClassName}`}
     >
       <div className={paddingClasses[variant]}>
         {/* Header с иконкой, заголовком и действиями */}
@@ -89,7 +90,7 @@ export const WidgetCard: React.FC<WidgetCardProps> = ({
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               {icon && (
-                <div className="flex-shrink-0">
+                <div className="flex-shrink-0 transition-transform duration-300 group-hover:scale-110">
                   {icon}
                 </div>
               )}

@@ -28,5 +28,41 @@ export class AuthController {
   logout() {
     return this.authService.logout();
   }
+
+  @Post('check')
+  @HttpCode(HttpStatus.OK)
+  checkAccount(@Body() checkDto: { contact: string; type: 'phone' | 'email' }) {
+    return this.authService.checkAccount(checkDto.contact, checkDto.type);
+  }
+
+  @Post('check-and-send-code')
+  @HttpCode(HttpStatus.OK)
+  checkAndSendCode(@Body() dto: { contact: string; type: 'phone' | 'email'; method?: 'sms' | 'call' | 'telegram' }) {
+    return this.authService.checkAndSendCode(dto.contact, dto.type, dto.method);
+  }
+
+  @Post('send-code')
+  @HttpCode(HttpStatus.OK)
+  sendCode(@Body() sendCodeDto: { contact: string; type: 'phone' | 'email'; method: 'sms' | 'call' | 'telegram'; sessionId?: string }) {
+    return this.authService.sendCode(sendCodeDto.contact, sendCodeDto.type, sendCodeDto.method);
+  }
+
+  @Post('verify-code')
+  @HttpCode(HttpStatus.OK)
+  verifyCode(@Body() verifyCodeDto: { sessionId: string; code: string }) {
+    return this.authService.verifyCode(verifyCodeDto.sessionId, verifyCodeDto.code);
+  }
+
+  @Post('webauthn/challenge')
+  @HttpCode(HttpStatus.OK)
+  webauthnChallenge(@Body() challengeDto?: { userId?: string }) {
+    return this.authService.webauthnChallenge(challengeDto?.userId);
+  }
+
+  @Post('webauthn/verify')
+  @HttpCode(HttpStatus.OK)
+  webauthnVerify(@Body() verifyDto: { credential: any; challenge: string }) {
+    return this.authService.webauthnVerify(verifyDto.credential, verifyDto.challenge);
+  }
 }
 

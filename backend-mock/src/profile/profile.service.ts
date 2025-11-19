@@ -1,24 +1,30 @@
 import { Injectable } from '@nestjs/common';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class ProfileService {
+  private getProfileData() {
+    const profilePath = path.join(__dirname, '../../data/profile.json');
+    const profileData = fs.readFileSync(profilePath, 'utf-8');
+    return JSON.parse(profileData);
+  }
+
   getProfile() {
+    const profileData = this.getProfileData();
+    return {
+      success: true,
+      data: profileData.user,
+    };
+  }
+
+  getDashboard() {
+    const profileData = this.getProfileData();
     return {
       success: true,
       data: {
-        id: '1',
-        firstName: 'Дмитрий',
-        lastName: 'Лукьян',
-        displayName: 'Дмитрий Лукьян',
-        email: 'lukyan.dmitriy@ya.ru',
-        phone: '+79091503444',
-        birthDate: null,
-        gender: 'male',
-        city: null,
-        timezone: 'Europe/Moscow',
-        avatar: null,
-        createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-15T12:00:00Z',
+        user: profileData.user,
+        dashboard: profileData.dashboard,
       },
     };
   }

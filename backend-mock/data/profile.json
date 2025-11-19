@@ -1,0 +1,119 @@
+{
+  "user": {
+    "id": "1",
+    "name": "Дмитрий Лукьян",
+    "phone": "+7 905 730-81-81",
+    "email": "dmitriy-ldm@ya.ru",
+    "login": "dmitriy-ldm",
+    "avatar": null,
+    "birthday": "03.02.1983",
+    "displayName": "Дмитрий Лукьян"
+  },
+  "dashboard": {
+    "unreadMail": 1420,
+    "plusActive": true,
+    "plusPoints": 0,
+    "plusTasks": 12,
+    "payBalance": 90,
+    "payLimit": 120000,
+    "documents": [
+      {
+        "type": "passport",
+        "label": "Паспорт",
+        "icon": "document",
+        "added": false
+      },
+      {
+        "type": "foreign-passport",
+        "label": "Загранпаспорт",
+        "icon": "document",
+        "added": false
+      },
+      {
+        "type": "driver-license",
+        "label": "ВУ",
+        "icon": "car",
+        "added": false
+      },
+      {
+        "type": "oms",
+        "label": "ОМС",
+        "icon": "medical",
+        "added": false
+      },
+      {
+        "type": "snils",
+        "label": "СНИЛС",
+        "icon": "document",
+        "added": false
+      }
+    ],
+    "addresses": [
+      {
+        "type": "home",
+        "label": "Дом",
+        "icon": "home",
+        "added": false
+      },
+      {
+        "type": "work",
+        "label": "Работа",
+        "icon": "briefcase",
+        "added": false
+      },
+      {
+        "type": "other",
+        "label": "Другие",
+        "icon": "map-pin",
+        "added": false
+      }
+    ],
+    "family": [
+      {
+        "id": "1",
+        "name": "Дмитрий Лукьян",
+        "avatar": null,
+        "role": "owner"
+      },
+      {
+        "id": "2",
+        "name": "Артемий Л.",
+        "avatar": null,
+        "role": "member"
+      },
+      {
+        "id": "3",
+        "name": "Оксана Л.",
+        "avatar": null,
+        "role": "member"
+      },
+      {
+        "id": "4",
+        "name": "Настя Лукьян",
+        "avatar": null,
+        "role": "member"
+      },
+      {
+        "id": "5",
+        "name": "Аня",
+        "avatar": null,
+        "role": "member"
+      }
+    ],
+    "subscriptions": [
+      {
+        "id": "1",
+        "name": "Яндекс 360",
+        "icon": "cloud",
+        "active": true
+      },
+      {
+        "id": "2",
+        "name": "Помощь рядом",
+        "icon": "heart",
+        "active": true
+      }
+    ]
+  }
+}
+

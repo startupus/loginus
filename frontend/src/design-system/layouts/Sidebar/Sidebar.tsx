@@ -1,9 +1,10 @@
 import React from 'react';
+import { Icon } from '../../primitives/Icon';
 
 export interface SidebarItem {
   label: string;
   path: string;
-  icon?: React.ReactNode;
+  icon?: string;
   active?: boolean;
 }
 
@@ -24,6 +25,10 @@ export interface SidebarProps {
   className?: string;
 }
 
+/**
+ * Sidebar - боковое меню в стилях дизайн-системы
+ * Адаптивный дизайн для мобильных и десктопных устройств
+ */
 export const Sidebar: React.FC<SidebarProps> = ({
   items,
   onNavigate,
@@ -31,10 +36,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   return (
     <aside
-      className={`w-64 bg-white dark:bg-dark-2 border-r border-secondary-200 dark:border-dark-3 min-h-[calc(100vh-64px)] ${className}`}
+      className={`hidden lg:block w-64 bg-white dark:bg-dark-2 border-r border-gray-2 dark:border-dark-3 min-h-[calc(100vh-64px)] sticky top-16 ${className}`}
     >
       <nav className="p-4 space-y-1">
-        {items.map(item => (
+        {items.map((item) => (
           <button
             key={item.path}
             onClick={() => onNavigate?.(item.path)}
@@ -42,17 +47,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
               w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-left
               ${
                 item.active
-                  ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 font-medium'
-                  : 'text-secondary-600 dark:text-dark-6 hover:bg-secondary-50 dark:hover:bg-dark-3 hover:text-secondary-900 dark:hover:text-white'
+                  ? 'bg-primary/10 text-primary dark:text-primary-400 font-medium'
+                  : 'text-body-color dark:text-dark-6 hover:bg-gray-1 dark:hover:bg-dark-3 hover:text-dark dark:hover:text-white'
               }
             `}
           >
-            {item.icon && <span className="inline-flex">{item.icon}</span>}
-            <span>{item.label}</span>
+            {item.icon && (
+              <Icon 
+                name={item.icon} 
+                size="sm" 
+                className={item.active ? 'text-primary' : ''}
+              />
+            )}
+            <span className="text-sm font-medium">{item.label}</span>
           </button>
         ))}
       </nav>
     </aside>
   );
 };
-

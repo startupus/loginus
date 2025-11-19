@@ -1,9 +1,23 @@
 import { apiClient } from './client';
 
 export const profileApi = {
+  /**
+   * Получить профиль пользователя
+   */
   getProfile: () => apiClient.get('/profile'),
-  updateProfile: (data: any) => apiClient.put('/profile', data),
-  getSecuritySettings: () => apiClient.get('/profile/security'),
-  getSessions: () => apiClient.get('/profile/sessions'),
+  
+  /**
+   * Получить данные дашборда
+   */
+  getDashboard: () => apiClient.get('/profile/dashboard'),
+  
+  /**
+   * Обновить профиль
+   */
+  updateProfile: (data: Partial<{
+    firstName: string;
+    lastName: string;
+    displayName: string;
+    birthday: string;
+  }>) => apiClient.patch('/profile', data),
 };
-

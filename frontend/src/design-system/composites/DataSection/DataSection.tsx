@@ -1,4 +1,5 @@
 import React from 'react';
+import { useCurrentLanguage, buildPathWithLang } from '../../../utils/routing';
 import { Icon } from '../../primitives';
 
 export interface DataSectionProps {
@@ -23,9 +24,9 @@ export interface DataSectionProps {
   children: React.ReactNode;
   
   /**
-   * Ссылка "Все [тип]"
+   * Ссылка "Все [тип]" (может быть строкой для обратной совместимости или объектом)
    */
-  viewAllLink?: {
+  viewAllLink?: string | {
     label: string;
     href: string;
     icon?: string;
@@ -58,6 +59,16 @@ export const DataSection: React.FC<DataSectionProps> = ({
   viewAllLink,
   className = '',
 }) => {
+  const currentLang = useCurrentLanguage() || 'ru';
+  
+  // Формируем полный URL с языком для открытия в новой вкладке
+  const getFullUrl = (href: string) => {
+    if (href.startsWith('http://') || href.startsWith('https://')) {
+      return href;
+    }
+    return buildPathWithLang(href, currentLang);
+  };
+
   return (
     <section id={id} className={`space-y-4 ${className}`.trim()}>
       {/* Header */}
@@ -89,11 +100,13 @@ export const DataSection: React.FC<DataSectionProps> = ({
       {/* View All Link */}
       {viewAllLink && (
         <a
-          href={viewAllLink.href}
-          className="inline-flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
+          href={getFullUrl(typeof viewAllLink === 'string' ? viewAllLink : viewAllLink.href)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-300 transition-colors"
         >
-          {viewAllLink.icon && <Icon name={viewAllLink.icon} size="sm" />}
-          <span>{viewAllLink.label}</span>
+          {typeof viewAllLink === 'object' && viewAllLink.icon && <Icon name={viewAllLink.icon} size="sm" />}
+          <span>{typeof viewAllLink === 'string' ? 'Все' : viewAllLink.label}</span>
           <Icon name="chevron-right" size="sm" />
         </a>
       )}
