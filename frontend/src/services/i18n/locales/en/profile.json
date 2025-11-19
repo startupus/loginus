@@ -214,6 +214,13 @@
   "switchAccount": "Switch account",
   "edit": "Edit",
   "editAvatar": "Update avatar",
-  "editAvatarDescription": "Upload or create"
+  "editAvatarDescription": "Upload or create",
+  "selectOrganization": "Select organization",
+  "mailUnreadCount": {
+    "none": "no unread messages",
+    "one": "{{count}} unread message",
+    "some": "{{count}} unread messages",
+    "many": "{{count}} unread messages"
+  }
 }
 

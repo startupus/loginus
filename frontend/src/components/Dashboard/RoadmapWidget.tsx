@@ -89,13 +89,13 @@ export const RoadmapWidget: React.FC<RoadmapWidgetProps> = ({
       actions={
         <button
           onClick={handleViewFull}
-          className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors duration-200 group"
+          className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-gray-1 dark:hover:bg-gray-2 transition-colors duration-200 group"
           aria-label={t('dashboard.roadmap.viewFull', 'Полная версия')}
         >
-          <span className="text-sm text-body-color dark:text-dark-6 group-hover:text-primary dark:group-hover:text-primary transition-colors duration-200">
+          <span className="text-sm text-text-secondary group-hover:text-primary transition-colors duration-200">
             {t('dashboard.roadmap.viewFull', 'Все данные')}
           </span>
-          <Icon name="arrow-right" size="sm" className="text-body-color dark:text-dark-6 group-hover:text-primary dark:group-hover:text-primary group-hover:translate-x-1 transition-all duration-200" />
+          <Icon name="arrow-right" size="sm" className="text-text-secondary group-hover:text-primary group-hover:translate-x-1 transition-all duration-200" />
         </button>
       }
     >
@@ -104,7 +104,7 @@ export const RoadmapWidget: React.FC<RoadmapWidgetProps> = ({
           {displayedSteps.map((step, index) => (
             <div
               key={step.id}
-              className="flex items-center gap-2 p-2 rounded-lg bg-gray-1 dark:bg-dark-3 hover:bg-gray-2 dark:hover:bg-dark-4 transition-all duration-200 group"
+              className="flex items-center gap-2 p-2 rounded-lg bg-gray-1 dark:bg-gray-2 hover:bg-gray-2 dark:hover:bg-gray-3 transition-all duration-200 group"
             >
               {/* Иконка */}
               <div className={`flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center bg-primary/10 dark:bg-primary/20 ${getPriorityColor(step.priority)}`}>
@@ -117,11 +117,11 @@ export const RoadmapWidget: React.FC<RoadmapWidgetProps> = ({
               
               {/* Контент */}
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-dark dark:text-white group-hover:text-primary dark:group-hover:text-primary transition-colors line-clamp-1">
+                <p className="text-xs font-medium text-text-primary group-hover:text-primary transition-colors line-clamp-1">
                   {step.title}
                 </p>
                 {step.courseTitle && (
-                  <p className="text-[10px] text-body-color dark:text-dark-6 mt-0.5 line-clamp-1">
+                  <p className="text-[10px] text-text-secondary mt-0.5 line-clamp-1">
                     {step.courseTitle}
                   </p>
                 )}
@@ -129,7 +129,7 @@ export const RoadmapWidget: React.FC<RoadmapWidgetProps> = ({
               
               {/* Дата */}
               {step.date && (
-                <div className="flex-shrink-0 text-[10px] text-body-color dark:text-dark-6">
+                <div className="flex-shrink-0 text-[10px] text-text-secondary">
                   {new Date(step.date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}
                 </div>
               )}
@@ -138,20 +138,20 @@ export const RoadmapWidget: React.FC<RoadmapWidgetProps> = ({
               {step.completed ? (
                 <Icon name="check" size="xs" className="text-success flex-shrink-0" />
               ) : (
-                <div className="w-1.5 h-1.5 rounded-full bg-body-color dark:bg-dark-6 flex-shrink-0"></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-text-secondary flex-shrink-0"></div>
               )}
             </div>
           ))}
         </div>
       ) : (
         <div className="text-center py-8">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-1 dark:bg-dark-3 flex items-center justify-center">
-            <Icon name="flag" size="lg" className="text-body-color dark:text-dark-6" />
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-1 dark:bg-gray-2 flex items-center justify-center">
+            <Icon name="flag" size="lg" className="text-text-secondary" />
           </div>
-          <p className="text-sm text-body-color dark:text-dark-6 mb-2">
+          <p className="text-sm text-text-secondary mb-2">
             {t('dashboard.roadmap.empty', 'Все шаги выполнены!')}
           </p>
-          <p className="text-xs text-body-color dark:text-dark-6">
+          <p className="text-xs text-text-secondary">
             {t('dashboard.roadmap.emptyDescription', 'Отличная работа!')}
           </p>
         </div>

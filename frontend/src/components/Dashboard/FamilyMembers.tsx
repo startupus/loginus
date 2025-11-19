@@ -73,7 +73,7 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
       action={
         <button
           onClick={handleViewAll}
-          className="text-sm text-body-color dark:text-dark-6 hover:text-primary dark:hover:text-primary transition-colors duration-200 flex items-center gap-1"
+          className="text-sm text-text-secondary hover:text-primary transition-colors duration-200 flex items-center gap-1"
         >
           <span>{t('dashboard.family.manage', 'Управление')}</span>
           <Icon name="arrow-right" size="sm" />
@@ -85,10 +85,10 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
         {canScrollLeft && (
           <button
             onClick={() => scroll('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white dark:bg-dark-2 shadow-lg border border-gray-2 dark:border-dark-3 flex items-center justify-center hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-background dark:bg-surface shadow-lg border border-border flex items-center justify-center hover:bg-gray-1 dark:hover:bg-gray-2 transition-colors"
             aria-label={t('common.scrollLeft', 'Прокрутить влево')}
           >
-            <Icon name="chevron-left" size="sm" className="text-body-color dark:text-dark-6" />
+            <Icon name="chevron-left" size="sm" className="text-text-secondary" />
           </button>
         )}
 
@@ -108,8 +108,8 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
               onClick={() => onMemberClick?.(member)}
               className={`group flex-shrink-0 flex flex-col items-center justify-center gap-3 p-4 rounded-lg border transition-all duration-200 animate-fade-in w-[140px] h-[140px] ${
                 member.role === 'owner' 
-                  ? 'bg-primary/5 dark:bg-primary/10 border-primary/30 dark:border-primary/30 hover:border-primary/50 dark:hover:border-primary/50 hover:bg-primary/10 dark:hover:bg-primary/20' 
-                  : 'bg-gray-1/50 dark:bg-dark-3/50 border-stroke dark:border-dark-3 hover:border-primary/30 dark:hover:border-primary/30 hover:bg-gray-1 dark:hover:bg-dark-3'
+                  ? 'bg-primary/5 dark:bg-primary/10 border-primary/30 hover:border-primary/50 hover:bg-primary/10 dark:hover:bg-primary/20' 
+                  : 'bg-gray-1/50 dark:bg-gray-2/50 border-border hover:border-primary/30 hover:bg-gray-1 dark:hover:bg-gray-2'
               }`}
               style={{ animationDelay: `${index * 30}ms` }}
             >
@@ -128,7 +128,7 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
               
               {/* Имя */}
               <div className="flex flex-col items-center gap-1.5 w-full min-w-0 flex-1 justify-center">
-                <p className="text-xs font-medium text-center text-dark dark:text-white group-hover:text-primary dark:group-hover:text-primary transition-colors duration-200 line-clamp-1 break-words w-full">
+                <p className="text-xs font-medium text-center text-text-primary group-hover:text-primary transition-colors duration-200 line-clamp-1 break-words w-full">
                   {member.name}
                 </p>
               </div>
@@ -155,10 +155,10 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
         {canScrollRight && (
           <button
             onClick={() => scroll('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white dark:bg-dark-2 shadow-lg border border-gray-2 dark:border-dark-3 flex items-center justify-center hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-background dark:bg-surface shadow-lg border border-border flex items-center justify-center hover:bg-gray-1 dark:hover:bg-gray-2 transition-colors"
             aria-label={t('common.scrollRight', 'Прокрутить вправо')}
           >
-            <Icon name="chevron-right" size="sm" className="text-body-color dark:text-dark-6" />
+            <Icon name="chevron-right" size="sm" className="text-text-secondary" />
           </button>
         )}
       </div>

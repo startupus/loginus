@@ -68,7 +68,7 @@ export const PlusWidget: React.FC<PlusWidgetProps> = ({
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-body-color dark:text-dark-6 mb-1">
+            <p className="text-sm text-text-secondary mb-1">
               {t('dashboard.plus.status', 'Статус')}
             </p>
             {active ? (
@@ -87,22 +87,22 @@ export const PlusWidget: React.FC<PlusWidgetProps> = ({
           <>
             <div className="flex items-center justify-between p-3 rounded-lg bg-primary/5 dark:bg-primary/10 transition-all duration-200 group-hover:bg-primary/10 dark:group-hover:bg-primary/20">
               <div>
-                <p className="text-sm text-body-color dark:text-dark-6 mb-1">
+                <p className="text-sm text-text-secondary mb-1">
                   {t('dashboard.plus.points', 'Баллы')}
                 </p>
-                <p className="text-xl font-bold text-dark dark:text-white transition-transform duration-200 group-hover:scale-105">
+                <p className="text-xl font-bold text-text-primary transition-transform duration-200 group-hover:scale-105">
                   {points.toLocaleString('ru-RU')}
                 </p>
               </div>
             </div>
             
             {tasks > 0 && (
-              <div className="flex items-center justify-between p-3 rounded-lg bg-gray-1 dark:bg-dark-3">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-gray-1 dark:bg-gray-2">
                 <div>
-                  <p className="text-sm text-body-color dark:text-dark-6 mb-1">
+                  <p className="text-sm text-text-secondary mb-1">
                     {t('dashboard.plus.tasks', 'Заданий')}
                   </p>
-                  <p className="text-lg font-semibold text-dark dark:text-white">
+                  <p className="text-lg font-semibold text-text-primary">
                     {tasks}
                   </p>
                 </div>

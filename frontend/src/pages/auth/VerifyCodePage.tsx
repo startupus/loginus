@@ -256,23 +256,23 @@ export const VerifyCodePage: React.FC = () => {
         }}
       >
         <div className="text-left">
-          <h1 className="text-3xl sm:text-4xl font-bold text-dark dark:text-white mb-1">
+          <h1 className="text-3xl sm:text-4xl font-bold text-text-primary mb-1">
             {t('auth.verifyCode.title', 'Введите')}
           </h1>
-          <h2 className="text-3xl sm:text-4xl font-bold text-dark dark:text-white mb-3">
+          <h2 className="text-3xl sm:text-4xl font-bold text-text-primary mb-3">
             {t('auth.verifyCode.titleField', 'код подтверждения')}
           </h2>
           <div className="space-y-2 mb-4">
-            <p className="text-base sm:text-lg text-body-color dark:text-dark-6">
+            <p className="text-base sm:text-lg text-text-secondary">
               {t('auth.verifyCode.description', 'Мы отправили 6-значный код подтверждения')}
             </p>
-            <div className="flex items-center gap-2 text-sm text-body-color dark:text-dark-6">
+            <div className="flex items-center gap-2 text-sm text-text-secondary">
               <Icon name="phone" size="sm" className="text-primary" />
               <span>
-                {t('auth.verifyCode.subtitle', 'на')} <span className="font-semibold text-dark dark:text-white">{masked}</span>
+                {t('auth.verifyCode.subtitle', 'на')} <span className="font-semibold text-text-primary">{masked}</span>
               </span>
             </div>
-            <p className="text-sm text-body-color dark:text-dark-6">
+            <p className="text-sm text-text-secondary">
               {t('auth.verifyCode.hint', 'Введите код из SMS сообщения')}
             </p>
           </div>

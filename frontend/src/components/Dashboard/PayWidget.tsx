@@ -64,7 +64,7 @@ export const PayWidget: React.FC<PayWidgetProps> = ({
           <div className="flex items-center gap-3">
             <Icon name="device" size="lg" className="text-primary" />
             <div>
-              <p className="text-sm text-body-color dark:text-dark-6">
+              <p className="text-sm text-text-secondary">
                 {t('dashboard.pay.openCard', 'Открыть карту Пэй')}
               </p>
             </div>
@@ -80,17 +80,17 @@ export const PayWidget: React.FC<PayWidgetProps> = ({
           </button>
         </div>
         
-        <div className="flex items-center justify-between p-4 rounded-lg bg-gray-1 dark:bg-dark-3">
+        <div className="flex items-center justify-between p-4 rounded-lg bg-gray-1 dark:bg-gray-2">
           <div>
-            <p className="text-sm text-body-color dark:text-dark-6 mb-1">
+            <p className="text-sm text-text-secondary mb-1">
               {t('dashboard.pay.spendUpTo', 'Тратьте до')}
             </p>
-            <p className="text-xl font-bold text-dark dark:text-white">
+            <p className="text-xl font-bold text-text-primary">
               {limit.toLocaleString('ru-RU')} ₽
             </p>
           </div>
           <button 
-            className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-gray-2 dark:hover:bg-dark-4 transition-colors"
+            className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-gray-2 dark:hover:bg-gray-3 transition-colors"
             onClick={(e) => {
               e.stopPropagation();
               // TODO: открыть модалку увеличения лимита

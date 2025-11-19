@@ -74,13 +74,13 @@ export const CoursesWidget: React.FC<CoursesWidgetProps> = ({
       actions={
         <button
           onClick={handleViewAll}
-          className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors duration-200 group"
+          className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-gray-1 dark:hover:bg-gray-2 transition-colors duration-200 group"
           aria-label={t('dashboard.courses.viewAll', 'Смотреть все')}
         >
-          <span className="text-sm text-body-color dark:text-dark-6 group-hover:text-primary dark:group-hover:text-primary transition-colors duration-200">
+          <span className="text-sm text-text-secondary group-hover:text-primary transition-colors duration-200">
             {t('dashboard.courses.viewAll', 'Все данные')}
           </span>
-          <Icon name="arrow-right" size="sm" className="text-body-color dark:text-dark-6 group-hover:text-primary dark:group-hover:text-primary group-hover:translate-x-1 transition-all duration-200" />
+          <Icon name="arrow-right" size="sm" className="text-text-secondary group-hover:text-primary group-hover:translate-x-1 transition-all duration-200" />
         </button>
       }
     >
@@ -89,7 +89,7 @@ export const CoursesWidget: React.FC<CoursesWidgetProps> = ({
           {displayedCourses.map((course) => (
             <button
               key={course.id}
-              className="w-full group flex items-center gap-3 p-3 rounded-lg bg-gray-1 dark:bg-dark-3 hover:bg-gray-2 dark:hover:bg-dark-4 transition-all duration-200 text-left"
+              className="w-full group flex items-center gap-3 p-3 rounded-lg bg-gray-1 dark:bg-gray-2 hover:bg-gray-2 dark:hover:bg-gray-3 transition-all duration-200 text-left"
             >
               {/* Иконка курса */}
               <div 
@@ -108,16 +108,16 @@ export const CoursesWidget: React.FC<CoursesWidgetProps> = ({
               
               {/* Название и прогресс */}
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-dark dark:text-white truncate group-hover:text-primary dark:group-hover:text-primary transition-colors">
+                <p className="text-sm font-medium text-text-primary truncate group-hover:text-primary transition-colors">
                   {course.title}
                 </p>
                 <div className="mt-1.5">
                   <div className="flex items-center justify-between gap-2 mb-1">
-                    <span className="text-xs text-body-color dark:text-dark-6">
+                    <span className="text-xs text-text-secondary">
                       {t('dashboard.courses.progress', 'Прогресс')}: {course.progress}%
                     </span>
                   </div>
-                  <div className="w-full h-1.5 bg-gray-2 dark:bg-dark-4 rounded-full overflow-hidden">
+                  <div className="w-full h-1.5 bg-gray-2 dark:bg-gray-3 rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-primary rounded-full transition-all duration-300"
                       style={{ width: `${course.progress}%` }}
@@ -130,17 +130,17 @@ export const CoursesWidget: React.FC<CoursesWidgetProps> = ({
               <Icon 
                 name="arrow-right" 
                 size="xs" 
-                className="text-body-color dark:text-dark-6 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-200 flex-shrink-0"
+                className="text-text-secondary opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-200 flex-shrink-0"
               />
             </button>
           ))}
         </div>
       ) : (
         <div className="text-center py-8">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-1 dark:bg-dark-3 flex items-center justify-center">
-            <Icon name="book" size="lg" className="text-body-color dark:text-dark-6" />
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-1 dark:bg-gray-2 flex items-center justify-center">
+            <Icon name="book" size="lg" className="text-text-secondary" />
           </div>
-          <p className="text-sm text-body-color dark:text-dark-6 mb-2">
+          <p className="text-sm text-text-secondary mb-2">
             {t('dashboard.courses.empty', 'У вас пока нет активных курсов')}
           </p>
           <button className="text-sm text-primary hover:text-primary/80 transition-colors">

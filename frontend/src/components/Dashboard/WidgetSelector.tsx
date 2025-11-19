@@ -44,22 +44,22 @@ export const WidgetSelector: React.FC<WidgetSelectorProps> = ({
       
       {/* Panel */}
       <div
-        className={`fixed right-0 top-0 h-screen w-full max-w-[400px] bg-white dark:bg-dark-2 shadow-card-2 z-50 transform transition-transform duration-300 ${
+        className={`fixed right-0 top-0 h-screen w-full max-w-[400px] bg-white dark:bg-surface shadow-card-2 z-50 transform transition-transform duration-300 ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-stroke dark:border-dark-3">
-            <h2 className="text-xl font-bold text-dark dark:text-white">
+          <div className="flex items-center justify-between p-6 border-b border-border">
+            <h2 className="text-xl font-bold text-text-primary">
               {t('dashboard.widgets.title', 'Добавить виджет')}
             </h2>
             <button
               onClick={onClose}
-              className="p-2 rounded-lg hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors"
+              className="p-2 rounded-lg hover:bg-gray-1 dark:hover:bg-gray-2 transition-colors"
               aria-label={t('common.close', 'Закрыть')}
             >
-              <Icon name="close" size="md" className="text-body-color dark:text-dark-6" />
+              <Icon name="close" size="md" className="text-text-secondary" />
             </button>
           </div>
 
@@ -69,7 +69,7 @@ export const WidgetSelector: React.FC<WidgetSelectorProps> = ({
               {availableWidgets.map((widget) => (
                 <div
                   key={widget.id}
-                  className="flex items-center gap-4 p-4 rounded-lg border border-stroke dark:border-dark-3 hover:border-primary dark:hover:border-primary transition-colors"
+                  className="flex items-center gap-4 p-4 rounded-lg border border-border hover:border-primary transition-colors"
                 >
                   {/* Иконка */}
                   <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-primary/10 dark:bg-primary/20 flex items-center justify-center">
@@ -78,10 +78,10 @@ export const WidgetSelector: React.FC<WidgetSelectorProps> = ({
 
                   {/* Информация */}
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-medium text-dark dark:text-white mb-1">
+                    <h3 className="text-sm font-medium text-text-primary mb-1">
                       {widget.title}
                     </h3>
-                    <p className="text-xs text-body-color dark:text-dark-6 line-clamp-2">
+                    <p className="text-xs text-text-secondary line-clamp-2">
                       {widget.description}
                     </p>
                   </div>
@@ -92,7 +92,7 @@ export const WidgetSelector: React.FC<WidgetSelectorProps> = ({
                     className={`flex-shrink-0 w-12 h-6 rounded-full transition-colors duration-200 ${
                       widget.enabled
                         ? 'bg-primary'
-                        : 'bg-gray-3 dark:bg-dark-4'
+                        : 'bg-gray-3 dark:bg-gray-2'
                     }`}
                     aria-label={widget.enabled ? t('common.disable', 'Отключить') : t('common.enable', 'Включить')}
                   >

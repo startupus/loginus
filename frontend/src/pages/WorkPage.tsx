@@ -12,12 +12,12 @@ const GroupEvents = lazy(() => import('../components/Work/GroupEvents').then(m =
 
 const SectionSkeleton: React.FC = () => (
   <div className="w-full animate-pulse mb-6">
-    <div className="bg-white dark:bg-dark-2 rounded-xl p-6 sm:p-8 border border-gray-2 dark:border-dark-3">
-      <div className="h-6 bg-gray-2 dark:bg-dark-3 rounded w-1/3 mb-4"></div>
-      <div className="h-4 bg-gray-2 dark:bg-dark-3 rounded w-2/3 mb-6"></div>
+    <div className="bg-background dark:bg-surface rounded-xl p-6 sm:p-8 border border-border">
+      <div className="h-6 bg-gray-2 dark:bg-gray-3 rounded w-1/3 mb-4"></div>
+      <div className="h-4 bg-gray-2 dark:bg-gray-3 rounded w-2/3 mb-6"></div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-32 bg-gray-2 dark:bg-dark-3 rounded-lg"></div>
+          <div key={i} className="h-32 bg-gray-2 dark:bg-gray-3 rounded-lg"></div>
         ))}
       </div>
     </div>
@@ -82,7 +82,7 @@ const WorkPage: React.FC = () => {
       <PageTemplate title={t('sidebar.work', 'Работа')} showSidebar={true}>
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
-            <p className="text-body-color dark:text-dark-6 mb-4">
+            <p className="text-text-secondary mb-4">
               {t('common.error', 'Произошла ошибка при загрузке данных')}
             </p>
           </div>

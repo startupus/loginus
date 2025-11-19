@@ -194,7 +194,7 @@ export const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 
         {/* Загрузка фото */}
         <div>
-          <label className="block text-sm font-medium text-dark dark:text-white mb-2">
+          <label className="block text-sm font-medium text-text-primary mb-2">
             {t('modals.vehicle.uploadPhoto', 'Загрузить фото автомобиля')}
           </label>
           <div className="flex items-center gap-3">
@@ -207,7 +207,7 @@ export const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
             />
             <label
               htmlFor="vehicle-photo"
-              className="flex-1 px-4 py-2 rounded-lg border border-stroke dark:border-dark-3 bg-gray-1 dark:bg-dark-3 text-dark dark:text-white cursor-pointer hover:border-primary transition-colors text-center"
+              className="flex-1 px-4 py-2 rounded-lg border border-border bg-gray-1 dark:bg-gray-2 text-text-primary cursor-pointer hover:border-primary transition-colors text-center"
             >
               {file ? file.name : t('modals.vehicle.uploadButton', 'Выбрать файл')}
             </label>
@@ -215,7 +215,7 @@ export const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
         </div>
 
         {errors.submit && (
-          <div className="p-3 rounded-lg bg-error/10 dark:bg-error/20 border border-error/20 text-error text-sm">
+          <div className="p-3 rounded-lg bg-error/10 border border-error/20 text-error text-sm">
             {errors.submit}
           </div>
         )}

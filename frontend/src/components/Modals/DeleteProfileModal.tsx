@@ -83,14 +83,14 @@ export const DeleteProfileModal: React.FC<DeleteProfileModalProps> = ({
       {step === 1 ? (
         <div className="space-y-4">
           {/* Предупреждение */}
-          <div className="p-4 rounded-lg bg-error/10 dark:bg-error/20 border border-error/20">
+          <div className="p-4 rounded-lg bg-error/10 border border-error/20">
             <p className="font-semibold text-error mb-2">
               {t('modals.deleteProfile.warning', 'Внимание! Это действие необратимо.')}
             </p>
-            <p className="text-sm text-body-color dark:text-dark-6 mb-3">
+            <p className="text-sm text-text-secondary mb-3">
               {t('modals.deleteProfile.consequences', 'При удалении профиля будут удалены:')}
             </p>
-            <ul className="text-sm text-body-color dark:text-dark-6 space-y-1 list-disc list-inside">
+            <ul className="text-sm text-text-secondary space-y-1 list-disc list-inside">
               <li>{t('modals.deleteProfile.consequence1', 'Все ваши личные данные')}</li>
               <li>{t('modals.deleteProfile.consequence2', 'Документы и загруженные файлы')}</li>
               <li>{t('modals.deleteProfile.consequence3', 'История активности')}</li>
@@ -129,15 +129,15 @@ export const DeleteProfileModal: React.FC<DeleteProfileModalProps> = ({
               disabled={!password}
               className="flex-1"
             >
-              Далее
+              {t('common.next', 'Далее')}
             </Button>
           </div>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Финальное подтверждение */}
-          <div className="p-4 rounded-lg bg-error/10 dark:bg-error/20 border border-error/20">
-            <p className="text-sm text-body-color dark:text-dark-6 mb-4">
+          <div className="p-4 rounded-lg bg-error/10 border border-error/20">
+            <p className="text-sm text-text-secondary mb-4">
               {t('modals.deleteProfile.warning', 'Внимание! Это действие необратимо.')}
             </p>
             <label className="flex items-start gap-3 cursor-pointer">
@@ -145,9 +145,9 @@ export const DeleteProfileModal: React.FC<DeleteProfileModalProps> = ({
                 type="checkbox"
                 checked={confirmChecked}
                 onChange={(e) => setConfirmChecked(e.target.checked)}
-                className="mt-1 w-4 h-4 rounded border-stroke dark:border-dark-3 text-primary focus:ring-primary"
+                className="mt-1 w-4 h-4 rounded border-border text-primary focus:ring-primary"
               />
-              <span className="text-sm text-body-color dark:text-dark-6">
+              <span className="text-sm text-text-secondary">
                 {t('modals.deleteProfile.confirm', 'Я понимаю последствия и хочу удалить профиль')}
               </span>
             </label>
@@ -157,7 +157,7 @@ export const DeleteProfileModal: React.FC<DeleteProfileModalProps> = ({
           </div>
 
           {errors.submit && (
-            <div className="p-3 rounded-lg bg-error/10 dark:bg-error/20 border border-error/20 text-error text-sm">
+            <div className="p-3 rounded-lg bg-error/10 border border-error/20 text-error text-sm">
               {errors.submit}
             </div>
           )}

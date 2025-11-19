@@ -73,7 +73,7 @@ export const OrganizationModal: React.FC<OrganizationModalProps> = ({
         {/* Список организаций */}
         <div className="max-h-[400px] overflow-y-auto space-y-2">
           {filteredOrganizations.length === 0 ? (
-            <div className="text-center py-8 text-body-color dark:text-dark-6">
+            <div className="text-center py-8 text-text-secondary">
               <p className="mb-2">{t('modals.organization.noOrganizations', 'У вас пока нет организаций')}</p>
               {onCreate && (
                 <Button
@@ -97,17 +97,17 @@ export const OrganizationModal: React.FC<OrganizationModalProps> = ({
                 className={`w-full p-4 rounded-lg border transition-all duration-200 text-left ${
                   selectedOrgId === org.id
                     ? 'bg-primary/10 border-primary dark:bg-primary/20'
-                    : 'bg-gray-1 dark:bg-dark-3 border-stroke dark:border-dark-3 hover:border-primary/30'
+                    : 'bg-gray-1 dark:bg-gray-2 border-border hover:border-primary/30'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
-                    <h3 className="font-semibold text-dark dark:text-white mb-1">{org.name}</h3>
+                    <h3 className="font-semibold text-text-primary mb-1">{org.name}</h3>
                     {org.description && (
-                      <p className="text-sm text-body-color dark:text-dark-6 mb-1">{org.description}</p>
+                      <p className="text-sm text-text-secondary mb-1">{org.description}</p>
                     )}
                     {org.memberCount !== undefined && (
-                      <p className="text-xs text-body-color dark:text-dark-6">
+                      <p className="text-xs text-text-secondary">
                         {org.memberCount} {org.memberCount === 1 ? 'участник' : 'участников'}
                       </p>
                     )}
@@ -122,7 +122,7 @@ export const OrganizationModal: React.FC<OrganizationModalProps> = ({
         </div>
 
         {/* Кнопки действий */}
-        <div className="flex gap-3 pt-4 border-t border-stroke dark:border-dark-3">
+        <div className="flex gap-3 pt-4 border-t border-border">
           {onCreate && (
             <Button
               type="button"

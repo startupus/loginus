@@ -1,7 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Icon, Input } from '../../primitives';
+// Прямые импорты для tree-shaking
+import { Icon } from '../../primitives/Icon';
+import { Input } from '../../primitives/Input';
 import { ProfileMenu } from './ProfileMenu';
 import { ProfilePopup } from '../../composites/ProfilePopup';
 import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';

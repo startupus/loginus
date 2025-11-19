@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PageTemplate } from '@/design-system/layouts';
-import { DataSection, SeparatedList } from '@/design-system/composites';
-import { Button, Icon, Badge } from '@/design-system/primitives';
+// Прямые импорты для tree-shaking
+import { PageTemplate } from '@/design-system/layouts/PageTemplate';
+import { DataSection } from '@/design-system/composites/DataSection';
+import { SeparatedList } from '@/design-system/composites/SeparatedList';
+import { Button } from '@/design-system/primitives/Button';
+import { Icon } from '@/design-system/primitives/Icon';
+import { Badge } from '@/design-system/primitives/Badge';
 import { paymentApi } from '@/services/api/payment';
 
 interface PaymentMethod {
@@ -136,7 +140,7 @@ const PayPage: React.FC = () => {
 
           {/* User Cards */}
           {methods.map((method) => (
-            <div key={method.id} className="bg-gradient-to-br from-gray-100 to-gray-200 dark:from-dark-3 dark:to-dark-2 p-6 rounded-xl border border-stroke dark:border-dark-3 relative overflow-hidden aspect-video flex flex-col justify-between group hover:border-primary transition-colors cursor-pointer">
+            <div key={method.id} className="bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-2 dark:to-gray-1 p-6 rounded-xl border border-border relative overflow-hidden aspect-video flex flex-col justify-between group hover:border-primary transition-colors cursor-pointer">
                 <div className="flex justify-between items-start z-10">
                     <Icon name="credit-card" size="lg" className="text-gray-600 dark:text-gray-400" />
                      {method.isDefault && (
@@ -146,7 +150,7 @@ const PayPage: React.FC = () => {
                      )}
                 </div>
                 <div className="z-10">
-                    <div className="text-2xl tracking-widest mb-2 text-dark dark:text-white">•••• {method.last4}</div>
+                    <div className="text-2xl tracking-widest mb-2 text-text-primary">•••• {method.last4}</div>
                     <div className="flex justify-between items-end">
                         <div className="text-sm text-gray-500 dark:text-gray-400">{method.expiry}</div>
                         <div className="font-bold uppercase text-gray-400 dark:text-gray-500">{method.system}</div>
@@ -156,7 +160,7 @@ const PayPage: React.FC = () => {
           ))}
           
           {/* Add New Card Button */}
-          <button className="border-2 border-dashed border-stroke dark:border-dark-3 rounded-xl p-6 aspect-video flex flex-col items-center justify-center gap-3 hover:border-primary hover:bg-primary/5 transition-all group">
+          <button className="border-2 border-dashed border-border rounded-xl p-6 aspect-video flex flex-col items-center justify-center gap-3 hover:border-primary hover:bg-primary/5 transition-all group">
             <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-dark-3 flex items-center justify-center text-gray-400 group-hover:text-primary transition-colors">
               <Icon name="plus" size="lg" />
             </div>
@@ -173,7 +177,7 @@ const PayPage: React.FC = () => {
         title={t('payment.subscriptions.title', 'Подписки')}
         description={t('payment.subscriptions.description', 'Управление подписками на сервисы')}
       >
-          <div className="bg-white dark:bg-dark-2 rounded-lg border border-stroke dark:border-dark-3 overflow-hidden">
+          <div className="bg-background dark:bg-surface rounded-lg border border-border overflow-hidden">
              <SeparatedList className="p-4">
                 <div className="flex items-center justify-between py-2">
                      <div className="flex items-center gap-3">
@@ -201,7 +205,7 @@ const PayPage: React.FC = () => {
         title={t('payment.history.title', 'История платежей')}
         description={t('payment.history.description', 'Ваши последние транзакции')}
       >
-        <div className="bg-white dark:bg-dark-2 rounded-lg border border-stroke dark:border-dark-3 overflow-hidden">
+        <div className="bg-background dark:bg-surface rounded-lg border border-border overflow-hidden">
           <SeparatedList className="p-4">
             {history.map((item) => (
               <div key={item.id} className="flex items-center justify-between py-2">
@@ -217,7 +221,7 @@ const PayPage: React.FC = () => {
                   </div>
                 </div>
                 <div className="text-right">
-                    <div className={`font-medium ${item.amount > 0 ? 'text-dark dark:text-white' : 'text-green-500'}`}>
+                    <div className={`font-medium ${item.amount > 0 ? 'text-text-primary' : 'text-green-500'}`}>
                         {item.amount > 0 ? '-' : '+'}{Math.abs(item.amount)} {item.currency}
                     </div>
                      {item.status === 'failed' && (

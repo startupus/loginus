@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Modal } from '../Modal';
 import { Button } from '../../primitives/Button';
 import { Icon } from '../../primitives/Icon';
@@ -69,6 +70,7 @@ export const ProfilePopup: React.FC<ProfilePopupProps> = ({
   anchorRef,
 }) => {
   // const navigate = useNavigate(); // TODO: использовать для навигации
+  const { t } = useTranslation();
   const { themeMode, setThemeMode } = useTheme();
   const { masked: maskedPhone } = useContactMasking(user.phone, 'phone');
   const organizationModal = useModal();
@@ -115,7 +117,7 @@ export const ProfilePopup: React.FC<ProfilePopupProps> = ({
           <Link
             to="/"
             onClick={onClose}
-            className="flex items-center gap-2 text-dark dark:text-white hover:text-primary transition-colors"
+            className="flex items-center gap-2 text-text-primary hover:text-primary transition-colors"
           >
             <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-primary text-white">
               <span className="text-sm font-extrabold leading-none">iD</span>
@@ -137,13 +139,13 @@ export const ProfilePopup: React.FC<ProfilePopupProps> = ({
           <Link
             to="/"
             onClick={onClose}
-            className="flex items-center gap-2 text-sm text-primary hover:text-primary-600 dark:text-primary-400 mb-2"
+            className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 mb-2"
           >
             <Icon name="settings" size="sm" />
-            <span>Управление аккаунтом</span>
+            <span>{t('profile.manageAccount', 'Управление аккаунтом')}</span>
           </Link>
           <div className="flex items-center gap-2 mb-1">
-            <h3 className="text-lg font-bold text-dark dark:text-white">
+            <h3 className="text-lg font-bold text-text-primary">
               {user.name}
             </h3>
             {onEdit && (
@@ -160,7 +162,7 @@ export const ProfilePopup: React.FC<ProfilePopupProps> = ({
               </Button>
             )}
           </div>
-          <p className="text-sm text-body-color dark:text-dark-6">
+          <p className="text-sm text-text-secondary">
             {maskedPhone} {user.login && `• ${user.login}`}
           </p>
         </div>
@@ -182,7 +184,7 @@ export const ProfilePopup: React.FC<ProfilePopupProps> = ({
         >
           <div className="flex items-center gap-2">
             <Icon name="users" size="sm" />
-            <span>Выбрать организацию</span>
+            <span>{t('profile.selectOrganization', 'Выбрать организацию')}</span>
           </div>
           <Icon name="chevron-right" size="sm" />
         </Button>
@@ -191,10 +193,17 @@ export const ProfilePopup: React.FC<ProfilePopupProps> = ({
         <div className="mb-6 space-y-0">
           <ServiceLink
             icon="mail"
-            name="Почта"
+            name={t('profile.mail', 'Почта')}
             status={
               <span>
-                {user.unreadMail || 0} непрочитанных писем
+                {user.unreadMail === 0 
+                  ? t('profile.mailCounter.none', 'нет непрочитанных писем')
+                  : user.unreadMail === 1
+                  ? t('profile.mailCounter.one', 'непрочитанное письмо')
+                  : user.unreadMail && user.unreadMail < 5
+                  ? t('profile.mailCounter.some', '{{count}} непрочитанных письма', { count: user.unreadMail })
+                  : t('profile.mailCounter.many', '{{count}} непрочитанных писем', { count: user.unreadMail })
+                }
               </span>
             }
             badge={user.unreadMail}
@@ -206,9 +215,12 @@ export const ProfilePopup: React.FC<ProfilePopupProps> = ({
           
           <ServiceLink
             icon="star"
-            name="Плюс"
-            status={user.plusActive ? 'Подписка активна' : 'Не подключено'}
-            extra={user.plusPoints ? `${user.plusPoints} баллов` : 'нет баллов'}
+            name={t('profile.plus', 'Плюс')}
+            status={user.plusActive ? t('profile.plusDescription', 'Подписка активна') : t('profile.plusInactive', 'Не подключено')}
+            extra={user.plusPoints 
+              ? t('profile.plusPoints.many', '{{count}} баллов', { count: user.plusPoints })
+              : t('profile.plusPoints.none', 'нет баллов')
+            }
             href="https://plus.yandex.ru"
             onClick={onClose}
           />
@@ -217,8 +229,8 @@ export const ProfilePopup: React.FC<ProfilePopupProps> = ({
           
           <ServiceLink
             icon="user"
-            name="Личные данные"
-            status="ФИО, день рождения, пол"
+            name={t('profile.personalData', 'Личные данные')}
+            status={t('profile.personalDataDescription', 'ФИО, день рождения, пол')}
             href="/personal?dialog=personal-data"
             onClick={() => {
               onClose();
@@ -229,7 +241,7 @@ export const ProfilePopup: React.FC<ProfilePopupProps> = ({
           
           <ServiceLink
             icon="phone"
-            name="Телефон"
+            name={t('profile.phone', 'Телефон')}
             status={maskedPhone}
             href="/security/phones"
             onClick={onClose}
@@ -245,25 +257,25 @@ export const ProfilePopup: React.FC<ProfilePopupProps> = ({
             onClick={handleThemeChange}
           >
             <Icon name={themeMode === 'dark' ? 'sun' : 'moon'} size="sm" />
-            <span>Внешний вид</span>
+            <span>{t('profile.skin', 'Внешний вид')}</span>
           </Button>
           
           <Link
             to="/settings"
             onClick={onClose}
-            className="flex items-center gap-2 p-3 rounded-lg hover:bg-gray-1 dark:hover:bg-dark-2 transition-colors text-body-color dark:text-dark-6"
+            className="flex items-center gap-2 p-3 rounded-lg hover:bg-gray-1 dark:hover:bg-gray-2 transition-colors text-text-secondary"
           >
             <Icon name="settings" size="sm" />
-            <span>Настройки</span>
+            <span>{t('profile.settings', 'Настройки')}</span>
           </Link>
           
           <Link
             to="/support"
             onClick={onClose}
-            className="flex items-center gap-2 p-3 rounded-lg hover:bg-gray-1 dark:hover:bg-dark-2 transition-colors text-body-color dark:text-dark-6"
+            className="flex items-center gap-2 p-3 rounded-lg hover:bg-gray-1 dark:hover:bg-gray-2 transition-colors text-text-secondary"
           >
             <Icon name="info" size="sm" />
-            <span>Справка</span>
+            <span>{t('profile.support', 'Справка')}</span>
           </Link>
         </div>
 
@@ -278,7 +290,7 @@ export const ProfilePopup: React.FC<ProfilePopupProps> = ({
           }}
         >
           <Icon name="logout" size="sm" />
-          <span>Сменить аккаунт</span>
+          <span>{t('profile.switchAccount', 'Сменить аккаунт')}</span>
         </Button>
       </div>
 

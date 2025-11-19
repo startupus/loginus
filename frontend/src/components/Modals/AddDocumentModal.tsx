@@ -150,13 +150,13 @@ export const AddDocumentModal: React.FC<AddDocumentModalProps> = ({
         {/* Тип документа */}
         {!documentType && (
           <div>
-            <label className="block text-sm font-medium text-dark dark:text-white mb-2">
+            <label className="block text-sm font-medium text-text-primary mb-2">
               {t('modals.document.type', 'Тип документа')}
             </label>
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value as DocumentType)}
-              className="w-full rounded-md border border-stroke dark:border-dark-3 px-5 py-[10px] bg-transparent text-dark dark:text-white"
+              className="w-full rounded-md border border-border px-5 py-[10px] bg-transparent text-text-primary"
             >
               {Object.entries(DOCUMENT_TYPES).map(([key, value]) => (
                 <option key={key} value={key}>
@@ -165,7 +165,7 @@ export const AddDocumentModal: React.FC<AddDocumentModalProps> = ({
               ))}
             </select>
             {errors.type && (
-              <p className="text-sm text-red mt-1">{errors.type}</p>
+              <p className="text-sm text-error mt-1">{errors.type}</p>
             )}
           </div>
         )}
@@ -221,7 +221,7 @@ export const AddDocumentModal: React.FC<AddDocumentModalProps> = ({
 
         {/* Загрузка файла */}
         <div>
-          <label className="block text-sm font-medium text-dark dark:text-white mb-2">
+          <label className="block text-sm font-medium text-text-primary mb-2">
             {t('modals.document.upload', 'Загрузить фото/скан')}
           </label>
           <div className="flex items-center gap-3">
@@ -234,20 +234,20 @@ export const AddDocumentModal: React.FC<AddDocumentModalProps> = ({
             />
             <label
               htmlFor="document-file"
-              className="flex-1 px-4 py-2 rounded-lg border border-stroke dark:border-dark-3 bg-gray-1 dark:bg-dark-3 text-dark dark:text-white cursor-pointer hover:border-primary transition-colors text-center"
+              className="flex-1 px-4 py-2 rounded-lg border border-border bg-gray-1 dark:bg-gray-2 text-text-primary cursor-pointer hover:border-primary transition-colors text-center"
             >
               {file ? file.name : t('modals.document.uploadButton', 'Выбрать файл')}
             </label>
           </div>
           {file && (
-            <p className="text-sm text-body-color dark:text-dark-6 mt-1">
+            <p className="text-sm text-text-secondary mt-1">
               {t('modals.document.uploaded', 'Файл загружен')}
             </p>
           )}
         </div>
 
         {errors.submit && (
-          <div className="p-3 rounded-lg bg-error/10 dark:bg-error/20 border border-error/20 text-error text-sm">
+          <div className="p-3 rounded-lg bg-error/10 border border-error/20 text-error text-sm">
             {errors.submit}
           </div>
         )}

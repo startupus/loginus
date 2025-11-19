@@ -85,16 +85,16 @@ const LandingPage: React.FC = () => {
                 {/* Badge */}
                 <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2">
                   <span className="text-sm font-semibold text-primary">{t('landing.hero.badge', 'Новое')}</span>
-                  <span className="text-sm text-body-color dark:text-dark-6">{t('landing.hero.badgeText', 'Двухфакторная аутентификация')}</span>
+                  <span className="text-sm text-text-secondary">{t('landing.hero.badgeText', 'Двухфакторная аутентификация')}</span>
                 </div>
                 
-                <h1 className="mb-6 text-5xl font-bold leading-tight text-dark dark:text-white sm:text-6xl lg:text-[64px]">
+                <h1 className="mb-6 text-5xl font-bold leading-tight text-text-primary sm:text-6xl lg:text-[64px]">
                   {t('landing.hero.title', 'Единый аккаунт')}
                   <br />
                   <span className="text-primary">{t('landing.hero.titleHighlight', 'Loginus ID')}</span>
                 </h1>
                 
-                <p className="mb-10 text-lg leading-relaxed text-body-color dark:text-dark-6">
+                <p className="mb-10 text-lg leading-relaxed text-text-secondary">
                   {t('landing.hero.description', 'Быстрая и безопасная авторизация для всех ваших сервисов. Управляйте данными, платежами и семейным доступом в одном месте.')}
                 </p>
                 
@@ -134,19 +134,19 @@ const LandingPage: React.FC = () => {
                     <svg className="w-5 h-5 text-green" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
-                    <span className="text-sm font-medium text-body-color dark:text-dark-6">{t('landing.hero.trustSafe', 'Безопасно')}</span>
+                    <span className="text-sm font-medium text-text-secondary">{t('landing.hero.trustSafe', 'Безопасно')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <svg className="w-5 h-5 text-green" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
-                    <span className="text-sm font-medium text-body-color dark:text-dark-6">{t('landing.hero.trustFast', 'Быстро')}</span>
+                    <span className="text-sm font-medium text-text-secondary">{t('landing.hero.trustFast', 'Быстро')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <svg className="w-5 h-5 text-green" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
-                    <span className="text-sm font-medium text-body-color dark:text-dark-6">{t('landing.hero.trustConvenient', 'Удобно')}</span>
+                    <span className="text-sm font-medium text-text-secondary">{t('landing.hero.trustConvenient', 'Удобно')}</span>
                   </div>
                 </div>
               </div>
@@ -206,10 +206,10 @@ const LandingPage: React.FC = () => {
       <section id="features" className="py-20 lg:py-28">
         <div className="container mx-auto">
           <div className="mb-16 text-center">
-            <h2 className="mb-4 text-4xl font-bold text-dark dark:text-white lg:text-5xl">
+            <h2 className="mb-4 text-4xl font-bold text-text-primary lg:text-5xl">
               {t('landing.features.title', 'Возможности Loginus ID')}
             </h2>
-            <p className="mx-auto max-w-[600px] text-lg text-body-color dark:text-dark-6">
+            <p className="mx-auto max-w-[600px] text-lg text-text-secondary">
               {t('landing.features.subtitle', 'Единый аккаунт для управления всеми вашими данными и сервисами')}
             </p>
           </div>
@@ -259,7 +259,7 @@ const LandingPage: React.FC = () => {
       <section id="faq" className="bg-gray-1 py-20 dark:bg-dark-2 lg:py-28">
         <div className="container mx-auto">
           <div className="mb-16 text-center">
-            <h2 className="mb-4 text-4xl font-bold text-dark dark:text-white lg:text-5xl">
+            <h2 className="mb-4 text-4xl font-bold text-text-primary lg:text-5xl">
               {t('landing.faq.title', 'Часто задаваемые вопросы')}
             </h2>
           </div>
@@ -295,7 +295,7 @@ const LandingPage: React.FC = () => {
               <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-dark text-white dark:bg-white dark:text-dark ring-1 ring-black/5">
                 <span className="text-sm font-extrabold leading-none">iD</span>
               </div>
-              <p className="text-sm text-body-color dark:text-dark-6">
+              <p className="text-sm text-text-secondary">
                 {(() => {
                   const projectStartYear = 2025;
                   const currentYear = new Date().getFullYear();

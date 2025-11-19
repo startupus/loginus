@@ -102,7 +102,7 @@ export const AddAddressModal: React.FC<AddAddressModalProps> = ({
         {/* Тип адреса */}
         {!addressType && (
           <div>
-            <label className="block text-sm font-medium text-dark dark:text-white mb-2">
+            <label className="block text-sm font-medium text-text-primary mb-2">
               {t('modals.address.type', 'Тип адреса')}
             </label>
             <div className="flex gap-2">
@@ -114,7 +114,7 @@ export const AddAddressModal: React.FC<AddAddressModalProps> = ({
                   className={`flex-1 px-4 py-2 rounded-lg border transition-all duration-200 ${
                     selectedType === type
                       ? 'bg-primary/10 border-primary text-primary dark:bg-primary/20'
-                      : 'bg-gray-1 dark:bg-dark-3 border-stroke dark:border-dark-3 text-body-color dark:text-dark-6 hover:border-primary/30'
+                      : 'bg-gray-1 dark:bg-gray-2 border-border text-text-secondary hover:border-primary/30'
                   }`}
                 >
                   {t(`modals.address.types.${type}`, type)}
@@ -211,7 +211,7 @@ export const AddAddressModal: React.FC<AddAddressModalProps> = ({
         </div>
 
         {errors.submit && (
-          <div className="p-3 rounded-lg bg-error/10 dark:bg-error/20 border border-error/20 text-error text-sm">
+          <div className="p-3 rounded-lg bg-error/10 border border-error/20 text-error text-sm">
             {errors.submit}
           </div>
         )}

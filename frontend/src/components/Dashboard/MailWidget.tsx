@@ -75,10 +75,10 @@ export const MailWidget: React.FC<MailWidgetProps> = ({
     >
       <div className="flex items-center justify-between">
         <div className="transition-transform duration-300 group-hover:scale-105">
-          <p className="text-3xl font-bold text-dark dark:text-white mb-1 transition-colors duration-200 group-hover:text-primary">
+          <p className="text-3xl font-bold text-text-primary mb-1 transition-colors duration-200 group-hover:text-primary">
             {unreadCount > 0 ? unreadCount.toLocaleString('ru-RU') : '0'}
           </p>
-          <p className="text-sm text-body-color dark:text-dark-6">
+          <p className="text-sm text-text-secondary">
             {getUnreadText()}
           </p>
         </div>

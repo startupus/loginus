@@ -80,7 +80,7 @@ export const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                 <div className="flex flex-col flex-1 space-y-2">
                   {/* Заголовок с бейджем */}
                   <div className="flex items-start justify-between gap-2">
-                    <h3 className="text-sm font-bold text-dark dark:text-white line-clamp-1">
+                    <h3 className="text-sm font-bold text-text-primary line-clamp-1">
                       {getSubscriptionName(subscription.type, t, subscription.name)}
                     </h3>
                     {subscription.active && (
@@ -101,7 +101,7 @@ export const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                       {subscription.price.split('/')[0]}
                     </div>
                     {subscription.pricePerMonth && (
-                      <div className="text-xs text-body-color dark:text-dark-6">
+                      <div className="text-xs text-text-secondary">
                         {subscription.pricePerMonth}
                       </div>
                     )}
@@ -109,7 +109,7 @@ export const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                   
                   {/* Статус или дата */}
                   {subscription.active && subscription.expiresAt && (
-                    <p className="text-xs text-body-color dark:text-dark-6">
+                    <p className="text-xs text-text-secondary">
                       {t('dashboard.subscriptions.activeUntil', { date: subscription.expiresAt, defaultValue: `Активна до ${subscription.expiresAt}` })}
                     </p>
                   )}
@@ -176,7 +176,7 @@ export const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
             {/* Преимущества */}
             {getSubscriptionFeatures(selectedSubscription.type, t, selectedSubscription.features).length > 0 && (
               <div>
-                <h4 className="text-lg font-semibold text-dark dark:text-white mb-3">
+                <h4 className="text-lg font-semibold text-text-primary mb-3">
                   {t('dashboard.subscriptions.includes', 'Что входит в подписку:')}
                 </h4>
                 <div className="space-y-3">
@@ -189,7 +189,7 @@ export const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                           className="text-success" 
                         />
                       </div>
-                      <span className="text-sm text-body-color dark:text-dark-6 flex-1">
+                      <span className="text-sm text-text-secondary flex-1">
                         {feature}
                       </span>
                     </div>
@@ -199,7 +199,7 @@ export const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
             )}
             
             {/* Действия */}
-            <div className="flex gap-3 pt-4 border-t border-stroke dark:border-dark-3">
+            <div className="flex gap-3 pt-4 border-t border-border">
               {!selectedSubscription.active && (
                 <Button 
                   variant="primary" 

@@ -73,7 +73,7 @@ export const AddressesGrid: React.FC<AddressesGridProps> = ({
       action={
         <button
           onClick={handleViewAll}
-          className="text-sm text-body-color dark:text-dark-6 hover:text-primary dark:hover:text-primary transition-colors duration-200 flex items-center gap-1"
+          className="text-sm text-text-secondary hover:text-primary transition-colors duration-200 flex items-center gap-1"
         >
           <span>{t('personalData.addresses.viewAll', 'Все адреса')}</span>
           <Icon name="arrow-right" size="sm" />
@@ -85,10 +85,10 @@ export const AddressesGrid: React.FC<AddressesGridProps> = ({
         {canScrollLeft && (
           <button
             onClick={() => scroll('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white dark:bg-dark-2 shadow-lg border border-gray-2 dark:border-dark-3 flex items-center justify-center hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-background dark:bg-surface shadow-lg border border-border flex items-center justify-center hover:bg-gray-1 dark:hover:bg-gray-2 transition-colors"
             aria-label={t('common.scrollLeft', 'Прокрутить влево')}
           >
-            <Icon name="chevron-left" size="sm" className="text-body-color dark:text-dark-6" />
+            <Icon name="chevron-left" size="sm" className="text-text-secondary" />
           </button>
         )}
 
@@ -106,25 +106,25 @@ export const AddressesGrid: React.FC<AddressesGridProps> = ({
             <button
               key={addressItem.type}
               onClick={() => onAddAddress?.(addressItem.type)}
-              className="group flex-shrink-0 flex flex-col items-center justify-center gap-3 p-4 rounded-lg bg-gray-1/50 dark:bg-dark-3/50 border border-stroke dark:border-dark-3 hover:border-primary/30 dark:hover:border-primary/30 hover:bg-gray-1 dark:hover:bg-dark-3 transition-all duration-200 animate-fade-in relative w-[140px] h-[140px]"
+              className="group flex-shrink-0 flex flex-col items-center justify-center gap-3 p-4 rounded-lg bg-gray-1/50 dark:bg-gray-2/50 border border-border hover:border-primary/30 hover:bg-gray-1 dark:hover:bg-gray-2 transition-all duration-200 animate-fade-in relative w-[140px] h-[140px]"
               style={{ animationDelay: `${index * 30}ms` }}
             >
               {/* Иконка */}
-              <div className="w-12 h-12 rounded-lg bg-gray-1 dark:bg-dark-3 flex items-center justify-center transition-colors duration-200 group-hover:bg-gray-2 dark:group-hover:bg-dark-4 flex-shrink-0">
+              <div className="w-12 h-12 rounded-lg bg-gray-1 dark:bg-gray-2 flex items-center justify-center transition-colors duration-200 group-hover:bg-gray-2 dark:group-hover:bg-gray-3 flex-shrink-0">
                 <Icon 
                   name={addressItem.icon} 
                   size="md" 
-                  className="text-body-color dark:text-dark-6"
+                  className="text-text-secondary"
                 />
               </div>
               
               {/* Название и адрес */}
               <div className="flex flex-col items-center gap-1 w-full min-w-0 flex-1 justify-center">
-                <span className="text-xs font-medium text-center text-dark dark:text-white group-hover:text-primary dark:group-hover:text-primary transition-colors duration-200">
+                <span className="text-xs font-medium text-center text-text-primary group-hover:text-primary transition-colors duration-200">
                   {getAddressLabel(addressItem.type, t, addressItem.label || addressItem.type)}
                 </span>
                 {addressItem.added && addressItem.address && (
-                  <span className="text-[10px] text-center text-body-color dark:text-dark-6 line-clamp-2 break-words w-full leading-tight">
+                  <span className="text-[10px] text-center text-text-secondary line-clamp-2 break-words w-full leading-tight">
                     {addressItem.address}
                   </span>
                 )}
@@ -159,10 +159,10 @@ export const AddressesGrid: React.FC<AddressesGridProps> = ({
         {canScrollRight && (
           <button
             onClick={() => scroll('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white dark:bg-dark-2 shadow-lg border border-gray-2 dark:border-dark-3 flex items-center justify-center hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-background dark:bg-surface shadow-lg border border-border flex items-center justify-center hover:bg-gray-1 dark:hover:bg-gray-2 transition-colors"
             aria-label={t('common.scrollRight', 'Прокрутить вправо')}
           >
-            <Icon name="chevron-right" size="sm" className="text-body-color dark:text-dark-6" />
+            <Icon name="chevron-right" size="sm" className="text-text-secondary" />
           </button>
         )}
       </div>

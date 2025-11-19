@@ -1,8 +1,10 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+// Прямые импорты для tree-shaking
 import { PageTemplate } from '../design-system/layouts/PageTemplate';
-import { Button, Icon } from '../design-system/primitives';
+import { Button } from '../design-system/primitives/Button';
+import { Icon } from '../design-system/primitives/Icon';
 import { DataSection } from '../design-system/composites/DataSection';
 import { personalApi } from '../services/api/personal';
 
@@ -22,7 +24,7 @@ const PersonalDocumentsPage: React.FC = () => {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-body-color dark:text-dark-6">{t('common.loading', 'Загрузка...')}</p>
+            <p className="text-text-secondary">{t('common.loading', 'Загрузка...')}</p>
           </div>
         </div>
       </PageTemplate>
@@ -43,16 +45,16 @@ const PersonalDocumentsPage: React.FC = () => {
             {documents.map((doc: any) => (
               <div
                 key={doc.type}
-                className="p-6 rounded-lg border border-stroke dark:border-dark-3 bg-white dark:bg-dark-2 hover:shadow-md transition-shadow"
+                className="p-6 rounded-lg border border-border bg-background dark:bg-surface hover:shadow-md transition-shadow"
               >
                 <div className="flex flex-col items-center gap-4">
                   <Icon name={doc.icon || 'document'} size="xl" className="text-primary" />
                   <div className="text-center">
-                    <h3 className="font-semibold text-dark dark:text-white mb-1">
+                    <h3 className="font-semibold text-text-primary mb-1">
                       {doc.label || doc.type}
                     </h3>
                     {doc.added ? (
-                      <p className="text-sm text-body-color dark:text-dark-6">
+                      <p className="text-sm text-text-secondary">
                         {t('common.edit', 'Редактировать')}
                       </p>
                     ) : (

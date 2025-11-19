@@ -109,9 +109,6 @@ export const ErrorPage: React.FC = () => {
     window.location.reload();
   };
 
-  const handleGoBack = () => {
-    navigate(-1);
-  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-1 dark:bg-dark px-4">
@@ -124,9 +121,9 @@ export const ErrorPage: React.FC = () => {
         </div>
 
         {/* Основной блок ошибки */}
-        <div className="bg-white dark:bg-dark-2 rounded-2xl shadow-lg dark:shadow-card p-8 sm:p-12 text-center">
+        <div className="bg-background dark:bg-surface rounded-2xl shadow-lg dark:shadow-card p-8 sm:p-12 text-center">
           {/* Иконка ошибки */}
-          <div className={`mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gray-100 dark:bg-dark-3`}>
+          <div className={`mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-2`}>
             <Icon 
               name={getErrorIcon()} 
               size="xl" 
@@ -135,7 +132,7 @@ export const ErrorPage: React.FC = () => {
           </div>
 
           {/* Заголовок */}
-          <h1 className="text-3xl sm:text-4xl font-bold text-dark dark:text-white mb-4">
+          <h1 className="text-3xl sm:text-4xl font-bold text-text-primary mb-4">
             {errorType !== 'generic' && (
               <span className="text-5xl sm:text-6xl font-extrabold text-primary mr-3">
                 {errorType === '404' ? '404' : errorType === '403' ? '403' : errorType === '500' ? '500' : errorType === '401' ? '401' : '503'}
@@ -145,20 +142,20 @@ export const ErrorPage: React.FC = () => {
           </h1>
 
           {/* Описание */}
-          <p className="text-lg text-body-color dark:text-dark-6 mb-6 max-w-md mx-auto">
+          <p className="text-lg text-text-secondary mb-6 max-w-md mx-auto">
             {errorDescription}
           </p>
 
-          {/* Детали ошибки (только в dev режиме) */}
-          {errorMessage && import.meta.env.DEV && errorType === 'generic' && (
-            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+          {/* Детали ошибки - всегда показываем суть ошибки */}
+          {errorMessage && (
+            <div className="mb-8 p-4 bg-error/10 border border-error/20 rounded-lg">
               <div className="flex items-start gap-3">
-                <Icon name="alert-circle" size="sm" className="text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                <Icon name="alert-circle" size="sm" className="text-error flex-shrink-0 mt-0.5" />
                 <div className="flex-1 text-left">
-                  <p className="text-sm font-semibold text-red-800 dark:text-red-300 mb-1">
+                  <p className="text-sm font-semibold text-error mb-1">
                     {t('errors.technicalDetails', 'Технические детали')}:
                   </p>
-                  <p className="text-sm font-mono text-red-700 dark:text-red-400 break-words whitespace-pre-wrap">
+                  <p className="text-sm font-mono text-text-primary break-words whitespace-pre-wrap">
                     {errorMessage}
                   </p>
                 </div>
@@ -166,57 +163,50 @@ export const ErrorPage: React.FC = () => {
             </div>
           )}
 
-          {/* Кнопки действий */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          {/* Кнопки действий - только 2 кнопки */}
+          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
             {errorType === '401' ? (
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={() => navigate(buildPathWithLang('/auth', currentLang))}
-                className="w-full sm:w-auto"
-              >
-                {t('common.login', 'Войти')}
-              </Button>
+              <>
+                <Button
+                  variant="primary"
+                  size="lg"
+                  onClick={() => navigate(buildPathWithLang('/auth', currentLang))}
+                  className="w-full sm:w-auto min-w-[200px]"
+                >
+                  {t('common.login', 'Войти')}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={handleGoHome}
+                  className="w-full sm:w-auto min-w-[200px]"
+                >
+                  {t('errors.goHome', 'На главную')}
+                </Button>
+              </>
             ) : (
               <>
                 <Button
                   variant="primary"
                   size="lg"
                   onClick={handleGoHome}
-                  className="w-full sm:w-auto"
+                  className="w-full sm:w-auto min-w-[200px]"
                 >
-                  <Icon name="home" size="sm" className="mr-2" />
-                  {t('errors.goHome', 'Вернуться на главную')}
+                  {t('errors.goHome', 'На главную')}
                 </Button>
                 <Button
                   variant="outline"
                   size="lg"
-                  onClick={handleGoBack}
-                  className="w-full sm:w-auto"
+                  onClick={handleReload}
+                  className="w-full sm:w-auto min-w-[200px]"
                 >
-                  <Icon name="arrow-left" size="sm" className="mr-2" />
-                  {t('common.back', 'Назад')}
+                  {t('errors.reload', 'Обновить')}
                 </Button>
               </>
             )}
-            <Button
-              variant="ghost"
-              size="lg"
-              onClick={handleReload}
-              className="w-full sm:w-auto"
-            >
-              <Icon name="refresh-cw" size="sm" className="mr-2" />
-              {t('errors.reload', 'Обновить страницу')}
-            </Button>
           </div>
         </div>
 
-        {/* Дополнительная информация */}
-        <div className="mt-8 text-center">
-          <p className="text-sm text-body-color dark:text-dark-6">
-            {t('errors.helpText', 'Если проблема сохраняется, обратитесь в службу поддержки')}
-          </p>
-        </div>
       </div>
     </div>
   );

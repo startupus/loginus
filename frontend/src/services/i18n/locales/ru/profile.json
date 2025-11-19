@@ -214,6 +214,13 @@
   "switchAccount": "Сменить аккаунт",
   "edit": "Редактировать",
   "editAvatar": "Обновить аватар",
-  "editAvatarDescription": "Загрузить или создать"
+  "editAvatarDescription": "Загрузить или создать",
+  "selectOrganization": "Выбрать организацию",
+  "mailUnreadCount": {
+    "none": "нет непрочитанных писем",
+    "one": "{{count}} непрочитанное письмо",
+    "some": "{{count}} непрочитанных письма",
+    "many": "{{count}} непрочитанных писем"
+  }
 }
 

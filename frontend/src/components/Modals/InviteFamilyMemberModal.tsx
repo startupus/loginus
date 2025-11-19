@@ -95,7 +95,7 @@ export const InviteFamilyMemberModal: React.FC<InviteFamilyMemberModalProps> = (
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-dark dark:text-white mb-2">
+          <label className="block text-sm font-medium text-text-primary mb-2">
             {t('family.invite.role', 'Роль')}
           </label>
           <div className="flex gap-2">
@@ -105,7 +105,7 @@ export const InviteFamilyMemberModal: React.FC<InviteFamilyMemberModalProps> = (
               className={`flex-1 px-4 py-2 rounded-lg border transition-all duration-200 ${
                 role === 'member'
                   ? 'bg-primary/10 border-primary text-primary dark:bg-primary/20'
-                  : 'bg-gray-1 dark:bg-dark-3 border-stroke dark:border-dark-3 text-body-color dark:text-dark-6 hover:border-primary/30'
+                  : 'bg-gray-1 dark:bg-gray-2 border-border text-text-secondary hover:border-primary/30'
               }`}
               disabled={isLoading}
             >
@@ -117,7 +117,7 @@ export const InviteFamilyMemberModal: React.FC<InviteFamilyMemberModalProps> = (
               className={`flex-1 px-4 py-2 rounded-lg border transition-all duration-200 ${
                 role === 'child'
                   ? 'bg-primary/10 border-primary text-primary dark:bg-primary/20'
-                  : 'bg-gray-1 dark:bg-dark-3 border-stroke dark:border-dark-3 text-body-color dark:text-dark-6 hover:border-primary/30'
+                  : 'bg-gray-1 dark:bg-gray-2 border-border text-text-secondary hover:border-primary/30'
               }`}
               disabled={isLoading}
             >

@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PageTemplate } from '@/design-system/layouts';
-import { DataSection, SeparatedList } from '@/design-system/composites';
-import { Button, Icon } from '@/design-system/primitives';
+// Прямые импорты для tree-shaking
+import { PageTemplate } from '@/design-system/layouts/PageTemplate';
+import { DataSection } from '@/design-system/composites/DataSection';
+import { SeparatedList } from '@/design-system/composites/SeparatedList';
+import { Button } from '@/design-system/primitives/Button';
+import { Icon } from '@/design-system/primitives/Icon';
 import { useThemeClasses } from '@/design-system/utils';
 import { securityApi } from '@/services/api/security';
 
@@ -116,7 +119,7 @@ const SecurityPage: React.FC = () => {
         id="login-methods"
         title={t('security.loginMethods.title', 'Способ входа')}
       >
-        <div className="bg-white dark:bg-dark-2 rounded-lg border border-stroke dark:border-dark-3 overflow-hidden">
+        <div className="bg-background dark:bg-surface rounded-lg border border-border overflow-hidden">
           <SeparatedList className="p-4">
             {/* Current Method */}
             <div className="flex items-center justify-between py-2">
@@ -159,7 +162,7 @@ const SecurityPage: React.FC = () => {
         id="access-control"
         title={t('security.control.title', 'Контроль доступа')}
       >
-        <div className="bg-white dark:bg-dark-2 rounded-lg border border-stroke dark:border-dark-3 overflow-hidden mb-4">
+        <div className="bg-background dark:bg-surface rounded-lg border border-border overflow-hidden mb-4">
           <SeparatedList className="p-4">
             {/* Activity Link */}
             <a href="/security/activity" className="flex items-center justify-between py-2 group">
@@ -209,7 +212,7 @@ const SecurityPage: React.FC = () => {
         id="data-access"
         title={t('security.access.title', 'Доступ к вашим данным')}
       >
-        <div className="bg-white dark:bg-dark-2 rounded-lg border border-stroke dark:border-dark-3 overflow-hidden">
+        <div className="bg-background dark:bg-surface rounded-lg border border-border overflow-hidden">
           <SeparatedList className="p-4">
             {/* External Accounts */}
             <a href="/security/external-accounts" className="flex items-center justify-between py-2 group">

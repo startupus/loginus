@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Button, Avatar, Icon } from '../../primitives';
+// Прямые импорты для tree-shaking
+import { Button } from '../../primitives/Button';
+import { Avatar } from '../../primitives/Avatar';
+import { Icon } from '../../primitives/Icon';
 import { Logo } from '../../primitives/Logo';
 import { ProfilePopup } from '../../composites/ProfilePopup';
 import { useTheme } from '../../contexts';

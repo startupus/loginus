@@ -4,21 +4,21 @@ import { useTranslation } from 'react-i18next';
 import { preloadModule } from '../services/i18n/config';
 import { PageTemplate } from '../design-system/layouts/PageTemplate';
 import { profileApi } from '../services/api/profile';
-import { Icon } from '../design-system/primitives';
-// Lazy loading для MasonryGrid
-const MasonryGrid = lazy(() => import('../design-system/composites/MasonryGrid').then(m => ({ default: m.MasonryGrid })));
+import { Icon } from '../design-system/primitives/Icon';
 import { useAuthStore } from '../store';
 import { useWidgetPreferences } from '../hooks/useWidgetPreferences';
 import { useModal } from '../hooks/useModal';
-import {
-  AddDocumentModal,
-  AddAddressModal,
-  InviteFamilyMemberModal,
-  EditProfileModal,
-  EditAvatarModal,
-  type DocumentType,
-  type AddressType,
-} from '../components/Modals';
+import type { DocumentType, AddressType } from '../components/Modals';
+
+// Lazy loading для тяжелых компонентов
+const MasonryGrid = lazy(() => import('../design-system/composites/MasonryGrid').then(m => ({ default: m.MasonryGrid })));
+
+// Lazy loading для модалок - загружаются только при открытии (оптимизация первой загрузки)
+const AddDocumentModal = lazy(() => import('../components/Modals/AddDocumentModal').then(m => ({ default: m.AddDocumentModal })));
+const AddAddressModal = lazy(() => import('../components/Modals/AddAddressModal').then(m => ({ default: m.AddAddressModal })));
+const InviteFamilyMemberModal = lazy(() => import('../components/Modals/InviteFamilyMemberModal').then(m => ({ default: m.InviteFamilyMemberModal })));
+const EditProfileModal = lazy(() => import('../components/Modals/EditProfileModal').then(m => ({ default: m.EditProfileModal })));
+const EditAvatarModal = lazy(() => import('../components/Modals/EditAvatarModal').then(m => ({ default: m.EditAvatarModal })));
 
 // Lazy loading для компонентов, которые не нужны сразу
 const WidgetSelector = lazy(() => import('../components/Dashboard/WidgetSelector').then(m => ({ default: m.WidgetSelector })));
@@ -49,21 +49,21 @@ const SubscriptionsList = lazy(() => import('../components/Dashboard/Subscriptio
 // Компонент скелетона для Suspense fallback
 const WidgetSkeleton: React.FC = () => (
   <div className="w-full animate-pulse">
-    <div className="bg-white dark:bg-dark-2 rounded-xl p-6 border border-stroke dark:border-dark-3 h-32">
-      <div className="h-4 bg-gray-2 dark:bg-dark-3 rounded w-1/2 mb-4"></div>
-      <div className="h-8 bg-gray-2 dark:bg-dark-3 rounded w-1/3"></div>
+    <div className="bg-background dark:bg-surface rounded-xl p-6 border border-border h-32">
+      <div className="h-4 bg-gray-2 dark:bg-gray-3 rounded w-1/2 mb-4"></div>
+      <div className="h-8 bg-gray-2 dark:bg-gray-3 rounded w-1/3"></div>
     </div>
   </div>
 );
 
 const SectionSkeleton: React.FC = () => (
   <div className="w-full animate-pulse">
-    <div className="bg-white dark:bg-dark-2 rounded-xl p-6 border border-stroke dark:border-dark-3">
-      <div className="h-4 bg-gray-2 dark:bg-dark-3 rounded w-1/4 mb-4"></div>
+    <div className="bg-background dark:bg-surface rounded-xl p-6 border border-border">
+      <div className="h-4 bg-gray-2 dark:bg-gray-3 rounded w-1/4 mb-4"></div>
       <div className="space-y-3">
-        <div className="h-3 bg-gray-2 dark:bg-dark-3 rounded w-full"></div>
-        <div className="h-3 bg-gray-2 dark:bg-dark-3 rounded w-5/6"></div>
-        <div className="h-3 bg-gray-2 dark:bg-dark-3 rounded w-4/6"></div>
+        <div className="h-3 bg-gray-2 dark:bg-gray-3 rounded w-full"></div>
+        <div className="h-3 bg-gray-2 dark:bg-gray-3 rounded w-5/6"></div>
+        <div className="h-3 bg-gray-2 dark:bg-gray-3 rounded w-4/6"></div>
       </div>
     </div>
   </div>
@@ -191,12 +191,12 @@ const DashboardPage: React.FC = () => {
         <div className="space-y-4 sm:space-y-6">
           {/* Skeleton для ProfileCard */}
           <div className="w-full animate-pulse">
-            <div className="bg-white dark:bg-dark-2 rounded-xl p-6 border border-stroke dark:border-dark-3">
+            <div className="bg-background dark:bg-surface rounded-xl p-6 border border-border">
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-gray-2 dark:bg-dark-3"></div>
+                <div className="w-16 h-16 rounded-full bg-gray-2 dark:bg-gray-3"></div>
                 <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-gray-2 dark:bg-dark-3 rounded w-1/3"></div>
-                  <div className="h-3 bg-gray-2 dark:bg-dark-3 rounded w-1/2"></div>
+                  <div className="h-4 bg-gray-2 dark:bg-gray-3 rounded w-1/3"></div>
+                  <div className="h-3 bg-gray-2 dark:bg-gray-3 rounded w-1/2"></div>
                 </div>
               </div>
             </div>
@@ -206,9 +206,9 @@ const DashboardPage: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
             {[1, 2, 3].map((i) => (
               <div key={i} className="w-full animate-pulse">
-                <div className="bg-white dark:bg-dark-2 rounded-xl p-6 border border-stroke dark:border-dark-3 h-32">
-                  <div className="h-4 bg-gray-2 dark:bg-dark-3 rounded w-1/2 mb-4"></div>
-                  <div className="h-8 bg-gray-2 dark:bg-dark-3 rounded w-1/3"></div>
+                <div className="bg-background dark:bg-surface rounded-xl p-6 border border-border h-32">
+                  <div className="h-4 bg-gray-2 dark:bg-gray-3 rounded w-1/2 mb-4"></div>
+                  <div className="h-8 bg-gray-2 dark:bg-gray-3 rounded w-1/3"></div>
                 </div>
               </div>
             ))}
@@ -224,7 +224,7 @@ const DashboardPage: React.FC = () => {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <Icon name="alert-circle" size="lg" className="text-error mx-auto mb-4" />
-            <p className="text-body-color dark:text-dark-6">
+            <p className="text-text-secondary">
               {t('errors.500Description', 'Что-то пошло не так. Мы уже работаем над исправлением.')}
             </p>
           </div>
@@ -367,7 +367,7 @@ const DashboardPage: React.FC = () => {
     return (
       <PageTemplate title={t('dashboard.title', 'Профиль')} showSidebar={true}>
         <div className="flex items-center justify-center min-h-[400px]">
-          <p className="text-body-color dark:text-dark-6">{t('common.noData', 'Нет данных')}</p>
+          <p className="text-text-secondary">{t('common.noData', 'Нет данных')}</p>
         </div>
       </PageTemplate>
     );
@@ -570,47 +570,48 @@ const DashboardPage: React.FC = () => {
         </Suspense>
       )}
 
-      {/* Модалки */}
-      <AddDocumentModal
-        isOpen={documentModal.isOpen}
-        onClose={documentModal.close}
-        onSuccess={refreshDashboard}
-        documentType={selectedDocumentType}
-      />
+      {/* Модалки - lazy loaded для оптимизации первой загрузки */}
+      <Suspense fallback={null}>
+        <AddDocumentModal
+          isOpen={documentModal.isOpen}
+          onClose={documentModal.close}
+          onSuccess={refreshDashboard}
+          documentType={selectedDocumentType}
+        />
 
-      <AddAddressModal
-        isOpen={addressModal.isOpen}
-        onClose={addressModal.close}
-        onSuccess={refreshDashboard}
-        addressType={selectedAddressType}
-      />
+        <AddAddressModal
+          isOpen={addressModal.isOpen}
+          onClose={addressModal.close}
+          onSuccess={refreshDashboard}
+          addressType={selectedAddressType}
+        />
 
-      <InviteFamilyMemberModal
-        isOpen={familyModal.isOpen}
-        onClose={familyModal.close}
-        onSuccess={refreshDashboard}
-      />
+        <InviteFamilyMemberModal
+          isOpen={familyModal.isOpen}
+          onClose={familyModal.close}
+          onSuccess={refreshDashboard}
+        />
 
-      <EditProfileModal
-        isOpen={editProfileModal.isOpen}
-        onClose={editProfileModal.close}
-        onSuccess={refreshDashboard}
-        initialData={{
-          name: user.name,
-          avatar: user.avatar,
-        }}
-      />
+        <EditProfileModal
+          isOpen={editProfileModal.isOpen}
+          onClose={editProfileModal.close}
+          onSuccess={refreshDashboard}
+          initialData={{
+            name: user.name,
+            avatar: user.avatar,
+          }}
+        />
 
-      {/* Модалка редактирования аватара */}
-      <EditAvatarModal
-        isOpen={editAvatarModal.isOpen}
-        onClose={editAvatarModal.close}
-        onSuccess={refreshDashboard}
-        initialData={{
-          name: user.name,
-          avatar: user.avatar,
-        }}
-      />
+        <EditAvatarModal
+          isOpen={editAvatarModal.isOpen}
+          onClose={editAvatarModal.close}
+          onSuccess={refreshDashboard}
+          initialData={{
+            name: user.name,
+            avatar: user.avatar,
+          }}
+        />
+      </Suspense>
     </PageTemplate>
   );
 };

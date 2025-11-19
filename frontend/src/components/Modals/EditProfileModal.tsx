@@ -211,7 +211,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
         </div>
 
         {errors.submit && (
-          <div className="p-3 rounded-lg bg-error/10 dark:bg-error/20 border border-error/20 text-error text-sm">
+          <div className="p-3 rounded-lg bg-error/10 border border-error/20 text-error text-sm">
             {errors.submit}
           </div>
         )}

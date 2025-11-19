@@ -2,8 +2,14 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { PageTemplate } from '@/design-system/layouts/PageTemplate';
-import { Button, Icon, Avatar, Badge, Separator } from '@/design-system/primitives';
-import { DataSection, SeparatedList } from '@/design-system/composites';
+// Прямые импорты для tree-shaking
+import { Button } from '@/design-system/primitives/Button';
+import { Icon } from '@/design-system/primitives/Icon';
+import { Avatar } from '@/design-system/primitives/Avatar';
+import { Badge } from '@/design-system/primitives/Badge';
+import { Separator } from '@/design-system/primitives/Separator';
+import { DataSection } from '@/design-system/composites/DataSection';
+import { SeparatedList } from '@/design-system/composites/SeparatedList';
 import { familyApi } from '@/services/api/family';
 import { getInitials } from '@/utils/stringUtils';
 
@@ -23,7 +29,7 @@ const FamilyPage: React.FC = () => {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-body-color dark:text-dark-6">{t('common.loading', 'Загрузка...')}</p>
+            <p className="text-text-secondary">{t('common.loading', 'Загрузка...')}</p>
           </div>
         </div>
       </PageTemplate>
@@ -78,7 +84,7 @@ const FamilyPage: React.FC = () => {
             </Button>
           }
         >
-          <div className="bg-white dark:bg-dark-2 rounded-lg border border-stroke dark:border-dark-3 overflow-hidden">
+          <div className="bg-background dark:bg-surface rounded-lg border border-border overflow-hidden">
             <SeparatedList className="p-4">
                 {adults.map((member: any) => (
                     <div key={member.id} className="flex items-center justify-between py-2">
@@ -133,7 +139,7 @@ const FamilyPage: React.FC = () => {
           }
         >
             {children.length > 0 ? (
-                 <div className="bg-white dark:bg-dark-2 rounded-lg border border-stroke dark:border-dark-3 overflow-hidden">
+                 <div className="bg-background dark:bg-surface rounded-lg border border-border overflow-hidden">
                     <SeparatedList className="p-4">
                         {children.map((child: any) => (
                             <div key={child.id} className="flex items-center justify-between py-2">
@@ -162,7 +168,7 @@ const FamilyPage: React.FC = () => {
                     </SeparatedList>
                  </div>
             ) : (
-                <div className="flex flex-col items-center justify-center p-8 bg-white dark:bg-dark-2 rounded-lg border border-dashed border-gray-300 dark:border-dark-3 text-center">
+                <div className="flex flex-col items-center justify-center p-8 bg-background dark:bg-surface rounded-lg border border-dashed border-gray-300 dark:border-border text-center">
                      <div className="w-12 h-12 bg-info/10 text-info rounded-full flex items-center justify-center mb-4">
                          <Icon name="smile" size="lg" />
                      </div>
@@ -182,7 +188,7 @@ const FamilyPage: React.FC = () => {
           id="features"
           title={t('family.features.title', 'Возможности группы')}
         >
-          <div className="bg-white dark:bg-dark-2 rounded-lg border border-stroke dark:border-dark-3 overflow-hidden">
+          <div className="bg-background dark:bg-surface rounded-lg border border-border overflow-hidden">
             <SeparatedList className="p-4">
               {[
                 { icon: 'credit-card', title: t('family.features.pay', 'Семейная оплата'), active: true },

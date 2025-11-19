@@ -1,7 +1,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { PageTemplate } from '@/design-system/layouts';
-import { Icon } from '@/design-system/primitives';
+// Прямые импорты для tree-shaking
+import { PageTemplate } from '@/design-system/layouts/PageTemplate';
+import { Icon } from '@/design-system/primitives/Icon';
 import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';
 
 const HelpPage: React.FC = () => {
@@ -89,10 +90,10 @@ const HelpPage: React.FC = () => {
     >
       {/* Header Section */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-dark dark:text-white mb-4">
+        <h1 className="text-3xl font-bold text-text-primary mb-4">
           {t('help.header.title', 'Ваш Loginus ID')}
         </h1>
-        <p className="text-base text-body-color dark:text-dark-6 leading-relaxed max-w-3xl">
+        <p className="text-base text-text-secondary leading-relaxed max-w-3xl">
           {t('help.header.description', 'Многие сервисы Loginus доступны только после регистрации. Loginus ID — это единый аккаунт. Используйте его для авторизации на всех сервисах Loginus.')}
         </p>
       </div>
@@ -102,7 +103,7 @@ const HelpPage: React.FC = () => {
         {helpCategories.map((category, index) => (
           <div
             key={index}
-            className="bg-white dark:bg-dark-2 rounded-lg border border-stroke dark:border-dark-3 p-6 hover:shadow-lg transition-shadow"
+            className="bg-background dark:bg-surface rounded-lg border border-border p-6 hover:shadow-lg transition-shadow"
           >
             <div className="flex items-start gap-4">
               {/* Icon */}
@@ -112,7 +113,7 @@ const HelpPage: React.FC = () => {
 
               {/* Content */}
               <div className="flex-1 min-w-0">
-                <h3 className="text-lg font-semibold text-dark dark:text-white mb-3">
+                <h3 className="text-lg font-semibold text-text-primary mb-3">
                   {category.title}
                 </h3>
                 <ul className="space-y-2">
@@ -135,11 +136,11 @@ const HelpPage: React.FC = () => {
       </div>
 
       {/* Additional Help Section */}
-      <div className="mt-12 p-6 bg-gray-50 dark:bg-dark-3 rounded-lg border border-stroke dark:border-dark-3">
-        <h3 className="text-lg font-semibold text-dark dark:text-white mb-3">
+      <div className="mt-12 p-6 bg-gray-50 dark:bg-gray-2 rounded-lg border border-border">
+        <h3 className="text-lg font-semibold text-text-primary mb-3">
           {t('help.additionalHelp.title', 'Не нашли ответ?')}
         </h3>
-        <p className="text-body-color dark:text-dark-6 mb-4">
+        <p className="text-text-secondary mb-4">
           {t('help.additionalHelp.description', 'Если вы не нашли ответ на свой вопрос в справке, обратитесь в поддержку.')}
         </p>
         <div className="flex flex-wrap gap-4">

@@ -194,7 +194,7 @@ export const EditAvatarModal: React.FC<EditAvatarModalProps> = ({
 
         {/* Выбор цвета фона */}
         <div>
-          <label className="block text-sm font-medium text-dark dark:text-white mb-3">
+          <label className="block text-sm font-medium text-text-primary mb-3">
             {t('modals.avatar.backgroundColor', 'Фон аватара')}
           </label>
           <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t('modals.avatar.backgroundColor', 'Фон аватара')}>
@@ -219,7 +219,7 @@ export const EditAvatarModal: React.FC<EditAvatarModalProps> = ({
 
         {/* Выбор изображения аватара */}
         <div>
-          <label className="block text-sm font-medium text-dark dark:text-white mb-3">
+          <label className="block text-sm font-medium text-text-primary mb-3">
             {t('modals.avatar.image', 'Изображение аватара')}
           </label>
           
@@ -269,7 +269,7 @@ export const EditAvatarModal: React.FC<EditAvatarModalProps> = ({
                 className={`relative w-full aspect-square rounded-lg overflow-hidden border-2 transition-all ${
                   selectedAvatar === avatar.url
                     ? 'border-primary scale-105'
-                    : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'
+                    : 'border-transparent hover:border-border'
                 }`}
                 aria-label={avatar.label}
                 aria-checked={selectedAvatar === avatar.url}
@@ -286,13 +286,13 @@ export const EditAvatarModal: React.FC<EditAvatarModalProps> = ({
         </div>
 
         {errors.submit && (
-          <div className="p-3 rounded-lg bg-error/10 dark:bg-error/20 border border-error/20 text-error text-sm">
+          <div className="p-3 rounded-lg bg-error/10 border border-error/20 text-error text-sm">
             {errors.submit}
           </div>
         )}
 
         {errors.avatar && (
-          <div className="p-3 rounded-lg bg-error/10 dark:bg-error/20 border border-error/20 text-error text-sm">
+          <div className="p-3 rounded-lg bg-error/10 border border-error/20 text-error text-sm">
             {errors.avatar}
           </div>
         )}

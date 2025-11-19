@@ -85,7 +85,7 @@ export const DocumentsGrid: React.FC<DocumentsGridProps> = ({
       action={
         <button
           onClick={handleViewAll}
-          className="text-sm text-body-color dark:text-dark-6 hover:text-primary dark:hover:text-primary transition-colors duration-200 flex items-center gap-1"
+          className="text-sm text-text-secondary hover:text-primary transition-colors duration-200 flex items-center gap-1"
         >
           <span>{t('personalData.documents.viewAll', 'Все документы')}</span>
           <Icon name="arrow-right" size="sm" />
@@ -97,10 +97,10 @@ export const DocumentsGrid: React.FC<DocumentsGridProps> = ({
         {canScrollLeft && (
           <button
             onClick={() => scroll('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white dark:bg-dark-2 shadow-lg border border-gray-2 dark:border-dark-3 flex items-center justify-center hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-background dark:bg-surface shadow-lg border border-border flex items-center justify-center hover:bg-gray-1 dark:hover:bg-gray-2 transition-colors"
             aria-label={t('common.scrollLeft', 'Прокрутить влево')}
           >
-            <Icon name="chevron-left" size="sm" className="text-body-color dark:text-dark-6" />
+            <Icon name="chevron-left" size="sm" className="text-text-secondary" />
           </button>
         )}
 
@@ -118,20 +118,20 @@ export const DocumentsGrid: React.FC<DocumentsGridProps> = ({
             <button
               key={`${doc.type}-${index}`}
               onClick={() => onAddDocument?.(doc.type)}
-              className="group flex-shrink-0 flex flex-col items-center gap-3 p-4 rounded-lg bg-gray-1/50 dark:bg-dark-3/50 border border-stroke dark:border-dark-3 hover:border-primary/30 dark:hover:border-primary/30 hover:bg-gray-1 dark:hover:bg-dark-3 transition-all duration-200 animate-fade-in relative min-w-[120px]"
+              className="group flex-shrink-0 flex flex-col items-center gap-3 p-4 rounded-lg bg-gray-1/50 dark:bg-gray-2/50 border border-border hover:border-primary/30 hover:bg-gray-1 dark:hover:bg-gray-2 transition-all duration-200 animate-fade-in relative min-w-[120px]"
               style={{ animationDelay: `${index * 30}ms` }}
             >
               {/* Иконка */}
-              <div className="w-12 h-12 rounded-lg bg-gray-1 dark:bg-dark-3 flex items-center justify-center transition-colors duration-200 group-hover:bg-gray-2 dark:group-hover:bg-dark-4">
+              <div className="w-12 h-12 rounded-lg bg-gray-1 dark:bg-gray-2 flex items-center justify-center transition-colors duration-200 group-hover:bg-gray-2 dark:group-hover:bg-gray-3">
                 <Icon 
                   name={doc.icon} 
                   size="md" 
-                  className="text-body-color dark:text-dark-6"
+                  className="text-text-secondary"
                 />
               </div>
               
               {/* Название (локализуется по type, fallback на doc.label) */}
-              <span className="text-xs text-center text-body-color dark:text-dark-6 group-hover:text-dark dark:group-hover:text-white transition-colors duration-200">
+              <span className="text-xs text-center text-text-secondary group-hover:text-text-primary transition-colors duration-200">
                 {getDocumentLabel(doc.type, t, doc.label || doc.type)}
               </span>
               
@@ -149,10 +149,10 @@ export const DocumentsGrid: React.FC<DocumentsGridProps> = ({
         {canScrollRight && (
           <button
             onClick={() => scroll('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white dark:bg-dark-2 shadow-lg border border-gray-2 dark:border-dark-3 flex items-center justify-center hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-background dark:bg-surface shadow-lg border border-border flex items-center justify-center hover:bg-gray-1 dark:hover:bg-gray-2 transition-colors"
             aria-label={t('common.scrollRight', 'Прокрутить вправо')}
           >
-            <Icon name="chevron-right" size="sm" className="text-body-color dark:text-dark-6" />
+            <Icon name="chevron-right" size="sm" className="text-text-secondary" />
           </button>
         )}
       </div>

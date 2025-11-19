@@ -162,10 +162,10 @@ export const OnboardingPage: React.FC = () => {
         {currentStep === 1 && (
           <>
             <div className="text-center">
-              <h1 className="text-2xl sm:text-3xl font-bold text-dark dark:text-white mb-2">
+              <h1 className="text-2xl sm:text-3xl font-bold text-text-primary mb-2">
                 {t('onboarding.step1.title', 'Как вас зовут?')}
               </h1>
-              <p className="text-base text-body-color dark:text-dark-6">
+              <p className="text-base text-text-secondary">
                 {t('onboarding.step1.subtitle', 'Укажите ваше имя и фамилию')}
               </p>
             </div>
@@ -205,10 +205,10 @@ export const OnboardingPage: React.FC = () => {
         {currentStep === 2 && (
           <>
             <div className="text-center">
-              <h1 className="text-2xl sm:text-3xl font-bold text-dark dark:text-white mb-2">
+              <h1 className="text-2xl sm:text-3xl font-bold text-text-primary mb-2">
                 {t('onboarding.step2.title', 'Создайте пароль')}
               </h1>
-              <p className="text-base text-body-color dark:text-dark-6">
+              <p className="text-base text-text-secondary">
                 {t('onboarding.step2.subtitle', 'Пароль нужен для дополнительной безопасности. Можно пропустить и создать позже.')}
               </p>
             </div>
@@ -256,10 +256,10 @@ export const OnboardingPage: React.FC = () => {
         {currentStep === 3 && (
           <>
             <div className="text-center">
-              <h1 className="text-2xl sm:text-3xl font-bold text-dark dark:text-white mb-2">
+              <h1 className="text-2xl sm:text-3xl font-bold text-text-primary mb-2">
                 {t('onboarding.step3.title', 'Почти готово!')}
               </h1>
-              <p className="text-base text-body-color dark:text-dark-6">
+              <p className="text-base text-text-secondary">
                 {t('onboarding.step3.subtitle', 'Осталось принять условия использования')}
               </p>
             </div>

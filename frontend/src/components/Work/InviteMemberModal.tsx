@@ -70,13 +70,13 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         {groupName && (
-          <div className="text-sm text-body-color dark:text-dark-6 mb-4">
-            {t('work.invite.group', 'Группа')}: <span className="font-medium text-dark dark:text-white">{groupName}</span>
+          <div className="text-sm text-text-secondary mb-4">
+            {t('work.invite.group', 'Группа')}: <span className="font-medium text-text-primary">{groupName}</span>
           </div>
         )}
 
         <div>
-          <label className="block text-sm font-medium text-dark dark:text-white mb-2">
+          <label className="block text-sm font-medium text-text-primary mb-2">
             {t('work.invite.email', 'Email')}
           </label>
           <Input
@@ -90,7 +90,7 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-dark dark:text-white mb-2">
+          <label className="block text-sm font-medium text-text-primary mb-2">
             {t('work.invite.role', 'Роль')}
           </label>
           <div className="flex gap-2">
@@ -99,8 +99,8 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
               onClick={() => setRole('member')}
               className={`flex-1 px-4 py-2 rounded-lg border transition-all duration-200 ${
                 role === 'member'
-                  ? 'bg-primary/10 border-primary text-primary dark:bg-primary/20'
-                  : 'bg-gray-1 dark:bg-dark-3 border-stroke dark:border-dark-3 text-body-color dark:text-dark-6 hover:border-primary/30'
+                  ? 'bg-primary/10 border-primary text-primary'
+                  : 'bg-gray-1 dark:bg-gray-2 border-border text-text-secondary hover:border-primary/30'
               }`}
               disabled={isLoading}
             >
@@ -111,8 +111,8 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
               onClick={() => setRole('admin')}
               className={`flex-1 px-4 py-2 rounded-lg border transition-all duration-200 ${
                 role === 'admin'
-                  ? 'bg-primary/10 border-primary text-primary dark:bg-primary/20'
-                  : 'bg-gray-1 dark:bg-dark-3 border-stroke dark:border-dark-3 text-body-color dark:text-dark-6 hover:border-primary/30'
+                  ? 'bg-primary/10 border-primary text-primary'
+                  : 'bg-gray-1 dark:bg-gray-2 border-border text-text-secondary hover:border-primary/30'
               }`}
               disabled={isLoading}
             >
@@ -122,7 +122,7 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
         </div>
 
         {error && (
-          <div className="p-3 rounded-lg bg-error/10 dark:bg-error/20 border border-error/20 text-error text-sm">
+          <div className="p-3 rounded-lg bg-error/10 border border-error/20 text-error text-sm">
             {error}
           </div>
         )}

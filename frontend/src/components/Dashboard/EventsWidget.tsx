@@ -71,7 +71,7 @@ export const EventsWidget: React.FC<EventsWidgetProps> = ({
     <WidgetCard
       title={
         <div className="flex items-center gap-2">
-          <span className="text-xl font-semibold text-dark dark:text-white sm:text-[22px] md:text-xl lg:text-[22px] xl:text-xl 2xl:text-[22px]">
+          <span className="text-xl font-semibold text-text-primary sm:text-[22px] md:text-xl lg:text-[22px] xl:text-xl 2xl:text-[22px]">
             {t('dashboard.events.title', 'События')}
           </span>
           {displayedEvents.length > 0 && (
@@ -98,16 +98,16 @@ export const EventsWidget: React.FC<EventsWidgetProps> = ({
           {displayedEvents.map((event) => (
             <div
               key={event.id}
-              className="flex items-start gap-2 p-2 rounded-lg bg-gray-1 dark:bg-dark-3 hover:bg-gray-2 dark:hover:bg-dark-4 transition-all duration-200 group"
+              className="flex items-start gap-2 p-2 rounded-lg bg-gray-1 dark:bg-gray-2 hover:bg-gray-2 dark:hover:bg-gray-3 transition-all duration-200 group"
             >
               {/* Дата */}
-              <div className="flex-shrink-0 w-12 text-xs text-body-color dark:text-dark-6 text-center pt-0.5">
+              <div className="flex-shrink-0 w-12 text-xs text-text-secondary text-center pt-0.5">
                 {formatDate(event.date)}
               </div>
               
               {/* Контент */}
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-dark dark:text-white group-hover:text-primary dark:group-hover:text-primary transition-colors line-clamp-2">
+                <p className="text-xs font-medium text-text-primary group-hover:text-primary transition-colors line-clamp-2">
                   {event.title}
                 </p>
               </div>
@@ -116,10 +116,10 @@ export const EventsWidget: React.FC<EventsWidgetProps> = ({
         </div>
       ) : (
         <div className="text-center py-8">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-1 dark:bg-dark-3 flex items-center justify-center">
-            <Icon name="bell" size="lg" className="text-body-color dark:text-dark-6" />
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-1 dark:bg-gray-2 flex items-center justify-center">
+            <Icon name="bell" size="lg" className="text-text-secondary" />
           </div>
-          <p className="text-sm text-body-color dark:text-dark-6">
+          <p className="text-sm text-text-secondary">
             {t('dashboard.events.empty', 'Нет новых событий')}
           </p>
         </div>

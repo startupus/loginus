@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PageTemplate } from '@/design-system/layouts';
-import { Button, Icon } from '@/design-system/primitives';
+// Прямые импорты для tree-shaking
+import { PageTemplate } from '@/design-system/layouts/PageTemplate';
+import { Button } from '@/design-system/primitives/Button';
+import { Icon } from '@/design-system/primitives/Icon';
 
 const SupportPage: React.FC = () => {
   const { t } = useTranslation();
@@ -31,13 +33,13 @@ const SupportPage: React.FC = () => {
     >
       <div className="flex flex-col h-[calc(100vh-140px)]">
         {/* Chat Header */}
-        <div className="bg-white dark:bg-dark-2 border border-stroke dark:border-dark-3 rounded-t-lg p-4">
+        <div className="bg-background dark:bg-surface border border-border rounded-t-lg p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
               <Icon name="message-circle" className="text-primary" />
             </div>
             <div>
-              <h3 className="font-semibold text-dark dark:text-white">
+              <h3 className="font-semibold text-text-primary">
                 {t('support.chat.title', 'Поддержка Loginus ID')}
               </h3>
               <div className="flex items-center gap-2 text-sm text-green-500">
@@ -49,7 +51,7 @@ const SupportPage: React.FC = () => {
         </div>
 
         {/* Chat Messages Area */}
-        <div className="flex-1 bg-white dark:bg-dark-2 border-x border-stroke dark:border-dark-3 p-6 overflow-y-auto">
+        <div className="flex-1 bg-background dark:bg-surface border-x border-border p-6 overflow-y-auto">
           <div className="max-w-2xl mx-auto space-y-4">
             {/* Bot Welcome Message */}
             <div className="flex items-start gap-3">
@@ -58,7 +60,7 @@ const SupportPage: React.FC = () => {
               </div>
               <div className="flex-1">
                 <div className="bg-gray-100 dark:bg-dark-3 rounded-2xl rounded-tl-none p-4">
-                  <p className="text-dark dark:text-white">
+                  <p className="text-text-primary">
                     {t('support.chat.welcome', 'Здравствуйте! Я помогу вам разобраться с вопросами по Loginus ID.')}
                   </p>
                 </div>
@@ -75,7 +77,7 @@ const SupportPage: React.FC = () => {
               </div>
               <div className="flex-1">
                 <div className="bg-gray-100 dark:bg-dark-3 rounded-2xl rounded-tl-none p-4 mb-3">
-                  <p className="text-dark dark:text-white mb-4">
+                  <p className="text-text-primary mb-4">
                     {t('support.chat.selectTopic', 'Выберите тему вашего вопроса:')}
                   </p>
                   <div className="grid grid-cols-2 gap-2">
@@ -99,12 +101,12 @@ const SupportPage: React.FC = () => {
         </div>
 
         {/* Chat Input Area */}
-        <div className="bg-white dark:bg-dark-2 border border-stroke dark:border-dark-3 rounded-b-lg p-4">
+        <div className="bg-background dark:bg-surface border border-border rounded-b-lg p-4">
           <div className="flex items-end gap-3">
             <div className="flex-1">
               <textarea
                 placeholder={t('support.chat.placeholder', 'Напишите ваш вопрос...')}
-                className="w-full px-4 py-3 rounded-lg border border-stroke dark:border-dark-3 bg-transparent text-dark dark:text-white placeholder-gray-400 resize-none focus:outline-none focus:border-primary"
+                className="w-full px-4 py-3 rounded-lg border border-border bg-transparent text-text-primary placeholder-gray-400 resize-none focus:outline-none focus:border-primary"
                 rows={1}
                 style={{ minHeight: '44px', maxHeight: '120px' }}
               />

@@ -64,7 +64,7 @@ export const WorkGroups: React.FC<WorkGroupsProps> = ({
       action={
         <button
           onClick={handleViewAll}
-          className="text-sm text-body-color dark:text-dark-6 hover:text-primary dark:hover:text-primary transition-colors duration-200 flex items-center gap-1"
+          className="text-sm text-text-secondary hover:text-primary transition-colors duration-200 flex items-center gap-1"
         >
           <span>{t('dashboard.work.allGroups', 'Все группы')}</span>
           <Icon name="arrow-right" size="sm" />
@@ -75,7 +75,7 @@ export const WorkGroups: React.FC<WorkGroupsProps> = ({
         {groups.map((group, index) => (
           <div
             key={group.id}
-            className="group flex flex-col gap-3 p-4 rounded-lg bg-gray-1/50 dark:bg-dark-3/50 border border-stroke dark:border-dark-3 hover:border-primary/30 dark:hover:border-primary/30 hover:bg-gray-1 dark:hover:bg-dark-3 transition-all duration-200 animate-fade-in"
+            className="group flex flex-col gap-3 p-4 rounded-lg bg-gray-1/50 dark:bg-gray-2/50 border border-border hover:border-primary/30 hover:bg-gray-1 dark:hover:bg-gray-2 transition-all duration-200 animate-fade-in"
             style={{ animationDelay: `${index * 30}ms` }}
           >
             {/* Название группы и роль */}
@@ -84,11 +84,11 @@ export const WorkGroups: React.FC<WorkGroupsProps> = ({
                 onClick={() => onGroupClick?.(group)}
                 className="flex-1 min-w-0 text-left"
               >
-                <h3 className="text-base font-semibold text-dark dark:text-white group-hover:text-primary dark:group-hover:text-primary transition-colors duration-200 truncate">
+                <h3 className="text-base font-semibold text-text-primary group-hover:text-primary transition-colors duration-200 truncate">
                   {group.name}
                 </h3>
                 {group.description && (
-                  <p className="text-xs text-body-color dark:text-dark-6 mt-1 line-clamp-2">
+                  <p className="text-xs text-text-secondary mt-1 line-clamp-2">
                     {group.description}
                   </p>
                 )}
@@ -98,7 +98,7 @@ export const WorkGroups: React.FC<WorkGroupsProps> = ({
                 <Icon 
                   name="briefcase" 
                   size="sm" 
-                  className="text-body-color dark:text-dark-6"
+                  className="text-text-secondary"
                 />
               </div>
             </div>
@@ -120,19 +120,19 @@ export const WorkGroups: React.FC<WorkGroupsProps> = ({
                       rounded
                       showStatus
                       status={(member as any).isOnline ? 'online' : 'offline'}
-                      className="ring-2 ring-white dark:ring-dark-2"
+                      className="ring-2 ring-background dark:ring-surface"
                     />
                   </div>
                 ))}
                 {group.members.length > MAX_VISIBLE_AVATARS && (
-                  <div className="relative w-8 h-8 rounded-full bg-gray-1 dark:bg-dark-3 border-2 border-white dark:border-dark-2 flex items-center justify-center">
-                    <span className="text-xs font-medium text-body-color dark:text-dark-6">
+                  <div className="relative w-8 h-8 rounded-full bg-gray-1 dark:bg-gray-2 border-2 border-background dark:border-surface flex items-center justify-center">
+                    <span className="text-xs font-medium text-text-secondary">
                       +{group.members.length - MAX_VISIBLE_AVATARS}
                     </span>
                   </div>
                 )}
               </div>
-              <span className="text-xs text-body-color dark:text-dark-6">
+              <span className="text-xs text-text-secondary">
                 {group.members.length} {group.members.length === 1 ? 'участник' : group.members.length < 5 ? 'участника' : 'участников'}
               </span>
             </div>

@@ -1,12 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Avatar, Icon } from '../../primitives';
+// Прямые импорты для tree-shaking
+import { Avatar } from '../../primitives/Avatar';
+import { Icon } from '../../primitives/Icon';
 import { useProfileMenu } from '../../hooks/useProfileMenu';
 import { getInitials } from '@/utils/stringUtils';
 import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';
 import { useContactMasking } from '@/hooks/useContactMasking';
 import { useTheme } from '../../contexts/ThemeContext';
-import { OrganizationModal } from '@/components/Modals';
+// Lazy loading для модалки - не нужна при первой загрузке
+const OrganizationModal = React.lazy(() => import('@/components/Modals/OrganizationModal').then(m => ({ default: m.OrganizationModal })));
 import { useModal } from '@/hooks/useModal';
 
 export interface ProfileMenuProps {
@@ -360,17 +363,19 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
         )}
       </div>
 
-      {/* Organization Modal */}
-      <OrganizationModal
-        isOpen={organizationModal.isOpen}
-        onClose={organizationModal.close}
-        onSelect={(orgId) => {
-          // TODO: Реализовать выбор организации
-          console.log('Selected organization:', orgId);
-          organizationModal.close();
-        }}
-        organizations={organizations}
-      />
+      {/* Organization Modal - lazy loaded */}
+      <Suspense fallback={null}>
+        <OrganizationModal
+          isOpen={organizationModal.isOpen}
+          onClose={organizationModal.close}
+          onSelect={(orgId) => {
+            // TODO: Реализовать выбор организации
+            console.log('Selected organization:', orgId);
+            organizationModal.close();
+          }}
+          organizations={organizations}
+        />
+      </Suspense>
     </>
   );
 };

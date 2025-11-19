@@ -52,9 +52,9 @@ export const GroupEvents: React.FC<GroupEventsProps> = ({
       role_changed: 'text-warning',
       task_created: 'text-primary',
       task_completed: 'text-success',
-      other: 'text-body-color',
+      other: 'text-text-secondary',
     };
-    return colors[type] || 'text-body-color';
+    return colors[type] || 'text-text-secondary';
   };
 
   const formatDate = (dateString: string) => {
@@ -85,10 +85,10 @@ export const GroupEvents: React.FC<GroupEventsProps> = ({
           {displayedEvents.map((event) => (
             <div
               key={event.id}
-              className="flex items-start gap-3 p-3 rounded-lg bg-gray-1 dark:bg-dark-3 hover:bg-gray-2 dark:hover:bg-dark-4 transition-all duration-200 group"
+              className="flex items-start gap-3 p-3 rounded-lg bg-gray-1 dark:bg-gray-2 hover:bg-gray-2 dark:hover:bg-gray-3 transition-all duration-200 group"
             >
               {/* Иконка события */}
-              <div className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center bg-primary/10 dark:bg-primary/20 ${getEventColor(event.type)}`}>
+              <div className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center bg-primary/10 ${getEventColor(event.type)}`}>
                 <Icon 
                   name={getEventIcon(event.type)} 
                   size="sm"
@@ -99,21 +99,21 @@ export const GroupEvents: React.FC<GroupEventsProps> = ({
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-dark dark:text-white group-hover:text-primary dark:group-hover:text-primary transition-colors line-clamp-2">
+                    <p className="text-sm font-medium text-text-primary group-hover:text-primary transition-colors line-clamp-2">
                       {event.title}
                     </p>
                     {event.description && (
-                      <p className="text-xs text-body-color dark:text-dark-6 mt-1 line-clamp-1">
+                      <p className="text-xs text-text-secondary mt-1 line-clamp-1">
                         {event.description}
                       </p>
                     )}
                     {event.groupName && (
-                      <p className="text-xs text-body-color dark:text-dark-6 mt-1">
+                      <p className="text-xs text-text-secondary mt-1">
                         {event.groupName}
                       </p>
                     )}
                   </div>
-                  <span className="text-xs text-body-color dark:text-dark-6 flex-shrink-0 ml-2">
+                  <span className="text-xs text-text-secondary flex-shrink-0 ml-2">
                     {formatDate(event.date)}
                   </span>
                 </div>
@@ -123,10 +123,10 @@ export const GroupEvents: React.FC<GroupEventsProps> = ({
         </div>
       ) : (
         <div className="text-center py-8">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-1 dark:bg-dark-3 flex items-center justify-center">
-            <Icon name="bell" size="lg" className="text-body-color dark:text-dark-6" />
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-1 dark:bg-gray-2 flex items-center justify-center">
+            <Icon name="bell" size="lg" className="text-text-secondary" />
           </div>
-          <p className="text-sm text-body-color dark:text-dark-6">
+          <p className="text-sm text-text-secondary">
             {t('work.events.empty', 'Нет новых событий')}
           </p>
         </div>

@@ -1,7 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Icon, Logo } from '../../primitives';
+// Прямые импорты для tree-shaking
+import { Icon } from '../../primitives/Icon';
+import { Logo } from '../../primitives/Logo';
 import { useSidebar } from '../../hooks/useSidebar';
 import { useTheme } from '../../contexts';
 import { useLanguageStore } from '@/store';
