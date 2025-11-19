@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { Icon, Input } from '../../primitives';
 import { ProfileMenu } from './ProfileMenu';
+import { ProfilePopup } from '../../composites/ProfilePopup';
+import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';
+import { useAuthStore } from '@/store';
 
 export interface HeaderProps {
   title?: string;
@@ -12,7 +16,14 @@ export interface HeaderProps {
   userData?: {
     id: string;
     name: string;
+    phone?: string;
+    email?: string;
+    login?: string;
     avatar?: string | null;
+    unreadMail?: number;
+    plusActive?: boolean;
+    plusPoints?: number;
+    gamePoints?: number; // Количество морковок (игровых баллов)
   };
   onLogout?: () => void;
 }
@@ -27,6 +38,21 @@ export const Header: React.FC<HeaderProps> = ({
   onLogout,
 }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const currentLang = useCurrentLanguage();
+  const { logout } = useAuthStore();
+  const [isProfilePopupOpen, setIsProfilePopupOpen] = useState(false);
+  const avatarButtonRef = useRef<HTMLButtonElement>(null);
+  
+  const handleLogout = () => {
+    logout();
+    onLogout?.();
+    setIsProfilePopupOpen(false);
+  };
+
+  const handleEdit = () => {
+    navigate(buildPathWithLang('/personal', currentLang));
+  };
   
   return (
     <header className="bg-white/80 backdrop-blur-md border-b border-gray-2 dark:bg-dark/80 dark:border-dark-3 sticky xl:static top-0 z-30">
@@ -78,10 +104,59 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             )}
             
-            {userData && <ProfileMenu userData={userData} onLogout={onLogout} />}
+            {userData && (
+              <>
+                <ProfileMenu 
+                  userData={{
+                    id: userData.id,
+                    name: userData.name,
+                    phone: userData.phone,
+                    email: userData.email,
+                    login: userData.login,
+                    avatar: userData.avatar,
+                    unreadMail: userData.unreadMail,
+                    plusActive: userData.plusActive,
+                    plusPoints: userData.plusPoints,
+                    gamePoints: userData.gamePoints,
+                  }} 
+                  onLogout={onLogout}
+                  onSwitchAccount={() => {
+                    handleLogout();
+                  }}
+                />
+                <button
+                  ref={avatarButtonRef}
+                  onClick={() => setIsProfilePopupOpen(true)}
+                  className="hidden"
+                  aria-label={t('profile.menu', 'Меню профиля')}
+                />
+              </>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Profile Popup */}
+      {userData && (
+        <ProfilePopup
+          isOpen={isProfilePopupOpen}
+          onClose={() => setIsProfilePopupOpen(false)}
+          user={{
+            id: userData.id,
+            name: userData.name,
+            phone: userData.phone || '',
+            email: userData.email,
+            login: userData.login,
+            avatar: userData.avatar,
+            unreadMail: userData.unreadMail,
+            plusActive: userData.plusActive,
+            plusPoints: userData.plusPoints,
+          }}
+          onSwitchAccount={handleLogout}
+          onEdit={handleEdit}
+          anchorRef={avatarButtonRef}
+        />
+      )}
     </header>
   );
 };

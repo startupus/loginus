@@ -68,7 +68,7 @@ export const GroupEvents: React.FC<GroupEventsProps> = ({
     } else if (days === 1) {
       return t('common.yesterday', 'Вчера');
     } else if (days < 7) {
-      return t('common.daysAgo', { count: days }, `${days} дн. назад`);
+      return t('common.daysAgo', `${days} дн. назад`, { count: days });
     } else {
       return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
     }

@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Avatar, Button, Icon } from '../../design-system/primitives';
 import { getInitials } from '../../utils/stringUtils';
+import { ProfileCardMenu } from './ProfileCardMenu';
 
 export interface ProfileCardProps {
   user: {
@@ -15,6 +16,9 @@ export interface ProfileCardProps {
     achievements?: number;
   };
   onEdit?: () => void;
+  onPersonalData?: () => void;
+  onEditAvatar?: () => void;
+  onPhone?: () => void;
 }
 
 /**
@@ -23,8 +27,13 @@ export interface ProfileCardProps {
 export const ProfileCard: React.FC<ProfileCardProps> = ({
   user,
   onEdit,
+  onPersonalData,
+  onEditAvatar,
+  onPhone,
 }) => {
   const { t } = useTranslation();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const editButtonRef = useRef<HTMLButtonElement>(null);
   
   return (
     <div className="bg-white dark:bg-dark-2 rounded-xl p-4 sm:p-6 mb-6">
@@ -48,16 +57,16 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
               <h2 className="text-xl sm:text-2xl font-bold text-dark dark:text-white">
                 {user.name}
               </h2>
-              {onEdit && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={onEdit}
-                  className="!p-1"
-                >
-                  <Icon name="edit" size="sm" />
-                </Button>
-              )}
+              <Button
+                ref={editButtonRef}
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsMenuOpen(true)}
+                className="!p-1"
+                aria-label={t('profile.edit', 'Редактировать')}
+              >
+                <Icon name="edit" size="sm" />
+              </Button>
             </div>
             
             {/* Баланс и баллы в строчку */}
@@ -100,6 +109,17 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Profile Card Menu */}
+      <ProfileCardMenu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        anchorRef={editButtonRef}
+        user={{ phone: user.phone }}
+        onPersonalData={onPersonalData || onEdit}
+        onEditAvatar={onEditAvatar}
+        onPhone={onPhone}
+      />
     </div>
   );
 };

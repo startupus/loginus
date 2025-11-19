@@ -8,6 +8,9 @@ import { ServiceLink } from '../ServiceLink';
 import { PhoneVerificationCard } from '../PhoneVerificationCard';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useContactMasking } from '../../../hooks/useContactMasking';
+import { OrganizationModal, BirthdayModal } from '../../../components/Modals';
+import { useModal } from '../../../hooks/useModal';
+import { profileApi } from '../../../services/api/profile';
 
 export interface UserProfile {
   id: string;
@@ -41,6 +44,16 @@ export interface ProfilePopupProps {
    * Callback при смене аккаунта
    */
   onSwitchAccount?: () => void;
+  
+  /**
+   * Callback при редактировании профиля
+   */
+  onEdit?: () => void;
+  
+  /**
+   * Референс на элемент для позиционирования попапа
+   */
+  anchorRef?: React.RefObject<HTMLElement>;
 }
 
 /**
@@ -52,10 +65,14 @@ export const ProfilePopup: React.FC<ProfilePopupProps> = ({
   onClose,
   user,
   onSwitchAccount,
+  onEdit,
+  anchorRef,
 }) => {
   // const navigate = useNavigate(); // TODO: использовать для навигации
   const { themeMode, setThemeMode } = useTheme();
   const { masked: maskedPhone } = useContactMasking(user.phone, 'phone');
+  const organizationModal = useModal();
+  const birthdayModal = useModal();
 
   const handlePhoneVerification = (isActual: boolean) => {
     // TODO: Отправить на сервер информацию об актуальности номера
@@ -67,12 +84,30 @@ export const ProfilePopup: React.FC<ProfilePopupProps> = ({
     setThemeMode(newMode);
   };
 
+  const handleSelectOrganization = (organizationId: string) => {
+    // TODO: Реализовать выбор организации
+    console.log('Selected organization:', organizationId);
+  };
+
+  const handleSaveBirthday = async (data: { birthDate: string; gender?: 'male' | 'female' }) => {
+    try {
+      await profileApi.updateProfile({
+        birthday: data.birthDate,
+      });
+    } catch (error) {
+      console.error('Error saving birthday:', error);
+      throw error;
+    }
+  };
+
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
       size="sm"
       className="!max-w-md"
+      position={anchorRef ? 'top-right' : 'center'}
+      anchorRef={anchorRef}
     >
       <div className="text-left">
         {/* Header */}
@@ -107,9 +142,24 @@ export const ProfilePopup: React.FC<ProfilePopupProps> = ({
             <Icon name="settings" size="sm" />
             <span>Управление аккаунтом</span>
           </Link>
-          <h3 className="text-lg font-bold text-dark dark:text-white mb-1">
-            {user.name}
-          </h3>
+          <div className="flex items-center gap-2 mb-1">
+            <h3 className="text-lg font-bold text-dark dark:text-white">
+              {user.name}
+            </h3>
+            {onEdit && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  onEdit();
+                  onClose();
+                }}
+                className="!p-1"
+              >
+                <Icon name="edit" size="sm" />
+              </Button>
+            )}
+          </div>
           <p className="text-sm text-body-color dark:text-dark-6">
             {maskedPhone} {user.login && `• ${user.login}`}
           </p>
@@ -128,10 +178,7 @@ export const ProfilePopup: React.FC<ProfilePopupProps> = ({
           variant="outline"
           fullWidth
           className="mb-6 flex items-center justify-between"
-          onClick={() => {
-            // TODO: Открыть модалку выбора организации
-            console.log('Select organization');
-          }}
+          onClick={organizationModal.open}
         >
           <div className="flex items-center gap-2">
             <Icon name="users" size="sm" />
@@ -173,7 +220,9 @@ export const ProfilePopup: React.FC<ProfilePopupProps> = ({
             name="Личные данные"
             status="ФИО, день рождения, пол"
             href="/personal?dialog=personal-data"
-            onClick={onClose}
+            onClick={() => {
+              onClose();
+            }}
           />
           
           <Separator />
@@ -232,6 +281,21 @@ export const ProfilePopup: React.FC<ProfilePopupProps> = ({
           <span>Сменить аккаунт</span>
         </Button>
       </div>
+
+      {/* Organization Modal */}
+      <OrganizationModal
+        isOpen={organizationModal.isOpen}
+        onClose={organizationModal.close}
+        onSelect={handleSelectOrganization}
+        organizations={[]} // TODO: Загрузить организации из API
+      />
+
+      {/* Birthday Modal */}
+      <BirthdayModal
+        isOpen={birthdayModal.isOpen}
+        onClose={birthdayModal.close}
+        onSave={handleSaveBirthday}
+      />
     </Modal>
   );
 };

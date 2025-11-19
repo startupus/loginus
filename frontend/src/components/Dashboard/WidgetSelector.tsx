@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Icon, Button } from '../../design-system/primitives';
+import { Icon } from '../../design-system/primitives';
 
 export interface AvailableWidget {
   id: string;

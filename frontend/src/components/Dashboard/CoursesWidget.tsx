@@ -51,7 +51,6 @@ export const CoursesWidget: React.FC<CoursesWidgetProps> = ({
   const currentLang = useCurrentLanguage();
 
   const displayedCourses = courses.slice(0, 3);
-  const hasMore = courses.length > 3;
 
   const handleViewAll = () => {
     // TODO: перейти на страницу всех курсов
@@ -87,7 +86,7 @@ export const CoursesWidget: React.FC<CoursesWidgetProps> = ({
     >
       {displayedCourses.length > 0 ? (
         <div className="space-y-3">
-          {displayedCourses.map((course, index) => (
+          {displayedCourses.map((course) => (
             <button
               key={course.id}
               className="w-full group flex items-center gap-3 p-3 rounded-lg bg-gray-1 dark:bg-dark-3 hover:bg-gray-2 dark:hover:bg-dark-4 transition-all duration-200 text-left"

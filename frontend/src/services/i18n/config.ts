@@ -21,7 +21,7 @@ const initialLanguage = getStoredLanguage();
 const loadedModules = new Map<string, Set<string>>();
 
 // Доступные модули локализации
-const availableModules = ['common', 'dashboard', 'auth', 'profile', 'errors', 'landing', 'work'] as const;
+const availableModules = ['common', 'dashboard', 'auth', 'profile', 'errors', 'landing', 'work', 'modals'] as const;
 type ModuleName = typeof availableModules[number];
 
 /**
@@ -105,18 +105,39 @@ i18n.use(initReactI18next).init({
   react: {
     useSuspense: false, // Отключаем Suspense для i18n, чтобы не блокировать рендеринг
   },
+  // Отключаем возврат ключа если перевод не найден - используем fallback
+  returnNull: false,
+  returnEmptyString: false,
+  returnObjects: false,
 });
 
-// Загружаем критический модуль common при старте для быстрой инициализации
-loadCriticalModule(initialLanguage).then((commonData) => {
-  i18n.addResourceBundle(initialLanguage, 'translation', commonData, true, true);
-  
-  // Ленивая загрузка модулей - загружаем только при первом использовании
-  // Это ускоряет initial load
-});
+// Загружаем критический модуль common и profile при старте для быстрой инициализации
+// Profile нужен для Header/ProfileMenu, который рендерится сразу
+(async () => {
+  try {
+    const [commonData, profileData] = await Promise.all([
+      loadCriticalModule(initialLanguage),
+      loadModule(initialLanguage, 'profile'),
+    ]);
+    
+    // Добавляем common модуль
+    if (Object.keys(commonData).length > 0) {
+      i18n.addResourceBundle(initialLanguage, 'translation', commonData, true, true);
+    }
+    
+    // Добавляем profile модуль (критично для ProfileMenu)
+    if (Object.keys(profileData).length > 0) {
+      i18n.addResourceBundle(initialLanguage, 'translation', profileData, true, true);
+    }
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('Failed to load initial i18n modules:', error);
+    }
+  }
+})();
 
 // Автоматически загружаем модули при первом использовании ключа
-i18n.on('missingKey', (lngs, ns, key) => {
+i18n.on('missingKey', (lngs, _ns, key) => {
   const lng = Array.isArray(lngs) ? lngs[0] : lngs;
   if (!lng) return;
   
@@ -124,10 +145,11 @@ i18n.on('missingKey', (lngs, ns, key) => {
   let module: ModuleName | null = null;
   if (key.startsWith('dashboard.')) module = 'dashboard';
   else if (key.startsWith('auth.') || key.startsWith('onboarding.')) module = 'auth';
-  else if (key.startsWith('profile.') || key.startsWith('security.') || key.startsWith('personal.')) module = 'profile';
+  else if (key.startsWith('profile.') || key.startsWith('security.') || key.startsWith('personalData.') || key.startsWith('personal.')) module = 'profile';
   else if (key.startsWith('landing.')) module = 'landing';
   else if (key.startsWith('work.')) module = 'work';
   else if (key.startsWith('errors.')) module = 'errors';
+  else if (key.startsWith('modals.')) module = 'modals';
   
   if (module && (!loadedModules.has(lng) || !loadedModules.get(lng)!.has(module))) {
     // Загружаем модуль асинхронно без блокировки

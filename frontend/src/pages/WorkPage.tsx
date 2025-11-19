@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { PageTemplate } from '../design-system/layouts/PageTemplate';
 import { profileApi } from '../services/api/profile';
-import { Button, Icon } from '../design-system/primitives';
+import { workApi } from '../services/api/work';
 import { useAuthStore } from '../store';
 
 const WorkGroups = lazy(() => import('../components/Dashboard/WorkGroups').then(m => ({ default: m.WorkGroups })));
@@ -61,10 +61,10 @@ const WorkPage: React.FC = () => {
   };
 
   const handleInvite = async (email: string, role?: 'admin' | 'member') => {
-    // TODO: реализовать API вызов для приглашения участника
-    console.log('Invite member:', { email, role, groupId: selectedGroup?.id });
-    // Имитация API вызова
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    if (!selectedGroup?.id) {
+      throw new Error('Группа не выбрана');
+    }
+    await workApi.inviteMember(selectedGroup.id, { email, role });
   };
 
   if (isLoading) {

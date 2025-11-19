@@ -157,7 +157,7 @@ export const getAvatarGradient = (name: string): React.CSSProperties => {
  * @param name - имя пользователя
  * @returns строка с CSS классами для градиента (если нужно использовать классы)
  */
-export const getAvatarGradientClass = (name: string): string => {
+export const getAvatarGradientClass = (_name: string): string => {
   // Для градиентов лучше использовать inline стили через getAvatarGradient
   // Эта функция оставлена для совместимости, но возвращает базовый класс
   return 'bg-primary';

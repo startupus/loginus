@@ -96,6 +96,7 @@ export const MasonryGrid: React.FC<MasonryGridProps> = ({
             marginBottom: `${gap}px`,
             pageBreakInside: 'avoid',
             breakInside: 'avoid',
+            // @ts-ignore - WebkitColumnBreakInside не в типах, но поддерживается браузерами
             WebkitColumnBreakInside: 'avoid',
           }}
         >

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Avatar, Icon, Badge, Button } from '../../design-system/primitives';
+import { Avatar, Icon, Badge } from '../../design-system/primitives';
 import { DataSection, AddButton } from '../../design-system/composites';
 import { getInitials } from '../../utils/stringUtils';
 import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';

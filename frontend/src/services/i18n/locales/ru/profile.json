@@ -117,7 +117,21 @@
       "title": "Семейная группа",
       "description": "Управляйте доступом близких к сервисам"
     },
-    "invite": "Пригласить",
+    "invite": {
+      "title": "Пригласить в семью",
+      "email": "Email",
+      "emailPlaceholder": "email@example.com",
+      "emailRequired": "Введите email",
+      "invalidEmail": "Некорректный email",
+      "role": "Роль",
+      "roles": {
+        "member": "Взрослый",
+        "child": "Ребенок"
+      },
+      "send": "Отправить приглашение",
+      "sending": "Отправка...",
+      "error": "Ошибка при отправке приглашения"
+    },
     "empty": "Нет участников",
     "children": {
       "title": "Детские аккаунты",
@@ -169,6 +183,37 @@
     "events": {
       "description": "Последние события в ваших группах"
     }
-  }
+  },
+  "menu": "Меню профиля",
+  "manageAccount": "Управление аккаунтом",
+  "mail": "Почта",
+  "mailCounter": {
+    "none": "нет непрочитанных писем",
+    "one": "непрочитанное письмо",
+    "some": "непрочитанных письма",
+    "many": "непрочитанных писем"
+  },
+  "plus": "Клубус",
+  "plusDescription": "Подписка активна",
+  "plusInactive": "Не подключено",
+  "plusPoints": {
+    "none": "нет баллов",
+    "one": "балл",
+    "some": "балла",
+    "many": "баллов"
+  },
+  "personalData": "Личные данные",
+  "personalDataDescription": "ФИО, день рождения, пол",
+  "phone": "Телефон",
+  "skin": "Внешний вид",
+  "skinLight": "Всегда светлый",
+  "skinDark": "Всегда тёмный",
+  "skinSystem": "Как в системе",
+  "settings": "Настройки",
+  "support": "Справка",
+  "switchAccount": "Сменить аккаунт",
+  "edit": "Редактировать",
+  "editAvatar": "Обновить аватар",
+  "editAvatarDescription": "Загрузить или создать"
 }
 

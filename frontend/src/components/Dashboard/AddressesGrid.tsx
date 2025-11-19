@@ -121,7 +121,7 @@ export const AddressesGrid: React.FC<AddressesGridProps> = ({
               {/* Название и адрес */}
               <div className="flex flex-col items-center gap-1 w-full min-w-0 flex-1 justify-center">
                 <span className="text-xs font-medium text-center text-dark dark:text-white group-hover:text-primary dark:group-hover:text-primary transition-colors duration-200">
-                  {getAddressLabel(addressItem.type, t, addressItem.label)}
+                  {getAddressLabel(addressItem.type, t, addressItem.label || addressItem.type)}
                 </span>
                 {addressItem.added && addressItem.address && (
                   <span className="text-[10px] text-center text-body-color dark:text-dark-6 line-clamp-2 break-words w-full leading-tight">

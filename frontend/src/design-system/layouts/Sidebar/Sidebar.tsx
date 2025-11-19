@@ -155,7 +155,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             onClick={() => window.open('https://loginus.ru', '_blank')}
             className="text-body-color dark:text-dark-6 hover:text-primary flex w-full items-center py-2 text-sm font-medium duration-200"
           >
-            <Icon name="external-link" size="sm" className="mr-3" />
+            <Icon name="globe" size="sm" className="mr-3" />
             <span>{t('sidebar.loginusIdSite', 'Loginus ID для сайта')}</span>
           </button>
           

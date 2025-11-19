@@ -4,6 +4,11 @@ import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/test/setup.ts',
+  },
   plugins: [react()],
   resolve: {
     alias: {
@@ -81,18 +86,8 @@ export default defineConfig({
     },
     // Увеличиваем лимит предупреждения о размере чанка
     chunkSizeWarningLimit: 1000,
-    // Оптимизация минификации
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true, // Удаляем console.log в продакшене
-        drop_debugger: true, // Удаляем debugger
-        pure_funcs: ['console.log', 'console.info'], // Удаляем дополнительные функции логирования
-      },
-      format: {
-        comments: false, // Удаляем комментарии
-      },
-    },
+    // Оптимизация минификации - используем esbuild (быстрее и уже включен)
+    minify: 'esbuild',
     // Включаем source maps только для production (для отладки)
     sourcemap: false,
     // Оптимизация CSS

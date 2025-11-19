@@ -50,28 +50,6 @@ export const EventsWidget: React.FC<EventsWidgetProps> = ({
 
   const displayedEvents = events.slice(0, 5);
 
-  const getEventIcon = (type: Event['type']) => {
-    const icons: Record<Event['type'], string> = {
-      course_paid: 'credit-card',
-      achievement: 'award',
-      milestone: 'flag',
-      reward: 'gift',
-      other: 'bell',
-    };
-    return icons[type] || 'bell';
-  };
-
-  const getEventColor = (type: Event['type']) => {
-    const colors: Record<Event['type'], string> = {
-      course_paid: 'text-success',
-      achievement: 'text-warning',
-      milestone: 'text-primary',
-      reward: 'text-info',
-      other: 'text-body-color',
-    };
-    return colors[type] || 'text-body-color';
-  };
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -83,7 +61,7 @@ export const EventsWidget: React.FC<EventsWidgetProps> = ({
     } else if (days === 1) {
       return t('common.yesterday', 'Вчера');
     } else if (days < 7) {
-      return t('common.daysAgo', { count: days }, `${days} дн. назад`);
+      return t('common.daysAgo', `${days} дн. назад`, { count: days });
     } else {
       return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
     }

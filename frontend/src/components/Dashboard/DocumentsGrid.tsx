@@ -44,8 +44,8 @@ export const DocumentsGrid: React.FC<DocumentsGridProps> = ({
   // Разделяем дипломы и сертификаты на отдельные элементы и помещаем в начало списка
   const separatedDocuments = [
     ...(diplomasCertificates ? [
-      { ...diplomasCertificates, type: 'diplomas', label: t('personalData.documents.diplomas', 'Дипломы'), icon: 'award' },
-      { ...diplomasCertificates, type: 'certificates', label: t('personalData.documents.certificates', 'Сертификаты'), icon: 'award' },
+      { ...diplomasCertificates, type: 'diplomas', label: 'Дипломы', icon: 'award' },
+      { ...diplomasCertificates, type: 'certificates', label: 'Сертификаты', icon: 'award' },
     ] : []),
     ...regularDocuments,
   ];
@@ -130,9 +130,9 @@ export const DocumentsGrid: React.FC<DocumentsGridProps> = ({
                 />
               </div>
               
-              {/* Название (локализуется по type) */}
+              {/* Название (локализуется по type, fallback на doc.label) */}
               <span className="text-xs text-center text-body-color dark:text-dark-6 group-hover:text-dark dark:group-hover:text-white transition-colors duration-200">
-                {getDocumentLabel(doc.type, t, doc.label)}
+                {getDocumentLabel(doc.type, t, doc.label || doc.type)}
               </span>
               
               {/* Статус */}

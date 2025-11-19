@@ -1,17 +1,39 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { PageTemplate } from '@/design-system/layouts';
 import { DataSection, SeparatedList } from '@/design-system/composites';
 import { Button, Icon, Avatar, Separator } from '@/design-system/primitives';
 import { personalApi } from '@/services/api/personal';
+import { profileApi } from '@/services/api/profile';
 import { useAuthStore } from '@/store';
 import { getInitials } from '@/utils/stringUtils';
 import { Link } from 'react-router-dom';
+import {
+  AddDocumentModal,
+  AddVehicleModal,
+  AddAddressModal,
+  AddPetModal,
+  DeleteProfileModal,
+  type DocumentType,
+  type AddressType,
+} from '@/components/Modals';
+import { useModal } from '@/hooks/useModal';
 
 const PersonalPage: React.FC = () => {
   const { t } = useTranslation();
   const { user } = useAuthStore();
+  const queryClient = useQueryClient();
+
+  // Модалки
+  const documentModal = useModal();
+  const vehicleModal = useModal();
+  const addressModal = useModal();
+  const petModal = useModal();
+  const deleteProfileModal = useModal();
+
+  const [selectedDocumentType, setSelectedDocumentType] = useState<DocumentType | undefined>();
+  const [selectedAddressType, setSelectedAddressType] = useState<AddressType | undefined>();
 
   const { data: documentsData, isLoading: isDocsLoading } = useQuery({
     queryKey: ['personal-documents'],
@@ -28,6 +50,33 @@ const PersonalPage: React.FC = () => {
     queryFn: () => personalApi.getPets(),
   });
 
+  const refreshData = () => {
+    queryClient.invalidateQueries({ queryKey: ['personal-documents'] });
+    queryClient.invalidateQueries({ queryKey: ['personal-addresses'] });
+    queryClient.invalidateQueries({ queryKey: ['personal-pets'] });
+    queryClient.invalidateQueries({ queryKey: ['personal-vehicles'] });
+  };
+
+  const handleAddDocument = (type?: DocumentType) => {
+    setSelectedDocumentType(type);
+    documentModal.open();
+  };
+
+  const handleAddAddress = (type?: AddressType) => {
+    setSelectedAddressType(type);
+    addressModal.open();
+  };
+
+  const handleDeleteProfile = async (password: string) => {
+    try {
+      await profileApi.deleteProfile(password);
+      // После успешного удаления перенаправляем на страницу входа
+      window.location.href = '/auth/login';
+    } catch (error: any) {
+      // Ошибка будет обработана в DeleteProfileModal
+      throw error;
+    }
+  };
 
   const isLoading = isDocsLoading || isAddrLoading || isPetsLoading;
 
@@ -85,6 +134,7 @@ const PersonalPage: React.FC = () => {
            {documents.slice(0, 4).map((doc: any) => (
               <button
                 key={doc.type}
+                onClick={() => handleAddDocument(doc.type)}
                 className="p-4 rounded-lg border border-stroke dark:border-dark-3 bg-white dark:bg-dark-2 hover:shadow-md transition-shadow flex flex-col items-center gap-3 text-center group h-full"
               >
                   <div className="p-3 rounded-full bg-primary/5 dark:bg-primary/10 text-primary group-hover:scale-110 transition-transform">
@@ -109,7 +159,11 @@ const PersonalPage: React.FC = () => {
         id="auto"
         title={t('personalData.vehicles.title', 'Автомобили')}
       >
-        <Button variant="outline" className="w-full justify-start gap-3 h-auto py-4 px-6 border-dashed border-2 hover:border-primary hover:bg-primary/5">
+        <Button 
+          variant="outline" 
+          onClick={vehicleModal.open}
+          className="w-full justify-start gap-3 h-auto py-4 px-6 border-dashed border-2 hover:border-primary hover:bg-primary/5"
+        >
           <div className="p-2 rounded-full bg-gray-100 dark:bg-dark-3 text-gray-500">
             <Icon name="truck" size="lg" />
           </div>
@@ -148,7 +202,11 @@ const PersonalPage: React.FC = () => {
                   ))}
                </div>
           ) : (
-             <Button variant="outline" className="w-full justify-start gap-3 h-auto py-4 px-6 border-dashed border-2 hover:border-primary hover:bg-primary/5">
+             <Button 
+               variant="outline" 
+               onClick={petModal.open}
+               className="w-full justify-start gap-3 h-auto py-4 px-6 border-dashed border-2 hover:border-primary hover:bg-primary/5"
+             >
                  <div className="p-2 rounded-full bg-gray-100 dark:bg-dark-3 text-gray-500">
                    <Icon name="github" size="lg" />
                  </div>
@@ -182,6 +240,7 @@ const PersonalPage: React.FC = () => {
               return (
                 <button
                   key={type}
+                  onClick={() => handleAddAddress(type as AddressType)}
                   className="p-4 rounded-lg border border-stroke dark:border-dark-3 bg-white dark:bg-dark-2 hover:shadow-md transition-shadow flex flex-col items-center gap-3 text-center group h-full"
                 >
                   <div className="p-3 rounded-full bg-gray-100 dark:bg-dark-3 text-gray-600 dark:text-gray-300 group-hover:text-primary group-hover:bg-primary/5 transition-colors">
@@ -365,7 +424,10 @@ const PersonalPage: React.FC = () => {
 
             <Separator />
 
-            <button className="flex items-center justify-between py-2 group w-full text-left text-red-500 hover:text-red-600">
+            <button 
+              onClick={deleteProfileModal.open}
+              className="flex items-center justify-between py-2 group w-full text-left text-red-500 hover:text-red-600"
+            >
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-red-50 dark:bg-red-900/20 rounded-lg">
                    <Icon name="trash-2" size="md" className="text-red-500" />
@@ -378,6 +440,39 @@ const PersonalPage: React.FC = () => {
           </SeparatedList>
         </div>
       </DataSection>
+
+      {/* Модалки */}
+      <AddDocumentModal
+        isOpen={documentModal.isOpen}
+        onClose={documentModal.close}
+        onSuccess={refreshData}
+        documentType={selectedDocumentType}
+      />
+
+      <AddVehicleModal
+        isOpen={vehicleModal.isOpen}
+        onClose={vehicleModal.close}
+        onSuccess={refreshData}
+      />
+
+      <AddAddressModal
+        isOpen={addressModal.isOpen}
+        onClose={addressModal.close}
+        onSuccess={refreshData}
+        addressType={selectedAddressType}
+      />
+
+      <AddPetModal
+        isOpen={petModal.isOpen}
+        onClose={petModal.close}
+        onSuccess={refreshData}
+      />
+
+      <DeleteProfileModal
+        isOpen={deleteProfileModal.isOpen}
+        onClose={deleteProfileModal.close}
+        onDelete={handleDeleteProfile}
+      />
     </PageTemplate>
   );
 };

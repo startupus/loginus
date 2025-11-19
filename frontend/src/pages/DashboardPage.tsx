@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { preloadModule } from '../services/i18n/config';
 import { PageTemplate } from '../design-system/layouts/PageTemplate';
@@ -9,6 +9,16 @@ import { Icon } from '../design-system/primitives';
 const MasonryGrid = lazy(() => import('../design-system/composites/MasonryGrid').then(m => ({ default: m.MasonryGrid })));
 import { useAuthStore } from '../store';
 import { useWidgetPreferences } from '../hooks/useWidgetPreferences';
+import { useModal } from '../hooks/useModal';
+import {
+  AddDocumentModal,
+  AddAddressModal,
+  InviteFamilyMemberModal,
+  EditProfileModal,
+  EditAvatarModal,
+  type DocumentType,
+  type AddressType,
+} from '../components/Modals';
 
 // Lazy loading для компонентов, которые не нужны сразу
 const WidgetSelector = lazy(() => import('../components/Dashboard/WidgetSelector').then(m => ({ default: m.WidgetSelector })));
@@ -66,6 +76,18 @@ const SectionSkeleton: React.FC = () => (
 const DashboardPage: React.FC = () => {
   const { t } = useTranslation();
   const { updateUser } = useAuthStore();
+  const queryClient = useQueryClient();
+  
+  // Модалки
+  const documentModal = useModal();
+  const addressModal = useModal();
+  const familyModal = useModal();
+  const editProfileModal = useModal();
+  const editAvatarModal = useModal();
+  
+  
+  const [selectedDocumentType, setSelectedDocumentType] = useState<DocumentType | undefined>();
+  const [selectedAddressType, setSelectedAddressType] = useState<AddressType | undefined>();
   
   // Предзагружаем модули dashboard и profile асинхронно (не блокируя рендеринг)
   useEffect(() => {
@@ -264,7 +286,7 @@ const DashboardPage: React.FC = () => {
   const handleToggleWidget = toggleWidget;
 
   // Drag & Drop handlers
-  const handleDragStart = (e: React.DragEvent, widgetId: string) => {
+  const handleDragStart = (_e: React.DragEvent, widgetId: string) => {
     setDraggedWidgetId(widgetId);
   };
 
@@ -318,6 +340,29 @@ const DashboardPage: React.FC = () => {
   // Используем метод из хука для удаления виджета
   const handleRemoveWidget = removeWidget;
 
+  // Обработчики для модалок
+  const handleAddDocument = (type?: string | DocumentType) => {
+    // Преобразуем string в DocumentType если нужно
+    const docType = typeof type === 'string' ? type as DocumentType : type;
+    setSelectedDocumentType(docType);
+    documentModal.open();
+  };
+
+  const handleAddAddress = (type?: string | AddressType) => {
+    // Преобразуем string в AddressType если нужно
+    const addrType = typeof type === 'string' ? type as AddressType : type;
+    setSelectedAddressType(addrType);
+    addressModal.open();
+  };
+
+  const handleAddFamilyMember = () => {
+    familyModal.open();
+  };
+
+  const refreshDashboard = () => {
+    queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+  };
+
   if (!dashboard || !user) {
     return (
       <PageTemplate title={t('dashboard.title', 'Профиль')} showSidebar={true}>
@@ -343,6 +388,7 @@ const DashboardPage: React.FC = () => {
         unreadMail: dashboard.unreadMail,
         plusActive: dashboard.plusActive,
         plusPoints: dashboard.plusPoints,
+        gamePoints: dashboard.gamePoints,
       }}
     >
       <div className="space-y-4 sm:space-y-6">
@@ -359,9 +405,8 @@ const DashboardPage: React.FC = () => {
                 gamePoints: dashboard.gamePoints,
                 achievements: dashboard.achievements,
               }}
-              onEdit={() => {
-                // TODO: открыть модалку редактирования
-              }}
+              onEdit={editProfileModal.open}
+              onEditAvatar={editAvatarModal.open}
             />
           </Suspense>
         </div>
@@ -470,9 +515,7 @@ const DashboardPage: React.FC = () => {
           <div className="w-full mb-6">
             <DocumentsGrid
               documents={dashboard?.documents || []}
-              onAddDocument={() => {
-                // TODO: открыть модалку добавления документа
-              }}
+              onAddDocument={handleAddDocument}
             />
         </div>
 
@@ -480,9 +523,7 @@ const DashboardPage: React.FC = () => {
           <div className="w-full mb-6">
             <AddressesGrid
               addresses={dashboard?.addresses || []}
-              onAddAddress={() => {
-                // TODO: открыть модалку добавления адреса
-              }}
+              onAddAddress={handleAddAddress}
             />
         </div>
 
@@ -490,12 +531,12 @@ const DashboardPage: React.FC = () => {
           <div className="w-full mb-6">
             <FamilyMembers
               members={dashboard.family || []}
-              onAddMember={() => {
-                // TODO: открыть модалку добавления члена семьи
-              }}
+              onAddMember={handleAddFamilyMember}
               onMemberClick={(member) => {
                 // TODO: открыть профиль члена семьи
-                console.log('Open member:', member);
+                if (process.env.NODE_ENV === 'development') {
+                  console.log('Open member:', member);
+                }
               }}
             />
         </div>
@@ -507,7 +548,9 @@ const DashboardPage: React.FC = () => {
                 subscriptions={dashboard.subscriptions}
                 onSubscriptionClick={(subscription) => {
                   // TODO: открыть страницу подписки
-                  console.log('Open subscription:', subscription);
+                  if (process.env.NODE_ENV === 'development') {
+                    console.log('Open subscription:', subscription);
+                  }
                 }}
               />
           </div>
@@ -526,6 +569,48 @@ const DashboardPage: React.FC = () => {
       />
         </Suspense>
       )}
+
+      {/* Модалки */}
+      <AddDocumentModal
+        isOpen={documentModal.isOpen}
+        onClose={documentModal.close}
+        onSuccess={refreshDashboard}
+        documentType={selectedDocumentType}
+      />
+
+      <AddAddressModal
+        isOpen={addressModal.isOpen}
+        onClose={addressModal.close}
+        onSuccess={refreshDashboard}
+        addressType={selectedAddressType}
+      />
+
+      <InviteFamilyMemberModal
+        isOpen={familyModal.isOpen}
+        onClose={familyModal.close}
+        onSuccess={refreshDashboard}
+      />
+
+      <EditProfileModal
+        isOpen={editProfileModal.isOpen}
+        onClose={editProfileModal.close}
+        onSuccess={refreshDashboard}
+        initialData={{
+          name: user.name,
+          avatar: user.avatar,
+        }}
+      />
+
+      {/* Модалка редактирования аватара */}
+      <EditAvatarModal
+        isOpen={editAvatarModal.isOpen}
+        onClose={editAvatarModal.close}
+        onSuccess={refreshDashboard}
+        initialData={{
+          name: user.name,
+          avatar: user.avatar,
+        }}
+      />
     </PageTemplate>
   );
 };

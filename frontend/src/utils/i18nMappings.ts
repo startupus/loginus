@@ -13,7 +13,15 @@ export const getDocumentLabel = (type: string, t: TFunction, fallback?: string):
     'certificates': 'personalData.documents.certificates',
   };
   const key = map[type];
-  return key ? t(key) : (fallback ?? type);
+  if (!key) {
+    return fallback ?? type;
+  }
+  const translated = t(key, { defaultValue: fallback ?? type });
+  // Если i18next вернул сам ключ (перевод не найден), используем fallback
+  if (translated === key || translated.startsWith('personalData.')) {
+    return fallback ?? type;
+  }
+  return translated;
 };
 
 export const getAddressLabel = (type: string, t: TFunction, fallback?: string): string => {
@@ -23,7 +31,15 @@ export const getAddressLabel = (type: string, t: TFunction, fallback?: string): 
     'other': 'personalData.addresses.other',
   };
   const key = map[type];
-  return key ? t(key) : (fallback ?? type);
+  if (!key) {
+    return fallback ?? type;
+  }
+  const translated = t(key, { defaultValue: fallback ?? type });
+  // Если i18next вернул сам ключ (перевод не найден), используем fallback
+  if (translated === key || translated.startsWith('personalData.')) {
+    return fallback ?? type;
+  }
+  return translated;
 };
 
 export const getSubscriptionName = (type: string, t: TFunction, fallback?: string): string => {

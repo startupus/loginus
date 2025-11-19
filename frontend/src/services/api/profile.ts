@@ -20,4 +20,9 @@ export const profileApi = {
     displayName: string;
     birthday: string;
   }>) => apiClient.patch('/profile', data),
+  
+  /**
+   * Удалить профиль
+   */
+  deleteProfile: (password: string) => apiClient.delete('/profile', { data: { password } }),
 };

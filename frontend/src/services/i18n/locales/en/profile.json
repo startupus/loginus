@@ -117,7 +117,21 @@
       "title": "Family Group",
       "description": "Manage loved ones' access to services"
     },
-    "invite": "Invite",
+    "invite": {
+      "title": "Invite to family",
+      "email": "Email",
+      "emailPlaceholder": "email@example.com",
+      "emailRequired": "Enter email",
+      "invalidEmail": "Invalid email",
+      "role": "Role",
+      "roles": {
+        "member": "Adult",
+        "child": "Child"
+      },
+      "send": "Send invitation",
+      "sending": "Sending...",
+      "error": "Error sending invitation"
+    },
     "empty": "No members",
     "children": {
       "title": "Child Accounts",
@@ -169,6 +183,37 @@
     "events": {
       "description": "Latest events in your groups"
     }
-  }
+  },
+  "menu": "Profile menu",
+  "manageAccount": "Manage account",
+  "mail": "Mail",
+  "mailCounter": {
+    "none": "no unread messages",
+    "one": "unread message",
+    "some": "unread messages",
+    "many": "unread messages"
+  },
+  "plus": "Klubus",
+  "plusDescription": "Subscription active",
+  "plusInactive": "Not connected",
+  "plusPoints": {
+    "none": "no points",
+    "one": "point",
+    "some": "points",
+    "many": "points"
+  },
+  "personalData": "Personal data",
+  "personalDataDescription": "Full name, date of birth, gender",
+  "phone": "Phone",
+  "skin": "Appearance",
+  "skinLight": "Always light",
+  "skinDark": "Always dark",
+  "skinSystem": "As in system",
+  "settings": "Settings",
+  "support": "Help",
+  "switchAccount": "Switch account",
+  "edit": "Edit",
+  "editAvatar": "Update avatar",
+  "editAvatarDescription": "Upload or create"
 }
 

@@ -53,7 +53,6 @@ export const RoadmapWidget: React.FC<RoadmapWidgetProps> = ({
   const currentLang = useCurrentLanguage();
 
   const displayedSteps = steps.filter(s => !s.completed).slice(0, 5);
-  const hasMore = steps.filter(s => !s.completed).length > 5;
 
   const handleViewFull = () => {
     // TODO: перейти на страницу полной дорожной карты

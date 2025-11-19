@@ -25,6 +25,7 @@ export interface PageTemplateProps {
     unreadMail?: number;
     plusActive?: boolean;
     plusPoints?: number;
+    gamePoints?: number; // Количество морковок (игровых баллов)
   };
   showSidebar?: boolean;
   contentClassName?: string;

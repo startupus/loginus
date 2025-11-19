@@ -59,8 +59,9 @@ design-system/
 ### 5. Мультиязычность
 
 - Все тексты через `useTranslation()` из `react-i18next`
-- Переводы в `services/i18n/locales/ru.json` и `en.json`
+- Переводы в модульной структуре `services/i18n/locales/ru/` и `en/` (common.json, dashboard.json, auth.json, profile.json, errors.json, landing.json, work.json, modals.json)
 - Структура ключей: `section.subsection.key`
+- Модули загружаются динамически для оптимизации производительности
 
 ## Использование
 
