@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { getAvatarGradient } from '@/utils/stringUtils';
 
 export interface AvatarProps {
   /**
@@ -13,8 +14,15 @@ export interface AvatarProps {
   
   /**
    * Инициалы (если нет изображения)
+   * Используется для отображения текста внутри аватара
    */
   initials?: string;
+  
+  /**
+   * Имя пользователя для генерации градиентного фона
+   * Если не указан bgColor, будет использован градиент на основе имени
+   */
+  name?: string;
   
   /**
    * Размер аватара
@@ -23,6 +31,7 @@ export interface AvatarProps {
   
   /**
    * Цвет фона (для инициалов) - использует классы из дизайн-системы
+   * Если не указан, будет использован градиент на основе name
    */
   bgColor?: string;
   
@@ -50,16 +59,25 @@ export interface AvatarProps {
    * Дополнительные классы
    */
   className?: string;
+  
 }
 
 /**
  * Avatar - компонент аватара из дизайн-системы
  * Поддерживает изображения, инициалы и fallback иконку
+ * 
+ * ВАЖНО: Компонент НЕ принимает children. Используйте только props.
+ * 
+ * @example
+ * <Avatar src="/avatar.jpg" size="lg" rounded />
+ * <Avatar initials="ДЛ" size="lg" rounded showStatus status="online" />
+ * <Avatar size="md" rounded /> // Покажет fallback иконку
  */
-export const Avatar: React.FC<AvatarProps> = ({
+export const Avatar: React.FC<AvatarProps & { children?: never }> = ({
   src,
   alt = '',
   initials,
+  name,
   size = 'md',
   bgColor,
   rounded = false,
@@ -107,9 +125,24 @@ export const Avatar: React.FC<AvatarProps> = ({
 
   const shapeStyles = rounded ? 'rounded-full' : 'rounded-lg';
   
-  // Цвет фона по умолчанию из дизайн-системы
+  // Генерируем градиентный фон на основе имени пользователя
+  const gradientStyle = useMemo(() => {
+    // Если указан bgColor, не используем градиент
+    if (bgColor) return undefined;
+    
+    // Используем name для генерации градиента, если он указан
+    // Иначе используем initials как fallback
+    const sourceForGradient = name || initials || '';
+    if (sourceForGradient) {
+      return getAvatarGradient(sourceForGradient);
+    }
+    
+    return undefined;
+  }, [name, initials, bgColor]);
+  
+  // Цвет фона по умолчанию из дизайн-системы (используется только если нет градиента)
   const defaultBgColor = 'bg-primary text-white';
-  const finalBgColor = bgColor || defaultBgColor;
+  const finalBgColor = bgColor || (gradientStyle ? '' : defaultBgColor);
   
   // Стили границы
   const borderStyles = border 
@@ -148,7 +181,8 @@ export const Avatar: React.FC<AvatarProps> = ({
     if (initials && initials.trim() !== '') {
       return (
         <div
-          className={`${baseStyles} ${finalBgColor} font-semibold ${className}`.trim()}
+          className={`${baseStyles} ${finalBgColor} font-semibold text-white ${className}`.trim()}
+          style={gradientStyle}
         >
           {initials}
         </div>
@@ -178,13 +212,13 @@ export const Avatar: React.FC<AvatarProps> = ({
   // Если нужно показать статус, оборачиваем в контейнер
   if (showStatus) {
     return (
-      <div className="relative inline-block">
+      <span className="relative inline-block">
         <AvatarContent />
         <span 
           className={`absolute ${statusPositions[size]} ${statusSizes[size]} ${statusColors[status]} ${statusBorder} rounded-full z-10`}
           aria-label={`Статус: ${status === 'online' ? 'онлайн' : status === 'offline' ? 'офлайн' : 'отошёл'}`}
         />
-      </div>
+      </span>
     );
   }
 

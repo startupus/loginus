@@ -38,7 +38,8 @@ const loadModule = async (locale: string, module: ModuleName): Promise<Record<st
   }
 
   try {
-    const data = await import(`./locales/${locale}/${module}.json`);
+    // Динамический импорт с кэшированием браузером
+    const data = await import(/* @vite-ignore */ `./locales/${locale}/${module}.json`);
     const moduleData = data.default || {};
     
     // Помечаем модуль как загруженный
@@ -49,7 +50,9 @@ const loadModule = async (locale: string, module: ModuleName): Promise<Record<st
     
     return moduleData;
   } catch (error) {
-    console.warn(`Failed to load module ${module} for locale ${locale}:`, error);
+    if (process.env.NODE_ENV === 'development') {
+      console.warn(`Failed to load module ${module} for locale ${locale}:`, error);
+    }
     // Возвращаем пустой объект вместо ошибки для graceful degradation
     return {};
   }
@@ -108,21 +111,34 @@ i18n.use(initReactI18next).init({
 loadCriticalModule(initialLanguage).then((commonData) => {
   i18n.addResourceBundle(initialLanguage, 'translation', commonData, true, true);
   
-  // Предзагружаем dashboard и profile модули для оптимизации (так как они часто используются на DashboardPage)
-  // Загружаем параллельно для ускорения
-  Promise.all([
-    loadModule(initialLanguage, 'dashboard'),
-    loadModule(initialLanguage, 'profile'),
-  ]).then(([dashboardData, profileData]) => {
-    if (Object.keys(dashboardData).length > 0) {
-      i18n.addResourceBundle(initialLanguage, 'translation', dashboardData, true, true);
-    }
-    if (Object.keys(profileData).length > 0) {
-      i18n.addResourceBundle(initialLanguage, 'translation', profileData, true, true);
-    }
-  }).catch((error) => {
-    console.warn('Failed to preload i18n modules:', error);
-  });
+  // Ленивая загрузка модулей - загружаем только при первом использовании
+  // Это ускоряет initial load
+});
+
+// Автоматически загружаем модули при первом использовании ключа
+i18n.on('missingKey', (lngs, ns, key) => {
+  const lng = Array.isArray(lngs) ? lngs[0] : lngs;
+  if (!lng) return;
+  
+  // Определяем модуль по ключу и загружаем его
+  let module: ModuleName | null = null;
+  if (key.startsWith('dashboard.')) module = 'dashboard';
+  else if (key.startsWith('auth.') || key.startsWith('onboarding.')) module = 'auth';
+  else if (key.startsWith('profile.') || key.startsWith('security.') || key.startsWith('personal.')) module = 'profile';
+  else if (key.startsWith('landing.')) module = 'landing';
+  else if (key.startsWith('work.')) module = 'work';
+  else if (key.startsWith('errors.')) module = 'errors';
+  
+  if (module && (!loadedModules.has(lng) || !loadedModules.get(lng)!.has(module))) {
+    // Загружаем модуль асинхронно без блокировки
+    loadModule(lng, module).then((moduleData) => {
+      if (Object.keys(moduleData).length > 0) {
+        i18n.addResourceBundle(lng, 'translation', moduleData, true, true);
+        // Обновляем ресурсы для применения изменений
+        i18n.reloadResources(lng).catch(() => {});
+      }
+    }).catch(() => {});
+  }
 });
 
 /**
@@ -150,6 +166,7 @@ export const preloadModule = async (module: ModuleName) => {
     i18n.addResourceBundle(currentLang, 'translation', moduleData, true, true);
   }
 };
+
 
 export default i18n;
 

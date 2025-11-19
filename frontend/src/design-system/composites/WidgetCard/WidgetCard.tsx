@@ -3,9 +3,9 @@ import { Icon } from '../../primitives';
 
 export interface WidgetCardProps {
   /**
-   * Заголовок виджета
+   * Заголовок виджета (может быть строкой или ReactNode для кастомизации)
    */
-  title?: string;
+  title?: React.ReactNode;
   
   /**
    * Иконка виджета
@@ -220,25 +220,18 @@ export const WidgetCard: React.FC<WidgetCardProps> = ({
       )}
       
       <div className={paddingClasses[variant]}>
-        {/* Header с иконкой, заголовком и действиями */}
-        {(title || icon || actions) && (
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              {icon && (
-                <div className="flex-shrink-0 transition-transform duration-300 group-hover:scale-110">
-                  {icon}
-                </div>
-              )}
-              {title && (
-                <h3 className="text-xl font-semibold text-dark hover:text-primary dark:text-white sm:text-[22px] md:text-xl lg:text-[22px] xl:text-xl 2xl:text-[22px]">
-                  {title}
-                </h3>
-              )}
-            </div>
-            {actions && (
-              <div className={`flex-shrink-0 ${draggable ? 'mr-8' : ''}`}>
-                {actions}
+        {/* Header с иконкой и заголовком */}
+        {(title || icon) && (
+          <div className="flex items-center gap-3 mb-4">
+            {icon && (
+              <div className="flex-shrink-0 transition-transform duration-300 group-hover:scale-110">
+                {icon}
               </div>
+            )}
+            {title && (
+              <h3 className="text-xl font-semibold text-dark hover:text-primary dark:text-white sm:text-[22px] md:text-xl lg:text-[22px] xl:text-xl 2xl:text-[22px]">
+                {title}
+              </h3>
             )}
           </div>
         )}
@@ -247,6 +240,13 @@ export const WidgetCard: React.FC<WidgetCardProps> = ({
         <div className="text-base leading-relaxed text-body-color dark:text-dark-6">
           {children}
         </div>
+        
+        {/* Actions - в конце виджета */}
+        {actions && (
+          <div className="flex justify-end mt-4">
+            {actions}
+          </div>
+        )}
       </div>
     </Component>
     

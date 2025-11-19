@@ -75,9 +75,12 @@ export const CoursesWidget: React.FC<CoursesWidgetProps> = ({
       actions={
         <button
           onClick={handleViewAll}
-          className="p-2 rounded-lg hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors duration-200 group"
+          className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors duration-200 group"
           aria-label={t('dashboard.courses.viewAll', 'Смотреть все')}
         >
+          <span className="text-sm text-body-color dark:text-dark-6 group-hover:text-primary dark:group-hover:text-primary transition-colors duration-200">
+            {t('dashboard.courses.viewAll', 'Все данные')}
+          </span>
           <Icon name="arrow-right" size="sm" className="text-body-color dark:text-dark-6 group-hover:text-primary dark:group-hover:text-primary group-hover:translate-x-1 transition-all duration-200" />
         </button>
       }

@@ -81,11 +81,8 @@ export const DataSection: React.FC<DataSectionProps> = ({
       className={`
         bg-white dark:bg-dark-2 
         rounded-xl 
-        shadow-1 dark:shadow-card 
         border border-gray-2 dark:border-dark-3
         p-6 sm:p-8
-        transition-all duration-300
-        hover:shadow-3 dark:hover:shadow-3
         ${className}
       `.trim()}
     >

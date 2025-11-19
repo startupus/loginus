@@ -83,14 +83,15 @@ const FamilyPage: React.FC = () => {
                 {adults.map((member: any) => (
                     <div key={member.id} className="flex items-center justify-between py-2">
                         <div className="flex items-center gap-3">
-                            <Avatar
-                                src={member.avatar || undefined}
-                                initials={getInitials(member.name)}
-                                size="md"
-                                rounded
-                                showStatus
-                                status={member.isOnline ? 'online' : 'offline'}
-                            />
+                                    <Avatar
+                                        src={member.avatar || undefined}
+                                        initials={getInitials(member.name)}
+                                        name={member.name}
+                                        size="md"
+                                        rounded
+                                        showStatus
+                                        status={member.isOnline ? 'online' : 'offline'}
+                                    />
                             <div>
                                 <div className="font-medium dark:text-white flex items-center gap-2">
                                     {member.name}
@@ -140,6 +141,7 @@ const FamilyPage: React.FC = () => {
                                     <Avatar
                                         src={child.avatar || undefined}
                                         initials={getInitials(child.name)}
+                                        name={child.name}
                                         size="md"
                                         rounded
                                         showStatus

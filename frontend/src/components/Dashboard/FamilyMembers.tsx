@@ -118,6 +118,7 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
                 <Avatar
                   src={member.avatar || undefined}
                   initials={getInitials(member.name)}
+                  name={member.name}
                   size="2xl"
                   rounded
                   showStatus

@@ -115,6 +115,7 @@ export const WorkGroups: React.FC<WorkGroupsProps> = ({
                     <Avatar
                       src={member.avatar || undefined}
                       initials={getInitials(member.name)}
+                      name={member.name}
                       size="sm"
                       rounded
                       showStatus

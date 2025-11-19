@@ -8,23 +8,41 @@ export default {
     '!./src/**/*.test.{js,ts,jsx,tsx}',
     '!./src/**/*.spec.{js,ts,jsx,tsx}',
   ],
-  darkMode: 'class',
+  darkMode: 'class', // Используем класс для переключения темной темы
   theme: {
     extend: {
       colors: {
+        // Основные цвета через CSS переменные темы
         primary: { DEFAULT: 'rgb(var(--color-primary) / <alpha-value>)' },
         secondary: { DEFAULT: 'rgb(var(--color-secondary) / <alpha-value>)' },
         success: { DEFAULT: 'rgb(var(--color-success) / <alpha-value>)' },
         warning: { DEFAULT: 'rgb(var(--color-warning) / <alpha-value>)' },
         error: { DEFAULT: 'rgb(var(--color-error) / <alpha-value>)' },
         info: { DEFAULT: 'rgb(var(--color-info) / <alpha-value>)' },
-        // Цвета TailGrids для темной темы
+        
+        // Фоновые цвета через CSS переменные
+        background: { DEFAULT: 'rgb(var(--color-background) / <alpha-value>)' },
+        surface: { DEFAULT: 'rgb(var(--color-surface) / <alpha-value>)' },
+        
+        // Цвета текста через CSS переменные
+        'text-primary': { DEFAULT: 'rgb(var(--color-text-primary) / <alpha-value>)' },
+        'text-secondary': { DEFAULT: 'rgb(var(--color-text-secondary) / <alpha-value>)' },
+        'text-disabled': { DEFAULT: 'rgb(var(--color-text-disabled) / <alpha-value>)' },
+        
+        // Границы через CSS переменные
+        border: { DEFAULT: 'rgb(var(--color-border) / <alpha-value>)' },
+        
+        // Цвета TailGrids для темной темы (используются в некоторых компонентах)
+        // Используем CSS переменные для динамического изменения в зависимости от темы
         dark: {
-          DEFAULT: '#111928',  // стандарт TailGrids - основной темный фон
-          2: '#1F2A37',        // стандарт TailGrids - фон карточек/секций
-          3: '#374151',        // стандарт TailGrids - границы
-          6: '#9CA3AF',        // стандарт TailGrids - вторичный текст
+          DEFAULT: 'rgb(var(--color-background) / <alpha-value>)',  // Основной темный фон
+          2: 'rgb(var(--color-surface) / <alpha-value>)',            // Фон карточек/секций
+          3: 'rgb(var(--color-border) / <alpha-value>)',              // Границы
+          4: 'rgb(var(--color-text-secondary) / <alpha-value>)',      // Вторичный текст
+          6: 'rgb(var(--color-text-secondary) / <alpha-value>)',      // Вторичный текст (альтернативный)
         },
+        
+        // Дополнительные цвета для совместимости
         stroke: { DEFAULT: 'rgb(var(--color-stroke) / <alpha-value>)' },
         'body-color': { DEFAULT: 'rgb(var(--color-text-secondary) / <alpha-value>)' },
         gray: {
@@ -33,6 +51,29 @@ export default {
           2: 'rgb(var(--color-gray-2) / <alpha-value>)',
           3: 'rgb(var(--color-gray-3) / <alpha-value>)',
         },
+      },
+      spacing: {
+        // Используем CSS переменные для spacing
+        xs: 'var(--spacing-xs)',
+        sm: 'var(--spacing-sm)',
+        md: 'var(--spacing-md)',
+        lg: 'var(--spacing-lg)',
+        xl: 'var(--spacing-xl)',
+      },
+      borderRadius: {
+        // Используем CSS переменные для border radius
+        sm: 'var(--radius-sm)',
+        md: 'var(--radius-md)',
+        lg: 'var(--radius-lg)',
+        xl: 'var(--radius-xl)',
+        full: 'var(--radius-full)',
+      },
+      boxShadow: {
+        // Используем CSS переменные для теней
+        sm: 'var(--shadow-sm)',
+        md: 'var(--shadow-md)',
+        lg: 'var(--shadow-lg)',
+        xl: 'var(--shadow-xl)',
       },
     },
   },
@@ -43,7 +84,7 @@ export default {
     safelist: [
       // Сохраняем динамические классы, которые генерируются программно
       {
-        pattern: /^(bg|text|border)-(primary|secondary|success|warning|error|info)/,
+        pattern: /^(bg|text|border)-(primary|secondary|success|warning|error|info|background|surface|text-primary|text-secondary|text-disabled|border)/,
         variants: ['hover', 'focus', 'active', 'dark'],
       },
       {

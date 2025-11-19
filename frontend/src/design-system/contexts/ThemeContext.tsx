@@ -49,6 +49,51 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       } else {
         document.documentElement.classList.remove('dark');
       }
+
+      // Синхронизировать токены темы с CSS переменными для динамического изменения
+      const currentTheme = themeMode === 'corporate' ? corporateTheme : dark ? darkTheme : lightTheme;
+      const root = document.documentElement;
+      
+      // Утилита для конвертации hex в RGB
+      const hexToRgb = (hex: string): string => {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        if (!result) return '';
+        return `${parseInt(result[1], 16)} ${parseInt(result[2], 16)} ${parseInt(result[3], 16)}`;
+      };
+      
+      // Цвета - конвертируем hex в RGB формат для CSS переменных
+      root.style.setProperty('--color-primary', hexToRgb(currentTheme.colors.primary) || '14 165 233');
+      root.style.setProperty('--color-secondary', hexToRgb(currentTheme.colors.secondary) || '100 116 139');
+      root.style.setProperty('--color-success', hexToRgb(currentTheme.colors.success) || '34 197 94');
+      root.style.setProperty('--color-error', hexToRgb(currentTheme.colors.error) || '239 68 68');
+      root.style.setProperty('--color-warning', hexToRgb(currentTheme.colors.warning) || '245 158 11');
+      root.style.setProperty('--color-info', hexToRgb(currentTheme.colors.info) || '59 130 246');
+      root.style.setProperty('--color-background', hexToRgb(currentTheme.colors.background) || '255 255 255');
+      root.style.setProperty('--color-surface', hexToRgb(currentTheme.colors.surface) || '248 250 252');
+      root.style.setProperty('--color-text-primary', hexToRgb(currentTheme.colors.text.primary) || '15 23 42');
+      root.style.setProperty('--color-text-secondary', hexToRgb(currentTheme.colors.text.secondary) || '100 116 139');
+      root.style.setProperty('--color-text-disabled', hexToRgb(currentTheme.colors.text.disabled) || '203 213 225');
+      root.style.setProperty('--color-border', hexToRgb(currentTheme.colors.border) || '226 232 240');
+      
+      // Spacing
+      root.style.setProperty('--spacing-xs', currentTheme.spacing.xs);
+      root.style.setProperty('--spacing-sm', currentTheme.spacing.sm);
+      root.style.setProperty('--spacing-md', currentTheme.spacing.md);
+      root.style.setProperty('--spacing-lg', currentTheme.spacing.lg);
+      root.style.setProperty('--spacing-xl', currentTheme.spacing.xl);
+      
+      // Border Radius
+      root.style.setProperty('--radius-sm', currentTheme.borderRadius.sm);
+      root.style.setProperty('--radius-md', currentTheme.borderRadius.md);
+      root.style.setProperty('--radius-lg', currentTheme.borderRadius.lg);
+      root.style.setProperty('--radius-xl', currentTheme.borderRadius.xl);
+      root.style.setProperty('--radius-full', currentTheme.borderRadius.full);
+      
+      // Shadows
+      root.style.setProperty('--shadow-sm', currentTheme.shadows.sm);
+      root.style.setProperty('--shadow-md', currentTheme.shadows.md);
+      root.style.setProperty('--shadow-lg', currentTheme.shadows.lg);
+      root.style.setProperty('--shadow-xl', currentTheme.shadows.xl);
     };
 
     updateTheme();

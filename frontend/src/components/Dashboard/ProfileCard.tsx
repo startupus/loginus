@@ -27,12 +27,13 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
   const { t } = useTranslation();
   
   return (
-    <div className="bg-white dark:bg-dark-2 rounded-xl shadow-1 dark:shadow-card p-4 sm:p-6 mb-6 transition-all duration-300 hover:shadow-3 hover:-translate-y-1 dark:hover:shadow-3">
+    <div className="bg-white dark:bg-dark-2 rounded-xl p-4 sm:p-6 mb-6">
       <div className="flex flex-col sm:flex-row items-start gap-4">
         <div className="transition-transform duration-300 hover:scale-110">
         <Avatar
           src={user.avatar || undefined}
           initials={getInitials(user.name)}
+          name={user.name}
           size="lg"
           rounded
           showStatus

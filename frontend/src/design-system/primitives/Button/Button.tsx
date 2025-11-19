@@ -66,33 +66,33 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     // Базовые классы из TailGrids Buttons (ТОЧНЫЕ из исходников)
     const baseStyles = 'inline-flex items-center justify-center border text-center font-medium transition-all duration-200';
 
-    // Варианты из TailGrids Buttons - с правильной контрастностью
+    // Варианты из TailGrids Buttons - используют токены темы через CSS переменные
     const variantStyles = {
-      // Primary с градиентом или без
+      // Primary с градиентом или без - использует токены темы
       primary: gradient 
-        ? 'border-0 bg-gradient-to-r from-[#3758F9] via-blue-600 to-[#3758F9] bg-size-200 bg-pos-0 hover:bg-pos-100 text-white shadow-lg hover:shadow-xl'
-        : 'border-[#3758F9] bg-[#3758F9] text-white hover:bg-[#1B44C8] hover:border-[#1B44C8] shadow-lg hover:shadow-xl',
+        ? 'border-0 bg-gradient-to-r from-primary via-primary/80 to-primary bg-size-200 bg-pos-0 hover:bg-pos-100 text-white shadow-lg hover:shadow-xl'
+        : 'border-primary bg-primary text-white hover:bg-primary/90 hover:border-primary/90 shadow-lg hover:shadow-xl',
       
-      // Secondary из TailGrids
-      secondary: 'border-secondary bg-secondary text-white hover:bg-[#0BB489] hover:border-[#0BB489]',
+      // Secondary - использует цвет из темы (серый)
+      secondary: 'border-secondary bg-secondary text-white hover:bg-secondary/90 hover:border-secondary/90',
       
-      // Outline из TailGrids
-      outline: 'border-2 border-primary bg-transparent text-primary hover:bg-primary hover:text-white dark:text-white dark:hover:bg-primary',
+      // Outline - использует токены темы
+      outline: 'border-2 border-primary bg-transparent text-primary hover:bg-primary hover:text-white',
       
-      // Ghost
+      // Ghost - использует токены темы
       ghost: 'border-transparent bg-transparent text-body-color hover:bg-gray-2 dark:text-white dark:hover:bg-dark-3',
       
-      // Error
-      error: 'border-red bg-red text-white hover:bg-red-dark',
+      // Error - использует токены темы
+      error: 'border-error bg-error text-white hover:bg-error/90 hover:border-error/90',
       
-      // Success
-      success: 'border-green bg-green text-white hover:bg-opacity-90',
+      // Success - использует токены темы
+      success: 'border-success bg-success text-white hover:bg-success/90 hover:border-success/90',
       
-      // Warning
-      warning: 'border-yellow bg-yellow text-dark hover:bg-opacity-90',
+      // Warning - использует токены темы
+      warning: 'border-warning bg-warning text-white hover:bg-warning/90 hover:border-warning/90',
       
-      // Link
-      link: 'border-transparent bg-transparent text-primary hover:text-primary-dark hover:underline',
+      // Link - использует токены темы
+      link: 'border-transparent bg-transparent text-primary hover:text-primary/80 hover:underline',
     };
 
     // Размеры (адаптировано из TailGrids)

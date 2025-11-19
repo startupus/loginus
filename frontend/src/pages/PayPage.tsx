@@ -76,7 +76,7 @@ const PayPage: React.FC = () => {
             </div>
             <h3 className="text-xl font-bold mb-2">{t('payment.promo.plus.title', 'Подключите Плюс')}</h3>
             <p className="text-white/80 mb-4">{t('payment.promo.plus.description', 'Кино, музыка, книги в одной мультиподписке')}</p>
-            <Button variant="secondary" size="sm" className="bg-white text-purple-600 hover:bg-gray-100 border-none">
+            <Button variant="outline" size="sm" className="bg-white text-purple-600 hover:bg-gray-100 border-purple-600 hover:border-purple-600">
               {t('common.connect', 'Подключить')}
             </Button>
           </div>
@@ -94,7 +94,7 @@ const PayPage: React.FC = () => {
             <p className="text-white/80 mb-4">
               {t('payment.promo.split.limit', 'Вам одобрено 150 000 ₽', { amount: '150 000' })}
             </p>
-            <Button variant="secondary" size="sm" className="bg-white text-teal-600 hover:bg-gray-100 border-none">
+            <Button variant="outline" size="sm" className="bg-white text-teal-600 hover:bg-gray-100 border-teal-600 hover:border-teal-600">
               {t('common.details', 'Подробнее')}
             </Button>
           </div>

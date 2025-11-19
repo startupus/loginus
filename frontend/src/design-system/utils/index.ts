@@ -4,4 +4,5 @@
 
 export * from './themeUtils';
 export * from './responsiveUtils';
+export * from './useThemeClasses';
 

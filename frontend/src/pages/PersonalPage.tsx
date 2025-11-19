@@ -6,6 +6,7 @@ import { DataSection, SeparatedList } from '@/design-system/composites';
 import { Button, Icon, Avatar, Separator } from '@/design-system/primitives';
 import { personalApi } from '@/services/api/personal';
 import { useAuthStore } from '@/store';
+import { getInitials } from '@/utils/stringUtils';
 import { Link } from 'react-router-dom';
 
 const PersonalPage: React.FC = () => {
@@ -52,7 +53,12 @@ const PersonalPage: React.FC = () => {
     >
       {/* Profile Card */}
       <button className="w-full flex items-center gap-4 p-6 bg-white dark:bg-dark-2 rounded-xl border border-stroke dark:border-dark-3 hover:shadow-lg transition-all text-left group">
-        <Avatar src={user?.avatar || undefined} size="xl" initials={user?.name?.[0]} />
+        <Avatar 
+          src={user?.avatar || undefined} 
+          size="xl" 
+          initials={getInitials(user?.name)} 
+          name={user?.name}
+        />
         <div className="flex-1">
           <h3 className="text-xl font-bold text-dark dark:text-white mb-1">{user?.name}</h3>
           <p className="text-body-color dark:text-dark-6">

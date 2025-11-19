@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { PageTemplate } from '@/design-system/layouts';
 import { DataSection, SeparatedList } from '@/design-system/composites';
 import { Button, Icon } from '@/design-system/primitives';
+import { useThemeClasses } from '@/design-system/utils';
 import { securityApi } from '@/services/api/security';
 
 interface Device {
@@ -26,6 +27,7 @@ interface Activity {
 
 const SecurityPage: React.FC = () => {
   const { t } = useTranslation();
+  const { getGradientStyleFromVars, isDark } = useThemeClasses();
   const [devices, setDevices] = useState<Device[]>([]);
   const [activity, setActivity] = useState<Activity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -77,7 +79,14 @@ const SecurityPage: React.FC = () => {
       contentClassName="space-y-8 max-w-4xl mx-auto"
     >
       {/* Biometry Promo Block */}
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-8 text-white shadow-lg relative overflow-hidden">
+      <div 
+        className="rounded-2xl p-8 text-white shadow-lg relative overflow-hidden"
+        style={getGradientStyleFromVars(
+          '--color-primary',
+          '--color-info',
+          'to right'
+        )}
+      >
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-6">
           <div className="flex-1">
             <h2 className="text-2xl font-bold mb-2">
@@ -87,8 +96,8 @@ const SecurityPage: React.FC = () => {
               {t('security.biometry.description', 'Это быстрее и безопаснее, чем пароль. Мы не храним ваши биометрические данные — они остаются на устройстве.')}
             </p>
             <Button 
-              variant="secondary" 
-              className="bg-white text-indigo-600 hover:bg-gray-100 border-none"
+              variant={isDark ? 'outline' : 'secondary'}
+              className={isDark ? 'border-white/20 text-white hover:bg-white/10 hover:border-white/30' : ''}
             >
               {t('security.biometry.connect', 'Подключить')}
             </Button>
@@ -98,8 +107,8 @@ const SecurityPage: React.FC = () => {
           </div>
         </div>
         {/* Decorative circles */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full translate-y-1/3 -translate-x-1/4 blur-2xl"></div>
+        <div className={`absolute top-0 right-0 w-64 h-64 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl ${isDark ? 'bg-white/5' : 'bg-white/10'}`}></div>
+        <div className={`absolute bottom-0 left-0 w-48 h-48 rounded-full translate-y-1/3 -translate-x-1/4 blur-2xl ${isDark ? 'bg-black/5' : 'bg-black/10'}`}></div>
       </div>
 
       {/* Login Methods Section */}

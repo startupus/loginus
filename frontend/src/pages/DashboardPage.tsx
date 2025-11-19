@@ -1,10 +1,12 @@
 import React, { Suspense, lazy, useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { preloadModule } from '../services/i18n/config';
 import { PageTemplate } from '../design-system/layouts/PageTemplate';
 import { profileApi } from '../services/api/profile';
 import { Icon } from '../design-system/primitives';
-import { MasonryGrid } from '../design-system/composites';
+// Lazy loading для MasonryGrid
+const MasonryGrid = lazy(() => import('../design-system/composites/MasonryGrid').then(m => ({ default: m.MasonryGrid })));
 import { useAuthStore } from '../store';
 import { useWidgetPreferences } from '../hooks/useWidgetPreferences';
 
@@ -64,6 +66,47 @@ const SectionSkeleton: React.FC = () => (
 const DashboardPage: React.FC = () => {
   const { t } = useTranslation();
   const { updateUser } = useAuthStore();
+  
+  // Предзагружаем модули dashboard и profile асинхронно (не блокируя рендеринг)
+  useEffect(() => {
+    // Используем requestIdleCallback для загрузки в свободное время браузера
+    const loadModules = () => {
+      const startTime = performance.now();
+      Promise.all([
+        preloadModule('dashboard'),
+        preloadModule('profile'),
+      ]).then(() => {
+        const endTime = performance.now();
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`[Dashboard] i18n modules loaded: ${(endTime - startTime).toFixed(2)}ms`);
+        }
+      }).catch(() => {
+        // Игнорируем ошибки загрузки модулей
+      });
+    };
+    
+    // Используем requestIdleCallback если доступен, иначе setTimeout
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      const id = (window as any).requestIdleCallback(loadModules, { timeout: 2000 });
+      return () => (window as any).cancelIdleCallback(id);
+    } else {
+      const timer = setTimeout(loadModules, 100);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+  
+  // Логирование времени рендеринга компонента (только в dev)
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      const renderStart = performance.now();
+      // Используем requestIdleCallback для неблокирующего логирования
+      const timer = setTimeout(() => {
+        const renderEnd = performance.now();
+        console.log(`[Dashboard] Component render: ${(renderEnd - renderStart).toFixed(2)}ms`);
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  });
   const [isWidgetSelectorOpen, setIsWidgetSelectorOpen] = useState(false);
   const [draggedWidgetId, setDraggedWidgetId] = useState<string | null>(null);
   const [dragOverWidgetId, setDragOverWidgetId] = useState<string | null>(null);
@@ -81,13 +124,26 @@ const DashboardPage: React.FC = () => {
   const { data, isLoading, error } = useQuery({
     queryKey: ['dashboard'],
     queryFn: async () => {
-      const response = await profileApi.getDashboard();
-      return response.data;
+      const startTime = performance.now();
+      try {
+        const response = await profileApi.getDashboard();
+        const endTime = performance.now();
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`[Dashboard] API request: ${(endTime - startTime).toFixed(2)}ms`);
+        }
+        return response.data;
+      } catch (err) {
+        const endTime = performance.now();
+        if (process.env.NODE_ENV === 'development') {
+          console.error(`[Dashboard] API error after ${(endTime - startTime).toFixed(2)}ms:`, err);
+        }
+        throw err;
+      }
     },
     staleTime: 5 * 60 * 1000, // 5 минут - данные считаются свежими
     gcTime: 30 * 60 * 1000, // 30 минут в кэше
     refetchOnWindowFocus: false,
-    refetchOnMount: false, // Использовать кэш при повторном монтировании для ускорения
+    refetchOnMount: false, // Использовать кэш если данные свежие (staleTime не истек)
     refetchOnReconnect: false, // Не перезагружать при переподключении
     retry: 1, // Быстрая обработка ошибок
     retryDelay: 1000, // Задержка перед повтором
@@ -313,11 +369,11 @@ const DashboardPage: React.FC = () => {
         {/* Widgets Section - объединенный Suspense для всех виджетов */}
         <div className="w-full">
           <Suspense fallback={
-            <MasonryGrid columns={{ sm: 1, md: 2, lg: 3 }} gap={24} className="lg:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
               {[1, 2, 3].map((i) => (
                 <WidgetSkeleton key={i} />
               ))}
-            </MasonryGrid>
+            </div>
           }>
           <MasonryGrid
             columns={{ sm: 1, md: 2, lg: 3 }}

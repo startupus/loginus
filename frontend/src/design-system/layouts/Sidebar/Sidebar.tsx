@@ -85,37 +85,52 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         onNavigate ? onNavigate(item.path) : navigate(item.path);
                       }
                     }}
-                    className={`text-body-color dark:text-dark-6 hover:border-primary hover:bg-primary/5 relative flex w-full items-center border-r-4 border-transparent py-[10px] pr-10 pl-9 text-base font-medium duration-200 transition-all hover:translate-x-1 ${
+                    className={`text-body-color dark:text-dark-6 hover:border-primary hover:bg-primary/5 relative flex w-full items-center border-r-4 border-transparent py-[10px] pr-4 pl-9 text-base font-medium duration-200 transition-all hover:translate-x-1 text-left ${
+                      // Активный пункт - синяя полоска справа
                       item.active ? '!border-primary bg-primary/5' : ''
+                    } ${
+                      // Развернутый пункт (с подменю) - только фон, без синей полоски если не активный
+                      item.children && openDropdown === item.path && !item.active ? '!bg-primary/10 dark:!bg-primary/20' : ''
+                    } ${
+                      // Развернутый И активный - и фон, и синяя полоска
+                      item.children && openDropdown === item.path && item.active ? '!bg-primary/10 dark:!bg-primary/20' : ''
                     }`}
                   >
                     {item.icon && (
                       <Icon 
                         name={item.icon} 
                         size="sm" 
-                        className="mr-3"
+                        className="mr-3 flex-shrink-0"
                       />
                     )}
-                    <span>{item.label}</span>
+                    <span className="flex-1 text-left">{item.label}</span>
                     {item.children && (
                       <span
-                        className={`absolute top-1/2 right-10 -translate-y-1/2 transition-transform duration-200 ${
+                        className={`flex-shrink-0 ml-2 transition-transform duration-200 ${
                           openDropdown === item.path ? 'rotate-0' : 'rotate-180'
                         }`}
                       >
-                        <Icon name="chevron-down" size="sm" />
+                        <Icon 
+                          name="chevron-down" 
+                          size="sm" 
+                          className={`${
+                            openDropdown === item.path ? 'text-primary' : 'text-body-color dark:text-dark-6'
+                          }`}
+                        />
                       </span>
                     )}
                   </button>
                   {item.children && openDropdown === item.path && (
-                    <ul className="py-[6px] pr-10 pl-[50px]">
+                    <ul className="py-[6px] pr-10 pl-[50px] bg-gray-1 dark:bg-dark-3 border-l-2 border-primary/30 dark:border-primary/40 ml-2">
                       {item.children.map((child, childIndex) => (
                         <li key={child.path || childIndex}>
                           <button
                             onClick={() => onNavigate ? onNavigate(child.path) : navigate(child.path)}
-                            className="text-body-color dark:text-dark-6 hover:text-primary flex w-full items-center border-r-4 border-transparent py-[9px] text-base font-medium duration-200"
+                            className={`text-body-color dark:text-dark-6 hover:text-primary hover:bg-primary/10 dark:hover:bg-primary/20 flex w-full items-center border-r-4 border-transparent py-[9px] pl-2 pr-2 text-base font-medium duration-200 transition-all rounded-r-lg text-left ${
+                              child.active ? '!border-primary bg-primary/10 dark:bg-primary/20' : ''
+                            }`}
                           >
-                            {child.label}
+                            <span className="text-left">{child.label}</span>
                           </button>
                         </li>
                       ))}

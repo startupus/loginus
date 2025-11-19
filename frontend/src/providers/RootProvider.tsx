@@ -12,10 +12,16 @@ const queryClient = new QueryClient({
       retry: 1,
       retryDelay: 1000, // Быстрая обработка ошибок
       refetchOnWindowFocus: false,
-      refetchOnMount: false, // Использовать кэш при повторном монтировании
+      refetchOnMount: false, // Использовать кэш если данные свежие (staleTime не истек)
       refetchOnReconnect: false, // Не перезагружать при переподключении
     },
   },
+  // Логирование отключено для производительности (можно включить при необходимости)
+  // logger: process.env.NODE_ENV === 'development' ? {
+  //   log: (...args) => console.log('[React Query]', ...args),
+  //   warn: (...args) => console.warn('[React Query]', ...args),
+  //   error: (...args) => console.error('[React Query]', ...args),
+  // } : undefined,
 });
 
 interface RootProviderProps {

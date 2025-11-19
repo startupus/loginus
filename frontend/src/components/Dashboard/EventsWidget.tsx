@@ -91,7 +91,18 @@ export const EventsWidget: React.FC<EventsWidgetProps> = ({
 
   return (
     <WidgetCard
-      title={t('dashboard.events.title', 'События')}
+      title={
+        <div className="flex items-center gap-2">
+          <span className="text-xl font-semibold text-dark dark:text-white sm:text-[22px] md:text-xl lg:text-[22px] xl:text-xl 2xl:text-[22px]">
+            {t('dashboard.events.title', 'События')}
+          </span>
+          {displayedEvents.length > 0 && (
+            <Badge variant="primary" size="sm">
+              {events.length}
+            </Badge>
+          )}
+        </div>
+      }
       widgetId={widgetId}
       draggable={draggable}
       onDragStart={onDragStart}
@@ -103,13 +114,6 @@ export const EventsWidget: React.FC<EventsWidgetProps> = ({
       isDragOver={isDragOver}
       insertPosition={insertPosition}
       isDragging={isDragging}
-      actions={
-        displayedEvents.length > 0 && (
-          <Badge variant="primary" size="sm">
-            {events.length}
-          </Badge>
-        )
-      }
     >
       {displayedEvents.length > 0 ? (
         <div className="space-y-2">

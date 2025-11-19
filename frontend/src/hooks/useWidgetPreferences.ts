@@ -19,7 +19,9 @@ export const useWidgetPreferences = () => {
         }
       }
     } catch (error) {
-      console.warn('Failed to load widgetOrder from localStorage:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Failed to load widgetOrder from localStorage:', error);
+      }
     }
     // Значение по умолчанию
     return ['courses', 'events', 'roadmap'];
@@ -36,7 +38,9 @@ export const useWidgetPreferences = () => {
         }
       }
     } catch (error) {
-      console.warn('Failed to load enabledWidgets from localStorage:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Failed to load enabledWidgets from localStorage:', error);
+      }
     }
     // Значение по умолчанию
     return new Set(['courses', 'events', 'roadmap']);
@@ -50,7 +54,9 @@ export const useWidgetPreferences = () => {
     try {
       localStorage.setItem('widgetOrder', JSON.stringify(order));
     } catch (error) {
-      console.error('Failed to save widgetOrder to localStorage:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to save widgetOrder to localStorage:', error);
+      }
     }
   }, []);
 
@@ -61,7 +67,9 @@ export const useWidgetPreferences = () => {
     try {
       localStorage.setItem('enabledWidgets', JSON.stringify(Array.from(widgets)));
     } catch (error) {
-      console.error('Failed to save enabledWidgets to localStorage:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to save enabledWidgets to localStorage:', error);
+      }
     }
   }, []);
 

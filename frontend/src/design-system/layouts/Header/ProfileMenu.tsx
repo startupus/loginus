@@ -41,6 +41,7 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({ userData, onLogout }) 
         <Avatar
           src={avatarSrc}
           initials={initials}
+          name={userData.name}
           size="lg"
           rounded
           showStatus

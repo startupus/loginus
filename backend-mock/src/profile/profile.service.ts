@@ -4,10 +4,26 @@ import * as path from 'path';
 
 @Injectable()
 export class ProfileService {
+  // Кэш данных профиля в памяти для быстрого доступа
+  private profileCache: any | null = null;
+  private profileCacheTime: number = 0;
+  private readonly CACHE_TTL = 60000; // 1 минута кэширования
+
   private getProfileData() {
+    const now = Date.now();
+    
+    // Если кэш валиден, возвращаем его
+    if (this.profileCache && (now - this.profileCacheTime) < this.CACHE_TTL) {
+      return this.profileCache;
+    }
+
+    // Иначе читаем файл и обновляем кэш
     const profilePath = path.join(__dirname, '../../data/profile.json');
     const profileData = fs.readFileSync(profilePath, 'utf-8');
-    return JSON.parse(profileData);
+    this.profileCache = JSON.parse(profileData);
+    this.profileCacheTime = now;
+    
+    return this.profileCache;
   }
 
   getProfile() {
