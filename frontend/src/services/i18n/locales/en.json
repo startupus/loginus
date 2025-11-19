@@ -1,431 +1,419 @@
 {
-  "common": {
-    "login": "Login",
-    "logout": "Logout",
-    "register": "Register",
-    "save": "Save",
-    "cancel": "Cancel",
-    "delete": "Delete",
-    "edit": "Edit",
-    "close": "Close",
-    "loading": "Loading...",
-    "error": "Error",
-    "success": "Success",
-    "back": "Back",
-    "next": "Next",
-    "previous": "Previous",
-    "submit": "Submit",
-    "search": "Search",
-    "noData": "No data",
-    "retry": "Try again"
-  },
-  "auth": {
-    "loginTitle": "Login to Loginus ID",
-    "registerTitle": "Register",
-    "email": "Email",
-    "phone": "Phone",
-    "password": "Password",
-    "forgotPassword": "Forgot password?",
-    "dontHaveAccount": "Don't have an account?",
-    "alreadyHaveAccount": "Already have an account?",
-    "loginWith": "Login with",
-    "forgotTitle": "Password Recovery",
-    "forgotDescription": "Enter your email or phone to receive a recovery code",
-    "sendCode": "Send Code",
-    "codeSent": "Code sent to",
-    "codeSentDescription": "Check your email or SMS and follow the instructions",
-    "backToLogin": "Back to Login",
-    "resetTitle": "New Password",
-    "newPassword": "New Password",
-    "confirmPassword": "Confirm Password",
-    "savePassword": "Save Password",
-    "passwordMismatch": "Passwords do not match",
-    "passwordTooShort": "Password must be at least 8 characters",
-    "title": "Enter",
-    "titleField": "phone or email",
-    "subtitle": "Enter phone or email to login or register",
-    "phoneOrEmail": "Phone or email",
-    "continue": "Continue",
-    "biometric": "Face or fingerprint",
-    "qrCode": "QR code",
-    "footer": {
-      "text": "By clicking \"Continue\", you accept",
-      "terms": "terms of service",
-      "privacy": "privacy policy",
-      "and": "and",
-      "dataTransfer": "Data transfer"
-    },
-    "errors": {
-      "invalidInput": "Enter a valid phone or email",
-      "genericError": "An error occurred. Please try again.",
-      "timeout": "Request timeout. Please check your internet connection.",
-      "networkError": "Network error. Please check your internet connection.",
-      "sessionNotFound": "Session not found",
-      "sessionNotFoundOrExpired": "Session not found or expired",
-      "invalidCode": "Incorrect code, please try again",
-      "codeExpired": "Code expired. Request a new one",
-      "resendFailed": "Failed to send code. Please try again."
-    },
-    "verifyCode": {
-      "title": "Enter",
-      "titleField": "verification code",
-      "description": "We sent a 6-digit verification code",
-      "subtitle": "to",
-      "hint": "Enter the code from the SMS message",
-      "resendTimer": "Code can be resent in",
-      "resendButton": "Didn't receive the code? Resend"
-    },
-    "register": {
-      "title": "Creating your account",
-      "subtitle": "No account found with this number. We will create a new account automatically.",
-      "createAccount": "Create account"
-    }
-  },
-  "onboarding": {
-    "step1": {
-      "title": "What's your name?",
-      "subtitle": "Enter your first and last name",
-      "firstName": "First name",
-      "lastName": "Last name"
-    },
-    "step2": {
-      "title": "Create password",
-      "subtitle": "Password is needed for additional security. You can skip and create it later.",
-      "password": "Password",
-      "confirmPassword": "Confirm password",
-      "passwordHint": "Minimum 8 characters",
-      "skipPassword": "Skip, create later"
-    },
-    "step3": {
-      "title": "Almost done!",
-      "subtitle": "Just need to accept terms of use",
-      "acceptTerms": "I accept",
-      "userAgreement": "terms of service",
-      "and": "and",
-      "privacyPolicy": "privacy policy",
-      "acceptNewsletter": "I want to receive news and offers"
-    },
-    "finish": "Finish"
-  },
-  "about": {
-    "title": "Loginus ID",
-    "subtitle": "Unified account for Startapus ecosystem",
-    "createAccount": "Create Account",
-    "advantagesTitle": "Advantages",
-    "feature1Title": "Maximum Security",
-    "feature1Description": "Two-factor authentication, biometrics, action audit",
-    "feature2Title": "Quick Login",
-    "feature2Description": "QR-code, biometrics, one-time codes - choose your way",
-    "feature3Title": "Unified Profile",
-    "feature3Description": "All your data in one place, access from any service"
-  },
-  "profile": {
-    "title": "Profile",
-    "personalInfo": "Personal Information",
-    "security": "Security",
-    "sessions": "Sessions",
-    "firstName": "First Name",
-    "lastName": "Last Name",
-    "birthDate": "Birth Date",
-    "gender": "Gender",
-    "edit": "Edit Profile",
-    "confirmed": "Confirmed"
-  },
-  "security": {
-    "title": "Security",
-    "changePassword": "Change Password",
-    "twoFactor": "Two-Factor Authentication",
-    "devices": "Devices",
-    "activity": "Activity",
-    "loginMethod": "Login Method",
-    "normalPassword": "Regular Password",
-    "passwordLastChanged": "Changed",
-    "monthsAgo": "months ago",
-    "twoFactorAuth": "Two-Factor Authentication",
-    "additionalProtection": "Additional account protection",
-    "notConfigured": "Not configured",
-    "biometric": "Biometric",
-    "faceOrFingerprint": "Login with face or fingerprint",
-    "notConnected": "Not connected",
-    "logoutAll": "Logout Everywhere",
-    "currentDevice": "Current"
-  },
-  "admin": {
-    "dashboard": "Admin Dashboard",
-    "users": "Users",
-    "settings": "Settings",
-    "logs": "Logs",
-    "analytics": "Analytics",
-    "adminMode": "Admin Mode",
-    "totalUsers": "Total Users",
-    "activeUsers": "Active Users",
-    "newToday": "today",
-    "sessions": "Sessions",
-    "incidents": "Incidents"
-  },
-  "kyc": {
-    "title": "Identity Verification (KYC)",
-    "description": "Confirm your identity for full access to features",
-    "step1": "Step 1: Personal Data",
-    "step2": "Step 2: Upload Documents",
-    "step3": "Verification",
-    "personalData": "Data",
-    "documents": "Documents",
-    "verification": "Verification",
-    "submitted": "Documents submitted for review",
-    "processingTime": "Verification may take up to 3 business days",
-    "underReview": "Under Review"
-  },
-  "sidebar": {
-    "overview": "Overview",
-    "personal": "Personal Data",
-    "security": "Security",
-    "devices": "Devices",
-    "activity": "Activity",
-    "documents": "Documents",
-    "addresses": "Addresses"
-  },
-  "errors": {
-    "404Title": "Page Not Found",
-    "404Description": "The requested page does not exist or has been removed",
-    "403Title": "Access Denied",
-    "403Description": "You don't have permission to view this page",
-    "500Title": "Server Error",
-    "500Description": "Something went wrong. We're already working on a fix.",
-    "503Title": "Service Temporarily Unavailable",
-    "503Description": "Maintenance in progress. Will be back soon.",
-    "401Title": "Authentication Required",
-    "401Description": "You need to login to access this page",
-    "goHome": "Go to Home",
-    "reload": "Reload Page",
-    "tryAgain": "Try Again",
-    "somethingWentWrong": "Something went wrong",
-    "unexpectedError": "An unexpected error occurred",
-    "reloadPage": "Reload page",
-    "helpText": "If the problem persists, please contact support"
-  },
   "dashboard": {
-    "title": "Home",
+    "title": "Profile",
     "quickAccess": "Quick Access",
     "recentActivity": "Recent Activity",
     "activeDevices": "Active Devices",
     "documentsCount": "Documents",
     "connectedApps": "Connected Apps",
-    "mergeAccounts": "Merge accounts",
+    "mergeAccounts": "Merge Accounts",
     "family": {
       "title": "Family",
       "description": "Manage family members",
       "add": "Add",
-      "member": "Family member"
+      "member": "Family Member",
+      "owner": "Owner",
+      "manage": "Manage"
     },
     "mail": {
       "title": "Mail",
       "noUnread": "No unread",
-      "unreadOne": "unread letter",
-      "unreadFew": "unread letters",
-      "unreadMany": "unread letters"
+      "unreadOne": "unread message",
+      "unreadFew": "unread messages",
+      "unreadMany": "unread messages"
     },
     "pay": {
       "title": "Yandex Pay",
-      "openCard": "Open Pay card",
+      "openCard": "Open Pay Card",
       "spendUpTo": "Spend up to"
+    },
+    "plus": {
+      "title": "Yandex Plus",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "points": "Points",
+      "tasks": "Tasks",
+      "complete": "Complete"
+    },
+    "work": {
+      "title": "Work",
+      "description": "Your work groups and teams",
+      "addGroup": "Add Group",
+      "allGroups": "All Groups",
+      "owner": "Owner",
+      "admin": "Admin",
+      "member": "Member"
+    },
+    "subscriptions": {
+      "title": "Subscriptions",
+      "active": "Active",
+      "inactive": "Inactive",
+      "details": "Details",
+      "activeUntil": "Active until {{date}}",
+      "subscribe": "Subscribe",
+      "includes": "Included in subscription:",
+      "plan": {
+        "monthly": "Monthly",
+        "annual": "Annual",
+        "premium": "Premium",
+        "free": "Free"
+      },
+      "features": {
+        "monthly": {
+          "0": "Access to all paid content",
+          "1": "Invitation to a private Slack community"
+        },
+        "annual": {
+          "0": "Access to all paid content",
+          "1": "Invitation to a private Slack community",
+          "2": "Free year of 15+ premium products"
+        },
+        "premium": {
+          "0": "Access to all paid content",
+          "1": "Invitation to a private Slack community",
+          "2": "Free year of 15+ premium products",
+          "3": "Guaranteed access to premium offers",
+          "4": "Exclusive premium partners"
+        },
+        "free": {
+          "0": "Occasional free newsletter"
+        }
+      }
     }
   },
-  "personalData": {
-    "title": "Personal Data",
-    "subtitle": "Manage your documents, addresses and other personal data",
-    "documents": {
-      "title": "Documents",
-      "description": "Your documents are always at hand in ID. We keep them safe",
-      "viewAll": "All documents",
-      "addDocument": "Add document",
-      "passportRF": "RF Passport",
-      "foreignPassport": "International Passport",
-      "birthCertificate": "Birth Certificate",
-      "driverLicense": "DL",
-      "vehicleRegistration": "VR",
-      "healthInsurance": "Health Insurance",
-      "voluntaryInsurance": "Voluntary Insurance",
-      "inn": "INN",
-      "snils": "SNILS"
+  "security": {
+    "title": "Security",
+    "password": {
+      "title": "Password",
+      "description": "Update your password regularly to protect your account",
+      "change": "Update Password",
+      "status": "Password is secure",
+      "lastChanged": "Changed {{date}}"
     },
-    "vehicles": {
-      "title": "Vehicles",
-      "description": "Add information about your vehicles",
-      "viewAll": "All vehicles",
-      "addVehicle": "Add vehicle"
+    "biometry": {
+      "title": "Enable secure login with Face ID or Touch ID",
+      "description": "It's faster and safer than a password. We don't store your biometric data — it stays on your device.",
+      "connect": "Enable"
     },
-    "pets": {
-      "title": "Pets",
-      "description": "Information about your pets",
-      "viewAll": "All pets",
-      "addPet": "Add pet"
+    "loginMethods": {
+      "title": "Login Method",
+      "current": "Current method",
+      "password": "Standard password",
+      "otp": "One-time password",
+      "recovery": "Recovery methods"
     },
-    "addresses": {
-      "title": "Addresses",
-      "description": "Save addresses for quick form filling",
-      "viewAll": "All addresses",
-      "addAddress": "Add address",
-      "home": "Home",
-      "work": "Work"
+    "access": {
+      "title": "Access to your data",
+      "external": "Add external accounts",
+      "manage": "Manage access",
+      "apps": "App passwords"
     },
-    "contacts": {
-      "title": "Contacts",
-      "description": "Phone numbers and email addresses"
+    "control": {
+      "title": "Access Control",
+      "logoutAll": "Log out everywhere"
     },
-    "publicData": {
-      "title": "Public Data",
-      "description": "This data can be seen by other users",
-      "nameAndSurname": "Name and surname",
-      "birthDate": "Birth date",
-      "gender": "Gender",
-      "male": "Male",
-      "female": "Female"
+    "devices": {
+      "title": "Devices",
+      "description": "Devices logged into your account",
+      "current": "This device",
+      "empty": "Device list is empty"
     },
-    "dataManagement": {
-      "title": "Data Management",
-      "description": "Export, delete and other actions with your data",
-      "downloadData": "Export data",
-      "archiveProfile": "Archive profile",
-      "deleteAccount": "Delete profile"
+    "activity": {
+      "title": "Activity History",
+      "description": "Recent activity in your account",
+      "empty": "Activity history is empty"
     }
   },
-  "family": {
-    "title": "Family",
-    "subtitle": "Manage your family group and its members",
-    "group": "Family group",
-    "members": "members",
-    "inviteMember": "Invite family member",
-    "features": {
-      "title": "Family group features",
-      "description": "What members can do",
-      "sharedSubscriptions": "Shared subscriptions",
-      "sharedSubscriptionsDesc": "All members can use group subscriptions",
-      "parentalControl": "Parental control",
-      "parentalControlDesc": "Manage access for children's accounts"
-    },
-    "roles": {
-      "admin": "Administrator",
-      "member": "Member",
-      "child": "Child"
-    }
-  },
-  "pay": {
-    "title": "Payments",
-    "subtitle": "Manage payment methods and payment history",
+  "payment": {
     "methods": {
-      "title": "Payment methods",
-      "description": "Your cards and accounts",
-      "addMethod": "Add payment method",
-      "card": "Card",
-      "bankAccount": "Bank account",
-      "active": "Active"
+      "title": "Payment Methods",
+      "description": "Your cards for service payments",
+      "add": "Open Pay Card",
+      "empty": "No linked cards",
+      "balance": "Balance",
+      "cashback": "Cashback"
+    },
+    "promo": {
+      "plus": {
+        "title": "Connect Plus",
+        "description": "Movies, music, books in one subscription"
+      },
+      "split": {
+        "title": "Split",
+        "description": "Pay in parts without overpayments",
+        "limit": "Approved {{amount}} ₽"
+      }
+    },
+    "subscriptions": {
+      "title": "Subscriptions",
+      "description": "Manage service subscriptions"
     },
     "history": {
-      "title": "Payment history",
-      "description": "Recent transactions",
-      "completed": "Completed",
-      "pending": "Pending"
+      "title": "Payment History",
+      "description": "Your recent transactions",
+      "empty": "History is empty"
+    }
+  },
+  "help": {
+    "header": {
+      "title": "Your Loginus ID",
+      "description": "Many Loginus services are only available after registration. Loginus ID is a unified account. Use it for authorization on all Loginus services."
+    },
+    "categories": {
+      "security": {
+        "title": "Protect Your Account",
+        "changePassword": "Why Loginus asks to change password",
+        "loginChallenge": "Login verification",
+        "virusCheck": "Virus protection"
+      },
+      "key": {
+        "title": "Login with Loginus Key",
+        "setup": "Set up Loginus Key",
+        "external": "Generate passwords for other sites",
+        "appPasswords": "Create app passwords"
+      },
+      "phone": {
+        "title": "Phone Number",
+        "noSms": "Not receiving SMS or notification",
+        "attach": "Link phone number",
+        "change": "Change linked number"
+      },
+      "recovery": {
+        "title": "Account Recovery",
+        "cantLogin": "Can't log in to account",
+        "restore": "Access recovery",
+        "forgotLogin": "Don't remember login or email"
+      },
+      "email": {
+        "title": "Email and Notifications",
+        "messages": "What emails and SMS Loginus sends",
+        "additional": "Additional email addresses",
+        "recovery": "Recovery email address"
+      },
+      "data": {
+        "title": "My Data",
+        "personal": "My personal data",
+        "public": "My public data on Loginus",
+        "manage": "Data management"
+      },
+      "family": {
+        "title": "Family Group",
+        "group": "Family group",
+        "children": "Child accounts"
+      },
+      "pay": {
+        "title": "Loginus Pay and Payments",
+        "cards": "Loginus Pay and bank cards",
+        "subscriptions": "My services and subscriptions"
+      }
+    },
+    "additionalHelp": {
+      "title": "Didn't Find Answer?",
+      "description": "If you didn't find an answer to your question in help, contact support.",
+      "contact": "Contact Support"
     }
   },
   "support": {
-    "title": "Support",
-    "subtitle": "Help and frequently asked questions",
-    "faq": {
-      "title": "Frequently Asked Questions",
-      "description": "Answers to popular questions",
-      "q1": "How to change password?",
-      "a1": "Go to Security section and click \"Change Password\"",
-      "q2": "How to add a document?",
-      "a2": "Open Data → Documents and select document type",
-      "q3": "How to invite family member?",
-      "a3": "In Family section click \"Invite family member\""
+    "selectService": "Select Service",
+    "services": {
+      "mail": "Mail",
+      "disk": "Disk",
+      "other": "Other Service"
     },
-    "contact": {
-      "title": "Contact support",
-      "description": "Describe your problem",
-      "placeholder": "Describe your problem...",
-      "send": "Send message"
+    "chat": {
+      "title": "Loginus ID Support",
+      "online": "Online",
+      "welcome": "Hello! I will help you with Loginus ID questions.",
+      "selectTopic": "Select your question topic:",
+      "placeholder": "Type your question...",
+      "fileSupport": "You can attach files and screenshots",
+      "start": "Start Chat"
+    },
+    "contacts": {
+      "title": "Other Contact Methods"
+    },
+    "faq": {
+      "title": "FAQ",
+      "description": "Answers to popular user questions",
+      "q1": "How to recover account access?",
+      "a1": "If you forgot your password, use the \"Forgot Password\" function on the login page. We will send a confirmation code to your phone or email.",
+      "q2": "How to change phone number?",
+      "a2": "Go to \"Data\" -> \"Contacts\" and click the edit icon next to the phone number.",
+      "q3": "Is it safe to store documents?",
+      "a3": "Yes, we use encryption. Your data is only available to you.",
+      "q4": "How to delete account?",
+      "a4": "You can request account deletion in the \"Security\" section at the bottom of the page."
+    },
+    "contacts": {
+      "title": "Other Contact Methods"
     }
   },
-  "theme": {
-    "light": "Light",
-    "dark": "Dark",
-    "system": "Auto",
-    "current": "Current theme"
-  },
-  "landing": {
-    "hero": {
-      "badge": "New",
-      "badgeText": "Two-factor authentication",
-      "title": "Unified account",
-      "titleHighlight": "Loginus ID",
-      "description": "Fast and secure authentication for all your services. Manage data, payments and family access in one place.",
-      "ctaLogin": "Login with Loginus ID",
-      "ctaLearnMore": "Learn more",
-      "trustSafe": "Secure",
-      "trustFast": "Fast",
-      "trustConvenient": "Convenient"
+  "help": {
+    "header": {
+      "title": "Your Loginus ID",
+      "description": "Many Loginus services are only available after registration. Loginus ID is a unified account. Use it for authorization on all Loginus services."
     },
-    "services": {
+    "categories": {
       "security": {
-        "title": "Security",
-        "description": "2FA protection"
+        "title": "Protect Your Account",
+        "changePassword": "Why Loginus asks to change password",
+        "loginChallenge": "Login verification",
+        "virusCheck": "Virus protection"
       },
-      "fastLogin": {
-        "title": "Quick login",
-        "description": "1 click - and you're in"
+      "key": {
+        "title": "Login with Loginus Key",
+        "setup": "Set up Loginus Key",
+        "external": "Generate passwords for other sites",
+        "appPasswords": "Create app passwords"
       },
-      "everywhere": {
-        "title": "Everywhere with you",
-        "description": "Web, iOS, Android"
+      "phone": {
+        "title": "Phone Number",
+        "noSms": "Not receiving SMS or notification",
+        "attach": "Link phone number",
+        "change": "Change linked number"
       },
-      "unifiedProfile": {
-        "title": "Unified profile",
-        "description": "All in one place"
-      }
-    },
-    "features": {
-      "title": "Loginus ID Features",
-      "subtitle": "Unified account for managing all your data and services",
-      "personalData": {
-        "title": "Personal data",
-        "description": "Documents, addresses, contacts - everything at hand"
+      "recovery": {
+        "title": "Account Recovery",
+        "cantLogin": "Can't log in to account",
+        "restore": "Access recovery",
+        "forgotLogin": "Don't remember login or email"
       },
-      "payments": {
-        "title": "Payments",
-        "description": "Secure storage and fast payment"
+      "email": {
+        "title": "Email and Notifications",
+        "messages": "What emails and SMS Loginus sends",
+        "additional": "Additional email addresses",
+        "recovery": "Recovery email address"
+      },
+      "data": {
+        "title": "My Data",
+        "personal": "My personal data",
+        "public": "My public data on Loginus",
+        "manage": "Data management"
       },
       "family": {
-        "title": "Family access",
-        "description": "Share subscriptions with loved ones"
+        "title": "Family Group",
+        "group": "Family group",
+        "children": "Child accounts"
       },
-      "security": {
-        "title": "Security",
-        "description": "Session and access control"
+      "pay": {
+        "title": "Loginus Pay and Payments",
+        "cards": "Loginus Pay and bank cards",
+        "subscriptions": "My services and subscriptions"
       }
     },
-    "faq": {
-      "title": "Frequently Asked Questions",
-      "q1": "How to create an account?",
-      "a1": "On first login, the system will automatically create an account. Just enter your phone or email.",
-      "q2": "Is data secure?",
-      "a2": "We use modern encryption and two-factor authentication for protection.",
-      "q3": "How does family access work?",
-      "a3": "Create a family group, invite members and share subscriptions.",
-      "q4": "How to recover access?",
-      "a4": "Use the recovery form via email or phone at any time."
+    "additionalHelp": {
+      "title": "Can't find answer?",
+      "description": "If you didn't find an answer to your question in help, contact support.",
+      "contact": "Contact Support"
+    }
+  },
+  "family": {
+    "group": {
+        "title": "Family Group",
+        "description": "Manage loved ones' access to services"
     },
-    "footer": {
-      "copyright": "© {{year}} Loginus ID. All rights reserved.",
-      "about": "About",
-      "privacy": "Privacy",
-      "terms": "Terms"
+    "invite": "Invite",
+    "empty": "No members",
+    "children": {
+        "title": "Child Accounts",
+        "description": "Safe internet and content for children"
     },
-    "nav": {
-      "about": "About Loginus ID",
-      "features": "Features",
-      "faq": "FAQ"
+    "child": {
+        "create": "Create Account",
+        "age": "Age",
+        "promo": {
+            "title": "Create Child Account",
+            "description": "Set age, time, and content limits. It's free."
+        }
+    }
+  },
+  "footer": {
+    "copyright": "Loginus",
+    "support": "Help",
+    "oauth": "Loginus ID for Website",
+    "terms": "Terms of Service",
+    "privacy": "Privacy"
+  },
+  "sidebar": {
+    "profile": "Profile",
+    "data": "Data",
+    "documents": "Documents",
+    "addresses": "Addresses",
+    "security": "Security",
+    "family": "Family",
+    "payments": "Payments",
+    "support": "Support",
+    "help": "Help",
+    "loginusIdSite": "Loginus ID for Website",
+    "langSwitcher": "Language switcher",
+    "brandPreset": "Toggle brand preset"
+  },
+    "personalData": {
+    "title": "Personal Data",
+    "subtitle": "Manage your documents, addresses and other personal data",
+    "profile": {
+      "title": "Profile",
+      "callMe": "Call me: {{name}}",
+      "edit": "Edit"
+    },
+    "contacts": {
+      "title": "Contacts",
+      "description": "Your contact details for communication",
+      "mainPhone": "Main phone",
+      "email": "Email in Loginus",
+      "external": "Add external accounts",
+      "externalDesc": "Help to log in to Loginus faster and fill in data"
+    },
+    "pets": {
+      "title": "Pets",
+      "description": "We will help store documents, choose food or make an appointment with a veterinarian",
+      "add": "Add pet",
+      "empty": "You have no added pets yet",
+      "viewAll": "All pets"
+    },
+    "vehicles": {
+      "title": "Vehicles",
+      "add": "Add vehicle"
+    },
+    "public": {
+      "title": "Public Data",
+      "profile": "Public profile in Loginus search",
+      "reviews": "Your reviews and ratings",
+      "address": "Add public address",
+      "addressDesc": "For your pages in Loginus"
+    },
+    "management": {
+      "title": "Data Management",
+      "inclusion": "Accessibility",
+      "access": "Data Access",
+      "notifications": "Service Notifications",
+      "services": "Data on Services",
+      "delete": "Delete Profile"
+    },
+    "documents": {
+      "title": "Documents",
+      "description": "Your documents are always at hand in ID. We keep them safe",
+      "viewAll": "All Documents",
+      "addDocument": "Add Document",
+      "passportRF": "RF Passport",
+      "foreignPassport": "International Passport",
+      "birthCertificate": "Birth Certificate",
+      "driverLicense": "Driver's License",
+      "vehicleRegistration": "Vehicle Registration",
+      "healthInsurance": "Health Insurance",
+      "voluntaryInsurance": "Voluntary Insurance",
+      "inn": "TIN",
+      "snils": "SNILS"
+    },
+    "addresses": {
+      "title": "Addresses",
+      "description": "For one-click orders and not to enter in Navigator",
+      "viewAll": "All Addresses",
+      "addAddress": "Add Address",
+      "home": "Home",
+      "work": "Work",
+      "other": "Other"
     }
   }
 }

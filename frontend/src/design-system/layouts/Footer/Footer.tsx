@@ -1,4 +1,6 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';
 
 export interface FooterProps {
   /**
@@ -11,39 +13,45 @@ export interface FooterProps {
  * Footer - Футер приложения
  */
 export const Footer: React.FC<FooterProps> = ({ className = '' }) => {
+  const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
+  const currentLang = useCurrentLanguage();
   
   return (
-    <footer className={`bg-white dark:bg-dark-2 border-t border-secondary-200 dark:border-dark-3 ${className}`}>
-      <div className="container mx-auto px-4 py-6">
+    <footer className={`bg-white dark:bg-dark-2 border-t border-stroke dark:border-dark-3 mt-auto ${className}`}>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="text-sm text-secondary-600 dark:text-dark-6">
-            © {currentYear} Loginus ID. Все права защищены.
+          <div className="text-sm text-body-color dark:text-dark-6">
+            © 2001–{currentYear} {t('footer.copyright', 'Loginus')}
           </div>
-          <nav className="flex items-center gap-6">
+          <nav className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
             <a
-              href="/about"
-              className="text-sm text-secondary-600 dark:text-dark-6 hover:text-secondary-900 dark:hover:text-white transition-colors"
+              href={buildPathWithLang('/help', currentLang)}
+              className="text-sm text-body-color dark:text-dark-6 hover:text-dark dark:hover:text-white transition-colors"
             >
-              О проекте
+              {t('footer.support', 'Справка')}
             </a>
             <a
-              href="/support"
-              className="text-sm text-secondary-600 dark:text-dark-6 hover:text-secondary-900 dark:hover:text-white transition-colors"
+              href={buildPathWithLang('/oauth', currentLang)}
+              className="text-sm text-body-color dark:text-dark-6 hover:text-dark dark:hover:text-white transition-colors"
             >
-              Поддержка
+              {t('footer.oauth', 'Loginus ID для сайта')}
             </a>
             <a
               href="/terms"
-              className="text-sm text-secondary-600 dark:text-dark-6 hover:text-secondary-900 dark:hover:text-white transition-colors"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-body-color dark:text-dark-6 hover:text-dark dark:hover:text-white transition-colors"
             >
-              Условия использования
+              {t('footer.terms', 'Условия использования')}
             </a>
             <a
               href="/privacy"
-              className="text-sm text-secondary-600 dark:text-dark-6 hover:text-secondary-900 dark:hover:text-white transition-colors"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-body-color dark:text-dark-6 hover:text-dark dark:hover:text-white transition-colors"
             >
-              Политика конфиденциальности
+              {t('footer.privacy', 'Конфиденциальность')}
             </a>
           </nav>
         </div>

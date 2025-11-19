@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Icon } from '../../primitives/Icon';
 import { Badge } from '../../primitives/Badge';
-import { Separator } from '../../primitives/Separator';
 
 export interface ServiceLinkProps {
   /**
@@ -61,7 +60,7 @@ export const ServiceLink: React.FC<ServiceLinkProps> = ({
         <div className="flex items-center gap-2 mb-1">
           <span className="font-medium text-dark dark:text-white">{name}</span>
           {badge !== undefined && badge > 0 && (
-            <Badge count={badge} />
+            <Badge variant="primary" size="sm">{badge}</Badge>
           )}
         </div>
         

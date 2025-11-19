@@ -1,9 +1,8 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Modal } from '../Modal';
 import { Button } from '../../primitives/Button';
 import { Icon } from '../../primitives/Icon';
-import { Badge } from '../../primitives/Badge';
 import { Separator } from '../../primitives/Separator';
 import { ServiceLink } from '../ServiceLink';
 import { PhoneVerificationCard } from '../PhoneVerificationCard';
@@ -54,7 +53,7 @@ export const ProfilePopup: React.FC<ProfilePopupProps> = ({
   user,
   onSwitchAccount,
 }) => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate(); // TODO: использовать для навигации
   const { themeMode, setThemeMode } = useTheme();
   const { masked: maskedPhone } = useContactMasking(user.phone, 'phone');
 

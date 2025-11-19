@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { Suspense } from 'react';
-import { LandingPage, AuthPage, VerifyCodePage, RegisterPage, OnboardingPage, DashboardPage, PersonalDocumentsPage, PersonalAddressesPage, FamilyPage, ErrorPage } from './routes';
+import { LandingPage, AuthPage, VerifyCodePage, RegisterPage, OnboardingPage, DashboardPage, PersonalDocumentsPage, PersonalAddressesPage, FamilyPage, SecurityPage, PersonalPage, PayPage, SupportPage, HelpPage, ErrorPage } from './routes';
 import { LanguageRoute } from './LanguageRoute';
 
 const LoadingFallback = () => (
@@ -107,6 +107,21 @@ const router = createBrowserRouter([
     ),
   },
   {
+    path: '/:lang/personal',
+    element: (
+      <LanguageRoute>
+        <Suspense fallback={<LoadingFallback />}>
+          <PersonalPage />
+        </Suspense>
+      </LanguageRoute>
+    ),
+    errorElement: (
+      <Suspense fallback={<LoadingFallback />}>
+        <ErrorPage />
+      </Suspense>
+    ),
+  },
+  {
     path: '/:lang/personal/documents',
     element: (
       <LanguageRoute>
@@ -151,6 +166,66 @@ const router = createBrowserRouter([
       </Suspense>
     ),
   },
+  {
+    path: '/:lang/security',
+    element: (
+      <LanguageRoute>
+        <Suspense fallback={<LoadingFallback />}>
+          <SecurityPage />
+        </Suspense>
+      </LanguageRoute>
+    ),
+    errorElement: (
+      <Suspense fallback={<LoadingFallback />}>
+        <ErrorPage />
+      </Suspense>
+    ),
+  },
+  {
+    path: '/:lang/pay',
+    element: (
+      <LanguageRoute>
+        <Suspense fallback={<LoadingFallback />}>
+          <PayPage />
+        </Suspense>
+      </LanguageRoute>
+    ),
+    errorElement: (
+      <Suspense fallback={<LoadingFallback />}>
+        <ErrorPage />
+      </Suspense>
+    ),
+  },
+  {
+    path: '/:lang/support',
+    element: (
+      <LanguageRoute>
+        <Suspense fallback={<LoadingFallback />}>
+          <SupportPage />
+        </Suspense>
+      </LanguageRoute>
+    ),
+    errorElement: (
+      <Suspense fallback={<LoadingFallback />}>
+        <ErrorPage />
+      </Suspense>
+    ),
+  },
+  {
+    path: '/:lang/help',
+    element: (
+      <LanguageRoute>
+        <Suspense fallback={<LoadingFallback />}>
+          <HelpPage />
+        </Suspense>
+      </LanguageRoute>
+    ),
+    errorElement: (
+      <Suspense fallback={<LoadingFallback />}>
+        <ErrorPage />
+      </Suspense>
+    ),
+  },
   // Редирект старых маршрутов без языка
   {
     path: '/auth',
@@ -173,6 +248,10 @@ const router = createBrowserRouter([
     element: <Navigate to="/ru/dashboard" replace />,
   },
   {
+    path: '/personal',
+    element: <Navigate to="/ru/personal" replace />,
+  },
+  {
     path: '/personal/documents',
     element: <Navigate to="/ru/personal/documents" replace />,
   },
@@ -183,6 +262,22 @@ const router = createBrowserRouter([
   {
     path: '/family',
     element: <Navigate to="/ru/family" replace />,
+  },
+  {
+    path: '/security',
+    element: <Navigate to="/ru/security" replace />,
+  },
+  {
+    path: '/pay',
+    element: <Navigate to="/ru/pay" replace />,
+  },
+  {
+    path: '/support',
+    element: <Navigate to="/ru/support" replace />,
+  },
+  {
+    path: '/help',
+    element: <Navigate to="/ru/help" replace />,
   },
   // 404 - редирект на главную с языком по умолчанию
   {

@@ -2,8 +2,9 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Theme } from '../themes/types';
 import { lightTheme } from '../themes/light';
 import { darkTheme } from '../themes/dark';
+import { corporateTheme } from '../themes/corporate';
 
-type ThemeMode = 'light' | 'dark' | 'system';
+type ThemeMode = 'light' | 'dark' | 'system' | 'corporate';
 
 interface ThemeContextType {
   theme: Theme;
@@ -65,7 +66,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     localStorage.setItem('loginus-theme-mode', mode);
   };
 
-  const theme = isDark ? darkTheme : lightTheme;
+  const theme =
+    themeMode === 'corporate' ? corporateTheme : isDark ? darkTheme : lightTheme;
 
   return (
     <ThemeContext.Provider value={{ theme, themeMode, setThemeMode, isDark }}>

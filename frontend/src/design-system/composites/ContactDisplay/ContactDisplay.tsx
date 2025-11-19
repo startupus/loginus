@@ -66,10 +66,10 @@ export const ContactDisplay: React.FC<ContactDisplayProps> = ({
       </div>
       {showChange && onChangeClick && (
         <Button
-          variant="text"
+          variant="link"
           size="sm"
           onClick={onChangeClick}
-          className="text-primary hover:text-primary-600 dark:text-primary-400"
+          className="text-primary hover:text-primary dark:text-primary-400"
         >
           {t('common.edit', 'Изменить')}
         </Button>

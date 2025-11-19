@@ -6,4 +6,5 @@ export { DocumentsGrid } from './DocumentsGrid';
 export { AddressesGrid } from './AddressesGrid';
 export { FamilyMembers } from './FamilyMembers';
 export { SubscriptionsList } from './SubscriptionsList';
+export { WorkGroups } from './WorkGroups';
 

@@ -24,6 +24,11 @@ export interface DataSectionProps {
   children: React.ReactNode;
   
   /**
+   * Action элемент в заголовке (например, кнопка)
+   */
+  action?: React.ReactNode;
+  
+  /**
    * Ссылка "Все [тип]" (может быть строкой для обратной совместимости или объектом)
    */
   viewAllLink?: string | {
@@ -56,6 +61,7 @@ export const DataSection: React.FC<DataSectionProps> = ({
   title,
   description,
   children,
+  action,
   viewAllLink,
   className = '',
 }) => {
@@ -73,18 +79,21 @@ export const DataSection: React.FC<DataSectionProps> = ({
     <section id={id} className={`space-y-4 ${className}`.trim()}>
       {/* Header */}
       <header className="space-y-2">
-        <h2 className="text-2xl font-semibold text-secondary-900 dark:text-white">
-          {id ? (
-            <a
-              href={`#${id}`}
-              className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-            >
-              {title}
-            </a>
-          ) : (
-            title
-          )}
-        </h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-semibold text-secondary-900 dark:text-white">
+            {id ? (
+              <a
+                href={`#${id}`}
+                className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+              >
+                {title}
+              </a>
+            ) : (
+              title
+            )}
+          </h2>
+          {action && <div>{action}</div>}
+        </div>
         {description && (
           <p className="text-sm text-secondary-600 dark:text-dark-6">
             {description}

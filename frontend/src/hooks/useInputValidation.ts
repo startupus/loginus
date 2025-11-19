@@ -55,7 +55,7 @@ export function useInputValidation(
   const {
     type: inputType = 'universal',
     validateOnChange = true,
-    validateOnBlur = true,
+    // validateOnBlur = true, // TODO: реализовать валидацию при blur
   } = options;
 
   const [validationResult, setValidationResult] = useState<ValidationResult>({

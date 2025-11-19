@@ -12,6 +12,11 @@ export interface BadgeProps {
   variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info' | 'gray' | 'dark';
   
   /**
+   * Размер значка
+   */
+  size?: 'sm' | 'md' | 'lg';
+  
+  /**
    * Стиль отображения
    */
   outline?: boolean;
@@ -44,24 +49,32 @@ export interface BadgeProps {
 export const Badge: React.FC<BadgeProps> = ({
   children,
   variant = 'primary',
+  size = 'md',
   outline = false,
   rounded = 'md',
   bgOpacity = false,
   className = '',
 }) => {
   // Базовые классы из TailGrids BadgesItem - ТОЧНЫЕ из исходника
-  const baseClasses = 'inline-block px-2.5 py-1 text-xs font-medium';
+  const baseClasses = 'inline-flex items-center justify-center font-medium';
   
-  // Rounded классы из TailGrids
-  const roundedClasses = {
-    none: 'rounded-none',
-    sm: 'rounded-xs',
-    md: 'rounded',        // Стандартный из TailGrids
-    lg: 'rounded-lg',
-    full: 'rounded-full', // Из TailGrids BadgesItem
+  // Размеры значка
+  const sizeClasses = {
+    sm: 'px-2 py-0.5 text-xs',
+    md: 'px-2.5 py-1 text-xs',
+    lg: 'px-3 py-1.5 text-sm',
   };
   
-  // Варианты цветов из TailGrids Badges
+  // Rounded классы из дизайн-системы
+  const roundedClasses = {
+    none: 'rounded-none',
+    sm: 'rounded-sm',
+    md: 'rounded',        // Стандартный
+    lg: 'rounded-lg',
+    full: 'rounded-full',
+  };
+  
+  // Варианты цветов из дизайн-системы Loginus
   const getVariantClasses = () => {
     const variants = {
       primary: {
@@ -75,29 +88,29 @@ export const Badge: React.FC<BadgeProps> = ({
         opacity: 'bg-secondary/10 text-secondary',
       },
       success: {
-        solid: 'bg-green text-white',
-        outline: 'border border-green text-green',
-        opacity: 'bg-green/10 text-green',
+        solid: 'bg-success text-white',
+        outline: 'border border-success text-success',
+        opacity: 'bg-success/10 text-success',
       },
       danger: {
-        solid: 'bg-red text-white',
-        outline: 'border border-red text-red',
-        opacity: 'bg-red/10 text-red',
+        solid: 'bg-error text-white',
+        outline: 'border border-error text-error',
+        opacity: 'bg-error/10 text-error',
       },
       warning: {
-        solid: 'bg-yellow text-white',
-        outline: 'border border-yellow text-yellow',
-        opacity: 'bg-yellow/10 text-yellow',
+        solid: 'bg-warning text-white',
+        outline: 'border border-warning text-warning',
+        opacity: 'bg-warning/10 text-warning',
       },
       info: {
-        solid: 'bg-blue text-white',
-        outline: 'border border-blue text-blue',
-        opacity: 'bg-blue/10 text-blue',
+        solid: 'bg-info text-white',
+        outline: 'border border-info text-info',
+        opacity: 'bg-info/10 text-info',
       },
       gray: {
-        solid: 'bg-gray-3 text-dark',
-        outline: 'border border-gray-3 text-dark',
-        opacity: 'bg-gray-3/10 text-dark',
+        solid: 'bg-gray-3 text-dark dark:text-white',
+        outline: 'border border-gray-3 text-dark dark:border-dark-3 dark:text-white',
+        opacity: 'bg-gray-3/10 text-dark dark:text-white',
       },
       dark: {
         solid: 'bg-dark text-white dark:bg-dark-2',
@@ -111,7 +124,7 @@ export const Badge: React.FC<BadgeProps> = ({
     return variants[variant].solid;
   };
   
-  const combinedClassName = `${baseClasses} ${roundedClasses[rounded]} ${getVariantClasses()} ${className}`.trim();
+  const combinedClassName = `${baseClasses} ${sizeClasses[size]} ${roundedClasses[rounded]} ${getVariantClasses()} ${className}`.trim();
   
   return (
     <span className={combinedClassName}>

@@ -47,7 +47,7 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
         <p className="text-sm text-error font-medium">{error}</p>
         {retryable && onRetry && (
           <Button
-            variant="text"
+            variant="link"
             size="sm"
             onClick={onRetry}
             className="mt-2 text-error hover:text-error/80"

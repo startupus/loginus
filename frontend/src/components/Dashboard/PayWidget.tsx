@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Button, Icon } from '../../design-system/primitives';
+import { Icon } from '../../design-system/primitives';
 import { WidgetCard } from '../../design-system/composites/WidgetCard';
 
 export interface PayWidgetProps {

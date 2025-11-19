@@ -32,6 +32,8 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
           initials={getInitials(user.name)}
           size="lg"
           rounded
+          showStatus
+          status="online"
         />
         </div>
         

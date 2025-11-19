@@ -1,7 +1,6 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
-import { withTranslation, WithTranslation } from 'react-i18next';
 
-interface Props extends WithTranslation {
+interface Props {
   children: ReactNode;
 }
 
@@ -10,7 +9,11 @@ interface State {
   error: Error | null;
 }
 
-class ErrorBoundaryComponent extends Component<Props, State> {
+/**
+ * ErrorBoundary - компонент для перехвата ошибок React
+ * Не зависит от i18n для избежания проблем с инициализацией
+ */
+export class ErrorBoundary extends Component<Props, State> {
   public state: State = {
     hasError: false,
     error: null,
@@ -26,7 +29,6 @@ class ErrorBoundaryComponent extends Component<Props, State> {
 
   public render() {
     if (this.state.hasError) {
-      const { t } = this.props;
       return (
         <div className="min-h-screen flex items-center justify-center bg-gray-1 dark:bg-dark">
           <div className="max-w-md w-full mx-auto px-4">
@@ -42,16 +44,16 @@ class ErrorBoundaryComponent extends Component<Props, State> {
                 </svg>
               </div>
               <h3 className="mb-2 text-xl font-semibold text-dark dark:text-white">
-                {t('errors.somethingWentWrong', 'Что-то пошло не так')}
+                Что-то пошло не так
               </h3>
               <p className="mb-6 text-body-color dark:text-dark-6">
-                {this.state.error?.message || t('errors.unexpectedError', 'Произошла непредвиденная ошибка')}
+                {this.state.error?.message || 'Произошла непредвиденная ошибка'}
               </p>
               <button
                 onClick={() => window.location.reload()}
                 className="inline-flex items-center justify-center rounded-lg bg-primary px-6 py-3 text-base font-medium text-white hover:bg-primary-600 dark:bg-primary-600 dark:hover:bg-primary-700 transition-colors"
               >
-                {t('errors.reloadPage', 'Перезагрузить страницу')}
+                Перезагрузить страницу
               </button>
             </div>
           </div>
@@ -62,6 +64,4 @@ class ErrorBoundaryComponent extends Component<Props, State> {
     return this.props.children;
   }
 }
-
-export const ErrorBoundary = withTranslation()(ErrorBoundaryComponent);
 

@@ -34,7 +34,7 @@ export interface FAQItemProps {
 export const FAQItem: React.FC<FAQItemProps> = ({
   question,
   answer,
-  defaultOpen = false,
+  // defaultOpen = false, // TODO: реализовать функционал открытия по умолчанию
   onClick,
   className = '',
 }) => {

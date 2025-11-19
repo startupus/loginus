@@ -1,5 +1,5 @@
 import React from 'react';
-import { useRouteError, isRouteErrorResponse, useNavigate, useLocation } from 'react-router-dom';
+import { useRouteError, isRouteErrorResponse, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button, Icon } from '../design-system/primitives';
 import { Logo } from '../design-system/primitives/Logo';
@@ -12,7 +12,6 @@ import { useCurrentLanguage, buildPathWithLang } from '../utils/routing';
 export const ErrorPage: React.FC = () => {
   const error = useRouteError();
   const navigate = useNavigate();
-  const location = useLocation();
   const { t } = useTranslation();
   const currentLang = useCurrentLanguage() || 'ru';
 

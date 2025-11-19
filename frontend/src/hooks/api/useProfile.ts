@@ -19,17 +19,18 @@ export const useUpdateProfile = () => {
   });
 };
 
-export const useSecuritySettings = () => {
-  return useQuery({
-    queryKey: ['security-settings'],
-    queryFn: () => profileApi.getSecuritySettings(),
-  });
-};
+// TODO: Добавить методы getSecuritySettings и getSessions в profileApi
+// export const useSecuritySettings = () => {
+//   return useQuery({
+//     queryKey: ['security-settings'],
+//     queryFn: () => profileApi.getSecuritySettings(),
+//   });
+// };
 
-export const useSessions = () => {
-  return useQuery({
-    queryKey: ['sessions'],
-    queryFn: () => profileApi.getSessions(),
-  });
-};
+// export const useSessions = () => {
+//   return useQuery({
+//     queryKey: ['sessions'],
+//     queryFn: () => profileApi.getSessions(),
+//   });
+// };
 

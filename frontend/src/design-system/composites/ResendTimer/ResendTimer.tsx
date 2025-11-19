@@ -35,7 +35,7 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
   label,
 }) => {
   const { t } = useTranslation();
-  const { seconds, canResend, format } = useResendTimer(initialSeconds);
+  const { canResend, format } = useResendTimer(initialSeconds);
   
   const defaultLabel = t('auth.verifyCode.resendTimer', 'Повторно код можно будет отправить через');
   const resendButtonText = t('auth.verifyCode.resendButton', 'Не пришёл код? Отправить повторно');
@@ -48,11 +48,11 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
         </p>
       ) : (
         <Button
-          variant="text"
+          variant="link"
           size="sm"
           onClick={onResend}
           disabled={disabled}
-          className="text-primary hover:text-primary-600 dark:text-primary-400"
+          className="text-primary hover:text-primary dark:text-primary-400"
         >
           {resendButtonText}
         </Button>
