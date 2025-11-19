@@ -63,6 +63,21 @@ export const Header: React.FC<HeaderProps> = ({
             
             {actions}
             
+            {/* Колокольчик с событиями */}
+            {userData && (
+              <button
+                onClick={() => {
+                  // TODO: открыть панель уведомлений
+                }}
+                className="relative p-2 rounded-lg hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors duration-200 group"
+                aria-label={t('header.notifications', 'Уведомления')}
+              >
+                <Icon name="bell" size="md" className="text-body-color dark:text-dark-6 group-hover:text-primary dark:group-hover:text-primary transition-colors" />
+                {/* Индикатор непрочитанных */}
+                <span className="absolute top-1 right-1 w-2 h-2 bg-error rounded-full border-2 border-white dark:border-dark-2"></span>
+              </button>
+            )}
+            
             {userData && <ProfileMenu userData={userData} onLogout={onLogout} />}
           </div>
         </div>

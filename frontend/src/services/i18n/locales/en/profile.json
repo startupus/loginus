@@ -1,0 +1,174 @@
+{
+  "security": {
+    "title": "Security",
+    "password": {
+      "title": "Password",
+      "description": "Update your password regularly to protect your account",
+      "change": "Update Password",
+      "status": "Password is secure",
+      "lastChanged": "Changed {{date}}"
+    },
+    "biometry": {
+      "title": "Enable secure login with Face ID or Touch ID",
+      "description": "It's faster and safer than a password. We don't store your biometric data — it stays on your device.",
+      "connect": "Enable"
+    },
+    "loginMethods": {
+      "title": "Login Method",
+      "current": "Current method",
+      "password": "Standard password",
+      "otp": "One-time password",
+      "recovery": "Recovery methods"
+    },
+    "access": {
+      "title": "Access to your data",
+      "external": "Add external accounts",
+      "manage": "Manage access",
+      "apps": "App passwords"
+    },
+    "control": {
+      "title": "Access Control",
+      "logoutAll": "Log out everywhere"
+    },
+    "devices": {
+      "title": "Devices",
+      "description": "Devices logged into your account",
+      "current": "This device",
+      "empty": "Device list is empty"
+    },
+    "activity": {
+      "title": "Activity History",
+      "description": "Recent activity in your account",
+      "empty": "Activity history is empty"
+    }
+  },
+  "personalData": {
+    "title": "Personal Data",
+    "subtitle": "Manage your documents, addresses and other personal data",
+    "profile": {
+      "title": "Profile",
+      "callMe": "Call me: {{name}}",
+      "edit": "Edit"
+    },
+    "contacts": {
+      "title": "Contacts",
+      "description": "Your contact details for communication",
+      "mainPhone": "Main phone",
+      "email": "Email in Loginus",
+      "external": "Add external accounts",
+      "externalDesc": "Help to log in to Loginus faster and fill in data"
+    },
+    "pets": {
+      "title": "Pets",
+      "description": "We will help store documents, choose food or make an appointment with a veterinarian",
+      "add": "Add pet",
+      "empty": "You have no added pets yet",
+      "viewAll": "All pets"
+    },
+    "vehicles": {
+      "title": "Vehicles",
+      "add": "Add vehicle"
+    },
+    "public": {
+      "title": "Public Data",
+      "profile": "Public profile in Loginus search",
+      "reviews": "Your reviews and ratings",
+      "address": "Add public address",
+      "addressDesc": "For your pages in Loginus"
+    },
+    "management": {
+      "title": "Data Management",
+      "inclusion": "Accessibility",
+      "access": "Data Access",
+      "notifications": "Service Notifications",
+      "services": "Data on Services",
+      "delete": "Delete Profile"
+    },
+    "documents": {
+      "title": "Documents",
+      "description": "Your documents are always at hand in ID. We keep them safe",
+      "viewAll": "All Documents",
+      "addDocument": "Add Document",
+      "passportRF": "RF Passport",
+      "foreignPassport": "International Passport",
+      "birthCertificate": "Birth Certificate",
+      "driverLicense": "Driver's License",
+      "vehicleRegistration": "Vehicle Registration",
+      "healthInsurance": "Health Insurance",
+      "voluntaryInsurance": "Voluntary Insurance",
+      "inn": "TIN",
+      "snils": "SNILS",
+      "diplomasCertificates": "Diplomas and Certificates",
+      "diplomas": "Diplomas",
+      "certificates": "Certificates"
+    },
+    "addresses": {
+      "title": "Addresses",
+      "description": "For one-click orders and not to enter in Navigator",
+      "viewAll": "All Addresses",
+      "addAddress": "Add Address",
+      "home": "Home",
+      "work": "Work",
+      "other": "Other"
+    }
+  },
+  "family": {
+    "group": {
+      "title": "Family Group",
+      "description": "Manage loved ones' access to services"
+    },
+    "invite": "Invite",
+    "empty": "No members",
+    "children": {
+      "title": "Child Accounts",
+      "description": "Safe internet and content for children"
+    },
+    "child": {
+      "create": "Create Account",
+      "age": "Age",
+      "promo": {
+        "title": "Create Child Account",
+        "description": "Set age, time, and content limits. It's free."
+      }
+    }
+  },
+  "payment": {
+    "methods": {
+      "title": "Payment Methods",
+      "description": "Your cards for service payments",
+      "add": "Open Pay Card",
+      "empty": "No linked cards",
+      "balance": "Balance",
+      "cashback": "Cashback"
+    },
+    "promo": {
+      "plus": {
+        "title": "Connect Plus",
+        "description": "Movies, music, books in one subscription"
+      },
+      "split": {
+        "title": "Split",
+        "description": "Pay in parts without overpayments",
+        "limit": "Approved {{amount}} ₽"
+      }
+    },
+    "subscriptions": {
+      "title": "Subscriptions",
+      "description": "Manage service subscriptions"
+    },
+    "history": {
+      "title": "Payment History",
+      "description": "Your recent transactions",
+      "empty": "History is empty"
+    }
+  },
+  "work": {
+    "invite": {
+      "group": "Group"
+    },
+    "events": {
+      "description": "Latest events in your groups"
+    }
+  }
+}
+

@@ -8,6 +8,9 @@ export const getDocumentLabel = (type: string, t: TFunction, fallback?: string):
     'vehicle-registration': 'personalData.documents.vehicleRegistration',
     'oms': 'personalData.documents.healthInsurance',
     'snils': 'personalData.documents.snils',
+    'diplomas-certificates': 'personalData.documents.diplomasCertificates',
+    'diplomas': 'personalData.documents.diplomas',
+    'certificates': 'personalData.documents.certificates',
   };
   const key = map[type];
   return key ? t(key) : (fallback ?? type);

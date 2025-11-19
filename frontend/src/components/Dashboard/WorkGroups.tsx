@@ -1,8 +1,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Avatar, Icon, Badge } from '../../design-system/primitives';
-import { DataSection } from '../../design-system/composites/DataSection';
+import { Avatar, Icon, Badge, Button } from '../../design-system/primitives';
+import { DataSection, AddButton } from '../../design-system/composites';
 import { getInitials } from '../../utils/stringUtils';
 import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
 
@@ -24,6 +24,7 @@ export interface WorkGroupsProps {
   groups: WorkGroup[];
   onGroupClick?: (group: WorkGroup) => void;
   onAddGroup?: () => void;
+  onInviteMember?: (group: { id: string; name: string }) => void;
 }
 
 /**
@@ -33,6 +34,7 @@ export const WorkGroups: React.FC<WorkGroupsProps> = ({
   groups,
   onGroupClick,
   onAddGroup,
+  onInviteMember,
 }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -71,15 +73,17 @@ export const WorkGroups: React.FC<WorkGroupsProps> = ({
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {groups.map((group, index) => (
-          <button
+          <div
             key={group.id}
-            onClick={() => onGroupClick?.(group)}
-            className="group flex flex-col gap-3 p-4 rounded-xl bg-white dark:bg-dark-2 border border-stroke dark:border-dark-3 hover:border-gray-3 dark:hover:border-dark-4 transition-all duration-200 animate-fade-in text-left"
+            className="group flex flex-col gap-3 p-4 rounded-lg bg-gray-1/50 dark:bg-dark-3/50 border border-stroke dark:border-dark-3 hover:border-primary/30 dark:hover:border-primary/30 hover:bg-gray-1 dark:hover:bg-dark-3 transition-all duration-200 animate-fade-in"
             style={{ animationDelay: `${index * 30}ms` }}
           >
             {/* Название группы и роль */}
             <div className="flex items-start justify-between gap-2">
-              <div className="flex-1 min-w-0">
+              <button
+                onClick={() => onGroupClick?.(group)}
+                className="flex-1 min-w-0 text-left"
+              >
                 <h3 className="text-base font-semibold text-dark dark:text-white group-hover:text-primary dark:group-hover:text-primary transition-colors duration-200 truncate">
                   {group.name}
                 </h3>
@@ -88,7 +92,7 @@ export const WorkGroups: React.FC<WorkGroupsProps> = ({
                     {group.description}
                   </p>
                 )}
-              </div>
+              </button>
               <div className="flex flex-col items-end gap-1">
                 {getRoleBadge(group.myRole)}
                 <Icon 
@@ -131,25 +135,35 @@ export const WorkGroups: React.FC<WorkGroupsProps> = ({
                 {group.members.length} {group.members.length === 1 ? 'участник' : group.members.length < 5 ? 'участника' : 'участников'}
               </span>
             </div>
-          </button>
+
+            {/* Кнопка пригласить участника */}
+            {(group.myRole === 'owner' || group.myRole === 'admin') && onInviteMember && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onInviteMember({ id: group.id, name: group.name });
+                }}
+                className="mt-2 flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-primary/10 dark:bg-primary/20 hover:bg-primary/20 dark:hover:bg-primary/30 text-primary text-sm font-medium transition-all duration-200"
+              >
+                <Icon name="user-plus" size="sm" />
+                <span>{t('work.invite.invite', 'Пригласить участника')}</span>
+              </button>
+            )}
+          </div>
         ))}
         
         {/* Кнопка добавить группу */}
-        <button
-          onClick={onAddGroup}
-          className="group flex flex-col items-center justify-center gap-3 p-4 rounded-xl bg-white dark:bg-dark-2 border-2 border-dashed border-stroke dark:border-dark-3 hover:border-primary dark:hover:border-primary transition-all duration-200 min-h-[120px]"
-        >
-          <div className="w-12 h-12 rounded-full bg-gray-1 dark:bg-dark-3 flex items-center justify-center transition-all duration-200 group-hover:bg-primary/10">
-            <Icon 
-              name="plus" 
-              size="md" 
-              className="text-body-color dark:text-dark-6 group-hover:text-primary transition-colors duration-200"
-            />
-          </div>
-          <span className="text-sm text-body-color dark:text-dark-6 group-hover:text-primary transition-colors duration-200">
-            {t('dashboard.work.addGroup', 'Добавить группу')}
-          </span>
-        </button>
+        <div className="flex items-center">
+          <AddButton
+            label={t('dashboard.work.addGroup', 'Добавить группу')}
+            onClick={onAddGroup || (() => {})}
+            variant="compact"
+            size="sm"
+            borderStyle="solid"
+            background="default"
+            className="w-full"
+          />
+        </div>
       </div>
     </DataSection>
   );

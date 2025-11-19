@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 export interface AvatarProps {
   /**
@@ -68,6 +68,14 @@ export const Avatar: React.FC<AvatarProps> = ({
   status = 'online',
   className = '',
 }) => {
+  // Состояние для отслеживания ошибки загрузки изображения
+  const [imageError, setImageError] = useState(false);
+
+  // Сбрасываем ошибку при изменении src
+  useEffect(() => {
+    setImageError(false);
+  }, [src]);
+
   const sizeStyles = {
     xs: 'w-6 h-6 text-xs',
     sm: 'w-8 h-8 text-sm',
@@ -121,17 +129,23 @@ export const Avatar: React.FC<AvatarProps> = ({
 
   // Обертка для аватара с индикатором
   const AvatarContent = () => {
-    if (src) {
+    // Проверяем, что src не пустой, не null и изображение загрузилось успешно
+    if (src && src.trim() !== '' && !imageError) {
       return (
         <img
           src={src}
           alt={alt}
           className={`${baseStyles} object-cover ${className}`.trim()}
+          onError={() => {
+            // Если изображение не загрузилось, устанавливаем флаг ошибки
+            setImageError(true);
+          }}
         />
       );
     }
 
-    if (initials) {
+    // Если есть валидные инициалы, показываем их
+    if (initials && initials.trim() !== '') {
       return (
         <div
           className={`${baseStyles} ${finalBgColor} font-semibold ${className}`.trim()}
@@ -141,7 +155,7 @@ export const Avatar: React.FC<AvatarProps> = ({
       );
     }
 
-    // Fallback icon
+    // Fallback иконка профиля - показывается всегда, когда нет src и нет initials
     return (
       <div
         className={`${baseStyles} bg-gray-2 dark:bg-dark-3 text-body-color dark:text-dark-6 ${className}`.trim()}
@@ -167,7 +181,7 @@ export const Avatar: React.FC<AvatarProps> = ({
       <div className="relative inline-block">
         <AvatarContent />
         <span 
-          className={`absolute ${statusPositions[size]} ${statusSizes[size]} ${statusColors[status]} ${statusBorder} rounded-full`}
+          className={`absolute ${statusPositions[size]} ${statusSizes[size]} ${statusColors[status]} ${statusBorder} rounded-full z-10`}
           aria-label={`Статус: ${status === 'online' ? 'онлайн' : status === 'offline' ? 'офлайн' : 'отошёл'}`}
         />
       </div>

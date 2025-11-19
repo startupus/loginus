@@ -7,6 +7,17 @@ import { WidgetCard } from '../../design-system/composites/WidgetCard';
 export interface PayWidgetProps {
   balance: number;
   limit: number;
+  widgetId?: string;
+  draggable?: boolean;
+  onDragStart?: (e: React.DragEvent, widgetId: string) => void;
+  onDragEnd?: (e: React.DragEvent) => void;
+  onDragOver?: (e: React.DragEvent) => void;
+  onDragLeave?: (e: React.DragEvent) => void;
+  onDrop?: (e: React.DragEvent, widgetId: string) => void;
+  onRemove?: (widgetId: string) => void;
+  isDragOver?: boolean;
+  insertPosition?: 'before' | 'after' | null;
+  isDragging?: boolean;
 }
 
 /**
@@ -14,6 +25,17 @@ export interface PayWidgetProps {
  */
 export const PayWidget: React.FC<PayWidgetProps> = ({
   limit,
+  widgetId,
+  draggable,
+  onDragStart,
+  onDragEnd,
+  onDragOver,
+  onDragLeave,
+  onDrop,
+  onRemove,
+  isDragOver,
+  insertPosition,
+  isDragging,
 }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -22,6 +44,17 @@ export const PayWidget: React.FC<PayWidgetProps> = ({
     <WidgetCard
       title={t('dashboard.pay.title', 'Яндекс Пэй')}
       icon={<Icon name="device" size="lg" className="text-primary" />}
+      widgetId={widgetId}
+      draggable={draggable}
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
+      onRemove={onRemove}
+      isDragOver={isDragOver}
+      insertPosition={insertPosition}
+      isDragging={isDragging}
     >
       <div className="space-y-4">
         <div 

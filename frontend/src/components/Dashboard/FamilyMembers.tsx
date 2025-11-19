@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Avatar, Icon, Badge } from '../../design-system/primitives';
-import { DataSection } from '../../design-system/composites/DataSection';
+import { Avatar, Icon } from '../../design-system/primitives';
+import { DataSection, AddButton } from '../../design-system/composites';
 import { getInitials } from '../../utils/stringUtils';
 import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
 
@@ -30,17 +30,41 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
   const { t } = useTranslation();
   const navigate = useNavigate();
   const currentLang = useCurrentLanguage();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
   
   const handleViewAll = () => {
     navigate(buildPathWithLang('/family', currentLang));
   };
-  
-  const getRoleBadge = (role: string) => {
-    if (role === 'owner') {
-      return <Badge variant="primary" size="sm">{t('dashboard.family.owner', 'Владелец')}</Badge>;
+
+  const handleScroll = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
     }
-    return null;
   };
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = 200;
+      scrollContainerRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth',
+      });
+    }
+  };
+
+  React.useEffect(() => {
+    handleScroll();
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', handleScroll);
+      return () => container.removeEventListener('scroll', handleScroll);
+    }
+  }, [members]);
+  
   
   return (
     <DataSection
@@ -56,61 +80,86 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
         </button>
       }
     >
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {members.map((member, index) => (
+      <div className="relative">
+        {/* Кнопка прокрутки влево */}
+        {canScrollLeft && (
           <button
-            key={member.id}
-            onClick={() => onMemberClick?.(member)}
-            className="group flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-dark-2 border border-stroke dark:border-dark-3 hover:border-gray-3 dark:hover:border-dark-4 transition-all duration-200 animate-fade-in"
-            style={{ animationDelay: `${index * 30}ms` }}
+            onClick={() => scroll('left')}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white dark:bg-dark-2 shadow-lg border border-gray-2 dark:border-dark-3 flex items-center justify-center hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors"
+            aria-label={t('common.scrollLeft', 'Прокрутить влево')}
           >
-            {/* Аватар */}
-            <div className="flex-shrink-0 transition-transform duration-200 group-hover:scale-110">
-              <Avatar
-                src={member.avatar || undefined}
-                initials={getInitials(member.name)}
+            <Icon name="chevron-left" size="sm" className="text-body-color dark:text-dark-6" />
+          </button>
+        )}
+
+        {/* Карусель членов семьи */}
+        <div
+          ref={scrollContainerRef}
+          className="flex gap-3 overflow-x-auto scrollbar-hide scroll-smooth pb-2"
+          style={{
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+          }}
+          onScroll={handleScroll}
+        >
+          {members.map((member, index) => (
+            <button
+              key={member.id}
+              onClick={() => onMemberClick?.(member)}
+              className={`group flex-shrink-0 flex flex-col items-center justify-center gap-3 p-4 rounded-lg border transition-all duration-200 animate-fade-in w-[140px] h-[140px] ${
+                member.role === 'owner' 
+                  ? 'bg-primary/5 dark:bg-primary/10 border-primary/30 dark:border-primary/30 hover:border-primary/50 dark:hover:border-primary/50 hover:bg-primary/10 dark:hover:bg-primary/20' 
+                  : 'bg-gray-1/50 dark:bg-dark-3/50 border-stroke dark:border-dark-3 hover:border-primary/30 dark:hover:border-primary/30 hover:bg-gray-1 dark:hover:bg-dark-3'
+              }`}
+              style={{ animationDelay: `${index * 30}ms` }}
+            >
+              {/* Аватар с индикатором статуса */}
+              <div className="flex-shrink-0 relative transition-transform duration-200 group-hover:scale-110">
+                <Avatar
+                  src={member.avatar || undefined}
+                  initials={getInitials(member.name)}
+                  size="2xl"
+                  rounded
+                  showStatus
+                  status={(member as any).isOnline ? 'online' : 'offline'}
+                />
+              </div>
+              
+              {/* Имя */}
+              <div className="flex flex-col items-center gap-1.5 w-full min-w-0 flex-1 justify-center">
+                <p className="text-xs font-medium text-center text-dark dark:text-white group-hover:text-primary dark:group-hover:text-primary transition-colors duration-200 line-clamp-1 break-words w-full">
+                  {member.name}
+                </p>
+              </div>
+            </button>
+          ))}
+          
+          {/* Кнопка добавить */}
+          {onAddMember && (
+            <div className="flex-shrink-0">
+              <AddButton
+                label={t('dashboard.family.add', 'Добавить')}
+                onClick={onAddMember}
+                variant="vertical"
                 size="md"
-                rounded
-                showStatus
-                status={(member as any).isOnline ? 'online' : 'offline'}
+                borderStyle="solid"
+                background="default"
+                className="w-[140px] h-[140px] min-h-0"
               />
             </div>
-            
-            {/* Имя и роль */}
-            <div className="flex-1 min-w-0 text-left">
-              <p className="text-sm font-medium text-dark dark:text-white group-hover:text-primary dark:group-hover:text-primary transition-colors duration-200 truncate">
-                {member.name}
-              </p>
-              {member.role === 'owner' && (
-                <div className="mt-1">
-                  {getRoleBadge(member.role)}
-                </div>
-              )}
-            </div>
-            
-            {/* Стрелка */}
-            <Icon 
-              name="chevron-right" 
-              size="sm" 
-              className="text-body-color dark:text-dark-6 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex-shrink-0"
-            />
+          )}
+        </div>
+
+        {/* Кнопка прокрутки вправо */}
+        {canScrollRight && (
+          <button
+            onClick={() => scroll('right')}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white dark:bg-dark-2 shadow-lg border border-gray-2 dark:border-dark-3 flex items-center justify-center hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors"
+            aria-label={t('common.scrollRight', 'Прокрутить вправо')}
+          >
+            <Icon name="chevron-right" size="sm" className="text-body-color dark:text-dark-6" />
           </button>
-        ))}
-        
-        {/* Кнопка добавить */}
-        <button
-          onClick={onAddMember}
-          className="group flex items-center justify-center gap-2 p-3 rounded-xl bg-white dark:bg-dark-2 border-2 border-dashed border-stroke dark:border-dark-3 hover:border-primary dark:hover:border-primary transition-all duration-200"
-        >
-          <Icon 
-            name="plus" 
-            size="sm" 
-            className="text-body-color dark:text-dark-6 group-hover:text-primary transition-colors duration-200"
-          />
-          <span className="text-sm text-body-color dark:text-dark-6 group-hover:text-primary transition-colors duration-200">
-            {t('dashboard.family.add', 'Добавить')}
-          </span>
-        </button>
+        )}
       </div>
     </DataSection>
   );

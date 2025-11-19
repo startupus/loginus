@@ -96,7 +96,13 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
       active: location.pathname.includes('/family') 
     },
     { 
-      label: t('sidebar.payments', 'Платежи'), 
+      label: t('sidebar.work', 'Работа'), 
+      path: buildPathWithLang('/work', currentLang), 
+      icon: 'briefcase', 
+      active: location.pathname.includes('/work') 
+    },
+    { 
+      label: t('sidebar.payments', 'Платежи'),
       path: buildPathWithLang('/pay', currentLang), 
       icon: 'credit-card', 
       active: location.pathname.includes('/pay') 

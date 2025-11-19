@@ -67,17 +67,17 @@ export const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
         {subscriptions.map((subscription, index) => (
           <div
             key={subscription.id}
-            className="group animate-fade-in cursor-pointer"
+            className="group animate-fade-in cursor-pointer h-full"
               style={{ animationDelay: `${index * 30}ms` }}
               onClick={() => handleCardClick(subscription)}
           >
               <WidgetCard 
                 variant="default"
-                className={`h-full transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 ${
+                className={`h-full flex flex-col transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 ${
                   subscription.active ? 'border-2 border-primary' : ''
                 }`}
               >
-                <div className="space-y-2">
+                <div className="flex flex-col flex-1 space-y-2">
                   {/* Заголовок с бейджем */}
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="text-sm font-bold text-dark dark:text-white line-clamp-1">
@@ -96,7 +96,7 @@ export const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                   </div>
                   
                   {/* Цена */}
-                  <div>
+                  <div className="flex-1">
                     <div className="text-lg font-bold text-primary">
                       {subscription.price.split('/')[0]}
                     </div>
@@ -114,8 +114,8 @@ export const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                     </p>
                   )}
                   
-                  {/* Ссылка подробнее */}
-                  <div className="flex items-center gap-1 text-xs text-primary group-hover:gap-2 transition-all">
+                  {/* Ссылка подробнее - всегда внизу */}
+                  <div className="flex items-center gap-1 text-xs text-primary group-hover:gap-2 transition-all mt-auto">
                     <span>{t('dashboard.subscriptions.details', 'Подробнее')}</span>
                 <Icon 
                   name="chevron-right" 

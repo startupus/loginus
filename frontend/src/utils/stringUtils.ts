@@ -4,15 +4,29 @@
 
 /**
  * Получить инициалы из имени
+ * @param name - полное имя пользователя
+ * @returns инициалы (максимум 2 символа) или пустая строка
  */
 export const getInitials = (name?: string): string => {
-  if (!name) return '';
-  const parts = name.split(' ');
-  return parts
+  if (!name || name.trim() === '') return '';
+  
+  // Разбиваем имя на части и фильтруем пустые элементы
+  const parts = name
+    .trim()
+    .split(/\s+/) // Разбиваем по любому количеству пробелов
+    .filter(part => part.length > 0); // Убираем пустые элементы
+  
+  if (parts.length === 0) return '';
+  
+  // Берем первые буквы каждой части, максимум 2
+  const initials = parts
     .map(p => p[0])
+    .filter(char => char && /[a-zA-Zа-яА-ЯёЁ]/.test(char)) // Только буквы
     .join('')
     .toUpperCase()
     .slice(0, 2);
+  
+  return initials;
 };
 
 /**

@@ -1,20 +1,38 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { PageTemplate } from '../design-system/layouts/PageTemplate';
 import { profileApi } from '../services/api/profile';
 import { Icon } from '../design-system/primitives';
+import { MasonryGrid } from '../design-system/composites';
+import { useAuthStore } from '../store';
+import { useWidgetPreferences } from '../hooks/useWidgetPreferences';
+
+// Lazy loading для компонентов, которые не нужны сразу
+const WidgetSelector = lazy(() => import('../components/Dashboard/WidgetSelector').then(m => ({ default: m.WidgetSelector })));
+const AddWidgetCard = lazy(() => import('../components/Dashboard/AddWidgetCard').then(m => ({ default: m.AddWidgetCard })));
+
+// Тип для доступных виджетов
+export type AvailableWidget = {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  enabled: boolean;
+};
 
 // Lazy loading компонентов Dashboard для оптимизации производительности
 const ProfileCard = lazy(() => import('../components/Dashboard/ProfileCard').then(m => ({ default: m.ProfileCard })));
+const CoursesWidget = lazy(() => import('../components/Dashboard/CoursesWidget').then(m => ({ default: m.CoursesWidget })));
+const EventsWidget = lazy(() => import('../components/Dashboard/EventsWidget').then(m => ({ default: m.EventsWidget })));
+const RoadmapWidget = lazy(() => import('../components/Dashboard/RoadmapWidget').then(m => ({ default: m.RoadmapWidget })));
 const MailWidget = lazy(() => import('../components/Dashboard/MailWidget').then(m => ({ default: m.MailWidget })));
 const PlusWidget = lazy(() => import('../components/Dashboard/PlusWidget').then(m => ({ default: m.PlusWidget })));
 const PayWidget = lazy(() => import('../components/Dashboard/PayWidget').then(m => ({ default: m.PayWidget })));
-const DocumentsGrid = lazy(() => import('../components/Dashboard/DocumentsGrid').then(m => ({ default: m.DocumentsGrid })));
-const AddressesGrid = lazy(() => import('../components/Dashboard/AddressesGrid').then(m => ({ default: m.AddressesGrid })));
+const DocumentsGrid = lazy(() => import('../components/Dashboard/DocumentsGrid').then(module => ({ default: module.DocumentsGrid })));
+const AddressesGrid = lazy(() => import('../components/Dashboard/AddressesGrid').then(module => ({ default: module.AddressesGrid })));
 const FamilyMembers = lazy(() => import('../components/Dashboard/FamilyMembers').then(m => ({ default: m.FamilyMembers })));
 const SubscriptionsList = lazy(() => import('../components/Dashboard/SubscriptionsList').then(m => ({ default: m.SubscriptionsList })));
-const WorkGroups = lazy(() => import('../components/Dashboard/WorkGroups').then(m => ({ default: m.WorkGroups })));
 
 // Компонент скелетона для Suspense fallback
 const WidgetSkeleton: React.FC = () => (
@@ -45,18 +63,49 @@ const SectionSkeleton: React.FC = () => (
  */
 const DashboardPage: React.FC = () => {
   const { t } = useTranslation();
+  const { updateUser } = useAuthStore();
+  const [isWidgetSelectorOpen, setIsWidgetSelectorOpen] = useState(false);
+  const [draggedWidgetId, setDraggedWidgetId] = useState<string | null>(null);
+  const [dragOverWidgetId, setDragOverWidgetId] = useState<string | null>(null);
+  const [insertPosition, setInsertPosition] = useState<'before' | 'after' | null>(null);
+  
+  // Используем оптимизированный хук для управления виджетами
+  const {
+    enabledWidgets,
+    orderedWidgets,
+    toggleWidget,
+    removeWidget,
+    reorderWidgets,
+  } = useWidgetPreferences();
+  
   const { data, isLoading, error } = useQuery({
     queryKey: ['dashboard'],
     queryFn: async () => {
       const response = await profileApi.getDashboard();
       return response.data;
     },
-    staleTime: Infinity, // Данные всегда свежие до явного обновления
+    staleTime: 5 * 60 * 1000, // 5 минут - данные считаются свежими
     gcTime: 30 * 60 * 1000, // 30 минут в кэше
     refetchOnWindowFocus: false,
-    refetchOnMount: false, // Использовать кэш при монтировании
+    refetchOnMount: false, // Использовать кэш при повторном монтировании для ускорения
     refetchOnReconnect: false, // Не перезагружать при переподключении
+    retry: 1, // Быстрая обработка ошибок
+    retryDelay: 1000, // Задержка перед повтором
   });
+
+  // Синхронизируем данные пользователя из API с authStore
+  useEffect(() => {
+    if (data?.data?.user) {
+      const apiUser = data.data.user;
+      updateUser({
+        id: apiUser.id,
+        name: apiUser.name,
+        email: apiUser.email,
+        phone: apiUser.phone,
+        avatar: apiUser.avatar,
+      });
+    }
+  }, [data, updateUser]);
 
   if (isLoading) {
     return (
@@ -109,6 +158,110 @@ const DashboardPage: React.FC = () => {
   const dashboard = data?.data?.dashboard;
   const user = data?.data?.user;
 
+  // Доступные виджеты
+  const availableWidgets: AvailableWidget[] = [
+    {
+      id: 'courses',
+      title: t('dashboard.courses.title', 'Мои курсы обучения'),
+      description: t('dashboard.courses.description', 'Отслеживайте прогресс по вашим курсам'),
+      icon: 'book',
+      enabled: enabledWidgets.has('courses'),
+    },
+    {
+      id: 'events',
+      title: t('dashboard.events.title', 'События'),
+      description: t('dashboard.events.description', 'Последние события и уведомления'),
+      icon: 'bell',
+      enabled: enabledWidgets.has('events'),
+    },
+    {
+      id: 'roadmap',
+      title: t('dashboard.roadmap.title', 'Моя дорожная карта'),
+      description: t('dashboard.roadmap.description', 'Ближайшие шаги в обучении'),
+      icon: 'flag',
+      enabled: enabledWidgets.has('roadmap'),
+    },
+    {
+      id: 'mail',
+      title: t('dashboard.mail.title', 'Почта'),
+      description: t('dashboard.mail.description', 'Непрочитанные письма'),
+      icon: 'mail',
+      enabled: enabledWidgets.has('mail'),
+    },
+    {
+      id: 'plus',
+      title: t('dashboard.plus.title', 'Яндекс Плюс'),
+      description: t('dashboard.plus.description', 'Статус подписки и баллы'),
+      icon: 'star',
+      enabled: enabledWidgets.has('plus'),
+    },
+    {
+      id: 'pay',
+      title: t('dashboard.pay.title', 'Яндекс Пэй'),
+      description: t('dashboard.pay.description', 'Баланс и лимиты'),
+      icon: 'wallet',
+      enabled: enabledWidgets.has('pay'),
+    },
+  ];
+
+  // Используем метод из хука для переключения виджета
+  const handleToggleWidget = toggleWidget;
+
+  // Drag & Drop handlers
+  const handleDragStart = (e: React.DragEvent, widgetId: string) => {
+    setDraggedWidgetId(widgetId);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedWidgetId(null);
+    setDragOverWidgetId(null);
+    setInsertPosition(null);
+  };
+
+  const handleDragOver = (e: React.DragEvent, widgetId: string) => {
+    e.preventDefault();
+    
+    if (!draggedWidgetId || draggedWidgetId === widgetId) {
+      return;
+    }
+
+    setDragOverWidgetId(widgetId);
+    
+    // Определяем позицию вставки на основе позиции курсора
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const mouseY = e.clientY;
+    const elementCenterY = rect.top + rect.height / 2;
+    
+    setInsertPosition(mouseY < elementCenterY ? 'before' : 'after');
+  };
+
+  const handleDragLeave = () => {
+    // Не сбрасываем сразу, чтобы избежать мерцания при переходе между элементами
+    setTimeout(() => {
+      setDragOverWidgetId(null);
+      setInsertPosition(null);
+    }, 100);
+  };
+
+  const handleDrop = (e: React.DragEvent, targetWidgetId: string) => {
+    e.preventDefault();
+    
+    if (!draggedWidgetId || draggedWidgetId === targetWidgetId) {
+      return;
+    }
+
+    // Используем метод из хука для переупорядочивания
+    const position = insertPosition || 'after';
+    reorderWidgets(draggedWidgetId, targetWidgetId, position);
+    
+    setDraggedWidgetId(null);
+    setDragOverWidgetId(null);
+    setInsertPosition(null);
+  };
+
+  // Используем метод из хука для удаления виджета
+  const handleRemoveWidget = removeWidget;
+
   if (!dashboard || !user) {
     return (
       <PageTemplate title={t('dashboard.title', 'Профиль')} showSidebar={true}>
@@ -146,6 +299,9 @@ const DashboardPage: React.FC = () => {
                 phone: user.phone,
                 email: user.email,
                 avatar: user.avatar,
+                balance: dashboard.balance,
+                gamePoints: dashboard.gamePoints,
+                achievements: dashboard.achievements,
               }}
               onEdit={() => {
                 // TODO: открыть модалку редактирования
@@ -154,64 +310,128 @@ const DashboardPage: React.FC = () => {
           </Suspense>
         </div>
 
-        {/* Widgets Grid - адаптивная сетка */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-          {/* Mail Widget */}
-          <div className="w-full animate-fade-in" style={{ animationDelay: '100ms' }}>
-            <Suspense fallback={<WidgetSkeleton />}>
-              <MailWidget unreadCount={dashboard.unreadMail || 0} />
-            </Suspense>
-          </div>
+        {/* Widgets Section - объединенный Suspense для всех виджетов */}
+        <div className="w-full">
+          <Suspense fallback={
+            <MasonryGrid columns={{ sm: 1, md: 2, lg: 3 }} gap={24} className="lg:gap-6">
+              {[1, 2, 3].map((i) => (
+                <WidgetSkeleton key={i} />
+              ))}
+            </MasonryGrid>
+          }>
+          <MasonryGrid
+            columns={{ sm: 1, md: 2, lg: 3 }}
+            gap={24}
+            className="lg:gap-6"
+          >
+              {orderedWidgets.map((widgetId) => {
+              const commonProps = {
+                widgetId,
+                draggable: true,
+                onDragStart: handleDragStart,
+                onDragEnd: handleDragEnd,
+                onDragOver: (e: React.DragEvent) => handleDragOver(e, widgetId),
+                onDragLeave: handleDragLeave,
+                onDrop: handleDrop,
+                onRemove: handleRemoveWidget,
+                isDragOver: dragOverWidgetId === widgetId,
+                insertPosition: dragOverWidgetId === widgetId ? insertPosition : null,
+                isDragging: draggedWidgetId === widgetId,
+              };
 
-          {/* Plus Widget */}
-          <div className="w-full animate-fade-in" style={{ animationDelay: '200ms' }}>
-            <Suspense fallback={<WidgetSkeleton />}>
-              <PlusWidget
-                active={dashboard.plusActive || false}
-                points={dashboard.plusPoints || 0}
-                tasks={dashboard.plusTasks || 0}
-              />
-            </Suspense>
-          </div>
-
-          {/* Pay Widget */}
-          <div className="w-full animate-fade-in" style={{ animationDelay: '300ms' }}>
-            <Suspense fallback={<WidgetSkeleton />}>
-              <PayWidget
-                balance={dashboard.payBalance || 0}
-                limit={dashboard.payLimit || 0}
-              />
-            </Suspense>
-          </div>
+              switch (widgetId) {
+                case 'courses':
+                  return (
+                      <CoursesWidget 
+                        key={widgetId}
+                        courses={dashboard.courses || []}
+                        {...commonProps}
+                      />
+                  );
+                case 'events':
+                  return (
+                      <EventsWidget 
+                        key={widgetId}
+                        events={dashboard.events || []}
+                        {...commonProps}
+                      />
+                  );
+                case 'roadmap':
+                  return (
+                      <RoadmapWidget 
+                        key={widgetId}
+                        steps={dashboard.roadmap || []}
+                        {...commonProps}
+                      />
+                  );
+                case 'mail':
+                  return (
+                      <MailWidget 
+                        key={widgetId}
+                        unreadCount={dashboard.unreadMail || 0}
+                        {...commonProps}
+                      />
+                  );
+                case 'plus':
+                  return (
+                      <PlusWidget
+                        key={widgetId}
+                        active={dashboard.plusActive || false}
+                        points={dashboard.plusPoints || 0}
+                        tasks={dashboard.plusTasks || 0}
+                        {...commonProps}
+                      />
+                  );
+                case 'pay':
+                  return (
+                      <PayWidget
+                        key={widgetId}
+                        balance={dashboard.payBalance || 0}
+                        limit={dashboard.payLimit || 0}
+                        {...commonProps}
+                      />
+                  );
+                default:
+                  return null;
+              }
+            })}
+            
+            {/* Карточка добавления виджета - всегда в конце */}
+            <AddWidgetCard onClick={() => setIsWidgetSelectorOpen(true)} />
+          </MasonryGrid>
+          </Suspense>
         </div>
 
+        {/* Documents, Addresses, Family, Subscriptions - объединенный Suspense */}
+        <Suspense fallback={
+          <div className="space-y-6">
+            <SectionSkeleton />
+            <SectionSkeleton />
+            <SectionSkeleton />
+          </div>
+        }>
         {/* Documents Section - полная ширина */}
-        <div className="w-full animate-fade-in" style={{ animationDelay: '400ms' }}>
-          <Suspense fallback={<SectionSkeleton />}>
+          <div className="w-full mb-6">
             <DocumentsGrid
-              documents={dashboard.documents || []}
+              documents={dashboard?.documents || []}
               onAddDocument={() => {
                 // TODO: открыть модалку добавления документа
               }}
             />
-          </Suspense>
         </div>
 
         {/* Addresses Section - полная ширина */}
-        <div className="w-full animate-fade-in" style={{ animationDelay: '500ms' }}>
-          <Suspense fallback={<SectionSkeleton />}>
+          <div className="w-full mb-6">
             <AddressesGrid
-              addresses={dashboard.addresses || []}
+              addresses={dashboard?.addresses || []}
               onAddAddress={() => {
                 // TODO: открыть модалку добавления адреса
               }}
             />
-          </Suspense>
         </div>
 
         {/* Family Section - полная ширина */}
-        <div className="w-full animate-fade-in" style={{ animationDelay: '600ms' }}>
-          <Suspense fallback={<SectionSkeleton />}>
+          <div className="w-full mb-6">
             <FamilyMembers
               members={dashboard.family || []}
               onAddMember={() => {
@@ -222,31 +442,11 @@ const DashboardPage: React.FC = () => {
                 console.log('Open member:', member);
               }}
             />
-          </Suspense>
         </div>
-
-        {/* Work Groups Section - полная ширина */}
-        {dashboard.workGroups && dashboard.workGroups.length > 0 && (
-          <div className="w-full animate-fade-in" style={{ animationDelay: '650ms' }}>
-            <Suspense fallback={<SectionSkeleton />}>
-              <WorkGroups
-                groups={dashboard.workGroups}
-                onGroupClick={(group) => {
-                  // TODO: открыть страницу группы
-                  console.log('Open group:', group);
-                }}
-                onAddGroup={() => {
-                  // TODO: открыть модалку создания группы
-                }}
-              />
-            </Suspense>
-          </div>
-        )}
 
         {/* Subscriptions Section - полная ширина */}
         {dashboard.subscriptions && dashboard.subscriptions.length > 0 && (
-          <div className="w-full animate-fade-in" style={{ animationDelay: '700ms' }}>
-            <Suspense fallback={<SectionSkeleton />}>
+            <div className="w-full">
               <SubscriptionsList
                 subscriptions={dashboard.subscriptions}
                 onSubscriptionClick={(subscription) => {
@@ -254,10 +454,22 @@ const DashboardPage: React.FC = () => {
                   console.log('Open subscription:', subscription);
                 }}
               />
-            </Suspense>
           </div>
         )}
+        </Suspense>
       </div>
+
+      {/* Widget Selector Panel - lazy loaded */}
+      {isWidgetSelectorOpen && (
+        <Suspense fallback={null}>
+      <WidgetSelector
+        isOpen={isWidgetSelectorOpen}
+        onClose={() => setIsWidgetSelectorOpen(false)}
+        availableWidgets={availableWidgets}
+        onToggleWidget={handleToggleWidget}
+      />
+        </Suspense>
+      )}
     </PageTemplate>
   );
 };

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Icon } from '../../primitives';
 
 export interface WidgetCardProps {
   /**
@@ -32,6 +33,37 @@ export interface WidgetCardProps {
   onClick?: () => void;
   
   /**
+   * Показать drag handle (три точки для перетаскивания)
+   */
+  draggable?: boolean;
+  
+  /**
+   * ID виджета для drag & drop
+   */
+  widgetId?: string;
+  
+  /**
+   * Обработчики drag & drop
+   */
+  onDragStart?: (e: React.DragEvent, widgetId: string) => void;
+  onDragEnd?: (e: React.DragEvent) => void;
+  onDragOver?: (e: React.DragEvent) => void;
+  onDragLeave?: (e: React.DragEvent) => void;
+  onDrop?: (e: React.DragEvent, widgetId: string) => void;
+  
+  /**
+   * Функция удаления виджета
+   */
+  onRemove?: (widgetId: string) => void;
+  
+  /**
+   * Состояние drag & drop для визуальных индикаторов
+   */
+  isDragOver?: boolean;
+  insertPosition?: 'before' | 'after' | null;
+  isDragging?: boolean;
+  
+  /**
    * Дополнительные классы
    */
   className?: string;
@@ -53,6 +85,17 @@ export const WidgetCard: React.FC<WidgetCardProps> = ({
   actions,
   variant = 'default',
   onClick,
+  draggable = false,
+  widgetId,
+  onDragStart,
+  onDragEnd,
+  onDragOver,
+  onDragLeave,
+  onDrop,
+  onRemove,
+  isDragOver = false,
+  insertPosition = null,
+  isDragging = false,
   className = '',
 }) => {
   // Базовые классы из TailGrids Card1.jsx SingleCard - ТОЧНЫЕ из исходника
@@ -77,13 +120,105 @@ export const WidgetCard: React.FC<WidgetCardProps> = ({
   
   const Component = onClick ? 'button' : 'div';
   
-  const combinedClassName = `${baseClasses} ${variantClasses[variant]} ${onClick ? 'cursor-pointer' : ''} ${className}`.trim();
+  // Классы для состояния drag & drop
+  const dragOverClasses = isDragOver ? 'ring-2 ring-primary ring-offset-2 dark:ring-offset-dark' : '';
+  const draggingClasses = isDragging ? 'opacity-50 scale-95' : '';
+  
+  const combinedClassName = `${baseClasses} ${variantClasses[variant]} ${onClick ? 'cursor-pointer' : ''} ${draggable ? 'cursor-move' : ''} ${dragOverClasses} ${draggingClasses} ${className}`.trim();
+  
+  const handleDragStart = (e: React.DragEvent) => {
+    if (draggable && widgetId && onDragStart) {
+      onDragStart(e, widgetId);
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', widgetId);
+      // Добавляем визуальный эффект
+      if (e.currentTarget instanceof HTMLElement) {
+        e.currentTarget.style.opacity = '0.5';
+      }
+    }
+  };
+
+  const handleDragEnd = (e: React.DragEvent) => {
+    if (onDragEnd) {
+      onDragEnd(e);
+    }
+    // Восстанавливаем визуальный эффект
+    if (e.currentTarget instanceof HTMLElement) {
+      e.currentTarget.style.opacity = '1';
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    if (draggable && onDragOver) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      onDragOver(e);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    if (draggable && onDragLeave) {
+      onDragLeave(e);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    if (draggable && widgetId && onDrop) {
+      e.preventDefault();
+      onDrop(e, widgetId);
+    }
+  };
   
   return (
-    <Component
-      onClick={onClick}
-      className={`group ${combinedClassName}`}
-    >
+    <div className="relative">
+      {/* Индикатор вставки сверху */}
+      {isDragOver && insertPosition === 'before' && (
+        <div className="absolute -top-2 left-0 right-0 h-1 bg-primary rounded-full z-50 animate-pulse" />
+      )}
+      
+      <Component
+        onClick={onClick}
+        draggable={draggable}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        className={`group relative ${combinedClassName}`}
+      >
+      {/* Drag Handle и кнопка удаления - в правом верхнем углу */}
+      {(draggable || onRemove) && (
+        <div className="absolute top-3 right-3 z-10 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          {/* Drag Handle - три точки */}
+          {draggable && (
+            <button
+              className="p-1.5 rounded-lg bg-gray-1 dark:bg-dark-3 hover:bg-gray-2 dark:hover:bg-dark-4 cursor-grab active:cursor-grabbing transition-colors"
+              aria-label="Перетащить виджет"
+              onMouseDown={(e) => {
+                // Предотвращаем клик при начале перетаскивания
+                e.stopPropagation();
+              }}
+            >
+              <Icon name="menu" size="sm" className="text-body-color dark:text-dark-6" />
+            </button>
+          )}
+          
+          {/* Кнопка удаления */}
+          {onRemove && widgetId && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemove(widgetId);
+              }}
+              className="p-1.5 rounded-lg bg-gray-1 dark:bg-dark-3 hover:bg-error/10 dark:hover:bg-error/20 transition-colors"
+              aria-label="Удалить виджет"
+            >
+              <Icon name="trash" size="sm" className="text-error hover:text-error dark:text-error" />
+            </button>
+          )}
+        </div>
+      )}
+      
       <div className={paddingClasses[variant]}>
         {/* Header с иконкой, заголовком и действиями */}
         {(title || icon || actions) && (
@@ -101,7 +236,7 @@ export const WidgetCard: React.FC<WidgetCardProps> = ({
               )}
             </div>
             {actions && (
-              <div className="flex-shrink-0">
+              <div className={`flex-shrink-0 ${draggable ? 'mr-8' : ''}`}>
                 {actions}
               </div>
             )}
@@ -114,5 +249,11 @@ export const WidgetCard: React.FC<WidgetCardProps> = ({
         </div>
       </div>
     </Component>
+    
+    {/* Индикатор вставки снизу */}
+    {isDragOver && insertPosition === 'after' && (
+      <div className="absolute -bottom-2 left-0 right-0 h-1 bg-primary rounded-full z-50 animate-pulse" />
+    )}
+    </div>
   );
 };

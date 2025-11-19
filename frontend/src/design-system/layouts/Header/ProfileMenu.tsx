@@ -21,6 +21,16 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({ userData, onLogout }) 
   const currentLang = useCurrentLanguage();
   const { isOpen, toggleMenu, closeMenu, menuRef } = useProfileMenu();
 
+  // Получаем инициалы из имени, если имя валидное
+  const initials = userData.name && userData.name.trim() !== '' 
+    ? getInitials(userData.name) 
+    : '';
+
+  // Определяем, есть ли валидный src для аватара
+  const avatarSrc = userData.avatar && userData.avatar !== null && userData.avatar.trim() !== '' 
+    ? userData.avatar 
+    : undefined;
+
   return (
     <div className="relative" ref={menuRef}>
       <button
@@ -29,8 +39,8 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({ userData, onLogout }) 
         aria-label={t('profile.menu', 'Меню профиля')}
       >
         <Avatar
-          src={userData.avatar || undefined}
-          initials={getInitials(userData.name)}
+          src={avatarSrc}
+          initials={initials}
           size="lg"
           rounded
           showStatus

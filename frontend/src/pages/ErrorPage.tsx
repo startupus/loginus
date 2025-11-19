@@ -149,12 +149,20 @@ export const ErrorPage: React.FC = () => {
             {errorDescription}
           </p>
 
-          {/* Детали ошибки (только в dev режиме или для определенных типов) */}
-          {errorMessage && (import.meta.env.DEV || errorType === 'generic') && (
-            <div className="mb-6 p-4 bg-gray-100 dark:bg-dark-3 rounded-lg text-left">
-              <p className="text-sm font-mono text-body-color dark:text-dark-6 break-all">
-                {errorMessage}
-              </p>
+          {/* Детали ошибки (только в dev режиме) */}
+          {errorMessage && import.meta.env.DEV && errorType === 'generic' && (
+            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+              <div className="flex items-start gap-3">
+                <Icon name="alert-circle" size="sm" className="text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                <div className="flex-1 text-left">
+                  <p className="text-sm font-semibold text-red-800 dark:text-red-300 mb-1">
+                    {t('errors.technicalDetails', 'Технические детали')}:
+                  </p>
+                  <p className="text-sm font-mono text-red-700 dark:text-red-400 break-words whitespace-pre-wrap">
+                    {errorMessage}
+                  </p>
+                </div>
+              </div>
             </div>
           )}
 

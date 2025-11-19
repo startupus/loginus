@@ -8,6 +8,17 @@ export interface PlusWidgetProps {
   active: boolean;
   points: number;
   tasks: number;
+  widgetId?: string;
+  draggable?: boolean;
+  onDragStart?: (e: React.DragEvent, widgetId: string) => void;
+  onDragEnd?: (e: React.DragEvent) => void;
+  onDragOver?: (e: React.DragEvent) => void;
+  onDragLeave?: (e: React.DragEvent) => void;
+  onDrop?: (e: React.DragEvent, widgetId: string) => void;
+  onRemove?: (widgetId: string) => void;
+  isDragOver?: boolean;
+  insertPosition?: 'before' | 'after' | null;
+  isDragging?: boolean;
 }
 
 /**
@@ -17,6 +28,17 @@ export const PlusWidget: React.FC<PlusWidgetProps> = ({
   active,
   points,
   tasks,
+  widgetId,
+  draggable,
+  onDragStart,
+  onDragEnd,
+  onDragOver,
+  onDragLeave,
+  onDrop,
+  onRemove,
+  isDragOver,
+  insertPosition,
+  isDragging,
 }) => {
   const { t } = useTranslation();
   
@@ -24,6 +46,17 @@ export const PlusWidget: React.FC<PlusWidgetProps> = ({
     <WidgetCard
       title={t('dashboard.plus.title', 'Яндекс Плюс')}
       icon={<Icon name="plus-coin" size="lg" className="text-primary" />}
+      widgetId={widgetId}
+      draggable={draggable}
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
+      onRemove={onRemove}
+      isDragOver={isDragOver}
+      insertPosition={insertPosition}
+      isDragging={isDragging}
       actions={
         <Link to="/plus">
           <Button variant="ghost" size="sm">

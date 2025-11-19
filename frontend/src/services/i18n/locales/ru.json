@@ -1,4 +1,18 @@
 {
+  "common": {
+    "today": "Сегодня",
+    "yesterday": "Вчера",
+    "daysAgo": "{{count}} дн. назад",
+    "noData": "Нет данных",
+    "close": "Закрыть",
+    "enable": "Включить",
+    "disable": "Отключить",
+    "scrollLeft": "Прокрутить влево",
+    "scrollRight": "Прокрутить вправо"
+  },
+  "header": {
+    "notifications": "Уведомления"
+  },
   "dashboard": {
     "title": "Профиль",
     "quickAccess": "Быстрый доступ",
@@ -17,6 +31,7 @@
     },
     "mail": {
       "title": "Почта",
+      "description": "Непрочитанные письма",
       "noUnread": "Нет непрочитанных",
       "unreadOne": "непрочитанное письмо",
       "unreadFew": "непрочитанных письма",
@@ -24,11 +39,13 @@
     },
     "pay": {
       "title": "Яндекс Пэй",
+      "description": "Баланс и лимиты",
       "openCard": "Открыть карту Пэй",
       "spendUpTo": "Тратьте до"
     },
     "plus": {
       "title": "Яндекс Плюс",
+      "description": "Статус подписки и баллы",
       "status": "Статус",
       "active": "Активен",
       "inactive": "Неактивен",
@@ -44,6 +61,37 @@
       "owner": "Владелец",
       "admin": "Админ",
       "member": "Участник"
+    },
+    "courses": {
+      "title": "Мои курсы обучения",
+      "description": "Отслеживайте прогресс по вашим курсам",
+      "viewAll": "Смотреть все",
+      "progress": "Прогресс",
+      "empty": "У вас пока нет активных курсов",
+      "browse": "Найти курсы"
+    },
+    "events": {
+      "title": "События",
+      "description": "Последние события и уведомления",
+      "empty": "Нет новых событий"
+    },
+    "roadmap": {
+      "title": "Моя дорожная карта",
+      "description": "Ближайшие шаги в обучении",
+      "viewFull": "Полная версия",
+      "empty": "Все шаги выполнены!",
+      "emptyDescription": "Отличная работа!"
+    },
+    "profile": {
+      "balance": "Баланс",
+      "gamePoints": "Игровые баллы",
+      "achievements": "Достижения",
+      "achievementsCount": "{{count}} достижений"
+    },
+    "widgets": {
+      "title": "Добавить виджет",
+      "add": "Добавить виджет",
+      "description": "Выберите виджеты для отображения на главной странице"
     },
     "subscriptions": {
       "title": "Подписки",
@@ -342,6 +390,7 @@
     "addresses": "Адреса",
     "security": "Безопасность",
     "family": "Семья",
+    "work": "Работа",
     "payments": "Платежи",
     "support": "Поддержка",
     "help": "Справка",
@@ -404,7 +453,10 @@
       "healthInsurance": "ОМС",
       "voluntaryInsurance": "ДМС",
       "inn": "ИНН",
-      "snils": "СНИЛС"
+      "snils": "СНИЛС",
+      "diplomasCertificates": "Дипломы и сертификаты",
+      "diplomas": "Дипломы",
+      "certificates": "Сертификаты"
     },
     "addresses": {
       "title": "Адреса",

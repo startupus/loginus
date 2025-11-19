@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '../../design-system/primitives';
-import { DataSection } from '../../design-system/composites/DataSection';
+import { DataSection, AddButton } from '../../design-system/composites';
 import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
 import { getAddressLabel } from '../../utils/i18nMappings';
 
@@ -11,6 +11,7 @@ export interface AddressType {
   label: string;
   icon: string;
   added: boolean;
+  address?: string;
 }
 
 export interface AddressesGridProps {
@@ -29,10 +30,40 @@ export const AddressesGrid: React.FC<AddressesGridProps> = ({
   const { t } = useTranslation();
   const navigate = useNavigate();
   const currentLang = useCurrentLanguage();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
   
   const handleViewAll = () => {
     navigate(buildPathWithLang('/personal/addresses', currentLang));
   };
+
+  const handleScroll = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  };
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = 200;
+      scrollContainerRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth',
+      });
+    }
+  };
+
+  React.useEffect(() => {
+    handleScroll();
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', handleScroll);
+      return () => container.removeEventListener('scroll', handleScroll);
+    }
+  }, [addresses]);
   
   return (
     <DataSection
@@ -49,36 +80,91 @@ export const AddressesGrid: React.FC<AddressesGridProps> = ({
         </button>
       }
     >
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {addresses.map((address, index) => (
+      <div className="relative">
+        {/* Кнопка прокрутки влево */}
+        {canScrollLeft && (
           <button
-            key={address.type}
-            onClick={() => onAddAddress?.(address.type)}
-            className="group flex flex-col items-center gap-3 p-4 rounded-xl bg-white dark:bg-dark-2 border border-stroke dark:border-dark-3 hover:border-gray-3 dark:hover:border-dark-4 transition-all duration-200 animate-fade-in"
-            style={{ animationDelay: `${index * 30}ms` }}
+            onClick={() => scroll('left')}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white dark:bg-dark-2 shadow-lg border border-gray-2 dark:border-dark-3 flex items-center justify-center hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors"
+            aria-label={t('common.scrollLeft', 'Прокрутить влево')}
           >
-            {/* Иконка */}
-            <div className="w-12 h-12 rounded-lg bg-gray-1 dark:bg-dark-3 flex items-center justify-center transition-colors duration-200 group-hover:bg-gray-2 dark:group-hover:bg-dark-4">
-              <Icon 
-                name={address.icon} 
-                size="md" 
-                className="text-body-color dark:text-dark-6"
+            <Icon name="chevron-left" size="sm" className="text-body-color dark:text-dark-6" />
+          </button>
+        )}
+
+        {/* Карусель адресов */}
+        <div
+          ref={scrollContainerRef}
+          className="flex gap-3 overflow-x-auto scrollbar-hide scroll-smooth pb-2"
+          style={{
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+          }}
+          onScroll={handleScroll}
+        >
+          {addresses.map((addressItem, index) => (
+            <button
+              key={addressItem.type}
+              onClick={() => onAddAddress?.(addressItem.type)}
+              className="group flex-shrink-0 flex flex-col items-center justify-center gap-3 p-4 rounded-lg bg-gray-1/50 dark:bg-dark-3/50 border border-stroke dark:border-dark-3 hover:border-primary/30 dark:hover:border-primary/30 hover:bg-gray-1 dark:hover:bg-dark-3 transition-all duration-200 animate-fade-in relative w-[140px] h-[140px]"
+              style={{ animationDelay: `${index * 30}ms` }}
+            >
+              {/* Иконка */}
+              <div className="w-12 h-12 rounded-lg bg-gray-1 dark:bg-dark-3 flex items-center justify-center transition-colors duration-200 group-hover:bg-gray-2 dark:group-hover:bg-dark-4 flex-shrink-0">
+                <Icon 
+                  name={addressItem.icon} 
+                  size="md" 
+                  className="text-body-color dark:text-dark-6"
+                />
+              </div>
+              
+              {/* Название и адрес */}
+              <div className="flex flex-col items-center gap-1 w-full min-w-0 flex-1 justify-center">
+                <span className="text-xs font-medium text-center text-dark dark:text-white group-hover:text-primary dark:group-hover:text-primary transition-colors duration-200">
+                  {getAddressLabel(addressItem.type, t, addressItem.label)}
+                </span>
+                {addressItem.added && addressItem.address && (
+                  <span className="text-[10px] text-center text-body-color dark:text-dark-6 line-clamp-2 break-words w-full leading-tight">
+                    {addressItem.address}
+                  </span>
+                )}
+              </div>
+              
+              {/* Статус */}
+              {addressItem.added && (
+                <div className="absolute top-2 right-2">
+                  <div className="w-2 h-2 rounded-full bg-success"></div>
+                </div>
+              )}
+            </button>
+          ))}
+          
+          {/* Кнопка добавить адрес */}
+          {onAddAddress && (
+            <div className="flex-shrink-0">
+              <AddButton
+                label={t('personalData.addresses.addAddress', 'Добавить адрес')}
+                onClick={() => onAddAddress('other')}
+                variant="vertical"
+                size="md"
+                borderStyle="solid"
+                background="default"
+                className="w-[140px] h-[140px] min-h-0"
               />
             </div>
-            
-            {/* Название (локализуется по type) */}
-            <span className="text-sm text-center text-body-color dark:text-dark-6 group-hover:text-dark dark:group-hover:text-white transition-colors duration-200">
-              {getAddressLabel(address.type, t, address.label)}
-            </span>
-            
-            {/* Статус */}
-            {address.added && (
-              <div className="absolute top-2 right-2">
-                <div className="w-2 h-2 rounded-full bg-success"></div>
-              </div>
-            )}
+          )}
+        </div>
+
+        {/* Кнопка прокрутки вправо */}
+        {canScrollRight && (
+          <button
+            onClick={() => scroll('right')}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white dark:bg-dark-2 shadow-lg border border-gray-2 dark:border-dark-3 flex items-center justify-center hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors"
+            aria-label={t('common.scrollRight', 'Прокрутить вправо')}
+          >
+            <Icon name="chevron-right" size="sm" className="text-body-color dark:text-dark-6" />
           </button>
-        ))}
+        )}
       </div>
     </DataSection>
   );

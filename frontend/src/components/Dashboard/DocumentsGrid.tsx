@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '../../design-system/primitives';
@@ -29,10 +29,53 @@ export const DocumentsGrid: React.FC<DocumentsGridProps> = ({
   const { t } = useTranslation();
   const navigate = useNavigate();
   const currentLang = useCurrentLanguage();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
   
   const handleViewAll = () => {
     navigate(buildPathWithLang('/personal/documents', currentLang));
   };
+
+  // Разделяем документы: обычные документы и дипломы/сертификаты отдельно
+  const regularDocuments = documents.filter(doc => doc.type !== 'diplomas-certificates');
+  const diplomasCertificates = documents.find(doc => doc.type === 'diplomas-certificates');
+  
+  // Разделяем дипломы и сертификаты на отдельные элементы и помещаем в начало списка
+  const separatedDocuments = [
+    ...(diplomasCertificates ? [
+      { ...diplomasCertificates, type: 'diplomas', label: t('personalData.documents.diplomas', 'Дипломы'), icon: 'award' },
+      { ...diplomasCertificates, type: 'certificates', label: t('personalData.documents.certificates', 'Сертификаты'), icon: 'award' },
+    ] : []),
+    ...regularDocuments,
+  ];
+
+  const handleScroll = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  };
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = 200;
+      scrollContainerRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth',
+      });
+    }
+  };
+
+  React.useEffect(() => {
+    handleScroll();
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', handleScroll);
+      return () => container.removeEventListener('scroll', handleScroll);
+    }
+  }, [documents]);
   
   return (
     <DataSection
@@ -49,36 +92,69 @@ export const DocumentsGrid: React.FC<DocumentsGridProps> = ({
         </button>
       }
     >
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-        {documents.map((doc, index) => (
+      <div className="relative">
+        {/* Кнопка прокрутки влево */}
+        {canScrollLeft && (
           <button
-            key={doc.type}
-            onClick={() => onAddDocument?.(doc.type)}
-            className="group flex flex-col items-center gap-3 p-4 rounded-xl bg-white dark:bg-dark-2 border border-stroke dark:border-dark-3 hover:border-gray-3 dark:hover:border-dark-4 transition-all duration-200 animate-fade-in"
-            style={{ animationDelay: `${index * 30}ms` }}
+            onClick={() => scroll('left')}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white dark:bg-dark-2 shadow-lg border border-gray-2 dark:border-dark-3 flex items-center justify-center hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors"
+            aria-label={t('common.scrollLeft', 'Прокрутить влево')}
           >
-            {/* Иконка */}
-            <div className="w-12 h-12 rounded-lg bg-gray-1 dark:bg-dark-3 flex items-center justify-center transition-colors duration-200 group-hover:bg-gray-2 dark:group-hover:bg-dark-4">
-              <Icon 
-                name={doc.icon} 
-                size="md" 
-                className="text-body-color dark:text-dark-6"
-              />
-            </div>
-            
-            {/* Название (локализуется по type) */}
-            <span className="text-xs text-center text-body-color dark:text-dark-6 group-hover:text-dark dark:group-hover:text-white transition-colors duration-200">
-              {getDocumentLabel(doc.type, t, doc.label)}
-            </span>
-            
-            {/* Статус */}
-            {doc.added && (
-              <div className="absolute top-2 right-2">
-                <div className="w-2 h-2 rounded-full bg-success"></div>
-              </div>
-            )}
+            <Icon name="chevron-left" size="sm" className="text-body-color dark:text-dark-6" />
           </button>
-        ))}
+        )}
+
+        {/* Карусель документов */}
+        <div
+          ref={scrollContainerRef}
+          className="flex gap-3 overflow-x-auto scrollbar-hide scroll-smooth pb-2"
+          style={{
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+          }}
+          onScroll={handleScroll}
+        >
+          {separatedDocuments.map((doc, index) => (
+            <button
+              key={`${doc.type}-${index}`}
+              onClick={() => onAddDocument?.(doc.type)}
+              className="group flex-shrink-0 flex flex-col items-center gap-3 p-4 rounded-lg bg-gray-1/50 dark:bg-dark-3/50 border border-stroke dark:border-dark-3 hover:border-primary/30 dark:hover:border-primary/30 hover:bg-gray-1 dark:hover:bg-dark-3 transition-all duration-200 animate-fade-in relative min-w-[120px]"
+              style={{ animationDelay: `${index * 30}ms` }}
+            >
+              {/* Иконка */}
+              <div className="w-12 h-12 rounded-lg bg-gray-1 dark:bg-dark-3 flex items-center justify-center transition-colors duration-200 group-hover:bg-gray-2 dark:group-hover:bg-dark-4">
+                <Icon 
+                  name={doc.icon} 
+                  size="md" 
+                  className="text-body-color dark:text-dark-6"
+                />
+              </div>
+              
+              {/* Название (локализуется по type) */}
+              <span className="text-xs text-center text-body-color dark:text-dark-6 group-hover:text-dark dark:group-hover:text-white transition-colors duration-200">
+                {getDocumentLabel(doc.type, t, doc.label)}
+              </span>
+              
+              {/* Статус */}
+              {doc.added && (
+                <div className="absolute top-2 right-2">
+                  <div className="w-2 h-2 rounded-full bg-success"></div>
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Кнопка прокрутки вправо */}
+        {canScrollRight && (
+          <button
+            onClick={() => scroll('right')}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white dark:bg-dark-2 shadow-lg border border-gray-2 dark:border-dark-3 flex items-center justify-center hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors"
+            aria-label={t('common.scrollRight', 'Прокрутить вправо')}
+          >
+            <Icon name="chevron-right" size="sm" className="text-body-color dark:text-dark-6" />
+          </button>
+        )}
       </div>
     </DataSection>
   );

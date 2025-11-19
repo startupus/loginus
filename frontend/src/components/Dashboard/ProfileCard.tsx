@@ -10,6 +10,9 @@ export interface ProfileCardProps {
     phone: string;
     email?: string;
     avatar?: string | null;
+    balance?: number;
+    gamePoints?: number;
+    achievements?: number;
   };
   onEdit?: () => void;
 }
@@ -37,39 +40,63 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
         />
         </div>
         
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2 flex-wrap">
-            <h2 className="text-xl sm:text-2xl font-bold text-dark dark:text-white">
-              {user.name}
-            </h2>
-            {onEdit && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onEdit}
-                className="!p-1"
-              >
-                <Icon name="edit" size="sm" />
-              </Button>
-            )}
+        <div className="flex-1 relative">
+          {/* ФИО, баланс, баллы в одну строчку */}
+          <div className="flex items-center justify-between gap-4 mb-2 flex-wrap">
+            <div className="flex items-center gap-3">
+              <h2 className="text-xl sm:text-2xl font-bold text-dark dark:text-white">
+                {user.name}
+              </h2>
+              {onEdit && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onEdit}
+                  className="!p-1"
+                >
+                  <Icon name="edit" size="sm" />
+                </Button>
+              )}
+            </div>
+            
+            {/* Баланс и баллы в строчку */}
+            <div className="flex items-center gap-4">
+              {/* Баланс */}
+              <div className="flex items-center gap-2">
+                <Icon name="wallet" size="sm" className="text-primary" />
+                <span className="text-base font-semibold text-dark dark:text-white">
+                  {user.balance !== undefined ? `${user.balance.toLocaleString('ru-RU')} ₽` : '—'}
+                </span>
+              </div>
+
+              {/* Игровые баллы (морковки) */}
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🥕</span>
+                <span className="text-base font-semibold text-dark dark:text-white">
+                  {user.gamePoints !== undefined ? user.gamePoints.toLocaleString('ru-RU') : '—'}
+                </span>
+              </div>
+            </div>
           </div>
           
-          <div className="space-y-1 mb-4">
-            <p className="text-sm text-body-color dark:text-dark-6">
-              {user.phone}
-            </p>
-            {user.email && (
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div className="space-y-1">
               <p className="text-sm text-body-color dark:text-dark-6">
-                {user.email}
+                {user.phone}
               </p>
-            )}
-          </div>
-          
-          <Link to="/promo/profiles" className="inline-block">
-            <Button variant="primary" size="sm" className="transition-all duration-200 hover:scale-105">
+              {user.email && (
+                <p className="text-sm text-body-color dark:text-dark-6">
+                  {user.email}
+                </p>
+              )}
+            </div>
+            <Link 
+              to="/promo/profiles" 
+              className="text-xs text-body-color dark:text-dark-6 hover:text-primary dark:hover:text-primary transition-colors duration-200"
+            >
               {t('dashboard.mergeAccounts', 'Объединить аккаунты')}
-            </Button>
-          </Link>
+            </Link>
+          </div>
         </div>
       </div>
     </div>

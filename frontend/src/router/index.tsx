@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { Suspense } from 'react';
-import { LandingPage, AuthPage, VerifyCodePage, RegisterPage, OnboardingPage, DashboardPage, PersonalDocumentsPage, PersonalAddressesPage, FamilyPage, SecurityPage, PersonalPage, PayPage, SupportPage, HelpPage, ErrorPage } from './routes';
+import { LandingPage, AuthPage, VerifyCodePage, RegisterPage, OnboardingPage, DashboardPage, PersonalDocumentsPage, PersonalAddressesPage, FamilyPage, WorkPage, SecurityPage, PersonalPage, PayPage, SupportPage, HelpPage, ErrorPage } from './routes';
 import { LanguageRoute } from './LanguageRoute';
 
 const LoadingFallback = () => (
@@ -167,6 +167,21 @@ const router = createBrowserRouter([
     ),
   },
   {
+    path: '/:lang/work',
+    element: (
+      <LanguageRoute>
+        <Suspense fallback={<LoadingFallback />}>
+          <WorkPage />
+        </Suspense>
+      </LanguageRoute>
+    ),
+    errorElement: (
+      <Suspense fallback={<LoadingFallback />}>
+        <ErrorPage />
+      </Suspense>
+    ),
+  },
+  {
     path: '/:lang/security',
     element: (
       <LanguageRoute>
@@ -262,6 +277,10 @@ const router = createBrowserRouter([
   {
     path: '/family',
     element: <Navigate to="/ru/family" replace />,
+  },
+  {
+    path: '/work',
+    element: <Navigate to="/ru/work" replace />,
   },
   {
     path: '/security',

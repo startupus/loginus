@@ -1,6 +1,13 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  // Оптимизация: сканируем только необходимые файлы
+  content: [
+    './index.html',
+    './src/**/*.{js,ts,jsx,tsx}',
+    // Исключаем директории, которые не содержат UI компонентов
+    '!./src/**/*.test.{js,ts,jsx,tsx}',
+    '!./src/**/*.spec.{js,ts,jsx,tsx}',
+  ],
   darkMode: 'class',
   theme: {
     extend: {
@@ -30,5 +37,19 @@ export default {
     },
   },
   plugins: [],
+  // Оптимизация: настройки для production
+  ...(process.env.NODE_ENV === 'production' && {
+    // Удаляем неиспользуемые стили более агрессивно
+    safelist: [
+      // Сохраняем динамические классы, которые генерируются программно
+      {
+        pattern: /^(bg|text|border)-(primary|secondary|success|warning|error|info)/,
+        variants: ['hover', 'focus', 'active', 'dark'],
+      },
+      {
+        pattern: /^(w|h)-(6|8|10|12|16|20)/,
+      },
+    ],
+  }),
 };
 

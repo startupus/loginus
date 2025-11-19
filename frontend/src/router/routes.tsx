@@ -1,8 +1,10 @@
 import { lazy } from 'react';
-import DashboardPage from '@/pages/DashboardPage';
 
 // Landing
 const LandingPage = lazy(() => import('@/pages/LandingPage'));
+
+// Dashboard - критическая страница, загружаем lazy для оптимизации
+const DashboardPage = lazy(() => import('@/pages/DashboardPage'));
 
 // Auth
 const AuthPage = lazy(() => import('@/pages/auth/AuthPage'));
@@ -17,6 +19,7 @@ const PersonalPage = lazy(() => import('@/pages/PersonalPage'));
 const PersonalDocumentsPage = lazy(() => import('@/pages/PersonalDocumentsPage'));
 const PersonalAddressesPage = lazy(() => import('@/pages/PersonalAddressesPage'));
 const FamilyPage = lazy(() => import('@/pages/FamilyPage'));
+const WorkPage = lazy(() => import('@/pages/WorkPage'));
 const SecurityPage = lazy(() => import('@/pages/SecurityPage'));
 
 // Finance
@@ -40,6 +43,7 @@ export {
   PersonalDocumentsPage,
   PersonalAddressesPage,
   FamilyPage,
+  WorkPage,
   SecurityPage,
   PayPage,
   SupportPage,

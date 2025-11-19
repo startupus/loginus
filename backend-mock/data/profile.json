@@ -16,6 +16,123 @@
     "plusTasks": 12,
     "payBalance": 90,
     "payLimit": 120000,
+    "balance": 12500,
+    "gamePoints": 3420,
+    "achievements": 8,
+    "courses": [
+      {
+        "id": "1",
+        "title": "Основы программирования",
+        "progress": 75,
+        "icon": "code",
+        "color": "#3B82F6"
+      },
+      {
+        "id": "2",
+        "title": "Дизайн интерфейсов",
+        "progress": 45,
+        "icon": "palette",
+        "color": "#8B5CF6"
+      },
+      {
+        "id": "3",
+        "title": "Английский язык",
+        "progress": 90,
+        "icon": "globe",
+        "color": "#10B981"
+      },
+      {
+        "id": "4",
+        "title": "Маркетинг",
+        "progress": 30,
+        "icon": "chartBar",
+        "color": "#F59E0B"
+      },
+      {
+        "id": "5",
+        "title": "Управление проектами",
+        "progress": 60,
+        "icon": "briefcase",
+        "color": "#EF4444"
+      }
+    ],
+    "events": [
+      {
+        "id": "1",
+        "type": "course_paid",
+        "title": "Оплачен курс 'Основы программирования'",
+        "description": "Курс успешно оплачен и активирован",
+        "date": "2025-01-19T10:00:00Z"
+      },
+      {
+        "id": "2",
+        "type": "achievement",
+        "title": "Ребенок получил достижение 'Первые шаги'",
+        "description": "Артемий Л. выполнил первое задание",
+        "date": "2025-01-18T15:30:00Z"
+      },
+      {
+        "id": "3",
+        "type": "milestone",
+        "title": "Достигнута новая веха в обучении",
+        "description": "Завершено 50% курса 'Английский язык'",
+        "date": "2025-01-17T09:15:00Z"
+      },
+      {
+        "id": "4",
+        "type": "reward",
+        "title": "Получена награда за активность",
+        "description": "Начислено 100 игровых баллов",
+        "date": "2025-01-16T14:20:00Z"
+      }
+    ],
+    "roadmap": [
+      {
+        "id": "1",
+        "title": "Введение в React Hooks",
+        "courseTitle": "Основы программирования",
+        "date": "2025-01-22T10:00:00Z",
+        "completed": false,
+        "priority": "high",
+        "icon": "code"
+      },
+      {
+        "id": "2",
+        "title": "Адаптивная верстка",
+        "courseTitle": "Дизайн интерфейсов",
+        "date": "2025-01-23T14:00:00Z",
+        "completed": false,
+        "priority": "medium",
+        "icon": "palette"
+      },
+      {
+        "id": "3",
+        "title": "Present Perfect",
+        "courseTitle": "Английский язык",
+        "date": "2025-01-24T09:00:00Z",
+        "completed": false,
+        "priority": "low",
+        "icon": "globe"
+      },
+      {
+        "id": "4",
+        "title": "Анализ конкурентов",
+        "courseTitle": "Маркетинг",
+        "date": "2025-01-25T11:00:00Z",
+        "completed": false,
+        "priority": "medium",
+        "icon": "chartBar"
+      },
+      {
+        "id": "5",
+        "title": "Управление рисками",
+        "courseTitle": "Управление проектами",
+        "date": "2025-01-26T15:00:00Z",
+        "completed": false,
+        "priority": "high",
+        "icon": "briefcase"
+      }
+    ],
     "documents": [
       {
         "type": "passport",
@@ -46,6 +163,12 @@
         "label": "СНИЛС",
         "icon": "document",
         "added": false
+      },
+      {
+        "type": "diplomas-certificates",
+        "label": "Дипломы и сертификаты",
+        "icon": "award",
+        "added": false
       }
     ],
     "addresses": [
@@ -53,13 +176,15 @@
         "type": "home",
         "label": "Дом",
         "icon": "home",
-        "added": false
+        "added": true,
+        "address": "Москва, Зеленоград, к 330, кв 100"
       },
       {
         "type": "work",
         "label": "Работа",
         "icon": "briefcase",
-        "added": false
+        "added": true,
+        "address": "Москва, Рязанская, 5"
       },
       {
         "type": "other",
@@ -254,6 +379,53 @@
           "Периодическая бесплатная рассылка"
         ],
         "active": false
+      }
+    ],
+    "groupEvents": [
+      {
+        "id": "1",
+        "type": "member_joined",
+        "title": "Артемий Л. присоединился к группе",
+        "description": "Новый участник в команде разработки",
+        "date": "2025-01-20T10:00:00Z",
+        "groupId": "1",
+        "groupName": "Команда разработки"
+      },
+      {
+        "id": "2",
+        "type": "task_created",
+        "title": "Создана задача 'Рефакторинг API'",
+        "description": "В группе Команда разработки",
+        "date": "2025-01-19T15:30:00Z",
+        "groupId": "1",
+        "groupName": "Команда разработки"
+      },
+      {
+        "id": "3",
+        "type": "role_changed",
+        "title": "Мария С. назначена администратором",
+        "description": "В группе Маркетинг",
+        "date": "2025-01-18T12:00:00Z",
+        "groupId": "2",
+        "groupName": "Маркетинг"
+      },
+      {
+        "id": "4",
+        "type": "task_completed",
+        "title": "Задача 'Дизайн лендинга' выполнена",
+        "description": "В группе Дизайн",
+        "date": "2025-01-17T14:20:00Z",
+        "groupId": "3",
+        "groupName": "Дизайн"
+      },
+      {
+        "id": "5",
+        "type": "member_left",
+        "title": "Иван П. покинул группу",
+        "description": "Из группы Маркетинг",
+        "date": "2025-01-16T09:15:00Z",
+        "groupId": "2",
+        "groupName": "Маркетинг"
       }
     ]
   }

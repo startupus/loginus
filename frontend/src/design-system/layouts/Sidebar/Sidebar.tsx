@@ -183,7 +183,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         className={`bg-dark/80 fixed top-0 left-0 z-30 h-screen w-full xl:hidden transition-transform duration-200 ${
           isOpen ? '-translate-x-full' : 'translate-x-0'
         }`}
-      ></div>
+      />
     </>
   );
 };

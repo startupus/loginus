@@ -1,0 +1,43 @@
+{
+  "common": {
+    "today": "Сегодня",
+    "yesterday": "Вчера",
+    "daysAgo": "{{count}} дн. назад",
+    "noData": "Нет данных",
+    "close": "Закрыть",
+    "enable": "Включить",
+    "disable": "Отключить",
+    "scrollLeft": "Прокрутить влево",
+    "scrollRight": "Прокрутить вправо",
+    "back": "Назад",
+    "error": "Произошла ошибка при загрузке данных",
+    "login": "Войти",
+    "save": "Сохранить"
+  },
+  "header": {
+    "notifications": "Уведомления"
+  },
+  "footer": {
+    "copyright": "Loginus",
+    "support": "Справка",
+    "oauth": "Loginus ID для сайта",
+    "terms": "Условия использования",
+    "privacy": "Конфиденциальность"
+  },
+  "sidebar": {
+    "profile": "Профиль",
+    "data": "Данные",
+    "documents": "Документы",
+    "addresses": "Адреса",
+    "security": "Безопасность",
+    "family": "Семья",
+    "work": "Работа",
+    "payments": "Платежи",
+    "support": "Поддержка",
+    "help": "Справка",
+    "loginusIdSite": "Loginus ID для сайта",
+    "langSwitcher": "Переключатель языка",
+    "brandPreset": "Переключить бренд‑пресет"
+  }
+}
+

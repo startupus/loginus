@@ -1,4 +1,18 @@
 {
+  "common": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "daysAgo": "{{count}} days ago",
+    "noData": "No data",
+    "close": "Close",
+    "enable": "Enable",
+    "disable": "Disable",
+    "scrollLeft": "Scroll left",
+    "scrollRight": "Scroll right"
+  },
+  "header": {
+    "notifications": "Notifications"
+  },
   "dashboard": {
     "title": "Profile",
     "quickAccess": "Quick Access",
@@ -17,6 +31,7 @@
     },
     "mail": {
       "title": "Mail",
+      "description": "Unread letters",
       "noUnread": "No unread",
       "unreadOne": "unread message",
       "unreadFew": "unread messages",
@@ -24,11 +39,13 @@
     },
     "pay": {
       "title": "Yandex Pay",
+      "description": "Balance and limits",
       "openCard": "Open Pay Card",
       "spendUpTo": "Spend up to"
     },
     "plus": {
       "title": "Yandex Plus",
+      "description": "Subscription status and points",
       "status": "Status",
       "active": "Active",
       "inactive": "Inactive",
@@ -44,6 +61,37 @@
       "owner": "Owner",
       "admin": "Admin",
       "member": "Member"
+    },
+    "courses": {
+      "title": "My Learning Courses",
+      "description": "Track your course progress",
+      "viewAll": "View All",
+      "progress": "Progress",
+      "empty": "You don't have any active courses yet",
+      "browse": "Browse Courses"
+    },
+    "events": {
+      "title": "Events",
+      "description": "Latest events and notifications",
+      "empty": "No new events"
+    },
+    "roadmap": {
+      "title": "My Roadmap",
+      "description": "Upcoming learning steps",
+      "viewFull": "Full Version",
+      "empty": "All steps completed!",
+      "emptyDescription": "Great job!"
+    },
+    "profile": {
+      "balance": "Balance",
+      "gamePoints": "Game Points",
+      "achievements": "Achievements",
+      "achievementsCount": "{{count}} achievements"
+    },
+    "widgets": {
+      "title": "Add Widget",
+      "add": "Add Widget",
+      "description": "Select widgets to display on the main page"
     },
     "subscriptions": {
       "title": "Subscriptions",
@@ -342,6 +390,7 @@
     "addresses": "Addresses",
     "security": "Security",
     "family": "Family",
+    "work": "Work",
     "payments": "Payments",
     "support": "Support",
     "help": "Help",
@@ -404,7 +453,10 @@
       "healthInsurance": "Health Insurance",
       "voluntaryInsurance": "Voluntary Insurance",
       "inn": "TIN",
-      "snils": "SNILS"
+      "snils": "SNILS",
+      "diplomasCertificates": "Diplomas and Certificates",
+      "diplomas": "Diplomas",
+      "certificates": "Certificates"
     },
     "addresses": {
       "title": "Addresses",

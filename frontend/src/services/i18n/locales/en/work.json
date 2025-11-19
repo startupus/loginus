@@ -1,0 +1,18 @@
+{
+  "work": {
+    "title": "Work",
+    "description": "Your work groups and teams",
+    "addGroup": "Add Group",
+    "allGroups": "All Groups",
+    "owner": "Owner",
+    "admin": "Admin",
+    "member": "Member",
+    "invite": {
+      "group": "Group"
+    },
+    "events": {
+      "description": "Latest events in your groups"
+    }
+  }
+}
+
