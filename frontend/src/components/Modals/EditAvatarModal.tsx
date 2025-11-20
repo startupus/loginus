@@ -205,8 +205,8 @@ export const EditAvatarModal: React.FC<EditAvatarModalProps> = ({
                 onClick={() => setSelectedBackground(color.value)}
                 className={`w-10 h-10 rounded-full border-2 transition-all ${
                   selectedBackground === color.value
-                    ? 'border-gray-600 dark:border-gray-400 scale-110'
-                    : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'
+                    ? 'border-text-primary dark:border-text-secondary scale-110'
+                    : 'border-transparent hover:border-border dark:hover:border-border'
                 }`}
                 style={{ backgroundColor: color.value }}
                 aria-label={color.label}

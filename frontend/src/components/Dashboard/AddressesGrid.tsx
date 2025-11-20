@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Icon } from '../../design-system/primitives';
+import { Icon, ScrollButton } from '../../design-system/primitives';
 import { DataSection, AddButton } from '../../design-system/composites';
 import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
 import { getAddressLabel } from '../../utils/i18nMappings';
@@ -83,13 +83,12 @@ export const AddressesGrid: React.FC<AddressesGridProps> = ({
       <div className="relative">
         {/* Кнопка прокрутки влево */}
         {canScrollLeft && (
-          <button
+          <ScrollButton
+            direction="left"
+            ariaLabel={t('common.scrollLeft', 'Прокрутить влево')}
             onClick={() => scroll('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-background dark:bg-surface shadow-lg border border-border flex items-center justify-center hover:bg-gray-1 dark:hover:bg-gray-2 transition-colors"
-            aria-label={t('common.scrollLeft', 'Прокрутить влево')}
-          >
-            <Icon name="chevron-left" size="sm" className="text-text-secondary" />
-          </button>
+            variant="accent"
+          />
         )}
 
         {/* Карусель адресов */}
@@ -106,7 +105,7 @@ export const AddressesGrid: React.FC<AddressesGridProps> = ({
             <button
               key={addressItem.type}
               onClick={() => onAddAddress?.(addressItem.type)}
-              className="group flex-shrink-0 flex flex-col items-center justify-center gap-3 p-4 rounded-lg bg-gray-1/50 dark:bg-gray-2/50 border border-border hover:border-primary/30 hover:bg-gray-1 dark:hover:bg-gray-2 transition-all duration-200 animate-fade-in relative w-[140px] h-[140px]"
+              className="group flex-shrink-0 flex flex-col items-center justify-center gap-3 p-4 rounded-lg bg-gray-1/50 dark:bg-gray-2/50 border border-border dark:border-dark-3/50 hover:border-primary/30 dark:hover:border-primary/30 hover:bg-gray-1 dark:hover:bg-gray-2 transition-all duration-200 animate-fade-in relative w-[140px] h-[140px]"
               style={{ animationDelay: `${index * 30}ms` }}
             >
               {/* Иконка */}
@@ -157,13 +156,12 @@ export const AddressesGrid: React.FC<AddressesGridProps> = ({
 
         {/* Кнопка прокрутки вправо */}
         {canScrollRight && (
-          <button
+          <ScrollButton
+            direction="right"
+            ariaLabel={t('common.scrollRight', 'Прокрутить вправо')}
             onClick={() => scroll('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-background dark:bg-surface shadow-lg border border-border flex items-center justify-center hover:bg-gray-1 dark:hover:bg-gray-2 transition-colors"
-            aria-label={t('common.scrollRight', 'Прокрутить вправо')}
-          >
-            <Icon name="chevron-right" size="sm" className="text-text-secondary" />
-          </button>
+            variant="accent"
+          />
         )}
       </div>
     </DataSection>

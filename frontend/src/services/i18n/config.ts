@@ -21,8 +21,28 @@ const initialLanguage = getStoredLanguage();
 const loadedModules = new Map<string, Set<string>>();
 
 // Доступные модули локализации
-const availableModules = ['common', 'dashboard', 'auth', 'profile', 'errors', 'landing', 'work', 'modals'] as const;
+const availableModules = ['common', 'dashboard', 'auth', 'profile', 'errors', 'landing', 'about', 'work', 'modals'] as const;
 type ModuleName = typeof availableModules[number];
+
+// Статические ресурсы: RU подгружаем сразу, чтобы не было водопада чанков на первом экране
+const staticResources: Record<'ru', Record<string, any>> = {
+  ru: {},
+};
+
+const ruModules = import.meta.glob('./locales/ru/*.json', { eager: true }) as Record<
+  string,
+  { default: Record<string, any> }
+>;
+
+for (const modulePath in ruModules) {
+  const moduleData = ruModules[modulePath]?.default;
+  if (moduleData) {
+    Object.assign(staticResources.ru, moduleData);
+  }
+}
+
+// Помечаем ru-модули как уже загруженные, чтобы динамический импорт не дергался повторно
+loadedModules.set('ru', new Set(availableModules));
 
 /**
  * Загружает модуль локализации
@@ -96,7 +116,11 @@ const loadCriticalModule = async (locale: string): Promise<Record<string, any>> 
 
 // Инициализация i18n с модульной загрузкой
 i18n.use(initReactI18next).init({
-  resources: {}, // Ресурсы будут загружены динамически
+  resources: {
+    ru: {
+      translation: staticResources.ru,
+    },
+  }, // Остальные языки подгружаются динамически
   lng: initialLanguage,
   fallbackLng: 'ru',
   interpolation: {
@@ -136,8 +160,8 @@ i18n.use(initReactI18next).init({
       // Fallback для браузеров без requestIdleCallback
       setTimeout(() => {
         loadModule(initialLanguage, 'profile').then((profileData) => {
-          if (Object.keys(profileData).length > 0) {
-            i18n.addResourceBundle(initialLanguage, 'translation', profileData, true, true);
+    if (Object.keys(profileData).length > 0) {
+      i18n.addResourceBundle(initialLanguage, 'translation', profileData, true, true);
           }
         }).catch(() => {});
       }, 100);
@@ -160,6 +184,7 @@ i18n.on('missingKey', (lngs, _ns, key) => {
   else if (key.startsWith('auth.') || key.startsWith('onboarding.')) module = 'auth';
   else if (key.startsWith('profile.') || key.startsWith('security.') || key.startsWith('personalData.') || key.startsWith('personal.')) module = 'profile';
   else if (key.startsWith('landing.')) module = 'landing';
+  else if (key.startsWith('about.')) module = 'about';
   else if (key.startsWith('work.')) module = 'work';
   else if (key.startsWith('errors.')) module = 'errors';
   else if (key.startsWith('modals.')) module = 'modals';

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
+import { DataPreloaderService } from '../data/data-preloader.service';
 
 // Хранилище сессий для кодов (в реальности это будет в БД или Redis)
 const sessions: Map<string, { code: string; expiresAt: number; contact: string; type: 'phone' | 'email' }> = new Map();
@@ -12,6 +13,8 @@ export class AuthService {
   private usersCacheTime: number = 0;
   private readonly CACHE_TTL = 60000; // 1 минута кэширования
 
+  constructor(private readonly preloader: DataPreloaderService) {}
+
   // Читаем пользователей из JSON с кэшированием
   private getUsers() {
     const now = Date.now();
@@ -21,7 +24,15 @@ export class AuthService {
       return this.usersCache;
     }
 
-    // Иначе читаем файл и обновляем кэш
+    // Пытаемся использовать предзагруженные данные
+    const preloaded = this.preloader.getPreloadedData<any>('users.json');
+    if (preloaded) {
+      this.usersCache = preloaded;
+      this.usersCacheTime = now;
+      return this.usersCache;
+    }
+
+    // Fallback: читаем файл и обновляем кэш
     const usersPath = path.join(__dirname, '../../data/users.json');
     const usersData = fs.readFileSync(usersPath, 'utf-8');
     this.usersCache = JSON.parse(usersData);

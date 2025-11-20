@@ -34,7 +34,7 @@ export const TrustIndicator: React.FC<TrustIndicatorProps> = ({
   className = '',
 }) => {
   const iconColorClasses = {
-    green: 'text-green',
+    green: 'text-success',
     primary: 'text-primary',
     secondary: 'text-secondary',
   };
@@ -50,7 +50,7 @@ export const TrustIndicator: React.FC<TrustIndicatorProps> = ({
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       {icon || defaultIcon}
-      <span className="text-sm font-medium text-body-color dark:text-dark-6">
+      <span className="text-sm font-medium text-text-secondary">
         {label}
       </span>
     </div>

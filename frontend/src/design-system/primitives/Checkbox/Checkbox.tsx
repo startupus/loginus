@@ -99,7 +99,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
   }
 
   const labelElement = (
-    <span className={`text-sm text-body-color dark:text-dark-6 ${disabled ? 'opacity-50' : ''}`}>
+    <span className={`text-sm text-text-secondary ${disabled ? 'opacity-50' : ''}`}>
       {label}
     </span>
   );

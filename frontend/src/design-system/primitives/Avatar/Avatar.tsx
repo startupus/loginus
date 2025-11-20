@@ -192,7 +192,7 @@ export const Avatar: React.FC<AvatarProps & { children?: never }> = ({
     // Fallback иконка профиля - показывается всегда, когда нет src и нет initials
     return (
       <div
-        className={`${baseStyles} bg-gray-2 dark:bg-dark-3 text-body-color dark:text-dark-6 ${className}`.trim()}
+        className={`${baseStyles} bg-gray-2 dark:bg-dark-3 text-text-secondary ${className}`.trim()}
       >
         <svg
           className="w-2/3 h-2/3"

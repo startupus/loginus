@@ -87,17 +87,17 @@ export const ErrorPage: React.FC = () => {
   const getErrorColor = () => {
     switch (errorType) {
       case '404':
-        return 'text-blue-600 dark:text-blue-400';
+        return 'text-info';
       case '403':
-        return 'text-orange-600 dark:text-orange-400';
+        return 'text-warning';
       case '500':
-        return 'text-red-600 dark:text-red-400';
+        return 'text-error';
       case '401':
-        return 'text-yellow-600 dark:text-yellow-400';
+        return 'text-warning';
       case '503':
-        return 'text-purple-600 dark:text-purple-400';
+        return 'text-info';
       default:
-        return 'text-error dark:text-error-400';
+        return 'text-error';
     }
   };
 
@@ -123,7 +123,7 @@ export const ErrorPage: React.FC = () => {
         {/* Основной блок ошибки */}
         <div className="bg-background dark:bg-surface rounded-2xl shadow-lg dark:shadow-card p-8 sm:p-12 text-center">
           {/* Иконка ошибки */}
-          <div className={`mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-2`}>
+          <div className={`mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gray-1 dark:bg-gray-2`}>
             <Icon 
               name={getErrorIcon()} 
               size="xl" 
@@ -150,7 +150,7 @@ export const ErrorPage: React.FC = () => {
           {errorMessage && (
             <div className="mb-8 p-4 bg-error/10 border border-error/20 rounded-lg">
               <div className="flex items-start gap-3">
-                <Icon name="alert-circle" size="sm" className="text-error flex-shrink-0 mt-0.5" />
+                <Icon name="alert-circle" size="sm" color="rgb(var(--color-error))" className="flex-shrink-0 mt-0.5" />
                 <div className="flex-1 text-left">
                   <p className="text-sm font-semibold text-error mb-1">
                     {t('errors.technicalDetails', 'Технические детали')}:

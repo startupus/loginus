@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from '../../primitives/Button';
 import { formatPhone } from '../../../utils/formatting';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export interface PhoneVerificationCardProps {
   /**
@@ -21,13 +22,14 @@ export const PhoneVerificationCard: React.FC<PhoneVerificationCardProps> = ({
   phone,
   onConfirm,
 }) => {
+  const { isDark } = useTheme();
   const formattedPhone = formatPhone(phone);
 
   return (
     <div className="relative p-4 rounded-lg bg-primary/5 border border-primary/20 dark:bg-primary/10 dark:border-primary/30">
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1">
-          <p className="text-sm font-medium text-dark dark:text-white mb-1">
+          <p className={`text-sm font-medium ${isDark ? 'text-white' : 'text-text-primary'} mb-1`}>
             Этот номер ещё актуален?
           </p>
           <p className="text-base font-semibold text-primary">

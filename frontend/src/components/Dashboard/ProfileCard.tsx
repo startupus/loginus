@@ -36,7 +36,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
   const editButtonRef = useRef<HTMLButtonElement>(null);
   
   return (
-    <div className="bg-white dark:bg-surface rounded-xl p-4 sm:p-6 mb-6">
+    <div className="bg-white dark:bg-dark-2 rounded-xl p-4 sm:p-6 mb-6">
       <div className="flex flex-col sm:flex-row items-start gap-4">
         <div className="transition-transform duration-300 hover:scale-110">
         <Avatar

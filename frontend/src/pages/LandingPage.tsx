@@ -6,6 +6,7 @@ import { Button } from '../design-system/primitives/Button';
 import { ServiceCard, FeatureCard, FAQItem } from '../design-system/composites';
 import { useLanguageStore } from '../store';
 import { useCurrentLanguage, buildPathWithLang } from '../utils/routing';
+import { useTheme } from '../design-system/contexts/ThemeContext';
 
 /**
  * LandingPage - приветственная страница Loginus ID
@@ -17,6 +18,7 @@ const LandingPage: React.FC = () => {
   const { t, i18n } = useTranslation();
   const { setLanguage, language: storeLanguage } = useLanguageStore();
   const currentLang = useCurrentLanguage() || storeLanguage || 'ru';
+  const { isDark } = useTheme();
 
   const handleLanguageChange = () => {
     const newLang = currentLang === 'ru' ? 'en' : 'ru';
@@ -44,22 +46,22 @@ const LandingPage: React.FC = () => {
           navigate(path);
         }}
         navItems={[
-          { label: t('landing.nav.about', 'О Loginus ID'), href: '/#about' },
+          { label: t('landing.nav.about', 'О Loginus ID'), href: buildPathWithLang('/about', currentLang) },
           { label: t('landing.nav.features', 'Возможности'), href: '/#features' },
           { label: t('landing.nav.faq', 'FAQ'), href: '/#faq' },
         ]}
       />
 
       {/* Hero Section - с красивым фоном */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-gray-1 via-white to-blue-50 pt-32 pb-20 dark:from-dark dark:via-dark dark:to-dark-2 lg:pt-40 lg:pb-32">
+      <section className="relative overflow-hidden bg-gradient-to-br from-gray-1 via-white to-primary/5 pt-32 pb-20 dark:from-dark dark:via-dark dark:to-dark-2 lg:pt-40 lg:pb-32">
         {/* Background декорации */}
         <div className="absolute top-0 right-0 -z-10 opacity-20">
           <svg width="450" height="556" viewBox="0 0 450 556" fill="none">
             <circle cx="277" cy="63" r="225" fill="url(#paint0_linear)" />
             <defs>
               <linearGradient id="paint0_linear" x1="277" y1="-162" x2="277" y2="288" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#3758F9" stopOpacity="0.3" />
-                <stop offset="1" stopColor="#3758F9" stopOpacity="0" />
+                <stop stopColor="rgb(var(--color-primary))" stopOpacity="0.3" />
+                <stop offset="1" stopColor="rgb(var(--color-primary))" stopOpacity="0" />
               </linearGradient>
             </defs>
           </svg>
@@ -70,8 +72,8 @@ const LandingPage: React.FC = () => {
             <circle cx="182" cy="182" r="182" fill="url(#paint1_linear)" />
             <defs>
               <linearGradient id="paint1_linear" x1="182" y1="0" x2="182" y2="364" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#3758F9" stopOpacity="0.3" />
-                <stop offset="1" stopColor="#3758F9" stopOpacity="0" />
+                <stop stopColor="rgb(var(--color-primary))" stopOpacity="0.3" />
+                <stop offset="1" stopColor="rgb(var(--color-primary))" stopOpacity="0" />
               </linearGradient>
             </defs>
           </svg>
@@ -119,7 +121,7 @@ const LandingPage: React.FC = () => {
                   
                   <a
                     href="/#features"
-                    className="inline-flex items-center gap-2 px-8 py-4 text-base font-medium text-body-color hover:text-primary dark:text-dark-6 dark:hover:text-primary transition-colors"
+                    className="inline-flex items-center gap-2 px-8 py-4 text-base font-medium text-text-secondary hover:text-primary transition-colors"
                   >
                     {t('landing.hero.ctaLearnMore', 'Узнать больше')}
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -131,19 +133,19 @@ const LandingPage: React.FC = () => {
                 {/* Trust Indicators */}
                 <div className="mt-12 flex items-center gap-8">
                   <div className="flex items-center gap-2">
-                    <svg className="w-5 h-5 text-green" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-5 h-5 text-success" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
                     <span className="text-sm font-medium text-text-secondary">{t('landing.hero.trustSafe', 'Безопасно')}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <svg className="w-5 h-5 text-green" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-5 h-5 text-success" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
                     <span className="text-sm font-medium text-text-secondary">{t('landing.hero.trustFast', 'Быстро')}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <svg className="w-5 h-5 text-green" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-5 h-5 text-success" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
                     <span className="text-sm font-medium text-text-secondary">{t('landing.hero.trustConvenient', 'Удобно')}</span>
@@ -156,7 +158,7 @@ const LandingPage: React.FC = () => {
             <div className="w-full px-4 lg:w-6/12 mt-12 lg:mt-0">
               <div className="relative">
                 {/* Декоративный круг */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-primary/20 to-blue-600/20 rounded-full blur-3xl"></div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-primary/20 to-primary/30 rounded-full blur-3xl"></div>
                 
                 <div className="relative grid grid-cols-2 gap-6">
                   <ServiceCard 
@@ -292,7 +294,13 @@ const LandingPage: React.FC = () => {
         <div className="container mx-auto">
           <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-dark text-white dark:bg-white dark:text-dark ring-1 ring-black/5">
+              <div 
+                className="w-8 h-8 rounded-lg flex items-center justify-center ring-1 ring-black/5"
+                style={{
+                  backgroundColor: isDark ? 'rgb(255, 255, 255)' : 'rgb(var(--color-text-primary))',
+                  color: isDark ? 'rgb(15, 23, 42)' : 'rgb(var(--color-background))',
+                }}
+              >
                 <span className="text-sm font-extrabold leading-none">iD</span>
               </div>
               <p className="text-sm text-text-secondary">
@@ -308,13 +316,13 @@ const LandingPage: React.FC = () => {
               </p>
             </div>
             <div className="flex gap-8">
-              <a href="/about" className="text-sm font-medium text-body-color hover:text-primary dark:text-dark-6 transition-colors">
+              <a href="/about" className="text-sm font-medium text-text-secondary hover:text-primary transition-colors">
                 {t('landing.footer.about', 'О проекте')}
               </a>
-              <a href="/privacy" className="text-sm font-medium text-body-color hover:text-primary dark:text-dark-6 transition-colors">
+              <a href="/privacy" className="text-sm font-medium text-text-secondary hover:text-primary transition-colors">
                 {t('landing.footer.privacy', 'Конфиденциальность')}
               </a>
-              <a href="/terms" className="text-sm font-medium text-body-color hover:text-primary dark:text-dark-6 transition-colors">
+              <a href="/terms" className="text-sm font-medium text-text-secondary hover:text-primary transition-colors">
                 {t('landing.footer.terms', 'Условия')}
               </a>
             </div>

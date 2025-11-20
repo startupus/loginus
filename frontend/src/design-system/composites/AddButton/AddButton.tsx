@@ -1,5 +1,6 @@
 import React from 'react';
 import { Icon } from '../../primitives';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export interface AddButtonProps {
   /**
@@ -56,6 +57,7 @@ export const AddButton: React.FC<AddButtonProps> = ({
   background = 'default',
   className = '',
 }) => {
+  const { isDark } = useTheme();
   const sizeClasses = {
     sm: {
       padding: 'p-2',
@@ -115,7 +117,7 @@ export const AddButton: React.FC<AddButtonProps> = ({
           <Icon name="plus" size={currentSize.icon} className="text-primary" />
         </div>
         <div className="flex flex-col items-start min-w-0">
-          <span className={`${currentSize.text} font-semibold text-dark dark:text-white transition-colors duration-200 group-hover:text-primary`}>
+          <span className={`${currentSize.text} font-semibold ${isDark ? 'text-white' : 'text-text-primary'} transition-colors duration-200 group-hover:text-primary`}>
             {label}
           </span>
         </div>
@@ -137,10 +139,10 @@ export const AddButton: React.FC<AddButtonProps> = ({
           <Icon 
             name="plus" 
             size={iconSizeForVerticalIcon} 
-            className="text-body-color dark:text-dark-6 group-hover:text-primary transition-colors duration-200"
+            className="text-text-secondary dark:text-dark-6 group-hover:text-primary transition-colors duration-200"
           />
         </div>
-        <span className={`${currentSize.text} text-body-color dark:text-dark-6 group-hover:text-primary transition-colors duration-200 text-center`}>
+        <span className={`${currentSize.text} text-text-secondary group-hover:text-primary transition-colors duration-200 text-center`}>
           {label}
         </span>
       </button>
@@ -156,9 +158,9 @@ export const AddButton: React.FC<AddButtonProps> = ({
       <Icon 
         name="plus" 
         size={currentSize.icon} 
-        className="text-body-color dark:text-dark-6 group-hover:text-primary transition-colors duration-200"
+        className="text-text-secondary group-hover:text-primary transition-colors duration-200"
       />
-      <span className={`${currentSize.text} text-body-color dark:text-dark-6 group-hover:text-primary transition-colors duration-200`}>
+      <span className={`${currentSize.text} text-text-secondary group-hover:text-primary transition-colors duration-200`}>
         {label}
       </span>
     </button>

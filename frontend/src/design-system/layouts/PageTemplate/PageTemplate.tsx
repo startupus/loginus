@@ -130,7 +130,7 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
   } : undefined);
 
   return (
-    <section className="bg-[#f7f8fa] dark:bg-dark relative flex min-h-screen w-full items-start">
+    <section className="bg-gray-1 dark:bg-dark relative flex min-h-screen w-full items-start">
       {shouldShowSidebar && finalSidebarItems && (
         <Suspense fallback={
           <div className="hidden xl:block fixed left-0 top-0 h-full w-[300px] bg-white dark:bg-dark-2 border-r border-stroke dark:border-dark-3 animate-pulse">
@@ -144,10 +144,10 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
             </div>
           </div>
         }>
-          <Sidebar 
-            items={finalSidebarItems}
-            onNavigate={(path) => navigate(path)}
-          />
+        <Sidebar 
+          items={finalSidebarItems}
+          onNavigate={(path) => navigate(path)}
+        />
         </Suspense>
       )}
 
@@ -161,7 +161,7 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
           onLogout={logout}
         />
 
-        <div className="bg-[#f7f8fa] dark:bg-dark p-[30px] flex-1">
+        <div className="bg-gray-1 dark:bg-dark p-[30px] flex-1">
           <div className={contentClassName}>
             {children}
           </div>
@@ -170,7 +170,7 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
         {showFooter && (
           <div className="flex-shrink-0">
             <Suspense fallback={null}>
-              <Footer />
+            <Footer />
             </Suspense>
           </div>
         )}

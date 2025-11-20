@@ -66,7 +66,7 @@ export const Switch: React.FC<SwitchProps> = ({
         />
         <div
           className={`${track} ${
-            checked ? 'bg-primary-600' : 'bg-secondary-300'
+            checked ? 'bg-primary' : 'bg-secondary'
           } rounded-full transition-colors ${
             disabled ? 'opacity-50 cursor-not-allowed' : ''
           }`}
@@ -77,7 +77,7 @@ export const Switch: React.FC<SwitchProps> = ({
         </div>
       </div>
       {label && (
-        <span className={`text-sm font-medium text-secondary-700 ${disabled ? 'opacity-50' : ''}`}>
+        <span className={`text-sm font-medium text-text-primary ${disabled ? 'opacity-50' : ''}`}>
           {label}
         </span>
       )}

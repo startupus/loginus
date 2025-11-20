@@ -66,7 +66,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
                 <span className={`text-xs font-medium ${
                   isActive
                     ? 'text-primary'
-                    : 'text-body-color dark:text-dark-6'
+                    : 'text-text-secondary'
                 }`}>
                   {stepNumber}
                 </span>

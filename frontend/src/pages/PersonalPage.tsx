@@ -124,7 +124,7 @@ const PersonalPage: React.FC = () => {
             {t('personalData.profile.callMe', { name: user?.name })}
           </p>
         </div>
-        <div className="p-2 rounded-full bg-gray-100 dark:bg-gray-2 text-gray-500 group-hover:text-primary transition-colors">
+        <div className="p-2 rounded-full bg-gray-1 dark:bg-gray-2 text-text-secondary group-hover:text-primary transition-colors">
           <Icon name="edit-2" size="sm" />
         </div>
       </button>
@@ -151,9 +151,9 @@ const PersonalPage: React.FC = () => {
                     <Icon name={doc.icon || 'file-text'} size="lg" />
                   </div>
                   <div className="flex-1 flex flex-col justify-center">
-                    <div className="font-medium text-sm dark:text-white mb-1">{doc.label || doc.type}</div>
+                    <div className="font-medium text-sm text-text-primary mb-1">{doc.label || doc.type}</div>
                     {!doc.added && (
-                         <span className="text-xs text-gray-500 group-hover:text-primary transition-colors flex items-center gap-1 justify-center">
+                         <span className="text-xs text-text-secondary group-hover:text-primary transition-colors flex items-center gap-1 justify-center">
                            <Icon name="plus" size="sm" />
                            {t('common.add', 'Добавить')}
                          </span>
@@ -174,7 +174,7 @@ const PersonalPage: React.FC = () => {
           onClick={vehicleModal.open}
           className="w-full justify-start gap-3 h-auto py-4 px-6 border-dashed border-2 hover:border-primary hover:bg-primary/5"
         >
-          <div className="p-2 rounded-full bg-gray-100 dark:bg-gray-2 text-gray-500">
+          <div className="p-2 rounded-full bg-gray-1 dark:bg-gray-2 text-text-secondary">
             <Icon name="truck" size="lg" />
           </div>
           <div className="flex-1 text-left">
@@ -182,7 +182,7 @@ const PersonalPage: React.FC = () => {
               {t('personalData.vehicles.add', 'Добавить автомобиль')}
             </div>
           </div>
-          <Icon name="plus" className="text-gray-400" />
+          <Icon name="plus" className="text-text-secondary" />
         </Button>
       </DataSection>
 
@@ -201,12 +201,12 @@ const PersonalPage: React.FC = () => {
                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {pets.map((pet: any) => (
                       <div key={pet.id} className="flex items-center gap-4 p-4 bg-background dark:bg-surface rounded-lg border border-border hover:shadow-md transition-shadow cursor-pointer">
-                           <div className="w-12 h-12 bg-gray-100 dark:bg-gray-2 rounded-full flex items-center justify-center">
-                              <Icon name="github" size="lg" className="text-gray-600 dark:text-gray-300" />
+                           <div className="w-12 h-12 bg-gray-1 dark:bg-gray-2 rounded-full flex items-center justify-center">
+                              <Icon name="github" size="lg" className="text-text-secondary" />
                           </div>
                           <div>
-                              <div className="font-medium dark:text-white">{pet.name}</div>
-                              <div className="text-sm text-gray-500">{pet.type}</div>
+                              <div className="font-medium text-text-primary">{pet.name}</div>
+                              <div className="text-sm text-text-secondary">{pet.type}</div>
                           </div>
                       </div>
                   ))}
@@ -217,7 +217,7 @@ const PersonalPage: React.FC = () => {
                onClick={petModal.open}
                className="w-full justify-start gap-3 h-auto py-4 px-6 border-dashed border-2 hover:border-primary hover:bg-primary/5"
              >
-                 <div className="p-2 rounded-full bg-gray-100 dark:bg-gray-2 text-gray-500">
+                 <div className="p-2 rounded-full bg-gray-1 dark:bg-gray-2 text-text-secondary">
                    <Icon name="github" size="lg" />
                  </div>
                  <div className="flex-1 text-left">
@@ -225,7 +225,7 @@ const PersonalPage: React.FC = () => {
                      {t('personalData.pets.add', 'Добавить питомца')}
                    </div>
                  </div>
-                 <Icon name="plus" className="text-gray-400" />
+                 <Icon name="plus" className="text-text-secondary" />
              </Button>
           )}
       </DataSection>
@@ -253,12 +253,12 @@ const PersonalPage: React.FC = () => {
                   onClick={() => handleAddAddress(type as AddressType)}
                   className="p-4 rounded-lg border border-border bg-background dark:bg-surface hover:shadow-md transition-shadow flex flex-col items-center gap-3 text-center group h-full"
                 >
-                  <div className="p-3 rounded-full bg-gray-100 dark:bg-gray-2 text-gray-600 dark:text-gray-300 group-hover:text-primary group-hover:bg-primary/5 transition-colors">
+                  <div className="p-3 rounded-full bg-gray-1 dark:bg-gray-2 text-text-secondary group-hover:text-primary group-hover:bg-primary/5 transition-colors">
                     <Icon name={icon} size="lg" />
                   </div>
                   <div className="flex-1 flex flex-col justify-center">
-                    <div className="font-medium text-sm dark:text-white mb-1">{label}</div>
-                    <div className="text-xs text-gray-500 line-clamp-2">
+                    <div className="font-medium text-sm text-text-primary mb-1">{label}</div>
+                    <div className="text-xs text-text-secondary line-clamp-2">
                       {address?.address || (
                         <span className="flex items-center gap-1 justify-center group-hover:text-primary transition-colors">
                           <Icon name="plus" size="sm" />
@@ -282,45 +282,45 @@ const PersonalPage: React.FC = () => {
           <SeparatedList className="p-4">
             <div className="flex items-center justify-between py-2 group cursor-pointer">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-100 dark:bg-gray-2 rounded-lg">
-                   <Icon name="mail" size="md" className="text-gray-600 dark:text-gray-300" />
+                <div className="p-2 bg-gray-1 dark:bg-gray-2 rounded-lg">
+                   <Icon name="mail" size="md" className="text-text-secondary" />
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('personalData.contacts.email', 'Email в Loginus')}</div>
-                  <div className="font-medium dark:text-white">{user?.email}</div>
+                  <div className="text-sm text-text-secondary">{t('personalData.contacts.email', 'Email в Loginus')}</div>
+                  <div className="font-medium text-text-primary">{user?.email}</div>
                 </div>
               </div>
-              <Icon name="chevron-right" size="sm" className="text-gray-400 group-hover:text-primary transition-colors" />
+              <Icon name="chevron-right" size="sm" className="text-text-secondary group-hover:text-primary transition-colors" />
             </div>
 
             <Link to="/security/phones" className="flex items-center justify-between py-2 group">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-100 dark:bg-gray-2 rounded-lg">
-                   <Icon name="smartphone" size="md" className="text-gray-600 dark:text-gray-300" />
+                <div className="p-2 bg-gray-1 dark:bg-gray-2 rounded-lg">
+                   <Icon name="smartphone" size="md" className="text-text-secondary" />
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('personalData.contacts.mainPhone', 'Основной телефон')}</div>
-                  <div className="font-medium dark:text-white">{user?.phone}</div>
+                  <div className="text-sm text-text-secondary">{t('personalData.contacts.mainPhone', 'Основной телефон')}</div>
+                  <div className="font-medium text-text-primary">{user?.phone}</div>
                 </div>
               </div>
-              <Icon name="chevron-right" size="sm" className="text-gray-400 group-hover:text-primary transition-colors" />
+              <Icon name="chevron-right" size="sm" className="text-text-secondary group-hover:text-primary transition-colors" />
             </Link>
 
             <Link to="/security/external-accounts" className="flex items-center justify-between py-2 group">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-100 dark:bg-gray-2 rounded-lg">
-                   <Icon name="link" size="md" className="text-gray-600 dark:text-gray-300" />
+                <div className="p-2 bg-gray-1 dark:bg-gray-2 rounded-lg">
+                   <Icon name="link" size="md" className="text-text-secondary" />
                 </div>
                 <div>
-                  <div className="font-medium dark:text-white group-hover:text-primary transition-colors">
+                  <div className="font-medium text-text-primary group-hover:text-primary transition-colors">
                     {t('personalData.contacts.external', 'Добавить внешние аккаунты')}
                   </div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                  <div className="text-sm text-text-secondary">
                     {t('personalData.contacts.externalDesc', 'Помогут быстрее входить в Loginus и заполнить данные')}
                   </div>
                 </div>
               </div>
-              <Icon name="chevron-right" size="sm" className="text-gray-400 group-hover:text-primary transition-colors" />
+              <Icon name="chevron-right" size="sm" className="text-text-secondary group-hover:text-primary transition-colors" />
             </Link>
           </SeparatedList>
         </div>
@@ -335,43 +335,43 @@ const PersonalPage: React.FC = () => {
           <SeparatedList className="p-4">
             <Link to="/personal/public-profile" className="flex items-center justify-between py-2 group">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-100 dark:bg-gray-2 rounded-lg">
-                   <Icon name="globe" size="md" className="text-gray-600 dark:text-gray-300" />
+                <div className="p-2 bg-gray-1 dark:bg-gray-2 rounded-lg">
+                   <Icon name="globe" size="md" className="text-text-secondary" />
                 </div>
-                <div className="font-medium dark:text-white group-hover:text-primary transition-colors">
+                <div className="font-medium text-text-primary group-hover:text-primary transition-colors">
                   {t('personalData.public.profile', 'Публичный профиль в поиске Loginus')}
                 </div>
               </div>
-              <Icon name="chevron-right" size="sm" className="text-gray-400 group-hover:text-primary transition-colors" />
+              <Icon name="chevron-right" size="sm" className="text-text-secondary group-hover:text-primary transition-colors" />
             </Link>
 
             <Link to="/reviews" className="flex items-center justify-between py-2 group">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-100 dark:bg-gray-2 rounded-lg">
-                   <Icon name="star" size="md" className="text-gray-600 dark:text-gray-300" />
+                <div className="p-2 bg-gray-1 dark:bg-gray-2 rounded-lg">
+                   <Icon name="star" size="md" className="text-text-secondary" />
                 </div>
-                <div className="font-medium dark:text-white group-hover:text-primary transition-colors">
+                <div className="font-medium text-text-primary group-hover:text-primary transition-colors">
                   {t('personalData.public.reviews', 'Ваши отзывы и оценки')}
                 </div>
               </div>
-              <Icon name="chevron-right" size="sm" className="text-gray-400 group-hover:text-primary transition-colors" />
+              <Icon name="chevron-right" size="sm" className="text-text-secondary group-hover:text-primary transition-colors" />
             </Link>
 
             <button className="flex items-center justify-between py-2 group w-full text-left">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-100 dark:bg-gray-2 rounded-lg">
-                   <Icon name="map-pin" size="md" className="text-gray-600 dark:text-gray-300" />
+                <div className="p-2 bg-gray-1 dark:bg-gray-2 rounded-lg">
+                   <Icon name="map-pin" size="md" className="text-text-secondary" />
                 </div>
                 <div>
-                  <div className="font-medium dark:text-white group-hover:text-primary transition-colors">
+                  <div className="font-medium text-text-primary group-hover:text-primary transition-colors">
                     {t('personalData.public.address', 'Добавить публичный адрес')}
                   </div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                  <div className="text-sm text-text-secondary">
                     {t('personalData.public.addressDesc', 'Для ваших страниц в Loginus')}
                   </div>
                 </div>
               </div>
-              <Icon name="chevron-right" size="sm" className="text-gray-400 group-hover:text-primary transition-colors" />
+              <Icon name="chevron-right" size="sm" className="text-text-secondary group-hover:text-primary transition-colors" />
             </button>
           </SeparatedList>
         </div>
@@ -386,61 +386,61 @@ const PersonalPage: React.FC = () => {
           <SeparatedList className="p-4">
             <Link to="/personal/inclusion" className="flex items-center justify-between py-2 group">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-100 dark:bg-gray-2 rounded-lg">
-                   <Icon name="eye" size="md" className="text-gray-600 dark:text-gray-300" />
+                <div className="p-2 bg-gray-1 dark:bg-gray-2 rounded-lg">
+                   <Icon name="eye" size="md" className="text-text-secondary" />
                 </div>
-                <div className="font-medium dark:text-white group-hover:text-primary transition-colors">
+                <div className="font-medium text-text-primary group-hover:text-primary transition-colors">
                   {t('personalData.management.inclusion', 'Специальные возможности')}
                 </div>
               </div>
-              <Icon name="chevron-right" size="sm" className="text-gray-400 group-hover:text-primary transition-colors" />
+              <Icon name="chevron-right" size="sm" className="text-text-secondary group-hover:text-primary transition-colors" />
             </Link>
 
             <Link to="/personal/data-access" className="flex items-center justify-between py-2 group">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-100 dark:bg-gray-2 rounded-lg">
-                   <Icon name="key" size="md" className="text-gray-600 dark:text-gray-300" />
+                <div className="p-2 bg-gray-1 dark:bg-gray-2 rounded-lg">
+                   <Icon name="key" size="md" className="text-text-secondary" />
                 </div>
-                <div className="font-medium dark:text-white group-hover:text-primary transition-colors">
+                <div className="font-medium text-text-primary group-hover:text-primary transition-colors">
                   {t('personalData.management.access', 'Доступы к данным')}
                 </div>
               </div>
-              <Icon name="chevron-right" size="sm" className="text-gray-400 group-hover:text-primary transition-colors" />
+              <Icon name="chevron-right" size="sm" className="text-text-secondary group-hover:text-primary transition-colors" />
             </Link>
 
             <Link to="/personal/communication-preferences" className="flex items-center justify-between py-2 group">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-100 dark:bg-gray-2 rounded-lg">
-                   <Icon name="bell" size="md" className="text-gray-600 dark:text-gray-300" />
+                <div className="p-2 bg-gray-1 dark:bg-gray-2 rounded-lg">
+                   <Icon name="bell" size="md" className="text-text-secondary" />
                 </div>
-                <div className="font-medium dark:text-white group-hover:text-primary transition-colors">
+                <div className="font-medium text-text-primary group-hover:text-primary transition-colors">
                   {t('personalData.management.notifications', 'Уведомления сервисов')}
                 </div>
               </div>
-              <Icon name="chevron-right" size="sm" className="text-gray-400 group-hover:text-primary transition-colors" />
+              <Icon name="chevron-right" size="sm" className="text-text-secondary group-hover:text-primary transition-colors" />
             </Link>
 
             <Link to="/personal/data" className="flex items-center justify-between py-2 group">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-100 dark:bg-gray-2 rounded-lg">
-                   <Icon name="database" size="md" className="text-gray-600 dark:text-gray-300" />
+                <div className="p-2 bg-gray-1 dark:bg-gray-2 rounded-lg">
+                   <Icon name="database" size="md" className="text-text-secondary" />
                 </div>
-                <div className="font-medium dark:text-white group-hover:text-primary transition-colors">
+                <div className="font-medium text-text-primary group-hover:text-primary transition-colors">
                   {t('personalData.management.services', 'Данные на сервисах')}
                 </div>
               </div>
-              <Icon name="chevron-right" size="sm" className="text-gray-400 group-hover:text-primary transition-colors" />
+              <Icon name="chevron-right" size="sm" className="text-text-secondary group-hover:text-primary transition-colors" />
             </Link>
 
             <Separator />
 
             <button 
               onClick={deleteProfileModal.open}
-              className="flex items-center justify-between py-2 group w-full text-left text-red-500 hover:text-red-600"
+              className="flex items-center justify-between py-2 group w-full text-left text-error hover:text-error/80"
             >
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                   <Icon name="trash-2" size="md" className="text-red-500" />
+                <div className="p-2 bg-error/10 dark:bg-error/20 rounded-lg">
+                   <Icon name="trash-2" size="md" className="text-error" />
                 </div>
                 <div className="font-medium transition-colors">
                   {t('personalData.management.delete', 'Удалить профиль')}

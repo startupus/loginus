@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { Suspense } from 'react';
-import { LandingPage, AuthPage, VerifyCodePage, RegisterPage, OnboardingPage, DashboardPage, PersonalDocumentsPage, PersonalAddressesPage, FamilyPage, WorkPage, SecurityPage, PersonalPage, PayPage, SupportPage, HelpPage, ErrorPage } from './routes';
+import { LandingPage, AboutPage, AuthPage, VerifyCodePage, RegisterPage, OnboardingPage, DashboardPage, PersonalDocumentsPage, PersonalAddressesPage, FamilyPage, WorkPage, SecurityPage, PersonalPage, PayPage, SupportPage, HelpPage, ErrorPage } from './routes';
 import { LanguageRoute } from './LanguageRoute';
 
 const LoadingFallback = () => (
@@ -22,6 +22,21 @@ const router = createBrowserRouter([
       <LanguageRoute>
         <Suspense fallback={<LoadingFallback />}>
           <LandingPage />
+        </Suspense>
+      </LanguageRoute>
+    ),
+    errorElement: (
+      <Suspense fallback={<LoadingFallback />}>
+        <ErrorPage />
+      </Suspense>
+    ),
+  },
+  {
+    path: '/:lang/about',
+    element: (
+      <LanguageRoute>
+        <Suspense fallback={<LoadingFallback />}>
+          <AboutPage />
         </Suspense>
       </LanguageRoute>
     ),
@@ -242,6 +257,10 @@ const router = createBrowserRouter([
     ),
   },
   // Редирект старых маршрутов без языка
+  {
+    path: '/about',
+    element: <Navigate to="/ru/about" replace />,
+  },
   {
     path: '/auth',
     element: <Navigate to="/ru/auth" replace />,

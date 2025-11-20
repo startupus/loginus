@@ -81,7 +81,7 @@ export const DataSection: React.FC<DataSectionProps> = ({
       className={`
         bg-white dark:bg-dark-2 
         rounded-xl 
-        border border-gray-2 dark:border-dark-3
+        border border-gray-2 dark:border-dark-3/50
         p-6 sm:p-8
         ${className}
       `.trim()}
@@ -89,7 +89,7 @@ export const DataSection: React.FC<DataSectionProps> = ({
       {/* Header */}
       <header className="space-y-2 mb-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl sm:text-2xl font-semibold text-dark dark:text-white">
+          <h2 className="text-xl sm:text-2xl font-semibold text-text-primary">
             {id ? (
               <a
                 href={`#${id}`}
@@ -104,7 +104,7 @@ export const DataSection: React.FC<DataSectionProps> = ({
           {action && <div>{action}</div>}
         </div>
         {description && (
-          <p className="text-sm text-body-color dark:text-dark-6">
+          <p className="text-sm text-text-secondary">
             {description}
           </p>
         )}
@@ -117,12 +117,12 @@ export const DataSection: React.FC<DataSectionProps> = ({
 
       {/* View All Link */}
       {viewAllLink && (
-        <div className="mt-6 pt-4 border-t border-gray-2 dark:border-dark-3">
+        <div className="mt-6 pt-4 border-t border-gray-2 dark:border-dark-3/50">
           <a
             href={getFullUrl(typeof viewAllLink === 'string' ? viewAllLink : viewAllLink.href)}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-300 transition-colors"
+            className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors"
           >
             {typeof viewAllLink === 'object' && viewAllLink.icon && <Icon name={viewAllLink.icon} size="sm" />}
             <span>{typeof viewAllLink === 'string' ? 'Все' : viewAllLink.label}</span>

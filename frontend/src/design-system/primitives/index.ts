@@ -8,4 +8,5 @@ export * from './CodeInput';
 export * from './UniversalInput';
 export * from './Logo';
 export * from './Checkbox';
+export * from './ScrollButton/ScrollButton';
 

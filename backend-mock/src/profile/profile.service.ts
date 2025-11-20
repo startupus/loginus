@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
+import { DataPreloaderService } from '../data/data-preloader.service';
 
 @Injectable()
 export class ProfileService {
@@ -8,6 +9,8 @@ export class ProfileService {
   private profileCache: any | null = null;
   private profileCacheTime: number = 0;
   private readonly CACHE_TTL = 60000; // 1 минута кэширования
+
+  constructor(private readonly preloader: DataPreloaderService) {}
 
   private getProfileData() {
     const now = Date.now();
@@ -17,7 +20,15 @@ export class ProfileService {
       return this.profileCache;
     }
 
-    // Иначе читаем файл и обновляем кэш
+    // Сначала пытаемся взять предзагруженные данные
+    const preloaded = this.preloader.getPreloadedData<any>('profile.json');
+    if (preloaded) {
+      this.profileCache = preloaded;
+      this.profileCacheTime = now;
+      return this.profileCache;
+    }
+
+    // Fallback: читаем файл и обновляем кэш (первый запрос без предзагрузки)
     const profilePath = path.join(__dirname, '../../data/profile.json');
     const profileData = fs.readFileSync(profilePath, 'utf-8');
     this.profileCache = JSON.parse(profileData);

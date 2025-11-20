@@ -236,7 +236,7 @@ export const ProfileCardMenu: React.FC<ProfileCardMenuProps> = ({
       aria-label={t('profile.menu', 'Меню профиля')}
       id="react-aria-profile-card-menu"
       data-testid="profile-card-menu"
-      className="fixed z-[100000] w-[320px] max-h-[212px] bg-white dark:bg-surface rounded-lg shadow-lg border border-border overflow-hidden py-1"
+      className="fixed z-[100000] w-[320px] max-h-[212px] bg-white dark:bg-surface rounded-lg shadow-lg border border-border dark:border-dark-3/50 overflow-hidden py-1"
       style={{
         top: `${position.top}px`,
         left: `${position.left}px`,
@@ -251,17 +251,15 @@ export const ProfileCardMenu: React.FC<ProfileCardMenuProps> = ({
           className="w-full flex items-start gap-3 px-4 py-2.5 hover:bg-gray-1 dark:hover:bg-gray-2 transition-colors text-left group"
           data-key={item.key}
           data-testid={item.testId}
-          data-disabled="false"
-          data-interactive="false"
         >
           <div className="flex-shrink-0 flex items-center justify-center w-6 h-6">
             <Icon name={item.icon as any} size="md" className="text-text-secondary" />
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium text-primary mb-0.5" data-testid="heading-title" data-variant="text-m" data-color="primary">
+            <div className="text-sm font-medium text-primary mb-0.5" data-testid="heading-title">
               {item.title}
             </div>
-            <div className="text-xs text-text-secondary" data-testid="heading-description" data-variant="text-s" data-color="secondary">
+            <div className="text-xs text-text-secondary" data-testid="heading-description">
               {item.key === 'Phone' ? <bdi>{item.description}</bdi> : item.description}
             </div>
           </div>

@@ -105,8 +105,8 @@ export const WidgetCard: React.FC<WidgetCardProps> = ({
   // Варианты фона из TailGrids
   const variantClasses = {
     default: 'bg-white dark:bg-dark-2',  // Из Card1.jsx
-    primary: 'bg-primary-50 dark:bg-primary-900/20',
-    feature: 'bg-gradient-to-br from-primary-50 to-secondary-50 dark:from-primary-900/20 dark:to-secondary-900/20',
+    primary: 'bg-primary/5 dark:bg-primary/20',
+    feature: 'bg-gradient-to-br from-primary/5 to-secondary/5 dark:from-primary/20 dark:to-secondary/20',
     compact: 'bg-white dark:bg-dark-2',
   };
   
@@ -199,7 +199,7 @@ export const WidgetCard: React.FC<WidgetCardProps> = ({
                 e.stopPropagation();
               }}
             >
-              <Icon name="menu" size="sm" className="text-body-color dark:text-dark-6" />
+              <Icon name="menu" size="sm" className="text-text-secondary" />
             </button>
           )}
           
@@ -213,13 +213,13 @@ export const WidgetCard: React.FC<WidgetCardProps> = ({
               className="p-1.5 rounded-lg bg-gray-1 dark:bg-dark-3 hover:bg-error/10 dark:hover:bg-error/20 transition-colors"
               aria-label="Удалить виджет"
             >
-              <Icon name="trash" size="sm" className="text-error hover:text-error dark:text-error" />
+              <Icon name="trash" size="sm" color="rgb(var(--color-error))" />
             </button>
           )}
         </div>
       )}
       
-      <div className={paddingClasses[variant]}>
+      <div className={`${paddingClasses[variant]} ${className.includes('flex flex-col') ? 'flex flex-col h-full' : ''}`}>
         {/* Header с иконкой и заголовком */}
         {(title || icon) && (
           <div className="flex items-center gap-3 mb-4">
@@ -229,7 +229,7 @@ export const WidgetCard: React.FC<WidgetCardProps> = ({
               </div>
             )}
             {title && (
-              <h3 className="text-xl font-semibold text-dark hover:text-primary dark:text-white sm:text-[22px] md:text-xl lg:text-[22px] xl:text-xl 2xl:text-[22px]">
+              <h3 className="text-xl font-semibold text-text-primary hover:text-primary sm:text-[22px] md:text-xl lg:text-[22px] xl:text-xl 2xl:text-[22px]">
                 {title}
               </h3>
             )}
@@ -237,7 +237,7 @@ export const WidgetCard: React.FC<WidgetCardProps> = ({
         )}
         
         {/* Content - классы из TailGrids Card1.jsx */}
-        <div className="text-base leading-relaxed text-body-color dark:text-dark-6">
+        <div className={`text-base leading-relaxed text-text-secondary ${className.includes('flex flex-col') ? 'flex-1 flex flex-col min-h-0' : ''}`}>
           {children}
         </div>
         

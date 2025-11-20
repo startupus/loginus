@@ -80,7 +80,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       outline: 'border-2 border-primary bg-transparent text-primary hover:bg-primary hover:text-white',
       
       // Ghost - использует токены темы
-      ghost: 'border-transparent bg-transparent text-body-color hover:bg-gray-2 dark:text-white dark:hover:bg-dark-3',
+      ghost: 'border-transparent bg-transparent text-text-secondary hover:bg-gray-2 dark:hover:bg-dark-3',
       
       // Error - использует токены темы
       error: 'border-error bg-error text-white hover:bg-error/90 hover:border-error/90',
@@ -104,8 +104,10 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       xl: 'px-11 py-5 text-xl gap-3',
     };
     
-    // Disabled из TailGrids - ТОЧНЫЕ классы
-    const disabledStyles = 'disabled:border-gray-3 disabled:bg-gray-3 disabled:text-dark-5 disabled:cursor-not-allowed disabled:opacity-70';
+    // Disabled стили - для primary используем голубой цвет с opacity, для остальных серый
+    const disabledStyles = variant === 'primary' 
+      ? 'disabled:border-primary/30 disabled:bg-primary/30 disabled:text-white disabled:cursor-not-allowed disabled:opacity-70'
+      : 'disabled:border-gray-3 disabled:bg-gray-3 disabled:text-dark-5 disabled:cursor-not-allowed disabled:opacity-70';
 
     // Width style
     const widthStyle = fullWidth ? 'w-full' : '';

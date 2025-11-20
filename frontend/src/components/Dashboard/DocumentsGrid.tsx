@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Icon } from '../../design-system/primitives';
+import { Icon, ScrollButton } from '../../design-system/primitives';
 import { DataSection } from '../../design-system/composites/DataSection';
 import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
 import { getDocumentLabel } from '../../utils/i18nMappings';
@@ -95,13 +95,11 @@ export const DocumentsGrid: React.FC<DocumentsGridProps> = ({
       <div className="relative">
         {/* Кнопка прокрутки влево */}
         {canScrollLeft && (
-          <button
+          <ScrollButton
+            direction="left"
+            ariaLabel={t('common.scrollLeft', 'Прокрутить влево')}
             onClick={() => scroll('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-background dark:bg-surface shadow-lg border border-border flex items-center justify-center hover:bg-gray-1 dark:hover:bg-gray-2 transition-colors"
-            aria-label={t('common.scrollLeft', 'Прокрутить влево')}
-          >
-            <Icon name="chevron-left" size="sm" className="text-text-secondary" />
-          </button>
+          />
         )}
 
         {/* Карусель документов */}
@@ -118,11 +116,11 @@ export const DocumentsGrid: React.FC<DocumentsGridProps> = ({
             <button
               key={`${doc.type}-${index}`}
               onClick={() => onAddDocument?.(doc.type)}
-              className="group flex-shrink-0 flex flex-col items-center gap-3 p-4 rounded-lg bg-gray-1/50 dark:bg-gray-2/50 border border-border hover:border-primary/30 hover:bg-gray-1 dark:hover:bg-gray-2 transition-all duration-200 animate-fade-in relative min-w-[120px]"
+              className="group flex-shrink-0 flex flex-col items-center gap-3 p-4 rounded-lg bg-gray-1/50 dark:bg-dark-3/50 border border-stroke dark:border-dark-3/50 hover:border-primary/30 dark:hover:border-primary/30 hover:bg-gray-1 dark:hover:bg-dark-3 transition-all duration-200 animate-fade-in relative min-w-[120px]"
               style={{ animationDelay: `${index * 30}ms` }}
             >
               {/* Иконка */}
-              <div className="w-12 h-12 rounded-lg bg-gray-1 dark:bg-gray-2 flex items-center justify-center transition-colors duration-200 group-hover:bg-gray-2 dark:group-hover:bg-gray-3">
+              <div className="w-12 h-12 rounded-lg bg-gray-1 dark:bg-dark-3 flex items-center justify-center transition-colors duration-200 group-hover:bg-gray-2 dark:group-hover:bg-dark-4">
                 <Icon 
                   name={doc.icon} 
                   size="md" 
@@ -147,13 +145,11 @@ export const DocumentsGrid: React.FC<DocumentsGridProps> = ({
 
         {/* Кнопка прокрутки вправо */}
         {canScrollRight && (
-          <button
+          <ScrollButton
+            direction="right"
+            ariaLabel={t('common.scrollRight', 'Прокрутить вправо')}
             onClick={() => scroll('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-background dark:bg-surface shadow-lg border border-border flex items-center justify-center hover:bg-gray-1 dark:hover:bg-gray-2 transition-colors"
-            aria-label={t('common.scrollRight', 'Прокрутить вправо')}
-          >
-            <Icon name="chevron-right" size="sm" className="text-text-secondary" />
-          </button>
+          />
         )}
       </div>
     </DataSection>

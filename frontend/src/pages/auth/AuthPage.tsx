@@ -4,12 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { AuthPageLayout } from '../../design-system/composites/AuthPageLayout';
 import { UniversalInput } from '../../design-system/primitives/UniversalInput';
 import { Button } from '../../design-system/primitives/Button';
-import { Icon } from '../../design-system/primitives/Icon';
 import { Logo } from '../../design-system/primitives/Logo';
 import { useInputValidation } from '../../hooks/useInputValidation';
 import { authApi } from '../../services/api/auth';
 import { useLanguageStore } from '../../store';
 import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
+import { SocialAuthButtons } from '../../components/auth/SocialAuthButtons';
 
 /**
  * AuthPage - главная страница авторизации
@@ -76,14 +76,6 @@ export const AuthPage: React.FC = () => {
     }
   };
 
-  const handleBiometric = () => {
-    // TODO: Реализовать биометрическую авторизацию
-  };
-
-  const handleQR = () => {
-    // TODO: Реализовать QR-код авторизацию
-  };
-
   return (
     <AuthPageLayout
       header={{
@@ -105,64 +97,48 @@ export const AuthPage: React.FC = () => {
       }}
       background="default"
     >
-      <div className="w-full space-y-6">
-        <div className="text-left">
-          <h1 className="text-3xl sm:text-4xl font-bold text-text-primary mb-1">
-            {t('auth.title', 'Введите')}
-          </h1>
-          <h2 className="text-3xl sm:text-4xl font-bold text-text-primary mb-3">
-            {t('auth.titleField', 'телефон или почту')}
-          </h2>
-          <p className="text-base sm:text-lg text-text-secondary">
-            {t('auth.subtitle', 'Чтобы войти или зарегистрироваться')}
-          </p>
+      <div className="flex flex-col min-h-full">
+        <div className="w-full space-y-6 pb-6">
+          <div className="text-left">
+            <h1 className="text-3xl sm:text-4xl font-bold text-text-primary mb-1">
+              {t('auth.title', 'Введите')}
+            </h1>
+            <h2 className="text-3xl sm:text-4xl font-bold text-text-primary mb-3">
+              {t('auth.titleField', 'телефон или почту')}
+            </h2>
+            <p className="text-base sm:text-lg text-text-secondary">
+              {t('auth.subtitle', 'Чтобы войти или зарегистрироваться')}
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <UniversalInput
+              value={contact}
+              onChange={setContact}
+              placeholder={t('auth.phoneOrEmail', 'Телефон или email')}
+              error={error || validationError || undefined}
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && isValid && !isLoading) {
+                  handleContinue();
+                }
+              }}
+            />
+
+            <Button
+              variant="primary"
+              fullWidth
+              disabled={isLoading}
+              onClick={handleContinue}
+              loading={isLoading}
+            >
+              {t('auth.continue', 'Продолжить')}
+            </Button>
+          </div>
         </div>
 
-        <div className="space-y-4">
-          <UniversalInput
-            value={contact}
-            onChange={setContact}
-            placeholder={t('auth.phoneOrEmail', 'Телефон или email')}
-            error={error || validationError || undefined}
-            autoFocus
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && isValid && !isLoading) {
-                handleContinue();
-              }
-            }}
-          />
-
-          <Button
-            variant="primary"
-            fullWidth
-            disabled={!isValid || isLoading}
-            onClick={handleContinue}
-            loading={isLoading}
-          >
-            {t('auth.continue', 'Продолжить')}
-          </Button>
-        </div>
-
-        <div className="space-y-2">
-          <Button
-            variant="outline"
-            fullWidth
-            onClick={handleBiometric}
-            className="flex items-center justify-center gap-2"
-          >
-            <Icon name="fingerprint" size="sm" />
-            {t('auth.biometric', 'По лицу или отпечатку')}
-          </Button>
-
-          <Button
-            variant="outline"
-            fullWidth
-            onClick={handleQR}
-            className="flex items-center justify-center gap-2"
-          >
-            <Icon name="qr-code" size="sm" />
-            {t('auth.qrCode', 'QR-код')}
-          </Button>
+        <div className="mt-auto -mx-6 sm:-mx-8 -mb-6 sm:-mb-8">
+          <SocialAuthButtons />
         </div>
       </div>
     </AuthPageLayout>

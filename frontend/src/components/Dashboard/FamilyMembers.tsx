@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Avatar, Icon } from '../../design-system/primitives';
+import { Avatar, Icon, ScrollButton } from '../../design-system/primitives';
 import { DataSection, AddButton } from '../../design-system/composites';
 import { getInitials } from '../../utils/stringUtils';
 import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
@@ -83,13 +83,12 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
       <div className="relative">
         {/* Кнопка прокрутки влево */}
         {canScrollLeft && (
-          <button
+          <ScrollButton
+            direction="left"
+            ariaLabel={t('common.scrollLeft', 'Прокрутить влево')}
             onClick={() => scroll('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-background dark:bg-surface shadow-lg border border-border flex items-center justify-center hover:bg-gray-1 dark:hover:bg-gray-2 transition-colors"
-            aria-label={t('common.scrollLeft', 'Прокрутить влево')}
-          >
-            <Icon name="chevron-left" size="sm" className="text-text-secondary" />
-          </button>
+            variant="accent"
+          />
         )}
 
         {/* Карусель членов семьи */}
@@ -109,7 +108,7 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
               className={`group flex-shrink-0 flex flex-col items-center justify-center gap-3 p-4 rounded-lg border transition-all duration-200 animate-fade-in w-[140px] h-[140px] ${
                 member.role === 'owner' 
                   ? 'bg-primary/5 dark:bg-primary/10 border-primary/30 hover:border-primary/50 hover:bg-primary/10 dark:hover:bg-primary/20' 
-                  : 'bg-gray-1/50 dark:bg-gray-2/50 border-border hover:border-primary/30 hover:bg-gray-1 dark:hover:bg-gray-2'
+                  : 'bg-gray-1/50 dark:bg-gray-2/50 border-border dark:border-dark-3/50 hover:border-primary/30 dark:hover:border-primary/30 hover:bg-gray-1 dark:hover:bg-gray-2'
               }`}
               style={{ animationDelay: `${index * 30}ms` }}
             >
@@ -153,13 +152,12 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
 
         {/* Кнопка прокрутки вправо */}
         {canScrollRight && (
-          <button
+          <ScrollButton
+            direction="right"
+            ariaLabel={t('common.scrollRight', 'Прокрутить вправо')}
             onClick={() => scroll('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-background dark:bg-surface shadow-lg border border-border flex items-center justify-center hover:bg-gray-1 dark:hover:bg-gray-2 transition-colors"
-            aria-label={t('common.scrollRight', 'Прокрутить вправо')}
-          >
-            <Icon name="chevron-right" size="sm" className="text-text-secondary" />
-          </button>
+            variant="accent"
+          />
         )}
       </div>
     </DataSection>

@@ -2,6 +2,7 @@ import { lazy } from 'react';
 
 // Landing
 const LandingPage = lazy(() => import('@/pages/LandingPage'));
+const AboutPage = lazy(() => import('@/pages/AboutPage'));
 
 // Dashboard - критическая страница, загружаем lazy для оптимизации
 const DashboardPage = lazy(() => import('@/pages/DashboardPage'));
@@ -34,6 +35,7 @@ const ErrorPage = lazy(() => import('@/pages/ErrorPage'));
 
 export {
   LandingPage,
+  AboutPage,
   AuthPage,
   VerifyCodePage,
   RegisterPage,

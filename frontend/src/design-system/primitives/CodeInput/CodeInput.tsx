@@ -182,13 +182,13 @@ export const CodeInput: React.FC<CodeInputProps> = ({
             className={`
               flex w-14 h-14 items-center justify-center rounded-lg 
               border bg-white p-2 text-center 
-              text-2xl font-medium text-gray-5 outline-none 
+              text-2xl font-medium text-text-primary outline-none 
               focus:ring-2
               disabled:opacity-50 disabled:cursor-not-allowed
-              dark:bg-white/5 dark:text-white
+              dark:bg-dark-3 dark:text-text-primary
               ${
                 error && error.trim() !== ''
-                  ? 'border-error-500 focus:border-error-500 focus:ring-error-500/20' 
+                  ? 'border-error focus:border-error focus:ring-error/20' 
                   : 'border-stroke dark:border-dark-3 focus:border-primary focus:ring-primary/20'
               }
             `}

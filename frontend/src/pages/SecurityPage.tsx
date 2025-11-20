@@ -111,7 +111,7 @@ const SecurityPage: React.FC = () => {
         </div>
         {/* Decorative circles */}
         <div className={`absolute top-0 right-0 w-64 h-64 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl ${isDark ? 'bg-white/5' : 'bg-white/10'}`}></div>
-        <div className={`absolute bottom-0 left-0 w-48 h-48 rounded-full translate-y-1/3 -translate-x-1/4 blur-2xl ${isDark ? 'bg-black/5' : 'bg-black/10'}`}></div>
+        <div className={`absolute bottom-0 left-0 w-48 h-48 rounded-full translate-y-1/3 -translate-x-1/4 blur-2xl ${isDark ? 'bg-text-primary/5' : 'bg-text-primary/10'}`}></div>
       </div>
 
       {/* Login Methods Section */}
@@ -124,14 +124,14 @@ const SecurityPage: React.FC = () => {
             {/* Current Method */}
             <div className="flex items-center justify-between py-2">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-green-100 text-green-600 rounded-full">
+                <div className="p-2 bg-success/10 text-success rounded-full">
                    <Icon name="check" size="sm" />
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                  <div className="text-sm text-text-secondary">
                     {t('security.loginMethods.current', 'Текущий способ')}
                   </div>
-                  <div className="font-medium dark:text-white">
+                  <div className="font-medium text-text-primary">
                     {t('security.loginMethods.password', 'Обычный пароль')}
                   </div>
                 </div>
@@ -144,14 +144,14 @@ const SecurityPage: React.FC = () => {
             {/* Recovery Methods */}
             <a href="/security/recovery-methods" className="flex items-center justify-between py-2 group">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-100 dark:bg-dark-3 rounded-lg">
-                   <Icon name="refresh-cw" size="md" className="text-gray-600 dark:text-gray-300" />
+                <div className="p-2 bg-gray-1 dark:bg-dark-3 rounded-lg">
+                   <Icon name="refresh-cw" size="md" className="text-text-secondary" />
                 </div>
-                <div className="font-medium dark:text-white group-hover:text-primary transition-colors">
+                <div className="font-medium text-text-primary group-hover:text-primary transition-colors">
                   {t('security.loginMethods.recovery', 'Способы восстановления')}
                 </div>
               </div>
-              <Icon name="chevron-right" size="sm" className="text-gray-400 group-hover:text-primary transition-colors" />
+              <Icon name="chevron-right" size="sm" className="text-text-secondary group-hover:text-primary transition-colors" />
             </a>
           </SeparatedList>
         </div>
@@ -167,42 +167,42 @@ const SecurityPage: React.FC = () => {
             {/* Activity Link */}
             <a href="/security/activity" className="flex items-center justify-between py-2 group">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-100 dark:bg-dark-3 rounded-lg">
-                   <Icon name="activity" size="md" className="text-gray-600 dark:text-gray-300" />
+                <div className="p-2 bg-gray-1 dark:bg-dark-3 rounded-lg">
+                   <Icon name="activity" size="md" className="text-text-secondary" />
                 </div>
                 <div>
-                  <div className="font-medium dark:text-white group-hover:text-primary transition-colors">
+                  <div className="font-medium text-text-primary group-hover:text-primary transition-colors">
                     {t('security.activity.title', 'История активности')}
                   </div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                  <div className="text-sm text-text-secondary">
                     {activity.length > 0 ? `${activity.length} событий` : t('security.activity.empty', 'Нет событий')}
                   </div>
                 </div>
               </div>
-              <Icon name="chevron-right" size="sm" className="text-gray-400 group-hover:text-primary transition-colors" />
+              <Icon name="chevron-right" size="sm" className="text-text-secondary group-hover:text-primary transition-colors" />
             </a>
 
             {/* Devices Link */}
             <a href="/security/devices" className="flex items-center justify-between py-2 group">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-100 dark:bg-dark-3 rounded-lg">
-                   <Icon name="smartphone" size="md" className="text-gray-600 dark:text-gray-300" />
+                <div className="p-2 bg-gray-1 dark:bg-dark-3 rounded-lg">
+                   <Icon name="smartphone" size="md" className="text-text-secondary" />
                 </div>
                 <div>
-                  <div className="font-medium dark:text-white group-hover:text-primary transition-colors">
+                  <div className="font-medium text-text-primary group-hover:text-primary transition-colors">
                     {t('security.devices.title', 'Устройства')}
                   </div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                  <div className="text-sm text-text-secondary">
                     {devices.length} {t('common.devices', 'устройств')}
                   </div>
                 </div>
               </div>
-              <Icon name="chevron-right" size="sm" className="text-gray-400 group-hover:text-primary transition-colors" />
+              <Icon name="chevron-right" size="sm" className="text-text-secondary group-hover:text-primary transition-colors" />
             </a>
           </SeparatedList>
         </div>
         
-        <Button variant="outline" className="w-full text-red-500 hover:text-red-600 hover:bg-red-50 border-red-200 dark:border-red-900/30 dark:hover:bg-red-900/20">
+        <Button variant="outline" className="w-full text-error hover:text-error/80 hover:bg-error/10 border-error/30 dark:border-error/30 dark:hover:bg-error/20">
           {t('security.control.logoutAll', 'Выйти везде')}
         </Button>
       </DataSection>
@@ -217,40 +217,40 @@ const SecurityPage: React.FC = () => {
             {/* External Accounts */}
             <a href="/security/external-accounts" className="flex items-center justify-between py-2 group">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-100 dark:bg-dark-3 rounded-lg">
-                   <Icon name="link" size="md" className="text-gray-600 dark:text-gray-300" />
+                <div className="p-2 bg-gray-1 dark:bg-dark-3 rounded-lg">
+                   <Icon name="link" size="md" className="text-text-secondary" />
                 </div>
-                <div className="font-medium dark:text-white group-hover:text-primary transition-colors">
+                <div className="font-medium text-text-primary group-hover:text-primary transition-colors">
                   {t('security.access.external', 'Добавить внешние аккаунты')}
                 </div>
               </div>
-              <Icon name="chevron-right" size="sm" className="text-gray-400 group-hover:text-primary transition-colors" />
+              <Icon name="chevron-right" size="sm" className="text-text-secondary group-hover:text-primary transition-colors" />
             </a>
 
             {/* Manage Access */}
             <a href="/personal/data-access" className="flex items-center justify-between py-2 group">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-100 dark:bg-dark-3 rounded-lg">
-                   <Icon name="key" size="md" className="text-gray-600 dark:text-gray-300" />
+                <div className="p-2 bg-gray-1 dark:bg-dark-3 rounded-lg">
+                   <Icon name="key" size="md" className="text-text-secondary" />
                 </div>
-                <div className="font-medium dark:text-white group-hover:text-primary transition-colors">
+                <div className="font-medium text-text-primary group-hover:text-primary transition-colors">
                   {t('security.access.manage', 'Управлять доступами')}
                 </div>
               </div>
-              <Icon name="chevron-right" size="sm" className="text-gray-400 group-hover:text-primary transition-colors" />
+              <Icon name="chevron-right" size="sm" className="text-text-secondary group-hover:text-primary transition-colors" />
             </a>
 
             {/* App Passwords */}
             <a href="/security/app-passwords" className="flex items-center justify-between py-2 group">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-100 dark:bg-dark-3 rounded-lg">
-                   <Icon name="grid" size="md" className="text-gray-600 dark:text-gray-300" />
+                <div className="p-2 bg-gray-1 dark:bg-dark-3 rounded-lg">
+                   <Icon name="grid" size="md" className="text-text-secondary" />
                 </div>
-                <div className="font-medium dark:text-white group-hover:text-primary transition-colors">
+                <div className="font-medium text-text-primary group-hover:text-primary transition-colors">
                   {t('security.access.apps', 'Пароли приложений')}
                 </div>
               </div>
-              <Icon name="chevron-right" size="sm" className="text-gray-400 group-hover:text-primary transition-colors" />
+              <Icon name="chevron-right" size="sm" className="text-text-secondary group-hover:text-primary transition-colors" />
             </a>
           </SeparatedList>
         </div>

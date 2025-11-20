@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Icon, Button, Badge } from '../../design-system/primitives';
 import { DataSection } from '../../design-system/composites/DataSection';
-import { WidgetCard } from '../../design-system/composites/WidgetCard';
 import { Modal } from '../../design-system/composites/Modal';
 import { getSubscriptionName, getSubscriptionFeatures } from '../../utils/i18nMappings';
 
@@ -63,69 +62,69 @@ export const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
       id="subscriptions"
       title={t('dashboard.subscriptions.title', 'Подписки')}
     >
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {subscriptions.map((subscription, index) => (
-          <div
+          <button
             key={subscription.id}
-            className="group animate-fade-in cursor-pointer h-full"
-              style={{ animationDelay: `${index * 30}ms` }}
-              onClick={() => handleCardClick(subscription)}
+            onClick={() => handleCardClick(subscription)}
+            className={`
+              group relative p-4 rounded-lg border-2 transition-all duration-200
+              bg-white dark:bg-dark-2
+              border-border dark:border-dark-3
+              hover:border-primary hover:shadow-md hover:-translate-y-0.5
+              text-left
+              ${subscription.active ? 'border-primary shadow-sm' : ''}
+            `}
+            style={{ animationDelay: `${index * 30}ms` }}
           >
-              <WidgetCard 
-                variant="default"
-                className={`h-full flex flex-col transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 ${
-                  subscription.active ? 'border-2 border-primary' : ''
-                }`}
-              >
-                <div className="flex flex-col flex-1 space-y-2">
-                  {/* Заголовок с бейджем */}
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="text-sm font-bold text-text-primary line-clamp-1">
-                      {getSubscriptionName(subscription.type, t, subscription.name)}
-                    </h3>
-                    {subscription.active && (
-                      <Badge variant="success" size="sm" rounded="full">
-                        <Icon name="check" size="sm" />
-                      </Badge>
-                    )}
-                    {subscription.badge && !subscription.active && (
-                      <Badge variant="warning" size="sm" rounded="full">
-                        !
-                      </Badge>
-                    )}
-                  </div>
-                  
-                  {/* Цена */}
-                  <div className="flex-1">
-                    <div className="text-lg font-bold text-primary">
-                      {subscription.price.split('/')[0]}
-                    </div>
-                    {subscription.pricePerMonth && (
-                      <div className="text-xs text-text-secondary">
-                        {subscription.pricePerMonth}
-                      </div>
-                    )}
-                </div>
-                  
-                  {/* Статус или дата */}
-                  {subscription.active && subscription.expiresAt && (
-                    <p className="text-xs text-text-secondary">
-                      {t('dashboard.subscriptions.activeUntil', { date: subscription.expiresAt, defaultValue: `Активна до ${subscription.expiresAt}` })}
-                    </p>
-                  )}
-                  
-                  {/* Ссылка подробнее - всегда внизу */}
-                  <div className="flex items-center gap-1 text-xs text-primary group-hover:gap-2 transition-all mt-auto">
-                    <span>{t('dashboard.subscriptions.details', 'Подробнее')}</span>
-                <Icon 
-                  name="chevron-right" 
-                  size="sm" 
-                      className="transition-transform duration-200"
-                />
-                  </div>
+            {/* Заголовок с бейджем */}
+            <div className="flex items-start justify-between gap-2 mb-3">
+              <h3 className="text-base font-semibold text-text-primary">
+                {getSubscriptionName(subscription.type, t, subscription.name)}
+              </h3>
+              {subscription.active && (
+                <Badge variant="success" size="sm" rounded="full">
+                  <Icon name="check" size="xs" />
+                </Badge>
+              )}
+              {subscription.badge && !subscription.active && (
+                <Badge variant="warning" size="sm" rounded="full">
+                  !
+                </Badge>
+              )}
+            </div>
+            
+            {/* Цена */}
+            <div className="mb-3">
+              <div className="text-xl font-bold text-primary">
+                {subscription.price.split('/')[0]}
               </div>
-            </WidgetCard>
-          </div>
+              {subscription.pricePerMonth && (
+                <div className="text-xs text-text-secondary mt-1">
+                  {subscription.pricePerMonth}
+                </div>
+              )}
+            </div>
+            
+            {/* Статус или дата */}
+            {subscription.active && subscription.expiresAt && (
+              <div className="mb-3">
+                <p className="text-xs text-text-secondary">
+                  {t('dashboard.subscriptions.activeUntil', { date: subscription.expiresAt, defaultValue: `Активна до ${subscription.expiresAt}` })}
+                </p>
+              </div>
+            )}
+            
+            {/* Ссылка подробнее */}
+            <div className="flex items-center gap-1 text-xs text-primary group-hover:gap-2 transition-all">
+              <span>{t('dashboard.subscriptions.details', 'Подробнее')}</span>
+              <Icon 
+                name="chevron-right" 
+                size="sm" 
+                className="transition-transform duration-200 group-hover:translate-x-0.5"
+              />
+            </div>
+          </button>
         ))}
       </div>
     </DataSection>
@@ -147,13 +146,13 @@ export const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                     {selectedSubscription.price}
                   </span>
                   {selectedSubscription.pricePerMonth && (
-                    <span className="text-sm text-body-color dark:text-dark-6">
+                    <span className="text-sm text-text-secondary">
                       {selectedSubscription.pricePerMonth}
                     </span>
                   )}
                 </div>
                 {selectedSubscription.active && selectedSubscription.expiresAt && (
-                  <p className="text-sm text-body-color dark:text-dark-6">
+                  <p className="text-sm text-text-secondary">
                     {t('dashboard.subscriptions.activeUntil', { date: selectedSubscription.expiresAt, defaultValue: `Активна до ${selectedSubscription.expiresAt}` })}
                   </p>
                 )}
@@ -199,7 +198,7 @@ export const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
             )}
             
             {/* Действия */}
-            <div className="flex gap-3 pt-4 border-t border-border">
+            <div className="flex gap-3 pt-4 border-t border-border dark:border-dark-3/50">
               {!selectedSubscription.active && (
                 <Button 
                   variant="primary" 

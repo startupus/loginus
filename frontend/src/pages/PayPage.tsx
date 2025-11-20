@@ -73,14 +73,14 @@ const PayPage: React.FC = () => {
       {/* Promo Blocks Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Plus Promo */}
-        <div className="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden group cursor-pointer hover:shadow-xl transition-all">
+        <div className="bg-gradient-to-br from-primary to-info rounded-2xl p-6 text-white shadow-lg relative overflow-hidden group cursor-pointer hover:shadow-xl transition-all">
           <div className="relative z-10">
             <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-4">
               <Icon name="plus" size="lg" className="text-white" />
             </div>
             <h3 className="text-xl font-bold mb-2">{t('payment.promo.plus.title', 'Подключите Плюс')}</h3>
             <p className="text-white/80 mb-4">{t('payment.promo.plus.description', 'Кино, музыка, книги в одной мультиподписке')}</p>
-            <Button variant="outline" size="sm" className="bg-white text-purple-600 hover:bg-gray-100 border-purple-600 hover:border-purple-600">
+            <Button variant="outline" size="sm" className="bg-white text-primary hover:bg-gray-1 border-primary hover:border-primary">
               {t('common.connect', 'Подключить')}
             </Button>
           </div>
@@ -89,7 +89,7 @@ const PayPage: React.FC = () => {
         </div>
 
         {/* Split Promo */}
-        <div className="bg-gradient-to-br from-green-500 to-teal-600 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden group cursor-pointer hover:shadow-xl transition-all">
+        <div className="bg-gradient-to-br from-success to-info rounded-2xl p-6 text-white shadow-lg relative overflow-hidden group cursor-pointer hover:shadow-xl transition-all">
           <div className="relative z-10">
             <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-4">
               <Icon name="pie-chart" size="lg" className="text-white" />
@@ -98,7 +98,7 @@ const PayPage: React.FC = () => {
             <p className="text-white/80 mb-4">
               {t('payment.promo.split.limit', 'Вам одобрено 150 000 ₽', { amount: '150 000' })}
             </p>
-            <Button variant="outline" size="sm" className="bg-white text-teal-600 hover:bg-gray-100 border-teal-600 hover:border-teal-600">
+            <Button variant="outline" size="sm" className="bg-white text-success hover:bg-gray-1 border-success hover:border-success">
               {t('common.details', 'Подробнее')}
             </Button>
           </div>
@@ -121,13 +121,13 @@ const PayPage: React.FC = () => {
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {/* Loginus Pay Card */}
-          <div className="bg-gradient-to-br from-gray-900 to-black text-white p-6 rounded-xl shadow-lg relative overflow-hidden aspect-video flex flex-col justify-between cursor-pointer hover:scale-[1.02] transition-transform">
+          <div className="bg-gradient-to-br from-text-primary to-text-primary/80 text-background p-6 rounded-xl shadow-lg relative overflow-hidden aspect-video flex flex-col justify-between cursor-pointer hover:scale-[1.02] transition-transform">
               <div className="flex justify-between items-start z-10">
                   <div className="flex items-center gap-2">
                     <Icon name="credit-card" size="lg" className="text-white" />
                     <span className="font-bold">Loginus Pay</span>
                   </div>
-                  <Badge variant="success" size="sm" className="bg-green-500 text-white border-none">
+                  <Badge variant="success" size="sm" className="bg-success text-white border-none">
                       {t('payment.methods.cashback', 'Кешбэк')} 5%
                   </Badge>
               </div>
@@ -135,14 +135,14 @@ const PayPage: React.FC = () => {
                   <div className="text-sm opacity-60 mb-1">{t('payment.methods.balance', 'Баланс')}</div>
                   <div className="text-2xl font-bold">12 450 ₽</div>
               </div>
-              <div className="absolute -top-12 -right-12 w-48 h-48 bg-gradient-to-br from-purple-500/30 to-blue-500/30 rounded-full blur-2xl"></div>
+              <div className="absolute -top-12 -right-12 w-48 h-48 bg-gradient-to-br from-primary/30 to-info/30 rounded-full blur-2xl"></div>
           </div>
 
           {/* User Cards */}
           {methods.map((method) => (
-            <div key={method.id} className="bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-2 dark:to-gray-1 p-6 rounded-xl border border-border relative overflow-hidden aspect-video flex flex-col justify-between group hover:border-primary transition-colors cursor-pointer">
+            <div key={method.id} className="bg-gradient-to-br from-gray-1 to-gray-2 dark:from-gray-2 dark:to-gray-1 p-6 rounded-xl border border-border relative overflow-hidden aspect-video flex flex-col justify-between group hover:border-primary transition-colors cursor-pointer">
                 <div className="flex justify-between items-start z-10">
-                    <Icon name="credit-card" size="lg" className="text-gray-600 dark:text-gray-400" />
+                    <Icon name="credit-card" size="lg" className="text-text-secondary" />
                      {method.isDefault && (
                         <Badge variant="primary" size="sm">
                             Main
@@ -152,8 +152,8 @@ const PayPage: React.FC = () => {
                 <div className="z-10">
                     <div className="text-2xl tracking-widest mb-2 text-text-primary">•••• {method.last4}</div>
                     <div className="flex justify-between items-end">
-                        <div className="text-sm text-gray-500 dark:text-gray-400">{method.expiry}</div>
-                        <div className="font-bold uppercase text-gray-400 dark:text-gray-500">{method.system}</div>
+                        <div className="text-sm text-text-secondary">{method.expiry}</div>
+                        <div className="font-bold uppercase text-text-secondary">{method.system}</div>
                     </div>
                 </div>
             </div>
@@ -161,10 +161,10 @@ const PayPage: React.FC = () => {
           
           {/* Add New Card Button */}
           <button className="border-2 border-dashed border-border rounded-xl p-6 aspect-video flex flex-col items-center justify-center gap-3 hover:border-primary hover:bg-primary/5 transition-all group">
-            <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-dark-3 flex items-center justify-center text-gray-400 group-hover:text-primary transition-colors">
+            <div className="w-12 h-12 rounded-full bg-gray-1 dark:bg-dark-3 flex items-center justify-center text-text-secondary group-hover:text-primary transition-colors">
               <Icon name="plus" size="lg" />
             </div>
-            <span className="font-medium text-gray-500 group-hover:text-primary transition-colors">
+            <span className="font-medium text-text-secondary group-hover:text-primary transition-colors">
               {t('common.add', 'Добавить')}
             </span>
           </button>
@@ -181,17 +181,17 @@ const PayPage: React.FC = () => {
              <SeparatedList className="p-4">
                 <div className="flex items-center justify-between py-2">
                      <div className="flex items-center gap-3">
-                         <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-500 text-white rounded-lg flex items-center justify-center font-bold">
+                         <div className="w-10 h-10 bg-gradient-to-br from-primary to-info text-white rounded-lg flex items-center justify-center font-bold">
                              <Icon name="plus" size="md" />
                          </div>
                          <div>
-                             <div className="font-medium dark:text-white">Loginus Plus</div>
-                             <div className="text-sm text-gray-500">Следующее списание 20.11.2025</div>
+                            <div className="font-medium text-text-primary">Loginus Plus</div>
+                            <div className="text-sm text-text-secondary">Следующее списание 20.11.2025</div>
                          </div>
                      </div>
                      <div className="text-right">
-                         <div className="font-medium dark:text-white">299 ₽</div>
-                         <div className="text-xs text-green-500">Активна</div>
+                         <div className="font-medium text-text-primary">299 ₽</div>
+                         <div className="text-xs text-success">Активна</div>
                      </div>
                 </div>
              </SeparatedList>
@@ -210,28 +210,28 @@ const PayPage: React.FC = () => {
             {history.map((item) => (
               <div key={item.id} className="flex items-center justify-between py-2">
                 <div className="flex items-center gap-3">
-                   <div className={`p-2 rounded-full ${item.status === 'failed' ? 'bg-red-100 text-red-500' : 'bg-gray-100 dark:bg-dark-3 text-gray-600 dark:text-gray-300'}`}>
+                   <div className={`p-2 rounded-full ${item.status === 'failed' ? 'bg-error/10 text-error' : 'bg-gray-1 dark:bg-dark-3 text-text-secondary'}`}>
                     <Icon name={item.status === 'failed' ? 'alert-circle' : 'shopping-bag'} size="sm" />
                   </div>
                   <div>
-                    <div className="font-medium dark:text-white">{item.merchant}</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                    <div className="font-medium text-text-primary">{item.merchant}</div>
+                    <div className="text-sm text-text-secondary">
                       {new Date(item.date).toLocaleDateString()} • {item.description}
                     </div>
                   </div>
                 </div>
                 <div className="text-right">
-                    <div className={`font-medium ${item.amount > 0 ? 'text-text-primary' : 'text-green-500'}`}>
+                    <div className={`font-medium ${item.amount > 0 ? 'text-text-primary' : 'text-success'}`}>
                         {item.amount > 0 ? '-' : '+'}{Math.abs(item.amount)} {item.currency}
                     </div>
                      {item.status === 'failed' && (
-                         <div className="text-xs text-red-500">{t('common.error', 'Ошибка')}</div>
+                         <div className="text-xs text-error">{t('common.error', 'Ошибка')}</div>
                      )}
                 </div>
               </div>
             ))}
              {history.length === 0 && (
-                <div className="text-center py-4 text-gray-500">
+                <div className="text-center py-4 text-text-secondary">
                   {t('payment.history.empty', 'История пуста')}
                 </div>
               )}

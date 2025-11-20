@@ -75,7 +75,7 @@ export const WorkGroups: React.FC<WorkGroupsProps> = ({
         {groups.map((group, index) => (
           <div
             key={group.id}
-            className="group flex flex-col gap-3 p-4 rounded-lg bg-gray-1/50 dark:bg-gray-2/50 border border-border hover:border-primary/30 hover:bg-gray-1 dark:hover:bg-gray-2 transition-all duration-200 animate-fade-in"
+            className="group flex flex-col gap-3 p-4 rounded-lg bg-gray-1/50 dark:bg-gray-2/50 border border-border dark:border-dark-3/50 hover:border-primary/30 dark:hover:border-primary/30 hover:bg-gray-1 dark:hover:bg-gray-2 transition-all duration-200 animate-fade-in"
             style={{ animationDelay: `${index * 30}ms` }}
           >
             {/* Название группы и роль */}

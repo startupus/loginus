@@ -42,8 +42,8 @@ const SupportPage: React.FC = () => {
               <h3 className="font-semibold text-text-primary">
                 {t('support.chat.title', 'Поддержка Loginus ID')}
               </h3>
-              <div className="flex items-center gap-2 text-sm text-green-500">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <div className="flex items-center gap-2 text-sm text-success">
+                <div className="w-2 h-2 bg-success rounded-full"></div>
                 <span>{t('support.chat.online', 'В сети')}</span>
               </div>
             </div>
@@ -59,12 +59,12 @@ const SupportPage: React.FC = () => {
                 <Icon name="message-circle" size="sm" className="text-primary" />
               </div>
               <div className="flex-1">
-                <div className="bg-gray-100 dark:bg-dark-3 rounded-2xl rounded-tl-none p-4">
+                <div className="bg-gray-1 dark:bg-dark-3 rounded-2xl rounded-tl-none p-4">
                   <p className="text-text-primary">
                     {t('support.chat.welcome', 'Здравствуйте! Я помогу вам разобраться с вопросами по Loginus ID.')}
                   </p>
                 </div>
-                <div className="text-xs text-gray-500 mt-1 ml-2">
+                <div className="text-xs text-text-secondary mt-1 ml-2">
                   {new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                 </div>
               </div>
@@ -76,7 +76,7 @@ const SupportPage: React.FC = () => {
                 <Icon name="message-circle" size="sm" className="text-primary" />
               </div>
               <div className="flex-1">
-                <div className="bg-gray-100 dark:bg-dark-3 rounded-2xl rounded-tl-none p-4 mb-3">
+                <div className="bg-gray-1 dark:bg-dark-3 rounded-2xl rounded-tl-none p-4 mb-3">
                   <p className="text-text-primary mb-4">
                     {t('support.chat.selectTopic', 'Выберите тему вашего вопроса:')}
                   </p>
@@ -106,7 +106,7 @@ const SupportPage: React.FC = () => {
             <div className="flex-1">
               <textarea
                 placeholder={t('support.chat.placeholder', 'Напишите ваш вопрос...')}
-                className="w-full px-4 py-3 rounded-lg border border-border bg-transparent text-text-primary placeholder-gray-400 resize-none focus:outline-none focus:border-primary"
+                className="w-full px-4 py-3 rounded-lg border border-border bg-transparent text-text-primary placeholder:text-text-secondary resize-none focus:outline-none focus:border-primary"
                 rows={1}
                 style={{ minHeight: '44px', maxHeight: '120px' }}
               />
@@ -120,7 +120,7 @@ const SupportPage: React.FC = () => {
               </Button>
             </div>
           </div>
-          <div className="mt-2 text-xs text-gray-500">
+          <div className="mt-2 text-xs text-text-secondary">
             {t('support.chat.fileSupport', 'Вы можете прикрепить файлы и скриншоты')}
           </div>
         </div>

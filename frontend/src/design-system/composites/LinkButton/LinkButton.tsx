@@ -47,9 +47,9 @@ export const LinkButton: React.FC<LinkButtonProps> = ({
   className = '',
 }) => {
   const variantClasses = {
-    default: 'text-body-color hover:text-primary dark:text-dark-6 dark:hover:text-primary',
-    primary: 'text-primary hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-300',
-    ghost: 'text-body-color hover:text-primary dark:text-dark-6 dark:hover:text-primary',
+    default: 'text-text-secondary hover:text-primary',
+    primary: 'text-primary hover:text-primary/80',
+    ghost: 'text-text-secondary hover:text-primary',
   };
 
   const defaultIcon = (

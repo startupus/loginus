@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export interface LogoProps {
   /**
@@ -45,6 +46,7 @@ export const Logo: React.FC<LogoProps> = ({
   onClick,
   className = '',
 }) => {
+  const { isDark } = useTheme();
   const sizeClasses = {
     sm: {
       icon: 'w-8 h-8',
@@ -71,15 +73,26 @@ export const Logo: React.FC<LogoProps> = ({
   const logoContent = (
     <div className={`flex items-center gap-3 ${className}`}>
       <div className="relative">
-        {/* Знак: всегда контрастный — темный на светлой теме и светлый на темной */}
-        <div className={`${classes.icon} rounded-xl flex items-center justify-center shadow-lg ring-1 ring-black/5 bg-dark text-white dark:bg-white dark:text-dark`}>
+        {/* Знак: темный на светлой теме, белый на темной */}
+        <div 
+          className={`${classes.icon} rounded-xl flex items-center justify-center shadow-lg ring-1 ring-black/5`}
+          style={{
+            backgroundColor: isDark ? 'rgb(255, 255, 255)' : 'rgb(var(--color-text-primary))',
+            color: isDark ? 'rgb(15, 23, 42)' : 'rgb(var(--color-background))',
+          }}
+        >
           <span className={`${classes.iconText} font-extrabold leading-none tracking-tight`}>iD</span>
         </div>
         {/* Зеленая точка */}
-        <div className={`absolute -bottom-1 -right-1 ${classes.dot} bg-[#22c55e] rounded-full border-2 border-white dark:border-dark shadow-sm z-10`}></div>
+        <div 
+          className={`absolute -bottom-1 -right-1 ${classes.dot} bg-[#22c55e] rounded-full border-2 shadow-sm z-10`}
+          style={{
+            borderColor: isDark ? 'rgb(var(--color-text-primary))' : 'rgb(255, 255, 255)',
+          }}
+        ></div>
       </div>
       {showText && (
-        <span className={`${classes.text} font-bold text-dark dark:text-white`}>
+        <span className={`${classes.text} font-bold ${isDark ? 'text-white' : 'text-text-primary'}`}>
           {text}
         </span>
       )}

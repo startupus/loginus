@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Input } from '../Input';
 import { detectInputType, normalizePhone } from '../../../utils/validation';
 import { formatPhone } from '../../../utils/formatting';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export interface UniversalInputProps {
   /**
@@ -65,6 +66,7 @@ export const UniversalInput: React.FC<UniversalInputProps> = ({
   disabled = false,
   label,
 }) => {
+  const { isDark } = useTheme();
   const [focused, setFocused] = useState(false);
   const [hasValue, setHasValue] = useState(false);
   
@@ -196,7 +198,7 @@ export const UniversalInput: React.FC<UniversalInputProps> = ({
         label={label}
         leftIcon={
           (isPhone || hasValue) ? (
-            <span className={`flex items-center gap-1 ${hasPhoneDigits ? 'text-dark dark:text-white' : 'text-body-color dark:text-dark-6'}`}>
+            <span className={`flex items-center gap-1 ${hasPhoneDigits ? (isDark ? 'text-white' : 'text-text-primary') : 'text-text-secondary'}`}>
               <span className="text-base">🇷🇺</span>
               <span className="text-sm font-medium">+7</span>
             </span>

@@ -9,8 +9,11 @@ import { useAuthStore } from '../store';
 import { useWidgetPreferences } from '../hooks/useWidgetPreferences';
 import { useModal } from '../hooks/useModal';
 import type { DocumentType, AddressType } from '../components/Modals';
-// ProfileCard - lazy loaded для оптимизации первой загрузки (не критичен для первого рендера)
-const ProfileCard = lazy(() => import('../components/Dashboard/ProfileCard').then(m => ({ default: m.ProfileCard })));
+import { ProfileCard } from '../components/Dashboard/ProfileCard';
+import { DocumentsGrid } from '../components/Dashboard/DocumentsGrid';
+import { AddressesGrid } from '../components/Dashboard/AddressesGrid';
+import { FamilyMembers } from '../components/Dashboard/FamilyMembers';
+import { appQueryClient } from '../providers/RootProvider';
 
 // Lazy loading для тяжелых компонентов
 const MasonryGrid = lazy(() => import('../design-system/composites/MasonryGrid').then(m => ({ default: m.MasonryGrid })));
@@ -42,9 +45,6 @@ const RoadmapWidget = lazy(() => import('../components/Dashboard/RoadmapWidget')
 const MailWidget = lazy(() => import('../components/Dashboard/MailWidget').then(m => ({ default: m.MailWidget })));
 const PlusWidget = lazy(() => import('../components/Dashboard/PlusWidget').then(m => ({ default: m.PlusWidget })));
 const PayWidget = lazy(() => import('../components/Dashboard/PayWidget').then(m => ({ default: m.PayWidget })));
-const DocumentsGrid = lazy(() => import('../components/Dashboard/DocumentsGrid').then(module => ({ default: module.DocumentsGrid })));
-const AddressesGrid = lazy(() => import('../components/Dashboard/AddressesGrid').then(module => ({ default: module.AddressesGrid })));
-const FamilyMembers = lazy(() => import('../components/Dashboard/FamilyMembers').then(m => ({ default: m.FamilyMembers })));
 const SubscriptionsList = lazy(() => import('../components/Dashboard/SubscriptionsList').then(m => ({ default: m.SubscriptionsList })));
 
 // Компонент скелетона для Suspense fallback
@@ -70,6 +70,35 @@ const SectionSkeleton: React.FC = () => (
   </div>
 );
 
+const dashboardQueryKey = ['dashboard'] as const;
+
+const fetchDashboard = async () => {
+  const startTime = typeof performance !== 'undefined' ? performance.now() : 0;
+  try {
+    const response = await profileApi.getDashboard();
+    if (process.env.NODE_ENV === 'development' && startTime) {
+      const endTime = performance.now();
+      console.log(`[Dashboard] API request: ${(endTime - startTime).toFixed(2)}ms`);
+    }
+    return response.data;
+  } catch (err) {
+    if (process.env.NODE_ENV === 'development' && startTime) {
+      const endTime = performance.now();
+      console.error(`[Dashboard] API error after ${(endTime - startTime).toFixed(2)}ms:`, err);
+    }
+    throw err;
+  }
+};
+
+if (typeof window !== 'undefined') {
+  void appQueryClient.prefetchQuery({
+    queryKey: dashboardQueryKey,
+    queryFn: fetchDashboard,
+  });
+  void preloadModule('dashboard');
+  void preloadModule('profile');
+}
+
 /**
  * DashboardPage - главная страница дашборда пользователя
  * Адаптивный дизайн для мобильных и десктопных устройств
@@ -89,35 +118,6 @@ const DashboardPage: React.FC = () => {
   
   const [selectedDocumentType, setSelectedDocumentType] = useState<DocumentType | undefined>();
   const [selectedAddressType, setSelectedAddressType] = useState<AddressType | undefined>();
-  
-  // Предзагружаем модули dashboard и profile асинхронно (не блокируя рендеринг)
-  useEffect(() => {
-    // Используем requestIdleCallback для загрузки в свободное время браузера
-    const loadModules = () => {
-      const startTime = performance.now();
-      Promise.all([
-        preloadModule('dashboard'),
-        preloadModule('profile'),
-      ]).then(() => {
-        const endTime = performance.now();
-        if (process.env.NODE_ENV === 'development') {
-          console.log(`[Dashboard] i18n modules loaded: ${(endTime - startTime).toFixed(2)}ms`);
-        }
-      }).catch(() => {
-        // Игнорируем ошибки загрузки модулей
-      });
-    };
-    
-    // Используем requestIdleCallback если доступен, иначе setTimeout
-    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      const id = (window as any).requestIdleCallback(loadModules, { timeout: 2000 });
-      return () => (window as any).cancelIdleCallback(id);
-    } else {
-      const timer = setTimeout(loadModules, 100);
-      return () => clearTimeout(timer);
-    }
-  }, []);
-  
   // Логирование времени рендеринга компонента (только в dev)
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
@@ -147,24 +147,8 @@ const DashboardPage: React.FC = () => {
   // Оптимизация: используем initialData и placeholderData для мгновенного отображения контента
   // Показываем контент сразу, даже если данные еще загружаются
   const { data, isLoading, error, isFetching } = useQuery({
-    queryKey: ['dashboard'],
-    queryFn: async () => {
-      const startTime = performance.now();
-      try {
-        const response = await profileApi.getDashboard();
-        const endTime = performance.now();
-        if (process.env.NODE_ENV === 'development') {
-          console.log(`[Dashboard] API request: ${(endTime - startTime).toFixed(2)}ms`);
-        }
-        return response.data;
-      } catch (err) {
-        const endTime = performance.now();
-        if (process.env.NODE_ENV === 'development') {
-          console.error(`[Dashboard] API error after ${(endTime - startTime).toFixed(2)}ms:`, err);
-        }
-        throw err;
-      }
-    },
+    queryKey: dashboardQueryKey,
+    queryFn: fetchDashboard,
     staleTime: 5 * 60 * 1000, // 5 минут - данные считаются свежими
     gcTime: 30 * 60 * 1000, // 30 минут в кэше
     refetchOnWindowFocus: false,
@@ -177,7 +161,7 @@ const DashboardPage: React.FC = () => {
     // Используем initialData из кэша React Query для мгновенного отображения
     initialData: () => {
       // Пытаемся получить данные из кэша React Query
-      const cachedData = queryClient.getQueryData(['dashboard']);
+      const cachedData = queryClient.getQueryData(dashboardQueryKey);
       return cachedData || undefined;
     },
   });
@@ -206,7 +190,7 @@ const DashboardPage: React.FC = () => {
       <PageTemplate title={t('dashboard.title', 'Профиль')} showSidebar={true}>
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
-            <Icon name="alert-circle" size="lg" className="text-error mx-auto mb-4" />
+            <Icon name="alert-circle" size="lg" color="rgb(var(--color-error))" className="mx-auto mb-4" />
             <p className="text-text-secondary">
               {t('errors.500Description', 'Что-то пошло не так. Мы уже работаем над исправлением.')}
             </p>
@@ -416,36 +400,21 @@ const DashboardPage: React.FC = () => {
         </div>
       )}
       <div className="space-y-4 sm:space-y-6">
-        {/* Profile Card - lazy loaded для оптимизации первой загрузки */}
-        <Suspense fallback={
-          <div className="w-full animate-pulse">
-            <div className="bg-background dark:bg-surface rounded-xl p-6 border border-border">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-gray-2 dark:bg-gray-3"></div>
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-gray-2 dark:bg-gray-3 rounded w-1/3"></div>
-                  <div className="h-3 bg-gray-2 dark:bg-gray-3 rounded w-1/2"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        }>
-          <div className="w-full animate-fade-in" style={{ animationDelay: '0ms' }}>
-            <ProfileCard
-              user={{
-                name: user.name,
-                phone: user.phone,
-                email: user.email,
-                avatar: user.avatar,
-                balance: dashboard.balance,
-                gamePoints: dashboard.gamePoints,
-                achievements: dashboard.achievements,
-              }}
-              onEdit={editProfileModal.open}
-              onEditAvatar={editAvatarModal.open}
-            />
-          </div>
-        </Suspense>
+        <div className="w-full animate-fade-in" style={{ animationDelay: '0ms' }}>
+          <ProfileCard
+            user={{
+              name: user.name,
+              phone: user.phone,
+              email: user.email,
+              avatar: user.avatar,
+              balance: dashboard.balance,
+              gamePoints: dashboard.gamePoints,
+              achievements: dashboard.achievements,
+            }}
+            onEdit={editProfileModal.open}
+            onEditAvatar={editAvatarModal.open}
+          />
+        </div>
 
         {/* Widgets Section - объединенный Suspense для всех виджетов */}
         <div className="w-full">
@@ -539,14 +508,6 @@ const DashboardPage: React.FC = () => {
           </Suspense>
         </div>
 
-        {/* Documents, Addresses, Family, Subscriptions - объединенный Suspense */}
-        <Suspense fallback={
-          <div className="space-y-6">
-            <SectionSkeleton />
-            <SectionSkeleton />
-            <SectionSkeleton />
-          </div>
-        }>
         {/* Documents Section - полная ширина */}
           <div className="w-full mb-6">
             <DocumentsGrid
@@ -579,19 +540,19 @@ const DashboardPage: React.FC = () => {
 
         {/* Subscriptions Section - полная ширина */}
         {dashboard.subscriptions && dashboard.subscriptions.length > 0 && (
-            <div className="w-full">
-              <SubscriptionsList
-                subscriptions={dashboard.subscriptions}
-                onSubscriptionClick={(subscription) => {
-                  // TODO: открыть страницу подписки
-                  if (process.env.NODE_ENV === 'development') {
-                    console.log('Open subscription:', subscription);
-                  }
-                }}
-              />
-          </div>
+            <Suspense fallback={<SectionSkeleton />}>
+              <div className="w-full">
+                <SubscriptionsList
+                  subscriptions={dashboard.subscriptions}
+                  onSubscriptionClick={(subscription) => {
+                    if (process.env.NODE_ENV === 'development') {
+                      console.log('Open subscription:', subscription);
+                    }
+                  }}
+                />
+            </div>
+            </Suspense>
         )}
-        </Suspense>
       </div>
 
       {/* Widget Selector Panel - lazy loaded */}

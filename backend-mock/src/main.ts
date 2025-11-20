@@ -1,5 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { DataPreloaderService } from './data/data-preloader.service';
+import { TimingInterceptor } from './common/timing.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -14,6 +16,20 @@ async function bootstrap() {
 
   // Global prefix
   app.setGlobalPrefix('api/v1');
+
+  // Глобальная телеметрия времени обработки запросов
+  app.useGlobalInterceptors(new TimingInterceptor());
+
+  // Предзагрузка данных до старта сервера
+  try {
+    const preloader = app.get(DataPreloaderService);
+    const start = Date.now();
+    await preloader.preloadAll();
+    const duration = Date.now() - start;
+    console.log(`📦 Данные предзагружены за ${duration} мс`);
+  } catch (e) {
+    console.warn('⚠️ Не удалось выполнить предзагрузку данных. Продолжаем старт без неё.', e);
+  }
 
   const port = process.env.PORT || 3001;
   await app.listen(port);

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export interface FAQItemProps {
   /**
@@ -38,15 +39,16 @@ export const FAQItem: React.FC<FAQItemProps> = ({
   onClick,
   className = '',
 }) => {
+  const { isDark } = useTheme();
   return (
     <div
       onClick={onClick}
       className={`rounded-xl bg-white p-6 shadow-1 dark:bg-dark-2 dark:shadow-card ${onClick ? 'cursor-pointer' : ''} ${className}`}
     >
-      <h3 className="mb-3 text-lg font-bold text-dark dark:text-white">
+      <h3 className={`mb-3 text-lg font-bold ${isDark ? 'text-white' : 'text-text-primary'}`}>
         {question}
       </h3>
-      <p className="text-base leading-relaxed text-body-color dark:text-dark-6">
+      <p className="text-base leading-relaxed text-text-secondary">
         {answer}
       </p>
     </div>

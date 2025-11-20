@@ -36,7 +36,7 @@ export const Tabs: React.FC<TabsProps> = ({ tabs, defaultTab, onChange }) => {
   return (
     <div className="w-full">
       {/* Tab Headers */}
-      <div className="border-b border-secondary-200">
+      <div className="border-b border-border">
         <nav className="-mb-px flex space-x-8">
           {tabs.map(tab => (
             <button
@@ -46,8 +46,8 @@ export const Tabs: React.FC<TabsProps> = ({ tabs, defaultTab, onChange }) => {
                 whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium transition-colors
                 ${
                   activeTab === tab.id
-                    ? 'border-primary-600 text-primary-600'
-                    : 'border-transparent text-secondary-500 hover:border-secondary-300 hover:text-secondary-700'
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-text-secondary hover:border-border hover:text-text-primary'
                 }
               `}
             >

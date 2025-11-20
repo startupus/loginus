@@ -4,7 +4,7 @@ import { ErrorBoundary } from '../components/ErrorBoundary';
 import { ThemeProvider, ClientProvider, LanguageProvider } from '../design-system/contexts';
 
 // React Query client с оптимизированными настройками
-const queryClient = new QueryClient({
+export const appQueryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000, // 5 минут - данные считаются свежими
@@ -45,7 +45,7 @@ export const RootProvider: React.FC<RootProviderProps> = ({ children }) => {
       <ThemeProvider>
         <ClientProvider>
           <LanguageProvider>
-            <QueryClientProvider client={queryClient}>
+            <QueryClientProvider client={appQueryClient}>
               {children}
             </QueryClientProvider>
           </LanguageProvider>

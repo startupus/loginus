@@ -125,7 +125,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
 
   return (
     <>
-    <header className={`fixed left-0 top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-2 dark:bg-dark/80 dark:border-dark-3 ${className}`}>
+    <header className={`fixed left-0 top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-2 dark:bg-text-primary/80 dark:border-dark-3 ${className}`}>
         <div className="container mx-auto">
           <div className="relative flex items-center justify-between py-4 px-4">
             {/* Logo - используем компонент из дизайн-системы */}
@@ -141,7 +141,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
                     <li key={index}>
                       <a
                         href={item.href}
-                        className="text-base font-medium text-body-color hover:text-primary dark:text-dark-6 dark:hover:text-primary transition-colors"
+                        className="text-base font-medium text-text-secondary hover:text-primary transition-colors"
                       >
                         {item.label}
                       </a>
@@ -164,11 +164,11 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
               {showThemeSwitcher && (
                 <button
                   onClick={handleThemeToggle}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-dark hover:bg-gray-2 dark:text-white dark:hover:bg-dark-3 transition-all"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-text-primary hover:bg-gray-2 dark:hover:bg-dark-3 transition-all"
                   title={`Текущая тема: ${themeMode}. Кликните для переключения`}
                 >
                   {isDark ? (
-                    <Icon name="sun" size="sm" className="text-yellow-400" />
+                    <Icon name="sun" size="sm" className="text-warning" />
                   ) : (
                     <Icon name="moon" size="sm" className="text-primary" />
                   )}
@@ -189,7 +189,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
                     size="sm"
                     rounded
                   />
-                  <span className="hidden sm:inline text-sm font-medium text-dark dark:text-white">
+                  <span className="hidden sm:inline text-sm font-medium text-text-primary">
                     {userName}
                   </span>
                 </Button>
@@ -218,15 +218,15 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
     {/* Profile Popup для авторизованных пользователей - lazy loaded для оптимизации */}
     {isAuthenticated && userData && isProfilePopupOpen && (
       <Suspense fallback={null}>
-        <ProfilePopup
-          isOpen={isProfilePopupOpen}
-          onClose={() => setIsProfilePopupOpen(false)}
-          user={userData}
-          onSwitchAccount={() => {
-            onLogout?.();
-            navigate(buildPathWithLang('/auth', currentLang));
-          }}
-        />
+      <ProfilePopup
+        isOpen={isProfilePopupOpen}
+        onClose={() => setIsProfilePopupOpen(false)}
+        user={userData}
+        onSwitchAccount={() => {
+          onLogout?.();
+          navigate(buildPathWithLang('/auth', currentLang));
+        }}
+      />
       </Suspense>
     )}
     </>

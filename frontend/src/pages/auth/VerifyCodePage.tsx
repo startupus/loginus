@@ -116,15 +116,15 @@ export const VerifyCodePage: React.FC = () => {
           },
         });
       } else {
-        // Существующий пользователь - создаем базовые данные пользователя и переходим сразу
+        // Существующий пользователь - переходим сразу, профиль загружаем в фоне
         const userId = response.data.data.userId || '1';
         const { useAuthStore } = await import('../../store');
         
-        // Создаем базовые данные пользователя из доступной информации
+        // Создаем базовые данные пользователя
         useAuthStore.getState().login(
           {
             id: userId,
-            name: contact, // Временно используем контакт как имя, профиль загрузится на дашборде
+            name: contact,
             email: contactType === 'email' ? contact : '',
             phone: contactType === 'phone' ? contact : '',
             avatar: undefined,
@@ -133,12 +133,11 @@ export const VerifyCodePage: React.FC = () => {
           tokens.refreshToken
         );
         
-        // Переходим на дашборд (профиль) сразу, без ожидания загрузки профиля
+        // Переходим на дашборд сразу
         navigate(buildPathWithLang('/dashboard', currentLang));
         
-        // Загружаем полный профиль асинхронно в фоне (не блокируем переход)
-        // Профиль обновится автоматически когда загрузится на дашборде
-        (async () => {
+        // Загружаем профиль в фоне без блокировки
+        setTimeout(async () => {
           try {
             const { profileApi } = await import('../../services/api/profile');
             const profileResponse = await profileApi.getProfile();
@@ -155,8 +154,9 @@ export const VerifyCodePage: React.FC = () => {
             }
           } catch (error) {
             // Игнорируем ошибку - профиль загрузится на дашборде
+            console.warn('Profile load failed, will retry on dashboard');
           }
-        })();
+        }, 100); // Небольшая задержка для плавного перехода
       }
     } catch (err: any) {
       // Переводим сообщения об ошибках с бэкенда
@@ -267,7 +267,7 @@ export const VerifyCodePage: React.FC = () => {
               {t('auth.verifyCode.description', 'Мы отправили 6-значный код подтверждения')}
             </p>
             <div className="flex items-center gap-2 text-sm text-text-secondary">
-              <Icon name="phone" size="sm" className="text-primary" />
+              <Icon name="phone" size="sm" color="rgb(var(--color-primary))" />
               <span>
                 {t('auth.verifyCode.subtitle', 'на')} <span className="font-semibold text-text-primary">{masked}</span>
               </span>
@@ -288,14 +288,6 @@ export const VerifyCodePage: React.FC = () => {
           disabled={isVerifying}
         />
 
-        {error && (
-          <ErrorMessage
-            error={error}
-            onRetry={handleRetry}
-            retryable
-          />
-        )}
-
         <Button
           variant="primary"
           fullWidth
@@ -303,7 +295,7 @@ export const VerifyCodePage: React.FC = () => {
           onClick={() => handleCodeComplete(code)}
           loading={isVerifying}
         >
-          {t('auth.continue', 'Продолжить')}
+          {error ? t('auth.retry', 'Попробовать снова') : t('auth.continue', 'Продолжить')}
         </Button>
 
         <ResendTimer

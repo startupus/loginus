@@ -19,7 +19,7 @@ export const lightTheme: Theme = {
     border: '#e2e8f0',
   },
   typography: {
-    fontFamily: 'Inter, system-ui, sans-serif',
+    fontFamily: undefined, // Используем системный шрифт по умолчанию
     fontSize: {
       xs: '0.75rem',
       sm: '0.875rem',

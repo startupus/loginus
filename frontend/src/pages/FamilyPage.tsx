@@ -47,23 +47,23 @@ const FamilyPage: React.FC = () => {
       contentClassName="space-y-8 max-w-4xl mx-auto"
     >
         {/* Promo Block */}
-        <div className="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-2xl p-8 text-white shadow-lg relative overflow-hidden">
+        <div className="bg-gradient-to-r from-warning to-warning/80 rounded-2xl p-8 text-white shadow-lg relative overflow-hidden">
           <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-6">
             <div className="flex-1">
-              <h2 className="text-2xl font-bold mb-2 text-black">
+              <h2 className="text-2xl font-bold mb-2 text-white">
                 {t('family.promo.plus.title', 'Плюса хватит всем')}
               </h2>
-              <p className="text-black/80 mb-6 max-w-xl font-medium">
+              <p className="text-white/80 mb-6 max-w-xl font-medium">
                 {t('family.promo.plus.description', 'Подключите до 3 близких к подписке Плюс')}
               </p>
               <Button 
                 variant="secondary" 
-                className="bg-black text-white hover:bg-gray-900 border-none"
+                className="bg-text-primary text-background hover:bg-text-primary/90 border-none"
               >
                 {t('family.promo.plus.action', 'Расширить за 250 ₽')}
               </Button>
             </div>
-            <div className="hidden md:block text-black/20">
+            <div className="hidden md:block text-white/20">
                <Icon name="users" size="xl" className="w-32 h-32" />
             </div>
           </div>
@@ -99,13 +99,13 @@ const FamilyPage: React.FC = () => {
                                         status={member.isOnline ? 'online' : 'offline'}
                                     />
                             <div>
-                                <div className="font-medium dark:text-white flex items-center gap-2">
+                                <div className="font-medium text-text-primary flex items-center gap-2">
                                     {member.name}
                                     {member.role === 'admin' && (
                                         <Badge variant="primary" size="sm">Admin</Badge>
                                     )}
                                 </div>
-                                <div className="text-sm text-gray-500 dark:text-gray-400">
+                                <div className="text-sm text-text-secondary">
                                     {member.email || member.phone}
                                 </div>
                             </div>
@@ -118,7 +118,7 @@ const FamilyPage: React.FC = () => {
                     </div>
                 ))}
                  {adults.length === 0 && (
-                     <div className="text-center py-4 text-gray-500">
+                     <div className="text-center py-4 text-text-secondary">
                          {t('family.empty', 'Нет участников')}
                      </div>
                  )}
@@ -154,8 +154,8 @@ const FamilyPage: React.FC = () => {
                                         status={child.isOnline ? 'online' : 'offline'}
                                     />
                                     <div>
-                                        <div className="font-medium dark:text-white">{child.name}</div>
-                                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                                        <div className="font-medium text-text-primary">{child.name}</div>
+                                        <div className="text-sm text-text-secondary">
                                             {t('family.child.age', { age: child.age || '?' })}
                                         </div>
                                     </div>
@@ -168,12 +168,12 @@ const FamilyPage: React.FC = () => {
                     </SeparatedList>
                  </div>
             ) : (
-                <div className="flex flex-col items-center justify-center p-8 bg-background dark:bg-surface rounded-lg border border-dashed border-gray-300 dark:border-border text-center">
+                <div className="flex flex-col items-center justify-center p-8 bg-background dark:bg-surface rounded-lg border border-dashed border-border text-center">
                      <div className="w-12 h-12 bg-info/10 text-info rounded-full flex items-center justify-center mb-4">
                          <Icon name="smile" size="lg" />
                      </div>
-                     <h3 className="text-lg font-medium dark:text-white mb-2">{t('family.child.promo.title', 'Создайте детский аккаунт')}</h3>
-                     <p className="text-gray-500 max-w-md mb-4">
+                     <h3 className="text-lg font-medium text-text-primary mb-2">{t('family.child.promo.title', 'Создайте детский аккаунт')}</h3>
+                     <p className="text-text-secondary max-w-md mb-4">
                          {t('family.child.promo.description', 'Настройте ограничения по возрасту, времени и контенту. Это бесплатно.')}
                      </p>
                      <Button variant="primary" size="sm">
@@ -196,16 +196,16 @@ const FamilyPage: React.FC = () => {
                 { icon: 'mail', title: t('family.features.y360', 'Тариф Яндекс 360'), active: false },
                 { icon: 'users', title: t('family.features.roles', 'Роли'), active: true },
               ].map((feature, idx) => (
-                <div key={idx} className="flex items-center justify-between py-2 group cursor-pointer hover:bg-gray-50 dark:hover:bg-dark-3 transition-colors rounded-lg px-2 -mx-2">
+                <div key={idx} className="flex items-center justify-between py-2 group cursor-pointer hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors rounded-lg px-2 -mx-2">
                   <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${feature.active ? 'bg-success/10 text-success' : 'bg-gray-100 dark:bg-dark-3 text-gray-400 dark:text-dark-6'}`}>
+                    <div className={`p-2 rounded-lg ${feature.active ? 'bg-success/10 text-success' : 'bg-gray-1 dark:bg-dark-3 text-text-secondary'}`}>
                        <Icon name={feature.icon} size="md" />
                     </div>
-                    <div className="font-medium dark:text-white group-hover:text-primary transition-colors">
+                    <div className="font-medium text-text-primary group-hover:text-primary transition-colors">
                       {feature.title}
                     </div>
                   </div>
-                  <Icon name="chevron-right" size="sm" className="text-gray-400 group-hover:text-primary transition-colors" />
+                  <Icon name="chevron-right" size="sm" className="text-text-secondary group-hover:text-primary transition-colors" />
                 </div>
               ))}
               <Separator />

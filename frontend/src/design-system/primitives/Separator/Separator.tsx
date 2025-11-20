@@ -34,7 +34,7 @@ export const Separator = React.forwardRef<HTMLDivElement, SeparatorProps>(
     ref
   ) => {
     // Base styles
-    const baseStyles = 'bg-secondary-200 dark:bg-secondary-700';
+    const baseStyles = 'bg-border dark:bg-dark-3';
 
     // Orientation styles
     const orientationStyles = {

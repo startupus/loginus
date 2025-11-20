@@ -121,7 +121,7 @@ const HelpPage: React.FC = () => {
                     <li key={linkIndex}>
                       <a
                         href={buildPathWithLang(link.href, currentLang)}
-                        className="text-sm text-primary hover:text-primary-600 dark:hover:text-primary-400 transition-colors inline-flex items-center gap-1"
+                        className="text-sm text-primary hover:text-primary/80 transition-colors inline-flex items-center gap-1"
                       >
                         <span>{link.text}</span>
                         <Icon name="chevron-right" size="sm" />
@@ -136,7 +136,7 @@ const HelpPage: React.FC = () => {
       </div>
 
       {/* Additional Help Section */}
-      <div className="mt-12 p-6 bg-gray-50 dark:bg-gray-2 rounded-lg border border-border">
+      <div className="mt-12 p-6 bg-gray-1 dark:bg-gray-2 rounded-lg border border-border">
         <h3 className="text-lg font-semibold text-text-primary mb-3">
           {t('help.additionalHelp.title', 'Не нашли ответ?')}
         </h3>
@@ -146,7 +146,7 @@ const HelpPage: React.FC = () => {
         <div className="flex flex-wrap gap-4">
           <a
             href={buildPathWithLang('/support', currentLang)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-600 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
           >
             <Icon name="message-circle" size="sm" />
             <span>{t('help.additionalHelp.contact', 'Связаться с поддержкой')}</span>

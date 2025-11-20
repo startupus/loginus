@@ -197,7 +197,7 @@ export const Modal: React.FC<ModalProps> = ({
   const modalContent = (
     // Overlay - ТОЧНЫЕ классы из TailGrids Modal1.jsx
     <div 
-      className={`fixed left-0 top-0 ${position === 'center' ? 'z-[100001]' : 'z-[100]'} flex h-full min-h-screen w-full ${positionClasses} ${position === 'center' ? 'bg-dark/90 px-4 py-5' : ''}`}
+      className={`fixed left-0 top-0 ${position === 'center' ? 'z-[100001]' : 'z-[100]'} flex h-full min-h-screen w-full ${positionClasses} ${position === 'center' ? 'bg-text-primary/90 px-4 py-5' : ''}`}
       style={position !== 'center' ? { background: 'transparent', pointerEvents: 'none' } : {}}
       onClick={(e) => {
         // Закрываем модалку при клике на overlay
@@ -215,7 +215,7 @@ export const Modal: React.FC<ModalProps> = ({
         {/* Title - из TailGrids Modal1.jsx */}
           {title && (
           <>
-            <h3 className="pb-[18px] text-xl font-semibold text-dark dark:text-white sm:text-2xl">
+            <h3 className="pb-[18px] text-xl font-semibold text-text-primary sm:text-2xl">
               {title}
             </h3>
             {/* Separator - из TailGrids Modal1.jsx */}
@@ -224,7 +224,7 @@ export const Modal: React.FC<ModalProps> = ({
           )}
 
         {/* Content - из TailGrids Modal1.jsx */}
-        <div className="mb-10 text-base leading-relaxed text-body-color dark:text-dark-6">
+        <div className="mb-10 text-base leading-relaxed text-text-secondary">
           {children}
         </div>
 

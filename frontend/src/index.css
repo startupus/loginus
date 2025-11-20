@@ -23,6 +23,8 @@
     --color-info: 59 130 246;
     --color-background: 255 255 255;
     --color-surface: 248 250 252;
+    /* Чуть более контрастная поверхность для приподнятых контролов (плавающие кнопки и т.п.) */
+    --color-surface-elevated: 243 244 246;
     --color-text-primary: 15 23 42;
     --color-text-secondary: 100 116 139;
     --color-text-disabled: 203 213 225;
@@ -65,6 +67,8 @@
     --color-info: 59 130 246;
     --color-background: 17 24 39;
     --color-surface: 31 41 55;
+    /* Приподнятая поверхность для контраста на темном фоне */
+    --color-surface-elevated: 55 65 81;
     --color-text-primary: 248 250 252;
     --color-text-secondary: 148 163 184;
     --color-text-disabled: 71 85 105;
@@ -82,7 +86,6 @@
   }
   
   body {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background-color: rgb(var(--color-background));

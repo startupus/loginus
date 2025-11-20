@@ -23,6 +23,7 @@ export default {
         // Фоновые цвета через CSS переменные
         background: { DEFAULT: 'rgb(var(--color-background) / <alpha-value>)' },
         surface: { DEFAULT: 'rgb(var(--color-surface) / <alpha-value>)' },
+        'surface-elevated': { DEFAULT: 'rgb(var(--color-surface-elevated) / <alpha-value>)' },
         
         // Цвета текста через CSS переменные
         'text-primary': { DEFAULT: 'rgb(var(--color-text-primary) / <alpha-value>)' },
@@ -84,7 +85,7 @@ export default {
     safelist: [
       // Сохраняем динамические классы, которые генерируются программно
       {
-        pattern: /^(bg|text|border)-(primary|secondary|success|warning|error|info|background|surface|text-primary|text-secondary|text-disabled|border)/,
+        pattern: /^(bg|text|border)-(primary|secondary|success|warning|error|info|background|surface|surface-elevated|text-primary|text-secondary|text-disabled|border)/,
         variants: ['hover', 'focus', 'active', 'dark'],
       },
       {

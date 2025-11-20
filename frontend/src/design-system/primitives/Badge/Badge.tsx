@@ -108,14 +108,14 @@ export const Badge: React.FC<BadgeProps> = ({
         opacity: 'bg-info/10 text-info',
       },
       gray: {
-        solid: 'bg-gray-3 text-dark dark:text-white',
-        outline: 'border border-gray-3 text-dark dark:border-dark-3 dark:text-white',
-        opacity: 'bg-gray-3/10 text-dark dark:text-white',
+        solid: 'bg-gray-3 text-text-primary',
+        outline: 'border border-gray-3 text-text-primary dark:border-dark-3',
+        opacity: 'bg-gray-3/10 text-text-primary',
       },
       dark: {
         solid: 'bg-dark text-white dark:bg-dark-2',
-        outline: 'border border-dark text-dark dark:border-dark-2 dark:text-white',
-        opacity: 'bg-dark/10 text-dark dark:text-white',
+        outline: 'border border-dark text-text-primary dark:border-dark-2',
+        opacity: 'bg-dark/10 text-text-primary',
       },
     };
     
