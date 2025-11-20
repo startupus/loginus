@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';
+import { themeClasses } from '../../utils/themeClasses';
 
 export interface FooterProps {
   /**
@@ -18,7 +19,7 @@ export const Footer: React.FC<FooterProps> = ({ className = '' }) => {
   const currentLang = useCurrentLanguage();
   
   return (
-    <footer className={`bg-white dark:bg-dark-2 border-t border-stroke dark:border-dark-3 mt-auto ${className}`}>
+    <footer className={`${themeClasses.background.surfaceElevated} mt-auto ${className}`}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="text-sm text-text-secondary">

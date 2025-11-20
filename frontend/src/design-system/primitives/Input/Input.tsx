@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTheme } from '../../contexts/ThemeContext';
+import { themeClasses } from '../../utils/themeClasses';
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   /**
@@ -56,36 +56,33 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     },
     ref
   ) => {
-    const { isDark } = useTheme();
+    // Базовые классы - используем стандартизированные классы темы
+    const baseInputClasses = 'w-full rounded-md border px-5 py-[10px] transition focus:border-primary active:border-primary disabled:cursor-default';
     
-    // Базовые классы из TailGrids FormElementInput - ТОЧНЫЕ из исходника
-    const baseInputClasses = 'w-full rounded-md border px-5 py-[10px] transition focus:border-primary active:border-primary disabled:cursor-default disabled:border-gray-2 disabled:bg-gray-2';
-    
-    // Классы границ в зависимости от состояния (из TailGrids)
+    // Классы границ в зависимости от состояния - используем стандартизированные классы
     const borderClasses = error 
-      ? 'border-red' // Из InvalidInput.jsx
-      : 'border-stroke dark:border-dark-3'; // Из DefaultInput.jsx
+      ? 'border-error' // Ошибка - красная граница
+      : themeClasses.border.default; // Стандартная граница
     
-    // Классы фона и текста (из TailGrids)
-    // text-text-primary для введенного значения, placeholder будет серым автоматически
-    const bgClasses = `bg-transparent ${isDark ? 'text-white' : 'text-text-primary'} placeholder:text-text-secondary`;
+    // Классы фона и текста - используем стандартизированные классы
+    // placeholder должен использовать прямой класс, так как Tailwind не поддерживает динамические классы в template strings
+    const bgClasses = `bg-white dark:bg-transparent ${themeClasses.text.primary} placeholder:text-text-secondary`;
     
-    // Disabled классы для темной темы (из TailGrids)
-    const disabledDarkClasses = 'dark:disabled:border-dark-4 dark:disabled:bg-dark-4';
+    // Disabled классы - используем стандартизированные классы для обеих тем
+    const disabledClasses = 'disabled:border-gray-2 disabled:bg-gray-2 dark:disabled:border-dark-3 dark:disabled:bg-dark-3';
     
     // Если есть иконки - добавить padding
-    // Для leftIcon с +7 нужен отступ, но не слишком большой
     const paddingClasses = leftIcon ? 'pl-16' : rightIcon ? 'pr-12' : '';
 
-    const inputClassName = `${baseInputClasses} ${borderClasses} ${bgClasses} ${disabledDarkClasses} ${paddingClasses} ${className}`.trim();
+    const inputClassName = `${baseInputClasses} ${borderClasses} ${bgClasses} ${disabledClasses} ${paddingClasses} ${className}`.trim();
     
     const widthClass = fullWidth ? 'w-full' : '';
 
     return (
       <div className={widthClass}>
-        {/* Label - из TailGrids */}
+        {/* Label - используем стандартизированные классы */}
         {label && (
-          <label className={`mb-[10px] block text-base font-medium ${isDark ? 'text-white' : 'text-text-primary'}`}>
+          <label className={`mb-[10px] block text-base font-medium ${themeClasses.text.primary}`}>
             {label}
           </label>
         )}
@@ -147,16 +144,16 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           )}
         </div>
         
-        {/* Error Message - из TailGrids InvalidInput */}
+        {/* Error Message - используем стандартизированные классы */}
         {error && (
-          <p className="mt-[10px] text-sm text-red">
+          <p className={`mt-[10px] text-sm text-error`}>
             {error}
           </p>
         )}
         
-        {/* Helper Text - дополнительно */}
+        {/* Helper Text - используем стандартизированные классы */}
         {helperText && !error && (
-          <p className="mt-[10px] text-sm text-text-secondary">
+          <p className={`mt-[10px] text-sm ${themeClasses.text.secondary}`}>
             {helperText}
           </p>
         )}

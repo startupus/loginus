@@ -6,7 +6,7 @@ import { Button } from '../design-system/primitives/Button';
 import { Icon } from '../design-system/primitives';
 import { useLanguageStore } from '../store';
 import { useCurrentLanguage, buildPathWithLang } from '../utils/routing';
-import { useTheme } from '../design-system/contexts/ThemeContext';
+import { themeClasses } from '../design-system/utils/themeClasses';
 
 /**
  * AboutPage - информационная страница о Loginus ID
@@ -17,7 +17,6 @@ const AboutPage: React.FC = () => {
   const { t, i18n } = useTranslation();
   const { setLanguage, language: storeLanguage } = useLanguageStore();
   const currentLang = useCurrentLanguage() || storeLanguage || 'ru';
-  const { isDark } = useTheme();
 
   const handleLanguageChange = () => {
     const newLang = currentLang === 'ru' ? 'en' : 'ru';
@@ -80,7 +79,7 @@ const AboutPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-dark">
+    <div className={themeClasses.page.container}>
       {/* Header */}
       <LandingHeader
         onLanguageChange={handleLanguageChange}
@@ -137,7 +136,7 @@ const AboutPage: React.FC = () => {
       </section>
 
       {/* What is Loginus ID Section */}
-      <section className="py-20 bg-white dark:bg-dark-2">
+      <section className={`py-20 ${themeClasses.background.surfaceElevated}`}>
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl font-bold text-text-primary mb-6 text-center">
@@ -159,16 +158,16 @@ const AboutPage: React.FC = () => {
       </section>
 
       {/* Features Grid Section */}
-      <section className="py-20 bg-gray-1 dark:bg-dark">
+      <section className={`py-20 ${themeClasses.page.containerGray}`}>
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-text-primary mb-12 text-center">
+          <h2 className={`text-3xl font-bold ${themeClasses.text.primary} mb-12 text-center`}>
             {t('about.features.title', 'Основные возможности')}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="bg-white dark:bg-dark-2 rounded-xl p-6 border border-gray-2 dark:border-dark-3/50 hover:shadow-lg transition-all"
+                className={`${themeClasses.card.shadow} rounded-xl p-6 ${themeClasses.border.dark} hover:shadow-lg transition-all`}
               >
                 <div className="w-12 h-12 bg-primary/10 dark:bg-primary/20 rounded-lg flex items-center justify-center mb-4">
                   <Icon name={feature.icon} size="lg" className="text-primary" />
@@ -186,7 +185,7 @@ const AboutPage: React.FC = () => {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-20 bg-white dark:bg-dark-2">
+      <section className={`py-20 ${themeClasses.background.surfaceElevated}`}>
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl font-bold text-text-primary mb-12 text-center">
@@ -237,15 +236,14 @@ const AboutPage: React.FC = () => {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-gray-2 bg-white py-10 dark:border-dark-3 dark:bg-dark">
+      <footer className={`border-t ${themeClasses.border.default} ${themeClasses.background.default} py-10`}>
         <div className="container mx-auto px-4">
           <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
             <div className="flex items-center gap-3">
               <div 
-                className="w-8 h-8 rounded-lg flex items-center justify-center ring-1 ring-black/5"
+                className="w-8 h-8 rounded-lg flex items-center justify-center ring-1 ring-black/5 bg-text-primary dark:bg-white"
                 style={{
-                  backgroundColor: isDark ? 'rgb(255, 255, 255)' : 'rgb(var(--color-text-primary))',
-                  color: isDark ? 'rgb(15, 23, 42)' : 'rgb(var(--color-background))',
+                  color: 'rgb(var(--color-background))',
                 }}
               >
                 <span className="text-sm font-extrabold leading-none">iD</span>

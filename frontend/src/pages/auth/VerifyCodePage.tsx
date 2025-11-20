@@ -291,9 +291,9 @@ export const VerifyCodePage: React.FC = () => {
         <Button
           variant="primary"
           fullWidth
-          disabled={code.length !== 6 || isVerifying}
           onClick={() => handleCodeComplete(code)}
           loading={isVerifying}
+          className="shadow-lg hover:shadow-xl"
         >
           {error ? t('auth.retry', 'Попробовать снова') : t('auth.continue', 'Продолжить')}
         </Button>

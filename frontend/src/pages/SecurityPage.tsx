@@ -30,7 +30,7 @@ interface Activity {
 
 const SecurityPage: React.FC = () => {
   const { t } = useTranslation();
-  const { getGradientStyleFromVars, isDark } = useThemeClasses();
+  const { getGradientStyleFromVars } = useThemeClasses();
   const [devices, setDevices] = useState<Device[]>([]);
   const [activity, setActivity] = useState<Activity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -99,8 +99,8 @@ const SecurityPage: React.FC = () => {
               {t('security.biometry.description', 'Это быстрее и безопаснее, чем пароль. Мы не храним ваши биометрические данные — они остаются на устройстве.')}
             </p>
             <Button 
-              variant={isDark ? 'outline' : 'secondary'}
-              className={isDark ? 'border-white/20 text-white hover:bg-white/10 hover:border-white/30' : ''}
+              variant="outline"
+              className="border-white/20 text-white hover:bg-white/10 hover:border-white/30 dark:border-white/20 dark:text-white dark:hover:bg-white/10 dark:hover:border-white/30"
             >
               {t('security.biometry.connect', 'Подключить')}
             </Button>
@@ -110,8 +110,8 @@ const SecurityPage: React.FC = () => {
           </div>
         </div>
         {/* Decorative circles */}
-        <div className={`absolute top-0 right-0 w-64 h-64 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl ${isDark ? 'bg-white/5' : 'bg-white/10'}`}></div>
-        <div className={`absolute bottom-0 left-0 w-48 h-48 rounded-full translate-y-1/3 -translate-x-1/4 blur-2xl ${isDark ? 'bg-text-primary/5' : 'bg-text-primary/10'}`}></div>
+        <div className="absolute top-0 right-0 w-64 h-64 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl bg-white/5 dark:bg-white/10"></div>
+        <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full translate-y-1/3 -translate-x-1/4 blur-2xl bg-text-primary/5 dark:bg-text-primary/10"></div>
       </div>
 
       {/* Login Methods Section */}

@@ -10,6 +10,7 @@ import { Header } from '../Header';
 import { useAuthStore } from '@/store';
 import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';
 import { SidebarProvider, useSidebar } from '../../hooks';
+import { themeClasses } from '../../utils/themeClasses';
 
 export interface PageTemplateProps {
   children: React.ReactNode;
@@ -73,7 +74,7 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
     },
     { 
       label: t('sidebar.data', 'Данные'), 
-      path: buildPathWithLang('/personal/documents', currentLang), 
+      path: buildPathWithLang('/personal', currentLang), 
       icon: 'document', 
       active: location.pathname.includes('/personal'),
       children: [
@@ -130,15 +131,15 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
   } : undefined);
 
   return (
-    <section className="bg-gray-1 dark:bg-dark relative flex min-h-screen w-full items-start">
+    <section className={`${themeClasses.page.containerGray} relative flex min-h-screen w-full items-start`}>
       {shouldShowSidebar && finalSidebarItems && (
         <Suspense fallback={
-          <div className="hidden xl:block fixed left-0 top-0 h-full w-[300px] bg-white dark:bg-dark-2 border-r border-stroke dark:border-dark-3 animate-pulse">
+          <div className={`hidden xl:block fixed left-0 top-0 h-full w-[300px] ${themeClasses.background.surfaceElevated} border-r ${themeClasses.border.default} animate-pulse`}>
             <div className="p-6">
-              <div className="h-8 bg-gray-2 dark:bg-gray-3 rounded w-32 mb-8"></div>
+              <div className={`h-8 ${themeClasses.background.gray2} rounded w-32 mb-8`}></div>
               <div className="space-y-2">
                 {[1, 2, 3, 4, 5].map((i) => (
-                  <div key={i} className="h-10 bg-gray-2 dark:bg-gray-3 rounded"></div>
+                  <div key={i} className={`h-10 ${themeClasses.background.gray2} rounded`}></div>
                 ))}
               </div>
             </div>
@@ -161,7 +162,7 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
           onLogout={logout}
         />
 
-        <div className="bg-gray-1 dark:bg-dark p-[30px] flex-1">
+        <div className={`${themeClasses.page.content}`}>
           <div className={contentClassName}>
             {children}
           </div>

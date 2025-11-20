@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTheme } from '../../contexts/ThemeContext';
+import { themeClasses } from '../../utils/themeClasses';
 
 export interface ServiceCardProps {
   /**
@@ -39,21 +39,20 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
   onClick,
   className = '',
 }) => {
-  const { isDark } = useTheme();
   const Component = onClick ? 'button' : 'div';
   
   return (
     <Component
       onClick={onClick}
-      className={`group rounded-2xl bg-white p-8 shadow-1 transition-all duration-300 hover:shadow-3 hover:-translate-y-1 dark:bg-dark-2 dark:shadow-card dark:hover:shadow-3 ${onClick ? 'cursor-pointer' : ''} ${className}`}
+      className={`group rounded-2xl ${themeClasses.card.shadow} p-8 transition-all duration-300 hover:shadow-3 hover:-translate-y-1 dark:hover:shadow-3 ${onClick ? 'cursor-pointer' : ''} ${className}`}
     >
       <div className="mb-4 transition-transform duration-300 group-hover:scale-110">
         {icon}
       </div>
-      <h3 className={`mb-2 text-xl font-bold ${isDark ? 'text-white' : 'text-text-primary'}`}>
+      <h3 className={`mb-2 text-xl font-bold ${themeClasses.text.primary}`}>
         {title}
       </h3>
-      <p className="text-sm leading-relaxed text-text-secondary">
+      <p className={`text-sm leading-relaxed ${themeClasses.text.secondary}`}>
         {description}
       </p>
     </Component>

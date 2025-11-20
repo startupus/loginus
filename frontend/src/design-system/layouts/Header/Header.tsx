@@ -10,6 +10,7 @@ const ProfilePopup = lazy(() => import('../../composites/ProfilePopup').then(m =
 import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';
 import { useAuthStore } from '@/store';
 import { useTheme } from '../../contexts/ThemeContext';
+import { themeClasses } from '../../utils/themeClasses';
 
 export interface HeaderProps {
   title?: string;
@@ -60,21 +61,21 @@ export const Header: React.FC<HeaderProps> = ({
   };
   
   return (
-    <header className="bg-white/80 backdrop-blur-md border-b border-gray-2 dark:bg-text-primary/80 dark:border-dark-3 sticky xl:static top-0 z-30">
+    <header className="bg-background/80 dark:bg-dark-2/80 backdrop-blur-md border-b border-border dark:border-dark-3 sticky xl:static top-0 z-30">
       <div className="w-full">
         <div className="relative flex items-center justify-between py-4 px-4 xl:px-6">
           <div className="flex items-center gap-4">
             {showMobileMenuButton && (
               <button
                 onClick={onMobileMenuClick}
-                className={`border-stroke ${isDark ? 'text-white' : 'text-text-primary'} hover:bg-gray dark:border-dark-3 dark:bg-dark-2 dark:hover:bg-dark-3 flex h-[46px] w-[46px] items-center justify-center rounded-lg border bg-white xl:hidden`}
+                className={`${themeClasses.border.default} ${themeClasses.text.primary} hover:bg-gray-1 dark:hover:bg-dark-3 flex h-[46px] w-[46px] items-center justify-center rounded-lg border ${themeClasses.background.surface} xl:hidden`}
               >
                 <Icon name="menu" size="md" />
               </button>
             )}
             
             {title && (
-              <h1 className={`text-xl sm:text-2xl font-bold ${isDark ? 'text-white' : 'text-text-primary'}`}>
+              <h1 className={`text-xl sm:text-2xl font-bold ${themeClasses.text.primary}`}>
                 {title}
               </h1>
             )}
@@ -103,9 +104,9 @@ export const Header: React.FC<HeaderProps> = ({
                 className="relative p-2 rounded-lg hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors duration-200 group"
                 aria-label={t('header.notifications', 'Уведомления')}
               >
-                <Icon name="bell" size="md" className="text-text-secondary dark:text-dark-6 group-hover:text-primary dark:group-hover:text-primary transition-colors" />
+                <Icon name="bell" size="md" className={`${themeClasses.text.secondary} group-hover:text-primary transition-colors`} />
                 {/* Индикатор непрочитанных */}
-                <span className="absolute top-1 right-1 w-2 h-2 bg-error rounded-full border-2 border-white dark:border-dark-2"></span>
+                <span className={`absolute top-1 right-1 w-2 h-2 bg-error rounded-full border-2 ${themeClasses.background.default} dark:border-dark-2`}></span>
               </button>
             )}
             

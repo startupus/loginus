@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useContactMasking } from '../../../hooks/useContactMasking';
 import { Button } from '../../primitives/Button';
-import { useTheme } from '../../contexts/ThemeContext';
+import { themeClasses } from '../../utils/themeClasses';
 
 export interface ContactDisplayProps {
   /**
@@ -48,7 +48,6 @@ export const ContactDisplay: React.FC<ContactDisplayProps> = ({
   size = 'md',
 }) => {
   const { t } = useTranslation();
-  const { isDark } = useTheme();
   const { masked: maskedContact, full } = useContactMasking(contact, type);
 
   const displayContact = masked ? maskedContact : full;
@@ -60,9 +59,9 @@ export const ContactDisplay: React.FC<ContactDisplayProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-between gap-4 p-4 rounded-lg bg-gray-1 dark:bg-dark-2">
+    <div className={`flex items-center justify-between gap-4 p-4 rounded-lg ${themeClasses.background.gray} dark:bg-dark-2`}>
       <div className="flex-1">
-        <p className={`font-medium ${isDark ? 'text-white' : 'text-text-primary'} ${sizeClasses[size]}`}>
+        <p className={`font-medium ${themeClasses.text.primary} ${sizeClasses[size]}`}>
           {displayContact}
         </p>
       </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Icon } from '../../primitives';
-import { useTheme } from '../../contexts/ThemeContext';
+import { themeClasses } from '../../utils/themeClasses';
 
 export interface AddButtonProps {
   /**
@@ -57,7 +57,6 @@ export const AddButton: React.FC<AddButtonProps> = ({
   background = 'default',
   className = '',
 }) => {
-  const { isDark } = useTheme();
   const sizeClasses = {
     sm: {
       padding: 'p-2',
@@ -91,9 +90,9 @@ export const AddButton: React.FC<AddButtonProps> = ({
     none: 'border-0',
   };
 
-  // Определяем классы фона
+  // Определяем классы фона - используем стандартизированные классы
   const backgroundClasses = {
-    default: 'bg-white dark:bg-dark-2',
+    default: themeClasses.background.surfaceElevated,
     transparent: 'bg-transparent',
   };
 
@@ -102,7 +101,7 @@ export const AddButton: React.FC<AddButtonProps> = ({
     rounded-xl 
     ${backgroundClasses[background]}
     ${borderClasses[borderStyle]}
-    ${borderStyle !== 'none' ? 'border-stroke dark:border-dark-3 hover:border-primary dark:hover:border-primary' : ''}
+    ${borderStyle !== 'none' ? `${themeClasses.border.default} hover:border-primary dark:hover:border-primary` : ''}
     transition-all duration-200 
     cursor-pointer
   `.trim().replace(/\s+/g, ' ');
@@ -117,7 +116,7 @@ export const AddButton: React.FC<AddButtonProps> = ({
           <Icon name="plus" size={currentSize.icon} className="text-primary" />
         </div>
         <div className="flex flex-col items-start min-w-0">
-          <span className={`${currentSize.text} font-semibold ${isDark ? 'text-white' : 'text-text-primary'} transition-colors duration-200 group-hover:text-primary`}>
+          <span className={`${currentSize.text} font-semibold ${themeClasses.text.primary} transition-colors duration-200 group-hover:text-primary`}>
             {label}
           </span>
         </div>

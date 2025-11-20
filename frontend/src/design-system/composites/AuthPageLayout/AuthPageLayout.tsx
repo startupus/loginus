@@ -6,6 +6,7 @@ import { Icon } from '../../primitives/Icon';
 import { useTheme } from '../../contexts';
 import { useLanguageStore } from '@/store';
 import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';
+import { themeClasses } from '../../utils/themeClasses';
 
 export interface AuthPageLayoutHeader {
   /**
@@ -160,7 +161,7 @@ export const AuthPageLayout: React.FC<AuthPageLayoutProps> = ({
     <div className={`min-h-screen flex flex-col ${backgroundClasses[background]} ${className}`}>
       {/* Header */}
       {header && (
-        <header className="p-4 sm:p-6 border-b border-gray-2 dark:border-dark-3 bg-white dark:bg-dark-2">
+        <header className={`p-4 sm:p-6 border-b ${themeClasses.border.dark} ${themeClasses.background.surfaceElevated}`}>
           <div className="grid grid-cols-3 items-center w-full">
             {/* Левая колонка: кнопка "Назад" */}
             <div className="flex justify-start">
@@ -207,7 +208,7 @@ export const AuthPageLayout: React.FC<AuthPageLayoutProps> = ({
 
       {/* Footer */}
       {footer && (
-        <footer className="p-4 sm:p-6 border-t border-gray-2 dark:border-dark-3 bg-white dark:bg-dark-2">
+        <footer className={`p-4 sm:p-6 border-t ${themeClasses.border.dark} ${themeClasses.background.surfaceElevated}`}>
           <div className="flex items-center justify-between">
             {/* Левая часть: переключатель языка */}
             <LanguageSwitcher />

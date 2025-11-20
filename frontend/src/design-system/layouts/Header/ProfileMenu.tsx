@@ -8,6 +8,7 @@ import { getInitials } from '@/utils/stringUtils';
 import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';
 import { useContactMasking } from '@/hooks/useContactMasking';
 import { useTheme } from '../../contexts/ThemeContext';
+import { themeClasses } from '../../utils/themeClasses';
 // Lazy loading для модалки - не нужна при первой загрузке
 const OrganizationModal = React.lazy(() => import('@/components/Modals/OrganizationModal').then(m => ({ default: m.OrganizationModal })));
 import { useModal } from '@/hooks/useModal';
@@ -42,7 +43,7 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
   const { t, i18n } = useTranslation();
   const currentLang = useCurrentLanguage();
   const { isOpen, toggleMenu, closeMenu, menuRef } = useProfileMenu();
-  const { isDark, setThemeMode } = useTheme();
+  const { setThemeMode } = useTheme();
   const organizationModal = useModal();
   const [isSkinMenuOpen, setIsSkinMenuOpen] = useState(false);
   const skinMenuRef = useRef<HTMLDivElement>(null);
@@ -133,9 +134,9 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
         </button>
 
         {isOpen && (
-          <div className="absolute top-full right-0 mt-3 w-[280px] bg-white dark:bg-dark-2 rounded-xl shadow-card-2 border border-gray-2 dark:border-dark-3 z-50 overflow-hidden animate-in">
+          <div className={`absolute top-full right-0 mt-3 w-[280px] bg-white dark:bg-dark-2 rounded-xl shadow-card-2 ${themeClasses.border.default} z-50 overflow-hidden animate-in`}>
             {/* Заголовок с аватаром и информацией */}
-            <div className="p-4 border-b border-gray-2 dark:border-dark-3">
+            <div className={`p-4 border-b ${themeClasses.border.default}`}>
               <div className="flex items-center gap-3 mb-2">
                 <Avatar
                   src={avatarSrc}
@@ -145,7 +146,7 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
                   rounded
                 />
                 <div className="flex-1 min-w-0">
-                  <div className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-text-primary'} truncate`}>
+                  <div className={`text-sm font-semibold ${themeClasses.text.primary} truncate`}>
                     {userData.name}
                   </div>
                   <div className="text-xs text-text-secondary truncate">
@@ -169,8 +170,8 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
                   onClick={organizationModal.open}
                   className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors text-left group"
                 >
-                  <Icon name="users" size="sm" className="text-text-secondary dark:text-dark-6" />
-                  <span className={`flex-1 text-sm ${isDark ? 'text-white' : 'text-text-primary'}`}>
+                  <Icon name="users" size="sm" className={`${themeClasses.text.secondary} dark:text-dark-6`} />
+                  <span className={`flex-1 text-sm ${themeClasses.text.primary}`}>
                     {t('modals.organization.title', 'Выбрать организацию')}
                   </span>
                   <Icon name="chevron-down" size="xs" className="text-text-secondary dark:text-dark-6 group-hover:text-primary transition-colors" />
@@ -187,9 +188,9 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
                 rel="noopener noreferrer"
                 className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors group"
               >
-                <Icon name="mail" size="sm" className="text-text-secondary dark:text-dark-6" />
+                <Icon name="mail" size="sm" className={`${themeClasses.text.secondary} dark:text-dark-6`} />
                 <div className="flex-1 min-w-0">
-                  <div className={`text-sm ${isDark ? 'text-white' : 'text-text-primary'}`}>{t('profile.mail', 'Почта')}</div>
+                  <div className={`text-sm ${themeClasses.text.primary}`}>{t('profile.mail', 'Почта')}</div>
                 </div>
                 {userData.unreadMail !== undefined && userData.unreadMail > 0 && (
                   <div className="flex items-center gap-2">
@@ -208,9 +209,9 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
                 rel="noopener noreferrer"
                 className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors group"
               >
-                <Icon name="star" size="sm" className="text-text-secondary dark:text-dark-6" />
+                <Icon name="star" size="sm" className={`${themeClasses.text.secondary} dark:text-dark-6`} />
                 <div className="flex-1 min-w-0">
-                  <div className={`text-sm ${isDark ? 'text-white' : 'text-text-primary'}`}>
+                  <div className={`text-sm ${themeClasses.text.primary}`}>
                     {(() => {
                       const translation = t('profile.plus', { defaultValue: 'Клубус' });
                       // Если i18next вернул ключ (перевод не найден) или "Плюс", используем "Клубус"
@@ -239,9 +240,9 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
                 onClick={closeMenu}
                 className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors group"
               >
-                <Icon name="user" size="sm" className="text-text-secondary dark:text-dark-6" />
+                <Icon name="user" size="sm" className={`${themeClasses.text.secondary} dark:text-dark-6`} />
                 <div className="flex-1 min-w-0">
-                  <div className={`text-sm ${isDark ? 'text-white' : 'text-text-primary'}`}>
+                  <div className={`text-sm ${themeClasses.text.primary}`}>
                     {t('profile.personalData', 'Личные данные')}
                   </div>
                   <div className="text-xs text-text-secondary">
@@ -257,9 +258,9 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
                   onClick={closeMenu}
                   className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors group"
                 >
-                  <Icon name="phone" size="sm" className="text-text-secondary dark:text-dark-6" />
+                  <Icon name="phone" size="sm" className={`${themeClasses.text.secondary} dark:text-dark-6`} />
                   <div className="flex-1 min-w-0">
-                    <div className={`text-sm ${isDark ? 'text-white' : 'text-text-primary'}`}>
+                    <div className={`text-sm ${themeClasses.text.primary}`}>
                       {t('profile.phone', 'Телефон')}
                     </div>
                     <div className="text-xs text-text-secondary">
@@ -281,8 +282,8 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
                   onClick={() => setIsSkinMenuOpen(!isSkinMenuOpen)}
                   className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors group"
                 >
-                  <Icon name="monitor" size="sm" className="text-text-secondary dark:text-dark-6" />
-                  <span className={`flex-1 text-sm ${isDark ? 'text-white' : 'text-text-primary'} text-left`}>
+                  <Icon name="monitor" size="sm" className={`${themeClasses.text.secondary} dark:text-dark-6`} />
+                  <span className={`flex-1 text-sm ${themeClasses.text.primary} text-left`}>
                     {t('profile.skin', 'Внешний вид')}
                   </span>
                   <Icon 
@@ -292,7 +293,7 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
                   />
                 </button>
                 {isSkinMenuOpen && (
-                  <div className="absolute left-0 right-0 top-full mt-1 bg-white dark:bg-dark-2 rounded-lg shadow-lg border border-gray-2 dark:border-dark-3 overflow-hidden z-10">
+                  <div className={`absolute left-0 right-0 top-full mt-1 bg-white dark:bg-dark-2 rounded-lg shadow-lg ${themeClasses.border.default} overflow-hidden z-10`}>
                     <button
                       onClick={() => handleSkinChange('light')}
                       className="w-full px-3 py-2 text-sm text-left hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors"
@@ -322,8 +323,8 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
                 rel="noopener noreferrer"
                 className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors group"
               >
-                <Icon name="settings" size="sm" className="text-text-secondary dark:text-dark-6" />
-                <span className={`flex-1 text-sm ${isDark ? 'text-white' : 'text-text-primary'} text-left`}>
+                <Icon name="settings" size="sm" className={`${themeClasses.text.secondary} dark:text-dark-6`} />
+                <span className={`flex-1 text-sm ${themeClasses.text.primary} text-left`}>
                   {t('profile.settings', 'Настройки')}
                 </span>
               </a>
@@ -334,8 +335,8 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
                 onClick={closeMenu}
                 className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors group"
               >
-                <Icon name="help-circle" size="sm" className="text-text-secondary dark:text-dark-6" />
-                <span className={`flex-1 text-sm ${isDark ? 'text-white' : 'text-text-primary'} text-left`}>
+                <Icon name="help-circle" size="sm" className={`${themeClasses.text.secondary} dark:text-dark-6`} />
+                <span className={`flex-1 text-sm ${themeClasses.text.primary} text-left`}>
                   {t('profile.support', 'Справка')}
                 </span>
               </a>
@@ -353,8 +354,8 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
                 }}
                 className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors group text-left"
               >
-                <Icon name="users" size="sm" className="text-text-secondary dark:text-dark-6" />
-                <span className={`flex-1 text-sm ${isDark ? 'text-white' : 'text-text-primary'}`}>
+                <Icon name="users" size="sm" className={`${themeClasses.text.secondary} dark:text-dark-6`} />
+                <span className={`flex-1 text-sm ${themeClasses.text.primary}`}>
                   {t('profile.switchAccount', 'Сменить аккаунт')}
                 </span>
               </button>

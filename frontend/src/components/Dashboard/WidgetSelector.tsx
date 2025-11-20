@@ -38,7 +38,7 @@ export const WidgetSelector: React.FC<WidgetSelectorProps> = ({
     <>
       {/* Overlay */}
       <div
-        className="fixed inset-0 bg-text-primary/50 z-40 transition-opacity duration-300"
+        className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm z-40 transition-opacity duration-300"
         onClick={onClose}
       />
       

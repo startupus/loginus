@@ -1,10 +1,11 @@
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { Suspense } from 'react';
-import { LandingPage, AboutPage, AuthPage, VerifyCodePage, RegisterPage, OnboardingPage, DashboardPage, PersonalDocumentsPage, PersonalAddressesPage, FamilyPage, WorkPage, SecurityPage, PersonalPage, PayPage, SupportPage, HelpPage, ErrorPage } from './routes';
+import { LandingPage, AboutPage, AuthPage, VerifyCodePage, RegisterPage, OnboardingPage, DashboardPage, PersonalDocumentsPage, PersonalAddressesPage, FamilyPage, WorkPage, SecurityPage, DataPage, PayPage, SupportPage, HelpPage, ErrorPage } from './routes';
 import { LanguageRoute } from './LanguageRoute';
+import { themeClasses } from '../design-system/utils/themeClasses';
 
 const LoadingFallback = () => (
-  <div className="flex items-center justify-center min-h-screen bg-white dark:bg-dark">
+  <div className={`flex items-center justify-center min-h-screen ${themeClasses.background.default}`}>
     Loading...
   </div>
 );
@@ -126,7 +127,7 @@ const router = createBrowserRouter([
     element: (
       <LanguageRoute>
         <Suspense fallback={<LoadingFallback />}>
-          <PersonalPage />
+          <DataPage />
         </Suspense>
       </LanguageRoute>
     ),

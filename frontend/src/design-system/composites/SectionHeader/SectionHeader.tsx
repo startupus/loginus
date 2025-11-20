@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTheme } from '../../contexts/ThemeContext';
+import { themeClasses } from '../../utils/themeClasses';
 
 export interface SectionHeaderProps {
   /**
@@ -39,7 +39,6 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
   size = 'lg',
   className = '',
 }) => {
-  const { isDark } = useTheme();
   const alignClasses = {
     left: 'text-left',
     center: 'text-center',
@@ -54,11 +53,11 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
 
   return (
     <div className={`mb-16 ${alignClasses[align]} ${className}`}>
-      <h2 className={`mb-4 ${titleSizeClasses[size]} font-bold ${isDark ? 'text-white' : 'text-text-primary'}`}>
+      <h2 className={`mb-4 ${titleSizeClasses[size]} font-bold ${themeClasses.text.primary}`}>
         {title}
       </h2>
       {subtitle && (
-        <p className="mx-auto max-w-[600px] text-lg text-text-secondary">
+        <p className={`mx-auto max-w-[600px] text-lg ${themeClasses.text.secondary}`}>
           {subtitle}
         </p>
       )}

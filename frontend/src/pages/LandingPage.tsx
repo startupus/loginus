@@ -6,7 +6,7 @@ import { Button } from '../design-system/primitives/Button';
 import { ServiceCard, FeatureCard, FAQItem } from '../design-system/composites';
 import { useLanguageStore } from '../store';
 import { useCurrentLanguage, buildPathWithLang } from '../utils/routing';
-import { useTheme } from '../design-system/contexts/ThemeContext';
+import { themeClasses } from '../design-system/utils/themeClasses';
 
 /**
  * LandingPage - приветственная страница Loginus ID
@@ -18,7 +18,6 @@ const LandingPage: React.FC = () => {
   const { t, i18n } = useTranslation();
   const { setLanguage, language: storeLanguage } = useLanguageStore();
   const currentLang = useCurrentLanguage() || storeLanguage || 'ru';
-  const { isDark } = useTheme();
 
   const handleLanguageChange = () => {
     const newLang = currentLang === 'ru' ? 'en' : 'ru';
@@ -33,7 +32,7 @@ const LandingPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-dark">
+    <div className={themeClasses.page.container}>
       {/* Header - используем компонент из дизайн-системы */}
       <LandingHeader
         onLanguageChange={handleLanguageChange}
@@ -290,15 +289,14 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-gray-2 bg-white py-10 dark:border-dark-3 dark:bg-dark">
+      <footer className={`${themeClasses.background.default} py-10`}>
         <div className="container mx-auto">
           <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
             <div className="flex items-center gap-3">
               <div 
-                className="w-8 h-8 rounded-lg flex items-center justify-center ring-1 ring-black/5"
+                className="w-8 h-8 rounded-lg flex items-center justify-center ring-1 ring-black/5 bg-text-primary dark:bg-white"
                 style={{
-                  backgroundColor: isDark ? 'rgb(255, 255, 255)' : 'rgb(var(--color-text-primary))',
-                  color: isDark ? 'rgb(15, 23, 42)' : 'rgb(var(--color-background))',
+                  color: 'rgb(var(--color-background))',
                 }}
               >
                 <span className="text-sm font-extrabold leading-none">iD</span>

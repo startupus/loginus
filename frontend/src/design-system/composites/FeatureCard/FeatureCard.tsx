@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTheme } from '../../contexts/ThemeContext';
+import { themeClasses } from '../../utils/themeClasses';
 
 export interface FeatureCardProps {
   /**
@@ -45,7 +45,6 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({
   onClick,
   className = '',
 }) => {
-  const { isDark } = useTheme();
   const Component = onClick ? 'button' : 'div';
   const isCentered = variant === 'centered';
   
@@ -57,10 +56,10 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({
       <div className={`mb-6 inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-primary/10 transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-110`}>
         {icon}
       </div>
-      <h4 className={`mb-3 text-xl font-bold ${isDark ? 'text-white' : 'text-text-primary'}`}>
+      <h4 className={`mb-3 text-xl font-bold ${themeClasses.text.primary}`}>
         {title}
       </h4>
-      <p className="text-base text-text-secondary">
+      <p className={`text-base ${themeClasses.text.secondary}`}>
         {description}
       </p>
     </Component>

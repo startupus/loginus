@@ -1,6 +1,7 @@
 import React from 'react';
 import { useCurrentLanguage, buildPathWithLang } from '../../../utils/routing';
 import { Icon } from '../../primitives';
+import { themeClasses } from '../../utils/themeClasses';
 
 export interface DataSectionProps {
   /**
@@ -79,9 +80,8 @@ export const DataSection: React.FC<DataSectionProps> = ({
     <section 
       id={id} 
       className={`
-        bg-white dark:bg-dark-2 
+        !bg-white dark:!bg-dark-2
         rounded-xl 
-        border border-gray-2 dark:border-dark-3/50
         p-6 sm:p-8
         ${className}
       `.trim()}

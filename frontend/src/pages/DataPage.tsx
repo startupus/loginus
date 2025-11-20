@@ -93,10 +93,10 @@ if (typeof window !== 'undefined') {
 }
 
 /**
- * PersonalPage - страница персональных данных пользователя
+ * DataPage - страница персональных данных пользователя
  * Стиль и структура соответствуют DashboardPage для единообразия
  */
-const PersonalPage: React.FC = () => {
+const DataPage: React.FC = () => {
   const { t } = useTranslation();
   const { updateUser } = useAuthStore();
   const queryClient = useQueryClient();
@@ -342,4 +342,4 @@ const PersonalPage: React.FC = () => {
   );
 };
 
-export default PersonalPage;
+export default DataPage;

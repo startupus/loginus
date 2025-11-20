@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { PageTemplate } from '@/design-system/layouts/PageTemplate';
@@ -12,6 +12,71 @@ import { DataSection } from '@/design-system/composites/DataSection';
 import { SeparatedList } from '@/design-system/composites/SeparatedList';
 import { familyApi } from '@/services/api/family';
 import { getInitials } from '@/utils/stringUtils';
+import { themeClasses } from '@/design-system/utils/themeClasses';
+
+/**
+ * Интерфейс члена семьи
+ */
+interface FamilyMember {
+  id: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  avatar?: string | null;
+  role: 'admin' | 'member' | 'child' | 'owner';
+  isOnline?: boolean;
+  age?: number;
+}
+
+/**
+ * Константы для стилей - используем стандартизированные классы темы
+ */
+const LIST_CONTAINER_CLASSES = themeClasses.list.containerDark;
+const EMPTY_STATE_CLASSES = themeClasses.state.emptyDark;
+
+/**
+ * Компонент для отображения элемента списка членов семьи
+ */
+interface MemberItemProps {
+  member: FamilyMember;
+  isChild?: boolean;
+  t: (key: string, defaultValue?: string, options?: any) => string;
+}
+
+const MemberItem: React.FC<MemberItemProps> = ({ member, isChild = false, t }) => (
+  <div className="flex items-center justify-between py-2">
+    <div className="flex items-center gap-3">
+      <Avatar
+        src={member.avatar || undefined}
+        initials={getInitials(member.name)}
+        name={member.name}
+        size="md"
+        rounded
+        showStatus
+        status={member.isOnline ? 'online' : 'offline'}
+      />
+      <div>
+        <div className="font-medium text-text-primary flex items-center gap-2">
+          {member.name}
+          {member.role === 'admin' && (
+            <Badge variant="primary" size="sm">Admin</Badge>
+          )}
+        </div>
+        <div className="text-sm text-text-secondary">
+          {isChild 
+            ? t('family.child.age', { age: member.age || '?' }, `Возраст: ${member.age || '?'} лет`)
+            : member.email || member.phone
+          }
+        </div>
+      </div>
+    </div>
+    {member.role !== 'admin' && (
+      <Button variant="ghost" size="sm">
+        <Icon name={isChild ? 'settings' : 'more-vertical'} size="sm" />
+      </Button>
+    )}
+  </div>
+);
 
 /**
  * FamilyPage - страница управления семьей
@@ -23,22 +88,35 @@ const FamilyPage: React.FC = () => {
     queryFn: () => familyApi.getMembers(),
   });
 
+  // Мемоизация фильтрации для оптимизации
+  const { adults, children } = useMemo(() => {
+    const members = (data?.data?.members || []) as FamilyMember[];
+    return {
+      adults: members.filter(m => m.role !== 'child'),
+      children: members.filter(m => m.role === 'child'),
+    };
+  }, [data?.data?.members]);
+
+  // Константы для features
+  const groupFeatures = useMemo(() => [
+    { icon: 'credit-card' as const, title: t('family.features.pay', 'Семейная оплата'), active: true },
+    { icon: 'plus' as const, title: t('family.features.plus', 'Плюс для близких'), active: true },
+    { icon: 'mail' as const, title: t('family.features.y360', 'Тариф Яндекс 360'), active: false },
+    { icon: 'users' as const, title: t('family.features.roles', 'Роли'), active: true },
+  ], [t]);
+
   if (isLoading) {
     return (
       <PageTemplate title={t('sidebar.family', 'Семья')} showSidebar={true}>
-        <div className="flex items-center justify-center min-h-[400px]">
+        <div className={themeClasses.state.loading}>
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-text-secondary">{t('common.loading', 'Загрузка...')}</p>
+            <p className={themeClasses.text.secondary}>{t('common.loading', 'Загрузка...')}</p>
           </div>
         </div>
       </PageTemplate>
     );
   }
-
-  const members = data?.data?.members || [];
-  const adults = members.filter((m: any) => m.role !== 'child');
-  const children = members.filter((m: any) => m.role === 'child');
 
   return (
     <PageTemplate 
@@ -84,44 +162,17 @@ const FamilyPage: React.FC = () => {
             </Button>
           }
         >
-          <div className="bg-background dark:bg-surface rounded-lg border border-border overflow-hidden">
+          <div className={LIST_CONTAINER_CLASSES}>
             <SeparatedList className="p-4">
-                {adults.map((member: any) => (
-                    <div key={member.id} className="flex items-center justify-between py-2">
-                        <div className="flex items-center gap-3">
-                                    <Avatar
-                                        src={member.avatar || undefined}
-                                        initials={getInitials(member.name)}
-                                        name={member.name}
-                                        size="md"
-                                        rounded
-                                        showStatus
-                                        status={member.isOnline ? 'online' : 'offline'}
-                                    />
-                            <div>
-                                <div className="font-medium text-text-primary flex items-center gap-2">
-                                    {member.name}
-                                    {member.role === 'admin' && (
-                                        <Badge variant="primary" size="sm">Admin</Badge>
-                                    )}
-                                </div>
-                                <div className="text-sm text-text-secondary">
-                                    {member.email || member.phone}
-                                </div>
-                            </div>
-                        </div>
-                        {member.role !== 'admin' && (
-                             <Button variant="ghost" size="sm">
-                                <Icon name="more-vertical" size="sm" />
-                             </Button>
-                        )}
-                    </div>
-                ))}
-                 {adults.length === 0 && (
-                     <div className="text-center py-4 text-text-secondary">
-                         {t('family.empty', 'Нет участников')}
-                     </div>
-                 )}
+              {adults.length > 0 ? (
+                adults.map((member) => (
+                  <MemberItem key={member.id} member={member} t={t} />
+                ))
+              ) : (
+                <div className="text-center py-4 text-text-secondary">
+                  {t('family.empty', 'Нет участников')}
+                </div>
+              )}
             </SeparatedList>
           </div>
         </DataSection>
@@ -138,42 +189,21 @@ const FamilyPage: React.FC = () => {
             </Button>
           }
         >
-            {children.length > 0 ? (
-                 <div className="bg-background dark:bg-surface rounded-lg border border-border overflow-hidden">
-                    <SeparatedList className="p-4">
-                        {children.map((child: any) => (
-                            <div key={child.id} className="flex items-center justify-between py-2">
-                                <div className="flex items-center gap-3">
-                                    <Avatar
-                                        src={child.avatar || undefined}
-                                        initials={getInitials(child.name)}
-                                        name={child.name}
-                                        size="md"
-                                        rounded
-                                        showStatus
-                                        status={child.isOnline ? 'online' : 'offline'}
-                                    />
-                                    <div>
-                                        <div className="font-medium text-text-primary">{child.name}</div>
-                                        <div className="text-sm text-text-secondary">
-                                            {t('family.child.age', { age: child.age || '?' })}
-                                        </div>
-                                    </div>
-                                </div>
-                                <Button variant="ghost" size="sm">
-                                    <Icon name="settings" size="sm" />
-                                </Button>
-                            </div>
-                        ))}
-                    </SeparatedList>
-                 </div>
-            ) : (
-                <div className="flex flex-col items-center justify-center p-8 bg-background dark:bg-surface rounded-lg border border-dashed border-border text-center">
-                     <div className="w-12 h-12 bg-info/10 text-info rounded-full flex items-center justify-center mb-4">
+          {children.length > 0 ? (
+            <div className={LIST_CONTAINER_CLASSES}>
+              <SeparatedList className="p-4">
+                {children.map((child) => (
+                  <MemberItem key={child.id} member={child} isChild t={t} />
+                ))}
+              </SeparatedList>
+            </div>
+          ) : (
+            <div className={EMPTY_STATE_CLASSES}>
+                     <div className={themeClasses.iconCircle.info + ' mb-4'}>
                          <Icon name="smile" size="lg" />
                      </div>
-                     <h3 className="text-lg font-medium text-text-primary mb-2">{t('family.child.promo.title', 'Создайте детский аккаунт')}</h3>
-                     <p className="text-text-secondary max-w-md mb-4">
+                     <h3 className={`text-lg font-medium ${themeClasses.text.primary} mb-2`}>{t('family.child.promo.title', 'Создайте детский аккаунт')}</h3>
+                     <p className={`${themeClasses.text.secondary} max-w-md mb-4`}>
                          {t('family.child.promo.description', 'Настройте ограничения по возрасту, времени и контенту. Это бесплатно.')}
                      </p>
                      <Button variant="primary" size="sm">
@@ -188,29 +218,24 @@ const FamilyPage: React.FC = () => {
           id="features"
           title={t('family.features.title', 'Возможности группы')}
         >
-          <div className="bg-background dark:bg-surface rounded-lg border border-border overflow-hidden">
+          <div className={LIST_CONTAINER_CLASSES}>
             <SeparatedList className="p-4">
-              {[
-                { icon: 'credit-card', title: t('family.features.pay', 'Семейная оплата'), active: true },
-                { icon: 'plus', title: t('family.features.plus', 'Плюс для близких'), active: true },
-                { icon: 'mail', title: t('family.features.y360', 'Тариф Яндекс 360'), active: false },
-                { icon: 'users', title: t('family.features.roles', 'Роли'), active: true },
-              ].map((feature, idx) => (
-                <div key={idx} className="flex items-center justify-between py-2 group cursor-pointer hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors rounded-lg px-2 -mx-2">
+              {groupFeatures.map((feature, idx) => (
+                <div key={idx} className={themeClasses.list.item}>
                   <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${feature.active ? 'bg-success/10 text-success' : 'bg-gray-1 dark:bg-dark-3 text-text-secondary'}`}>
+                    <div className={`p-2 rounded-lg ${feature.active ? 'bg-success/10 text-success' : themeClasses.background.gray2 + ' ' + themeClasses.text.secondary}`}>
                        <Icon name={feature.icon} size="md" />
                     </div>
-                    <div className="font-medium text-text-primary group-hover:text-primary transition-colors">
+                    <div className={`font-medium ${themeClasses.text.primary} group-hover:text-primary transition-colors`}>
                       {feature.title}
                     </div>
                   </div>
-                  <Icon name="chevron-right" size="sm" className="text-text-secondary group-hover:text-primary transition-colors" />
+                  <Icon name="chevron-right" size="sm" className={`${themeClasses.text.secondary} group-hover:text-primary transition-colors`} />
                 </div>
               ))}
               <Separator />
-              <button className="flex items-center gap-3 py-2 px-2 -mx-2 w-full text-left text-error hover:bg-error/10 dark:hover:bg-error/20 rounded-lg transition-colors">
-                 <div className="p-2 rounded-lg bg-error/10 text-error">
+              <button className={`flex items-center gap-3 py-2 px-2 -mx-2 w-full text-left text-error hover:bg-error/10 dark:hover:bg-error/20 rounded-lg transition-colors`}>
+                 <div className={`p-2 rounded-lg ${themeClasses.iconCircle.error}`}>
                     <Icon name="trash-2" size="md" />
                  </div>
                  <div className="font-medium">

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useTheme } from '../../contexts/ThemeContext';
+import { themeClasses } from '../../utils/themeClasses';
 
 export interface LogoProps {
   /**
@@ -46,7 +46,6 @@ export const Logo: React.FC<LogoProps> = ({
   onClick,
   className = '',
 }) => {
-  const { isDark } = useTheme();
   const sizeClasses = {
     sm: {
       icon: 'w-8 h-8',
@@ -73,26 +72,19 @@ export const Logo: React.FC<LogoProps> = ({
   const logoContent = (
     <div className={`flex items-center gap-3 ${className}`}>
       <div className="relative">
-        {/* Знак: темный на светлой теме, белый на темной */}
+        {/* Знак: почти черный фон в светлой теме, белый фон в темной теме - уникальный элемент */}
         <div 
-          className={`${classes.icon} rounded-xl flex items-center justify-center shadow-lg ring-1 ring-black/5`}
-          style={{
-            backgroundColor: isDark ? 'rgb(255, 255, 255)' : 'rgb(var(--color-text-primary))',
-            color: isDark ? 'rgb(15, 23, 42)' : 'rgb(var(--color-background))',
-          }}
+          className={`${classes.icon} rounded-xl flex items-center justify-center shadow-lg ring-1 ring-black/5 !bg-gray-900 text-white dark:!bg-white dark:!text-gray-900`}
         >
           <span className={`${classes.iconText} font-extrabold leading-none tracking-tight`}>iD</span>
         </div>
         {/* Зеленая точка */}
         <div 
-          className={`absolute -bottom-1 -right-1 ${classes.dot} bg-[#22c55e] rounded-full border-2 shadow-sm z-10`}
-          style={{
-            borderColor: isDark ? 'rgb(var(--color-text-primary))' : 'rgb(255, 255, 255)',
-          }}
+          className={`absolute -bottom-1 -right-1 ${classes.dot} bg-success rounded-full border-2 border-background dark:border-text-primary shadow-sm z-10`}
         ></div>
       </div>
       {showText && (
-        <span className={`${classes.text} font-bold ${isDark ? 'text-white' : 'text-text-primary'}`}>
+        <span className={`${classes.text} font-bold ${themeClasses.text.primary}`}>
           {text}
         </span>
       )}

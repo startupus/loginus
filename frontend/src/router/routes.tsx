@@ -16,7 +16,7 @@ const OnboardingPage = lazy(() => import('@/pages/auth/OnboardingPage'));
 // Dashboard (static import to avoid dynamic import fetch issues)
 
 // Personal Data
-const PersonalPage = lazy(() => import('@/pages/PersonalPage'));
+const DataPage = lazy(() => import('@/pages/DataPage'));
 const PersonalDocumentsPage = lazy(() => import('@/pages/PersonalDocumentsPage'));
 const PersonalAddressesPage = lazy(() => import('@/pages/PersonalAddressesPage'));
 const FamilyPage = lazy(() => import('@/pages/FamilyPage'));
@@ -41,7 +41,7 @@ export {
   RegisterPage,
   OnboardingPage,
   DashboardPage,
-  PersonalPage,
+  DataPage,
   PersonalDocumentsPage,
   PersonalAddressesPage,
   FamilyPage,

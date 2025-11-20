@@ -102,12 +102,12 @@ export const WidgetCard: React.FC<WidgetCardProps> = ({
   // Добавлены анимации из mega шаблона: hover:-translate-y-1 для поднятия карточки
   const baseClasses = 'overflow-hidden rounded-lg shadow-1 duration-300 hover:shadow-3 hover:-translate-y-1 dark:shadow-card dark:hover:shadow-3 transition-all';
   
-  // Варианты фона из TailGrids
+  // Варианты фона из TailGrids - используем стандартизированные классы
   const variantClasses = {
-    default: 'bg-white dark:bg-dark-2',  // Из Card1.jsx
+    default: '!bg-white dark:!bg-dark-2',  // Белый фон в светлой теме, темный в темной (!important для гарантии)
     primary: 'bg-primary/5 dark:bg-primary/20',
     feature: 'bg-gradient-to-br from-primary/5 to-secondary/5 dark:from-primary/20 dark:to-secondary/20',
-    compact: 'bg-white dark:bg-dark-2',
+    compact: '!bg-white dark:!bg-dark-2',  // Белый фон в светлой теме, темный в темной (!important для гарантии)
   };
   
   // Padding - из TailGrids Card1.jsx

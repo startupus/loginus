@@ -8,6 +8,7 @@ import { useSidebar } from '../../hooks/useSidebar';
 import { useTheme } from '../../contexts';
 import { useLanguageStore } from '@/store';
 import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';
+import { themeClasses } from '../../utils/themeClasses';
 
 export interface SidebarItem {
   label: string;
@@ -59,7 +60,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <>
       <div
-        className={`dark:bg-dark-2 shadow-[0_2px_8px_rgba(0,0,0,0.08)] fixed top-0 left-0 z-40 flex h-screen w-full max-w-[300px] flex-col justify-between overflow-y-scroll bg-white duration-200 xl:translate-x-0 ${
+        className={`bg-white dark:bg-dark-2 shadow-[0_2px_8px_rgba(0,0,0,0.08)] fixed top-0 left-0 z-40 flex h-screen w-full max-w-[300px] flex-col justify-between overflow-y-scroll duration-200 xl:translate-x-0 ${
           isOpen ? '-translate-x-full' : 'translate-x-0'
         } ${className}`}
       >
@@ -81,13 +82,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <li key={item.path || index} className={item.children ? 'relative' : ''}>
                   <button
                     onClick={() => {
+                      // Если есть children, сначала делаем переход, потом раскрываем подменю
                       if (item.children) {
+                        // Переход на страницу родительского элемента
+                        if (item.path) {
+                          onNavigate ? onNavigate(item.path) : navigate(item.path);
+                        }
+                        // Раскрытие/закрытие подменю
                         toggleDropdown(item.path);
                       } else {
+                        // Если нет children, просто переходим
                         onNavigate ? onNavigate(item.path) : navigate(item.path);
                       }
                     }}
-                    className={`text-text-secondary dark:text-dark-6 hover:border-primary hover:bg-primary/5 relative flex w-full items-center border-r-4 border-transparent py-[10px] pr-4 pl-9 text-base font-medium duration-200 transition-all hover:translate-x-1 text-left ${
+                    className={`${themeClasses.text.secondary} dark:text-dark-6 hover:border-primary hover:bg-primary/5 relative flex w-full items-center border-r-4 border-transparent py-[10px] pr-4 pl-9 text-base font-medium duration-200 transition-all hover:translate-x-1 text-left ${
                       // Активный пункт - синяя полоска справа
                       item.active ? '!border-primary bg-primary/5' : ''
                     } ${
@@ -116,19 +124,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           name="chevron-down" 
                           size="sm" 
                           className={`${
-                            openDropdown === item.path ? 'text-primary' : 'text-text-secondary dark:text-dark-6'
+                            openDropdown === item.path ? 'text-primary' : `${themeClasses.text.secondary} dark:text-dark-6`
                           }`}
                         />
                       </span>
                     )}
                   </button>
                   {item.children && openDropdown === item.path && (
-                    <ul className="py-[6px] pr-10 pl-[50px] bg-gray-1 dark:bg-dark-3 border-l-2 border-primary/30 dark:border-primary/40 ml-2">
+                    <ul className={`py-[6px] pr-10 pl-[50px] ${themeClasses.background.gray} dark:bg-dark-3 border-l-2 border-primary/30 dark:border-primary/40 ml-2`}>
                       {item.children.map((child, childIndex) => (
                         <li key={child.path || childIndex}>
                           <button
                             onClick={() => onNavigate ? onNavigate(child.path) : navigate(child.path)}
-                            className={`text-text-secondary dark:text-dark-6 hover:text-primary hover:bg-primary/10 dark:hover:bg-primary/20 flex w-full items-center border-r-4 border-transparent py-[9px] pl-2 pr-2 text-base font-medium duration-200 transition-all rounded-r-lg text-left ${
+                            className={`${themeClasses.text.secondary} dark:text-dark-6 hover:text-primary hover:bg-primary/10 dark:hover:bg-primary/20 flex w-full items-center border-r-4 border-transparent py-[9px] pl-2 pr-2 text-base font-medium duration-200 transition-all rounded-r-lg text-left ${
                               child.active ? '!border-primary bg-primary/10 dark:bg-primary/20' : ''
                             }`}
                           >
@@ -147,7 +155,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="p-6 space-y-3">
           <button
             onClick={() => navigate(buildPathWithLang('/support', currentLang))}
-            className="text-text-secondary dark:text-dark-6 hover:text-primary flex w-full items-center py-2 text-sm font-medium duration-200"
+            className={`${themeClasses.text.secondary} dark:text-dark-6 hover:text-primary flex w-full items-center py-2 text-sm font-medium duration-200`}
           >
             <Icon name="help-circle" size="sm" className="mr-3" />
             <span>{t('sidebar.help', 'Справка')}</span>
@@ -155,7 +163,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           
           <button
             onClick={() => window.open('https://loginus.ru', '_blank')}
-            className="text-text-secondary dark:text-dark-6 hover:text-primary flex w-full items-center py-2 text-sm font-medium duration-200"
+            className={`${themeClasses.text.secondary} dark:text-dark-6 hover:text-primary flex w-full items-center py-2 text-sm font-medium duration-200`}
           >
             <Icon name="globe" size="sm" className="mr-3" />
             <span>{t('sidebar.loginusIdSite', 'Loginus ID для сайта')}</span>
@@ -172,7 +180,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   const newPath = buildPathWithLang(window.location.pathname.replace(/^\/(ru|en)/, ''), newLang);
                   navigate(newPath);
                 }}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-text-primary hover:bg-gray-2 dark:hover:bg-dark-3 transition-all"
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${themeClasses.text.primary} hover:bg-gray-2 dark:hover:bg-dark-3 transition-all`}
               >
                 {language === 'ru' ? '🇷🇺 RU' : '🇬🇧 EN'}
               </button>
@@ -181,7 +189,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {showThemeSwitcher && (
               <button
                 onClick={() => setThemeMode(isDark ? 'light' : 'dark')}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-text-primary hover:bg-gray-2 dark:hover:bg-dark-3 transition-all"
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${themeClasses.text.primary} hover:bg-gray-2 dark:hover:bg-dark-3 transition-all`}
                 title={`Текущая тема: ${isDark ? 'dark' : 'light'}. Кликните для переключения`}
               >
                 {isDark ? (

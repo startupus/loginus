@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Button, Icon } from '../design-system/primitives';
 import { Logo } from '../design-system/primitives/Logo';
 import { useCurrentLanguage, buildPathWithLang } from '../utils/routing';
+import { themeClasses } from '../design-system/utils/themeClasses';
 
 /**
  * ErrorPage - стилизованная страница ошибок для React Router
@@ -83,21 +84,21 @@ export const ErrorPage: React.FC = () => {
     }
   };
 
-  // Цвета для разных типов ошибок
+  // Цвета для разных типов ошибок (CSS переменные для Icon color prop)
   const getErrorColor = () => {
     switch (errorType) {
       case '404':
-        return 'text-info';
+        return 'rgb(var(--color-info))';
       case '403':
-        return 'text-warning';
+        return 'rgb(var(--color-warning))';
       case '500':
-        return 'text-error';
+        return 'rgb(var(--color-error))';
       case '401':
-        return 'text-warning';
+        return 'rgb(var(--color-warning))';
       case '503':
-        return 'text-info';
+        return 'rgb(var(--color-info))';
       default:
-        return 'text-error';
+        return 'rgb(var(--color-error))';
     }
   };
 
@@ -111,7 +112,7 @@ export const ErrorPage: React.FC = () => {
 
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-1 dark:bg-dark px-4">
+    <div className={`${themeClasses.page.containerGray} flex items-center justify-center px-4`}>
       <div className="max-w-2xl w-full">
         {/* Header с логотипом */}
         <div className="text-center mb-8">
@@ -121,13 +122,13 @@ export const ErrorPage: React.FC = () => {
         </div>
 
         {/* Основной блок ошибки */}
-        <div className="bg-background dark:bg-surface rounded-2xl shadow-lg dark:shadow-card p-8 sm:p-12 text-center">
+        <div className={`${themeClasses.card.roundedShadow} p-8 sm:p-12 text-center`}>
           {/* Иконка ошибки */}
-          <div className={`mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gray-1 dark:bg-gray-2`}>
+          <div className={`mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full ${themeClasses.background.gray2}`}>
             <Icon 
               name={getErrorIcon()} 
               size="xl" 
-              className={getErrorColor()}
+              color={getErrorColor()}
             />
           </div>
 
@@ -135,7 +136,7 @@ export const ErrorPage: React.FC = () => {
           <h1 className="text-3xl sm:text-4xl font-bold text-text-primary mb-4">
             {errorType !== 'generic' && (
               <span className="text-5xl sm:text-6xl font-extrabold text-primary mr-3">
-                {errorType === '404' ? '404' : errorType === '403' ? '403' : errorType === '500' ? '500' : errorType === '401' ? '401' : '503'}
+                {errorType}
               </span>
             )}
             {errorTitle}
@@ -148,11 +149,20 @@ export const ErrorPage: React.FC = () => {
 
           {/* Детали ошибки - всегда показываем суть ошибки */}
           {errorMessage && (
-            <div className="mb-8 p-4 bg-error/10 border border-error/20 rounded-lg">
+            <div 
+              className="mb-8 p-4 rounded-lg border"
+              style={{
+                backgroundColor: 'rgb(var(--color-error) / 0.1)',
+                borderColor: 'rgb(var(--color-error) / 0.2)',
+              }}
+            >
               <div className="flex items-start gap-3">
                 <Icon name="alert-circle" size="sm" color="rgb(var(--color-error))" className="flex-shrink-0 mt-0.5" />
                 <div className="flex-1 text-left">
-                  <p className="text-sm font-semibold text-error mb-1">
+                  <p 
+                    className="text-sm font-semibold mb-1"
+                    style={{ color: 'rgb(var(--color-error))' }}
+                  >
                     {t('errors.technicalDetails', 'Технические детали')}:
                   </p>
                   <p className="text-sm font-mono text-text-primary break-words whitespace-pre-wrap">

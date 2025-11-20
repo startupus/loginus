@@ -23,8 +23,8 @@
     --color-info: 59 130 246;
     --color-background: 255 255 255;
     --color-surface: 248 250 252;
-    /* Чуть более контрастная поверхность для приподнятых контролов (плавающие кнопки и т.п.) */
-    --color-surface-elevated: 243 244 246;
+    /* Приподнятая поверхность для карточек, попапов и других элементов - белый фон в светлой теме */
+    --color-surface-elevated: 255 255 255;
     --color-text-primary: 15 23 42;
     --color-text-secondary: 100 116 139;
     --color-text-disabled: 203 213 225;

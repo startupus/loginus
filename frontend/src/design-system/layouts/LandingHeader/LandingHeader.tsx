@@ -125,7 +125,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
 
   return (
     <>
-    <header className={`fixed left-0 top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-2 dark:bg-text-primary/80 dark:border-dark-3 ${className}`}>
+    <header className={`fixed left-0 top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-2 dark:bg-dark-2/80 dark:border-dark-3 ${className}`}>
         <div className="container mx-auto">
           <div className="relative flex items-center justify-between py-4 px-4">
             {/* Logo - используем компонент из дизайн-системы */}
