@@ -294,10 +294,7 @@ const LandingPage: React.FC = () => {
           <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
             <div className="flex items-center gap-3">
               <div 
-                className="w-8 h-8 rounded-lg flex items-center justify-center ring-1 ring-black/5 bg-text-primary dark:bg-white"
-                style={{
-                  color: 'rgb(var(--color-background))',
-                }}
+                className="w-8 h-8 rounded-lg flex items-center justify-center ring-1 ring-black/5 !bg-gray-900 text-white dark:!bg-white dark:!text-gray-900"
               >
                 <span className="text-sm font-extrabold leading-none">iD</span>
               </div>
