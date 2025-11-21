@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Icon } from '../../design-system/primitives';
 import { WidgetCard } from '../../design-system/composites/WidgetCard';
 import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
+import { themeClasses } from '../../design-system/utils/themeClasses';
 
 export interface Course {
   id: string;
@@ -89,7 +90,7 @@ export const CoursesWidget: React.FC<CoursesWidgetProps> = ({
           {displayedCourses.map((course) => (
             <button
               key={course.id}
-              className="w-full group flex items-center gap-3 p-3 rounded-lg bg-gray-1 dark:bg-gray-2 hover:bg-gray-2 dark:hover:bg-gray-3 transition-all duration-200 text-left"
+              className={`w-full group flex items-center gap-3 p-3 rounded-lg ${themeClasses.card.gridItem} ${themeClasses.card.gridItemHover} transition-all duration-200 text-left`}
             >
               {/* Иконка курса */}
               <div 
@@ -137,7 +138,7 @@ export const CoursesWidget: React.FC<CoursesWidgetProps> = ({
         </div>
       ) : (
         <div className="text-center py-8">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-1 dark:bg-gray-2 flex items-center justify-center">
+          <div className={`w-16 h-16 mx-auto mb-4 rounded-full ${themeClasses.card.gridItemIcon} flex items-center justify-center`}>
             <Icon name="book" size="lg" className="text-text-secondary" />
           </div>
           <p className="text-sm text-text-secondary mb-2">

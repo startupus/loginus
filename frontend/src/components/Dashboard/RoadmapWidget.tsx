@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Icon } from '../../design-system/primitives';
 import { WidgetCard } from '../../design-system/composites/WidgetCard';
 import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
+import { themeClasses } from '../../design-system/utils/themeClasses';
 
 export interface RoadmapStep {
   id: string;
@@ -104,7 +105,7 @@ export const RoadmapWidget: React.FC<RoadmapWidgetProps> = ({
           {displayedSteps.map((step, index) => (
             <div
               key={step.id}
-              className="flex items-center gap-2 p-2 rounded-lg bg-gray-1 dark:bg-gray-2 hover:bg-gray-2 dark:hover:bg-gray-3 transition-all duration-200 group"
+              className={`flex items-center gap-2 p-2 rounded-lg ${themeClasses.card.gridItem} ${themeClasses.card.gridItemHover} transition-all duration-200 group`}
             >
               {/* Иконка */}
               <div className={`flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center bg-primary/10 dark:bg-primary/20 ${getPriorityColor(step.priority)}`}>
@@ -145,7 +146,7 @@ export const RoadmapWidget: React.FC<RoadmapWidgetProps> = ({
         </div>
       ) : (
         <div className="text-center py-8">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-1 dark:bg-gray-2 flex items-center justify-center">
+          <div className={`w-16 h-16 mx-auto mb-4 rounded-full ${themeClasses.card.gridItemIcon} flex items-center justify-center`}>
             <Icon name="flag" size="lg" className="text-text-secondary" />
           </div>
           <p className="text-sm text-text-secondary mb-2">

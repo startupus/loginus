@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button, Icon, Badge } from '../../design-system/primitives';
 import { WidgetCard } from '../../design-system/composites/WidgetCard';
+import { themeClasses } from '../../design-system/utils/themeClasses';
 
 export interface PlusWidgetProps {
   active: boolean;
@@ -97,7 +98,7 @@ export const PlusWidget: React.FC<PlusWidgetProps> = ({
             </div>
             
             {tasks > 0 && (
-              <div className="flex items-center justify-between p-3 rounded-lg bg-gray-1 dark:bg-gray-2">
+              <div className={`flex items-center justify-between p-3 rounded-lg ${themeClasses.card.gridItem}`}>
                 <div>
                   <p className="text-sm text-text-secondary mb-1">
                     {t('dashboard.plus.tasks', 'Заданий')}

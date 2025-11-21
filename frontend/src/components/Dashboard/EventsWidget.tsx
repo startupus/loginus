@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Icon, Badge } from '../../design-system/primitives';
 import { WidgetCard } from '../../design-system/composites/WidgetCard';
+import { themeClasses } from '../../design-system/utils/themeClasses';
 
 export interface Event {
   id: string;
@@ -98,7 +99,7 @@ export const EventsWidget: React.FC<EventsWidgetProps> = ({
           {displayedEvents.map((event) => (
             <div
               key={event.id}
-              className="flex items-start gap-2 p-2 rounded-lg bg-gray-1 dark:bg-gray-2 hover:bg-gray-2 dark:hover:bg-gray-3 transition-all duration-200 group"
+              className={`flex items-start gap-2 p-2 rounded-lg ${themeClasses.card.gridItem} ${themeClasses.card.gridItemHover} transition-all duration-200 group`}
             >
               {/* Дата */}
               <div className="flex-shrink-0 w-12 text-xs text-text-secondary text-center pt-0.5">
@@ -116,7 +117,7 @@ export const EventsWidget: React.FC<EventsWidgetProps> = ({
         </div>
       ) : (
         <div className="text-center py-8">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-1 dark:bg-gray-2 flex items-center justify-center">
+          <div className={`w-16 h-16 mx-auto mb-4 rounded-full ${themeClasses.card.gridItemIcon} flex items-center justify-center`}>
             <Icon name="bell" size="lg" className="text-text-secondary" />
           </div>
           <p className="text-sm text-text-secondary">

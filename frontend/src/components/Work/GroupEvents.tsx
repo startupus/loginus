@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Icon } from '../../design-system/primitives';
 import { DataSection } from '../../design-system/composites';
+import { themeClasses } from '../../design-system/utils/themeClasses';
 
 export interface GroupEvent {
   id: string;
@@ -85,7 +86,7 @@ export const GroupEvents: React.FC<GroupEventsProps> = ({
           {displayedEvents.map((event) => (
             <div
               key={event.id}
-              className="flex items-start gap-3 p-3 rounded-lg bg-gray-1 dark:bg-gray-2 hover:bg-gray-2 dark:hover:bg-gray-3 transition-all duration-200 group"
+              className={`flex items-start gap-3 p-3 rounded-lg ${themeClasses.card.gridItem} ${themeClasses.card.gridItemHover} transition-all duration-200 group`}
             >
               {/* Иконка события */}
               <div className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center bg-primary/10 ${getEventColor(event.type)}`}>
@@ -123,7 +124,7 @@ export const GroupEvents: React.FC<GroupEventsProps> = ({
         </div>
       ) : (
         <div className="text-center py-8">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-1 dark:bg-gray-2 flex items-center justify-center">
+          <div className={`w-16 h-16 mx-auto mb-4 rounded-full ${themeClasses.card.gridItemIcon} flex items-center justify-center`}>
             <Icon name="bell" size="lg" className="text-text-secondary" />
           </div>
           <p className="text-sm text-text-secondary">

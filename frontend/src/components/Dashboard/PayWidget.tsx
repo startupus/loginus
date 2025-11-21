@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Icon } from '../../design-system/primitives';
 import { WidgetCard } from '../../design-system/composites/WidgetCard';
+import { themeClasses } from '../../design-system/utils/themeClasses';
 
 export interface PayWidgetProps {
   balance: number;
@@ -80,7 +81,7 @@ export const PayWidget: React.FC<PayWidgetProps> = ({
           </button>
         </div>
         
-        <div className="flex items-center justify-between p-4 rounded-lg bg-gray-1 dark:bg-gray-2">
+        <div className={`flex items-center justify-between p-4 rounded-lg ${themeClasses.card.gridItem}`}>
           <div>
             <p className="text-sm text-text-secondary mb-1">
               {t('dashboard.pay.spendUpTo', 'Тратьте до')}
