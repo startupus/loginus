@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DataPreloaderService } from './data/data-preloader.service';
 import { TimingInterceptor } from './common/timing.interceptor';
+import { TranslationsV2Service } from './translations-v2/translations-v2.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -14,8 +15,56 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   });
 
-  // Global prefix
+  // Global prefix для v1 API
   app.setGlobalPrefix('api/v1');
+  
+  // Для v2 API используем отдельный роутинг через Express напрямую
+  // Это позволяет обойти глобальный префикс для v2 эндпоинтов
+  const expressApp = app.getHttpAdapter().getInstance();
+  const translationsV2Service = app.get(TranslationsV2Service);
+  
+  // Регистрируем v2 роуты на /api/v2/translations
+  // ВАЖНО: Порядок имеет значение - более специфичные роуты должны быть раньше
+  
+  // 1. Статус (самый специфичный)
+  expressApp.get('/api/v2/translations/status', (req, res) => {
+    res.json(translationsV2Service.getStatus());
+  });
+  
+  // 2. Версия для локали (более специфичный, чем просто locale)
+  expressApp.get('/api/v2/translations/:locale/version', (req, res) => {
+    const locale = req.params.locale === 'en' ? 'en' : 'ru';
+    res.json(translationsV2Service.getVersion(locale));
+  });
+  
+  // 3. Отдельный модуль (locale/:module)
+  expressApp.get('/api/v2/translations/:locale/:module', (req, res) => {
+    const locale = req.params.locale === 'en' ? 'en' : 'ru';
+    try {
+      res.json(translationsV2Service.getModule(locale, req.params.module));
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+  
+  // 4. Все модули для локали или несколько модулей (самый общий)
+  expressApp.get('/api/v2/translations/:locale', (req, res) => {
+    const locale = req.params.locale === 'en' ? 'en' : 'ru';
+    const modules = req.query.modules as string;
+    
+    if (modules) {
+      const moduleList = modules.split(',').map((m: string) => m.trim()).filter(Boolean);
+      res.json({
+        success: true,
+        data: translationsV2Service.getModules(locale, moduleList),
+      });
+    } else {
+      res.json({
+        success: true,
+        data: translationsV2Service.getAllModules(locale),
+      });
+    }
+  });
 
   // Глобальная телеметрия времени обработки запросов
   app.useGlobalInterceptors(new TimingInterceptor());

@@ -43,7 +43,6 @@ export const Header: React.FC<HeaderProps> = ({
   onLogout,
 }) => {
   const { t } = useTranslation();
-  const { isDark } = useTheme();
   const navigate = useNavigate();
   const currentLang = useCurrentLanguage();
   const { logout } = useAuthStore();
@@ -57,7 +56,7 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   const handleEdit = () => {
-    navigate(buildPathWithLang('/personal', currentLang));
+    navigate(buildPathWithLang('/data', currentLang));
   };
   
   return (

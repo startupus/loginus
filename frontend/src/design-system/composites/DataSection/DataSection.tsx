@@ -52,7 +52,7 @@ export interface DataSectionProps {
  *   id="documents"
  *   title="Документы"
  *   description="В ID ваши документы всегда под рукой"
- *   viewAllLink={{ label: "Все документы", href: "/personal/documents" }}
+ *   viewAllLink={{ label: "Все документы", href: "/data/documents" }}
  * >
  *   <DocumentsList />
  * </DataSection>
@@ -80,8 +80,7 @@ export const DataSection: React.FC<DataSectionProps> = ({
     <section 
       id={id} 
       className={`
-        bg-white dark:bg-dark-2
-        rounded-xl 
+        ${themeClasses.card.rounded}
         p-6 sm:p-8
         ${className}
       `.trim()}

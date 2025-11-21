@@ -26,11 +26,7 @@ const router = createBrowserRouter([
         </Suspense>
       </LanguageRoute>
     ),
-    errorElement: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ErrorPage />
-      </Suspense>
-    ),
+    errorElement: <ErrorPage />,
   },
   {
     path: '/:lang/about',
@@ -41,11 +37,7 @@ const router = createBrowserRouter([
         </Suspense>
       </LanguageRoute>
     ),
-    errorElement: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ErrorPage />
-      </Suspense>
-    ),
+    errorElement: <ErrorPage />,
   },
   {
     path: '/:lang/auth',
@@ -56,11 +48,7 @@ const router = createBrowserRouter([
         </Suspense>
       </LanguageRoute>
     ),
-    errorElement: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ErrorPage />
-      </Suspense>
-    ),
+    errorElement: <ErrorPage />,
   },
   {
     path: '/:lang/auth/verify',
@@ -71,11 +59,7 @@ const router = createBrowserRouter([
         </Suspense>
       </LanguageRoute>
     ),
-    errorElement: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ErrorPage />
-      </Suspense>
-    ),
+    errorElement: <ErrorPage />,
   },
   {
     path: '/:lang/auth/register',
@@ -86,11 +70,7 @@ const router = createBrowserRouter([
         </Suspense>
       </LanguageRoute>
     ),
-    errorElement: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ErrorPage />
-      </Suspense>
-    ),
+    errorElement: <ErrorPage />,
   },
   {
     path: '/:lang/onboarding',
@@ -101,11 +81,7 @@ const router = createBrowserRouter([
         </Suspense>
       </LanguageRoute>
     ),
-    errorElement: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ErrorPage />
-      </Suspense>
-    ),
+    errorElement: <ErrorPage />,
   },
   {
     path: '/:lang/dashboard',
@@ -116,14 +92,10 @@ const router = createBrowserRouter([
         </Suspense>
       </LanguageRoute>
     ),
-    errorElement: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ErrorPage />
-      </Suspense>
-    ),
+    errorElement: <ErrorPage />,
   },
   {
-    path: '/:lang/personal',
+    path: '/:lang/data',
     element: (
       <LanguageRoute>
         <Suspense fallback={<LoadingFallback />}>
@@ -131,14 +103,10 @@ const router = createBrowserRouter([
         </Suspense>
       </LanguageRoute>
     ),
-    errorElement: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ErrorPage />
-      </Suspense>
-    ),
+    errorElement: <ErrorPage />,
   },
   {
-    path: '/:lang/personal/documents',
+    path: '/:lang/data/documents',
     element: (
       <LanguageRoute>
         <Suspense fallback={<LoadingFallback />}>
@@ -146,14 +114,10 @@ const router = createBrowserRouter([
         </Suspense>
       </LanguageRoute>
     ),
-    errorElement: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ErrorPage />
-      </Suspense>
-    ),
+    errorElement: <ErrorPage />,
   },
   {
-    path: '/:lang/personal/addresses',
+    path: '/:lang/data/addresses',
     element: (
       <LanguageRoute>
         <Suspense fallback={<LoadingFallback />}>
@@ -161,11 +125,20 @@ const router = createBrowserRouter([
         </Suspense>
       </LanguageRoute>
     ),
-    errorElement: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ErrorPage />
-      </Suspense>
-    ),
+    errorElement: <ErrorPage />,
+  },
+  // Редиректы со старого пути /personal на новый /data для обратной совместимости
+  {
+    path: '/:lang/personal',
+    element: <Navigate to="../data" replace />,
+  },
+  {
+    path: '/:lang/personal/documents',
+    element: <Navigate to="../data/documents" replace />,
+  },
+  {
+    path: '/:lang/personal/addresses',
+    element: <Navigate to="../data/addresses" replace />,
   },
   {
     path: '/:lang/family',
@@ -176,11 +149,7 @@ const router = createBrowserRouter([
         </Suspense>
       </LanguageRoute>
     ),
-    errorElement: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ErrorPage />
-      </Suspense>
-    ),
+    errorElement: <ErrorPage />,
   },
   {
     path: '/:lang/work',
@@ -191,11 +160,7 @@ const router = createBrowserRouter([
         </Suspense>
       </LanguageRoute>
     ),
-    errorElement: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ErrorPage />
-      </Suspense>
-    ),
+    errorElement: <ErrorPage />,
   },
   {
     path: '/:lang/security',
@@ -206,11 +171,7 @@ const router = createBrowserRouter([
         </Suspense>
       </LanguageRoute>
     ),
-    errorElement: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ErrorPage />
-      </Suspense>
-    ),
+    errorElement: <ErrorPage />,
   },
   {
     path: '/:lang/pay',
@@ -221,11 +182,7 @@ const router = createBrowserRouter([
         </Suspense>
       </LanguageRoute>
     ),
-    errorElement: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ErrorPage />
-      </Suspense>
-    ),
+    errorElement: <ErrorPage />,
   },
   {
     path: '/:lang/support',
@@ -236,11 +193,7 @@ const router = createBrowserRouter([
         </Suspense>
       </LanguageRoute>
     ),
-    errorElement: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ErrorPage />
-      </Suspense>
-    ),
+    errorElement: <ErrorPage />,
   },
   {
     path: '/:lang/help',
@@ -251,11 +204,7 @@ const router = createBrowserRouter([
         </Suspense>
       </LanguageRoute>
     ),
-    errorElement: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ErrorPage />
-      </Suspense>
-    ),
+    errorElement: <ErrorPage />,
   },
   // Редирект старых маршрутов без языка
   {
@@ -283,16 +232,29 @@ const router = createBrowserRouter([
     element: <Navigate to="/ru/dashboard" replace />,
   },
   {
+    path: '/data',
+    element: <Navigate to="/ru/data" replace />,
+  },
+  {
+    path: '/data/documents',
+    element: <Navigate to="/ru/data/documents" replace />,
+  },
+  {
+    path: '/data/addresses',
+    element: <Navigate to="/ru/data/addresses" replace />,
+  },
+  // Редиректы со старого пути /personal на новый /data для обратной совместимости
+  {
     path: '/personal',
-    element: <Navigate to="/ru/personal" replace />,
+    element: <Navigate to="/ru/data" replace />,
   },
   {
     path: '/personal/documents',
-    element: <Navigate to="/ru/personal/documents" replace />,
+    element: <Navigate to="/ru/data/documents" replace />,
   },
   {
     path: '/personal/addresses',
-    element: <Navigate to="/ru/personal/addresses" replace />,
+    element: <Navigate to="/ru/data/addresses" replace />,
   },
   {
     path: '/family',

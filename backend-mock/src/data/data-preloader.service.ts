@@ -28,6 +28,11 @@ export class DataPreloaderService {
       // Переводы важны для первого экрана — предзагружаем
       { key: 'translations/ru.json', filePath: path.join(dataDir, 'translations/ru.json') },
       { key: 'translations/en.json', filePath: path.join(dataDir, 'translations/en.json') },
+      // Предзагружаем критичные модули v2 (common, profile) для быстрого старта
+      { key: 'translations/v2/ru/common.json', filePath: path.join(dataDir, 'translations/v2/ru/common.json') },
+      { key: 'translations/v2/ru/profile.json', filePath: path.join(dataDir, 'translations/v2/ru/profile.json') },
+      { key: 'translations/v2/en/common.json', filePath: path.join(dataDir, 'translations/v2/en/common.json') },
+      { key: 'translations/v2/en/profile.json', filePath: path.join(dataDir, 'translations/v2/en/profile.json') },
       // При необходимости можно добавить также:
       // { key: 'sessions.json', filePath: path.join(dataDir, 'sessions.json') },
     ];

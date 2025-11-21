@@ -39,7 +39,6 @@ const SecurityPage: React.FC = () => {
   const { t } = useTranslation();
   const { getGradientStyleFromVars } = useThemeClasses();
   const [devices, setDevices] = useState<Device[]>([]);
-  const [activity, setActivity] = useState<Activity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   // Моковые данные для даты последнего изменения пароля (14 месяцев назад)
   const passwordLastChanged = '14 месяцев назад';
@@ -48,12 +47,8 @@ const SecurityPage: React.FC = () => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const [devicesRes, activityRes] = await Promise.all([
-          securityApi.getDevices(),
-          securityApi.getActivity(),
-        ]);
+        const devicesRes = await securityApi.getDevices();
         setDevices(devicesRes.data?.data || devicesRes.data || []);
-        setActivity(activityRes.data?.data || activityRes.data || []);
       } catch (error) {
         console.error('Failed to fetch security data', error);
       } finally {

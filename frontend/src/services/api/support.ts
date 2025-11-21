@@ -21,6 +21,8 @@ export interface ChatMessage {
   sender: 'user' | 'bot';
   message: string;
   timestamp: string;
+  edited?: boolean;
+  editedAt?: string;
 }
 
 export interface SupportService {
@@ -85,6 +87,14 @@ export const supportApi = {
    */
   createChat: async (serviceId: string): Promise<{ success: boolean; data: ChatHistoryItem }> => {
     const response = await apiClient.post('/support/chats', { serviceId });
+    return response.data;
+  },
+
+  /**
+   * Редактировать сообщение
+   */
+  editMessage: async (chatId: string, messageId: string, newMessage: string): Promise<{ success: boolean; data: ChatMessage }> => {
+    const response = await apiClient.patch(`/support/chats/${chatId}/messages/${messageId}`, { message: newMessage });
     return response.data;
   },
 };

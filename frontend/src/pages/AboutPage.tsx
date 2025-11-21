@@ -7,6 +7,7 @@ import { Icon } from '../design-system/primitives';
 import { useLanguageStore } from '../store';
 import { useCurrentLanguage, buildPathWithLang } from '../utils/routing';
 import { themeClasses } from '../design-system/utils/themeClasses';
+import { changeLanguage } from '../services/i18n/config';
 
 /**
  * AboutPage - информационная страница о Loginus ID
@@ -18,10 +19,10 @@ const AboutPage: React.FC = () => {
   const { setLanguage, language: storeLanguage } = useLanguageStore();
   const currentLang = useCurrentLanguage() || storeLanguage || 'ru';
 
-  const handleLanguageChange = () => {
+  const handleLanguageChange = async () => {
     const newLang = currentLang === 'ru' ? 'en' : 'ru';
     setLanguage(newLang);
-    i18n.changeLanguage(newLang);
+    await changeLanguage(newLang);
     
     // Обновляем URL с новым языком
     const currentPath = window.location.pathname;

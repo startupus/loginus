@@ -137,14 +137,6 @@ export const ChatHistory: React.FC<ChatHistoryProps> = ({
                       <span className={`text-sm sm:text-base font-medium ${themeClasses.text.primary} truncate`}>
                         {chat.name}
                       </span>
-                      {chat.isOnline && (
-                        <div className="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
-                          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-success rounded-full"></div>
-                          <span className={`text-xs ${themeClasses.text.secondary} hidden sm:inline`}>
-                            {t('support.history.online', 'В сети')}
-                          </span>
-                        </div>
-                      )}
                     </div>
                     {chat.lastMessage && (
                       <p className={`text-xs sm:text-sm ${themeClasses.text.secondary} truncate mb-0.5 sm:mb-1`}>

@@ -214,6 +214,8 @@ export const changeLanguage = async (locale: string) => {
     i18n.addResourceBundle(locale, 'translation', allModules, true, true);
   }
   await i18n.changeLanguage(locale);
+  // Перезагружаем ресурсы для принудительного обновления компонентов
+  await i18n.reloadResources(locale);
 };
 
 /**

@@ -1,5 +1,4 @@
 import React from 'react';
-import { themeClasses } from '../../utils/themeClasses';
 
 export interface BadgeProps {
   /**

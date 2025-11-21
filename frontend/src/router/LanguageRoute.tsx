@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLanguageStore } from '@/store';
+import { changeLanguage } from '@/services/i18n/config';
 
 interface LanguageRouteProps {
   children: React.ReactNode;
@@ -26,7 +27,11 @@ export const LanguageRoute: React.FC<LanguageRouteProps> = ({ children }) => {
     // Если язык в URL валидный и отличается от текущего
     if (urlLang && validLanguages.includes(urlLang) && urlLang !== language) {
       setLanguage(urlLang as 'ru' | 'en');
-      i18n.changeLanguage(urlLang);
+      changeLanguage(urlLang).catch((error) => {
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Failed to change language:', error);
+        }
+      });
     }
     // Если язык в URL невалидный или отсутствует
     else if (!urlLang || !validLanguages.includes(urlLang)) {
@@ -42,7 +47,11 @@ export const LanguageRoute: React.FC<LanguageRouteProps> = ({ children }) => {
     }
     // Синхронизируем i18n с текущим языком из store (на случай, если они разошлись)
     else if (i18n.language !== language) {
-      i18n.changeLanguage(language);
+      changeLanguage(language).catch((error) => {
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Failed to change language:', error);
+        }
+      });
     }
   }, [lang, language, setLanguage, i18n, navigate, location.pathname]);
 

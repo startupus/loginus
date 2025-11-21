@@ -36,7 +36,7 @@ export const AddressesGrid: React.FC<AddressesGridProps> = ({
   const [canScrollRight, setCanScrollRight] = useState(true);
   
   const handleViewAll = () => {
-    navigate(buildPathWithLang('/personal/addresses', currentLang));
+    navigate(buildPathWithLang('/data/addresses', currentLang));
   };
 
   const handleScroll = () => {

@@ -7,6 +7,7 @@ import { useTheme } from '../../contexts';
 import { useLanguageStore } from '@/store';
 import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';
 import { themeClasses } from '../../utils/themeClasses';
+import { changeLanguage } from '@/services/i18n/config';
 
 export interface AuthPageLayoutHeader {
   /**
@@ -107,13 +108,12 @@ const LanguageSwitcher: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { language, setLanguage } = useLanguageStore();
-  const { i18n } = useTranslation();
   const currentLang = useCurrentLanguage();
 
-  const handleToggle = () => {
+  const handleToggle = async () => {
     const newLang = (currentLang || language) === 'ru' ? 'en' : 'ru';
     setLanguage(newLang);
-    i18n.changeLanguage(newLang);
+    await changeLanguage(newLang);
     
     // Обновляем URL с новым языком, сохраняя состояние (state)
     const pathWithoutLang = location.pathname.replace(/^\/[^/]+/, '') || '/';
@@ -201,7 +201,7 @@ export const AuthPageLayout: React.FC<AuthPageLayoutProps> = ({
 
       {/* Main Content */}
       <main className="flex-1 flex items-center justify-center p-4 sm:p-6">
-        <div className="w-full max-w-md bg-white dark:bg-dark-2 rounded-xl shadow-1 dark:shadow-card p-6 sm:p-8">
+        <div className={`w-full max-w-md ${themeClasses.card.roundedShadow} p-6 sm:p-8`}>
           {children}
         </div>
       </main>

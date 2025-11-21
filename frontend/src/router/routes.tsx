@@ -30,8 +30,8 @@ const PayPage = lazy(() => import('@/pages/PayPage'));
 const SupportPage = lazy(() => import('@/pages/SupportPage'));
 const HelpPage = lazy(() => import('@/pages/HelpPage'));
 
-// Error Page
-const ErrorPage = lazy(() => import('@/pages/ErrorPage'));
+// Error Page - статический импорт, так как нужен для обработки ошибок загрузки других модулей
+import ErrorPage from '@/pages/ErrorPage';
 
 export {
   LandingPage,

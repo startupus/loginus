@@ -35,7 +35,7 @@ export const DocumentsGrid: React.FC<DocumentsGridProps> = ({
   const [canScrollRight, setCanScrollRight] = useState(true);
   
   const handleViewAll = () => {
-    navigate(buildPathWithLang('/personal/documents', currentLang));
+    navigate(buildPathWithLang('/data/documents', currentLang));
   };
 
   // Разделяем документы: обычные документы и дипломы/сертификаты отдельно

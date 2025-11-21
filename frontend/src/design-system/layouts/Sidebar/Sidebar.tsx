@@ -9,6 +9,7 @@ import { useTheme } from '../../contexts';
 import { useLanguageStore } from '@/store';
 import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';
 import { themeClasses } from '../../utils/themeClasses';
+import { changeLanguage } from '@/services/i18n/config';
 
 export interface SidebarItem {
   label: string;
@@ -60,7 +61,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <>
       <div
-        className={`bg-white dark:bg-dark-2 shadow-[0_2px_8px_rgba(0,0,0,0.08)] fixed top-0 left-0 z-40 flex h-screen w-full max-w-[300px] flex-col justify-between overflow-y-scroll duration-200 xl:translate-x-0 ${
+        className={`${themeClasses.card.shadow} shadow-[0_2px_8px_rgba(0,0,0,0.08)] fixed top-0 left-0 z-40 flex h-screen w-full max-w-[300px] flex-col justify-between overflow-y-scroll duration-200 xl:translate-x-0 ${
           isOpen ? '-translate-x-full' : 'translate-x-0'
         } ${className}`}
       >
@@ -174,9 +175,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="flex items-center justify-between py-2">
             {showLanguageSwitcher && (
               <button
-                onClick={() => {
+                onClick={async () => {
                   const newLang = language === 'ru' ? 'en' : 'ru';
                   setLanguage(newLang);
+                  await changeLanguage(newLang);
                   const newPath = buildPathWithLang(window.location.pathname.replace(/^\/(ru|en)/, ''), newLang);
                   navigate(newPath);
                 }}

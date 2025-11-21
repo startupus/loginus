@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Param, Body } from '@nestjs/common';
 import { SupportService } from './support.service';
 
 @Controller('support')
@@ -28,6 +28,15 @@ export class SupportController {
   @Post('chats')
   createChat(@Body() body: { serviceId: string }) {
     return this.supportService.createChat(body.serviceId);
+  }
+
+  @Patch('chats/:chatId/messages/:messageId')
+  editMessage(
+    @Param('chatId') chatId: string,
+    @Param('messageId') messageId: string,
+    @Body() body: { message: string }
+  ) {
+    return this.supportService.editMessage(chatId, messageId, body.message);
   }
 }
 

@@ -16,6 +16,8 @@ export interface ChatMessage {
   sender: 'user' | 'bot';
   message: string;
   timestamp: string;
+  edited?: boolean;
+  editedAt?: string;
 }
 
 export interface SupportServiceItem {
@@ -164,6 +166,53 @@ export class SupportService {
     return {
       success: true,
       data: newChat,
+    };
+  }
+
+  /**
+   * Редактировать сообщение
+   * Можно редактировать только сообщения пользователя в течение 5 минут после отправки
+   */
+  editMessage(chatId: string, messageId: string, newMessage: string) {
+    const message = this.messages.find(
+      (msg) => msg.id === messageId && msg.chatId === chatId && msg.sender === 'user'
+    );
+
+    if (!message) {
+      return {
+        success: false,
+        error: 'Message not found or cannot be edited',
+      };
+    }
+
+    // Проверка времени редактирования (5 минут = 300000 мс)
+    const messageTime = new Date(message.timestamp).getTime();
+    const currentTime = Date.now();
+    const timeDiff = currentTime - messageTime;
+    const EDIT_TIME_LIMIT = 5 * 60 * 1000; // 5 минут
+
+    if (timeDiff > EDIT_TIME_LIMIT) {
+      return {
+        success: false,
+        error: 'Message cannot be edited after 5 minutes',
+      };
+    }
+
+    // Обновляем сообщение
+    message.message = newMessage;
+    message.edited = true;
+    message.editedAt = new Date().toISOString();
+
+    // Обновляем lastMessage в истории
+    const chat = this.chatHistory.find((c) => c.id === chatId);
+    if (chat) {
+      chat.lastMessage = newMessage;
+      chat.date = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    return {
+      success: true,
+      data: message,
     };
   }
 }

@@ -74,17 +74,17 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
     },
     { 
       label: t('sidebar.data', 'Данные'), 
-      path: buildPathWithLang('/personal', currentLang), 
+      path: buildPathWithLang('/data', currentLang), 
       icon: 'document', 
-      active: location.pathname.includes('/personal'),
+      active: location.pathname.includes('/data'),
       children: [
         {
           label: t('sidebar.documents', 'Документы'),
-          path: buildPathWithLang('/personal/documents', currentLang),
+          path: buildPathWithLang('/data/documents', currentLang),
         },
         {
           label: t('sidebar.addresses', 'Адреса'),
-          path: buildPathWithLang('/personal/addresses', currentLang),
+          path: buildPathWithLang('/data/addresses', currentLang),
         },
       ]
     },

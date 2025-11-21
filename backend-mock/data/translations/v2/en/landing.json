@@ -1,0 +1,53 @@
+{
+  "landing": {
+    "hero": {
+      "badge": "New",
+      "badgeText": "Two-factor authentication",
+      "title": "Unified Account",
+      "titleHighlight": "Loginus ID",
+      "description": "Fast and secure authorization for all your services. Manage data, payments and family access in one place.",
+      "ctaLogin": "Login with Loginus ID",
+      "ctaLearnMore": "Learn More"
+    },
+    "features": {
+      "title": "Features",
+      "subtitle": "Everything you need to manage your account",
+      "feature1": {
+        "title": "Security",
+        "description": "Data protection according to GOST standard"
+      },
+      "feature2": {
+        "title": "Convenience",
+        "description": "Single sign-on for all services"
+      },
+      "feature3": {
+        "title": "Control",
+        "description": "Data and access management"
+      }
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "subtitle": "Answers to popular questions",
+      "q1": "What is Loginus ID?",
+      "a1": "Loginus ID is a unified account for all Loginus services.",
+      "q2": "How to create an account?",
+      "a2": "Click the 'Login' button and follow the instructions.",
+      "q3": "Is it safe to store data?",
+      "a3": "Yes, we use encryption according to GOST standard."
+    },
+    "footer": {
+      "copyright": "© 2025 Loginus. All rights reserved.",
+      "links": {
+        "about": "About Us",
+        "privacy": "Privacy",
+        "terms": "Terms of Service"
+      }
+    },
+    "nav": {
+      "about": "About Loginus ID",
+      "features": "Features",
+      "faq": "FAQ"
+    }
+  }
+}
+

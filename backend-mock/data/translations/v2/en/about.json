@@ -1,0 +1,64 @@
+{
+  "about": {
+    "hero": {
+      "title": "About Loginus ID",
+      "description": "Loginus ID is a unified account for all Loginus services. Fast and secure authorization, data management, payments and family access in one place.",
+      "cta": "Create Account",
+      "back": "Back to Home"
+    },
+    "what": {
+      "title": "What is Loginus ID?",
+      "description1": "Loginus ID is a unified identification and authorization system for all Loginus services. By creating one account, you get access to all capabilities of the Loginus ecosystem.",
+      "description2": "The system is designed with security and personal data protection requirements in mind. All data is stored encrypted and protected according to GOST standards.",
+      "description3": "With Loginus ID, you can manage personal data, documents, payments, family access and much more from a single interface."
+    },
+    "features": {
+      "title": "Key Features",
+      "security": {
+        "title": "Data Security",
+        "description": "Protection of personal data according to GOST standards. Encryption of all data and secure storage."
+      },
+      "auth": {
+        "title": "Single Sign-On",
+        "description": "One account for all Loginus services. Fast authorization without re-entering passwords."
+      },
+      "family": {
+        "title": "Family Access",
+        "description": "Manage family group, children's accounts and shared subscriptions."
+      },
+      "payments": {
+        "title": "Payments and Subscriptions",
+        "description": "Manage payment methods, subscriptions and transaction history."
+      },
+      "documents": {
+        "title": "Documents",
+        "description": "Store and manage important documents in a secure vault."
+      },
+      "control": {
+        "title": "Full Control",
+        "description": "Manage data access, privacy settings and security."
+      }
+    },
+    "benefits": {
+      "title": "Why Loginus ID?",
+      "speed": {
+        "title": "Fast",
+        "description": "Instant access to all services without re-authorization"
+      },
+      "safety": {
+        "title": "Secure",
+        "description": "GOST standard data protection and two-factor authentication"
+      },
+      "convenience": {
+        "title": "Convenient",
+        "description": "All your data and settings in one place"
+      }
+    },
+    "cta": {
+      "title": "Ready to Start?",
+      "description": "Create your Loginus ID and get access to all capabilities of the Loginus ecosystem.",
+      "button": "Create Account"
+    }
+  }
+}
+

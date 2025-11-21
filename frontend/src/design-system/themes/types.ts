@@ -23,7 +23,7 @@ export interface Theme {
   name: 'light' | 'dark' | 'corporate';
   colors: ThemeColors;
   typography: {
-    fontFamily: string;
+    fontFamily?: string; // Опциональный, используется системный шрифт по умолчанию
     fontSize: {
       xs: string;
       sm: string;

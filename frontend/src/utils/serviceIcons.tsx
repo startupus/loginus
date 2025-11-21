@@ -18,7 +18,9 @@ import {
   FiArrowLeft,
   FiHelpCircle,
   FiMessageSquare,
-  FiFolder
+  FiFolder,
+  FiX,
+  FiEdit
 } from 'react-icons/fi';
 
 /**
@@ -47,6 +49,10 @@ export const serviceIconMap: Record<string, React.ComponentType<{ className?: st
   'help-circle': FiHelpCircle,
   'message': FiMessageSquare,
   'folder': FiFolder,
+  'x': FiX,
+  'close': FiX,
+  'edit': FiEdit,
+  'pencil': FiEdit,
 };
 
 /**

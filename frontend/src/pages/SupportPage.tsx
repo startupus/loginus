@@ -32,6 +32,7 @@ const SupportPage: React.FC = () => {
   const [activeFolderId, setActiveFolderId] = useState<string>('all');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [showChatHistory, setShowChatHistory] = useState<boolean>(false);
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
 
   // Автоматическое изменение высоты textarea при вводе текста (кнопки остаются фиксированного размера)
   useEffect(() => {
@@ -187,6 +188,28 @@ const SupportPage: React.FC = () => {
     },
   });
 
+  // Мутация для редактирования сообщения
+  const editMessageMutation = useMutation({
+    mutationFn: async ({ chatId, messageId, newMessage }: { chatId: string; messageId: string; newMessage: string }) => {
+      const response = await supportApi.editMessage(chatId, messageId, newMessage);
+      return response.data;
+    },
+    onSuccess: (_, variables) => {
+      // Очищаем поле ввода и режим редактирования
+      setMessageInput('');
+      setEditingMessageId(null);
+      // Обновляем сообщения и историю чатов
+      queryClient.invalidateQueries({ queryKey: ['support', 'messages', variables.chatId] });
+      queryClient.invalidateQueries({ queryKey: ['support', 'chats'] });
+    },
+    onError: (error) => {
+      console.error('[SupportPage] Error editing message:', error);
+      // В случае ошибки (например, истекло время редактирования) сбрасываем режим редактирования
+      setEditingMessageId(null);
+      setMessageInput('');
+    },
+  });
+
   // Извлекаем данные из ответа API с мемоизацией
   const chatHistory = useMemo(
     () => Array.isArray(chatHistoryData?.active) ? chatHistoryData.active : [],
@@ -227,11 +250,21 @@ const SupportPage: React.FC = () => {
     e?.preventDefault();
     if (!activeChatId || !messageInput.trim()) return;
     
-    sendMessageMutation.mutate({
-      chatId: activeChatId,
-      message: messageInput.trim(),
-    });
-  }, [activeChatId, messageInput, sendMessageMutation]);
+    // Если редактируем сообщение
+    if (editingMessageId) {
+      editMessageMutation.mutate({
+        chatId: activeChatId,
+        messageId: editingMessageId,
+        newMessage: messageInput.trim(),
+      });
+    } else {
+      // Отправляем новое сообщение
+      sendMessageMutation.mutate({
+        chatId: activeChatId,
+        message: messageInput.trim(),
+      });
+    }
+  }, [activeChatId, messageInput, editingMessageId, sendMessageMutation, editMessageMutation]);
 
   /**
    * Обработчик выбора сервиса (создание нового чата)
@@ -242,14 +275,62 @@ const SupportPage: React.FC = () => {
   }, [createChatMutation]);
 
   /**
-   * Обработчик нажатия клавиш в textarea (Enter для отправки)
+   * Обработчик нажатия клавиш в textarea (Enter для отправки, ArrowUp для редактирования последнего сообщения)
    */
   const handleKeyPress = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
+    } else if (e.key === 'ArrowUp' && !e.shiftKey && !editingMessageId && messageInput.trim() === '') {
+      // Стрелка вверх: редактируем последнее сообщение пользователя
+      e.preventDefault();
+      const userMessages = messages.filter(msg => msg.sender === 'user');
+      if (userMessages.length > 0) {
+        const lastMessage = userMessages[userMessages.length - 1];
+        setEditingMessageId(lastMessage.id);
+        setMessageInput(lastMessage.message);
+        // Фокус на textarea и установка курсора в конец
+        setTimeout(() => {
+          if (textareaRef.current) {
+            textareaRef.current.focus();
+            const length = textareaRef.current.value.length;
+            textareaRef.current.setSelectionRange(length, length);
+          }
+        }, 0);
+      }
     }
-  }, [handleSendMessage]);
+  }, [handleSendMessage, editingMessageId, messageInput, messages]);
+
+  /**
+   * Обработчик редактирования сообщения (из контекстного меню)
+   */
+  const handleEditMessage = useCallback((messageId: string) => {
+    const message = messages.find(msg => msg.id === messageId && msg.sender === 'user');
+    if (message) {
+      setEditingMessageId(messageId);
+      setMessageInput(message.message);
+      // Фокус на textarea и установка курсора в конец
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.focus();
+          const length = textareaRef.current.value.length;
+          textareaRef.current.setSelectionRange(length, length);
+        }
+      }, 0);
+    }
+  }, [messages]);
+
+  /**
+   * Проверка, можно ли редактировать сообщение (только сообщения пользователя в течение 5 минут)
+   */
+  const canEditMessage = useCallback((message: typeof messages[0]) => {
+    if (message.sender !== 'user') return false;
+    const messageTime = new Date(message.timestamp).getTime();
+    const currentTime = Date.now();
+    const timeDiff = currentTime - messageTime;
+    const EDIT_TIME_LIMIT = 5 * 60 * 1000; // 5 минут
+    return timeDiff <= EDIT_TIME_LIMIT;
+  }, []);
 
   // Формируем папки продуктов из сервисов (должно быть до условных return)
   const productFolders: ProductFolder[] = useMemo(() => {
@@ -448,6 +529,11 @@ const SupportPage: React.FC = () => {
                       timestamp={new Date(message.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                       senderName={message.sender === 'bot' ? 'Поддержка' : 'Вы'}
                       initials={message.sender === 'bot' ? 'П' : getInitials('Вы')}
+                      edited={message.edited}
+                      editedAt={message.editedAt}
+                      canEdit={canEditMessage(message)}
+                      onEdit={handleEditMessage}
+                      messageId={message.id}
                     />
                   ))}
                 </div>
@@ -456,8 +542,41 @@ const SupportPage: React.FC = () => {
           </div>
 
           {/* Поле ввода */}
-          <div className={`${themeClasses.background.default} ${themeClasses.border.top} p-2 sm:p-3`} role="region" aria-label={t('support.chat.inputArea', 'Область ввода сообщения')}>
-            <form onSubmit={handleSendMessage} aria-label={t('support.chat.messageForm', 'Форма отправки сообщения')}>
+          <div className={`${themeClasses.background.default} ${themeClasses.border.top}`} role="region" aria-label={t('support.chat.inputArea', 'Область ввода сообщения')}>
+            {/* Индикатор редактирования */}
+            {editingMessageId && (() => {
+              const editingMessage = messages.find(msg => msg.id === editingMessageId);
+              return editingMessage ? (
+                <div className="bg-primary/15 dark:bg-primary/25 border-b border-primary/30 px-3 sm:px-4 py-2.5 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                    <div className="flex-shrink-0 text-primary dark:text-primary-light">
+                      {React.createElement(getServiceIcon('edit'), { size: 18 })}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-xs sm:text-sm font-medium text-primary dark:text-primary-light mb-0.5`}>
+                        {t('support.chat.editing', 'Редактирование')}
+                      </p>
+                      <p className={`text-sm sm:text-base ${themeClasses.text.primary} truncate`}>
+                        {editingMessage.message}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingMessageId(null);
+                      setMessageInput('');
+                    }}
+                    className="flex-shrink-0 w-8 h-8 rounded-full hover:bg-primary/20 dark:hover:bg-primary/30 transition-colors flex items-center justify-center"
+                    aria-label={t('support.chat.cancelEdit', 'Отменить редактирование')}
+                  >
+                    {React.createElement(getServiceIcon('x'), { size: 18, className: 'text-current' })}
+                  </button>
+                </div>
+              ) : null;
+            })()}
+            
+            <form onSubmit={handleSendMessage} aria-label={t('support.chat.messageForm', 'Форма отправки сообщения')} className="p-2 sm:p-3">
               <div className="flex items-end gap-2">
                 {/* Кнопка прикрепления файла */}
                 <Button 
@@ -480,7 +599,7 @@ const SupportPage: React.FC = () => {
                 {/* Поле ввода */}
                   <Textarea
                     ref={textareaRef}
-                    placeholder={t('support.chat.placeholder', 'Напишите ваш вопрос...')}
+                    placeholder={editingMessageId ? t('support.chat.editingPlaceholder', 'Редактирование сообщения...') : t('support.chat.placeholder', 'Напишите ваш вопрос...')}
                     rows={1}
                     style={{ 
                       minHeight: '46px', 
@@ -492,8 +611,8 @@ const SupportPage: React.FC = () => {
                     }}
                     value={messageInput}
                     onChange={(e) => setMessageInput(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    disabled={!activeChatId || sendMessageMutation.isPending}
+                    onKeyDown={handleKeyPress}
+                    disabled={!activeChatId || (sendMessageMutation.isPending && !editingMessageId) || editMessageMutation.isPending}
                     fullWidth
                     aria-label={t('support.chat.inputLabel', 'Поле ввода сообщения')}
                   />
@@ -505,17 +624,37 @@ const SupportPage: React.FC = () => {
                     variant="primary" 
                     size="sm"
                     iconOnly
-                    disabled={!activeChatId || sendMessageMutation.isPending}
-                    loading={sendMessageMutation.isPending}
+                    disabled={!activeChatId || (sendMessageMutation.isPending && !editingMessageId) || editMessageMutation.isPending}
+                    loading={editingMessageId ? editMessageMutation.isPending : sendMessageMutation.isPending}
                     style={{ 
                       height: '46px', 
                       width: '46px',
                       flexShrink: 0
                     }}
                     className="p-0 flex items-center justify-center"
-                    aria-label={t('support.chat.sendMessage', 'Отправить сообщение')}
+                    aria-label={editingMessageId ? t('support.chat.saveEdit', 'Сохранить изменения') : t('support.chat.sendMessage', 'Отправить сообщение')}
                   >
                     {React.createElement(getServiceIcon('send'), { size: 20, className: 'text-white' })}
+                  </Button>
+                ) : editingMessageId ? (
+                  <Button 
+                    type="button"
+                    variant="ghost" 
+                    size="sm"
+                    iconOnly
+                    onClick={() => {
+                      setEditingMessageId(null);
+                      setMessageInput('');
+                    }}
+                    style={{ 
+                      height: '46px', 
+                      width: '46px',
+                      flexShrink: 0
+                    }}
+                    className="p-0 flex items-center justify-center"
+                    aria-label={t('support.chat.cancelEdit', 'Отменить редактирование')}
+                  >
+                    {React.createElement(getServiceIcon('x'), { size: 18, className: 'text-current' })}
                   </Button>
                 ) : (
                   <Button 
