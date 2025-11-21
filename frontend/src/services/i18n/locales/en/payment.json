@@ -1,0 +1,29 @@
+{
+  "title": "Payment Methods",
+  "methods": {
+    "title": "Payment Methods",
+    "cards": "Cards",
+    "count": "{{count}}"
+  },
+  "hints": {
+    "plus": {
+      "title": "Cashback for purchases with Plus points",
+      "value": "0"
+    },
+    "split": {
+      "title": "Split Balance",
+      "value": "120 000,00 ₽"
+    }
+  },
+  "history": {
+    "title": "Payment History",
+    "allPayments": "All payments",
+    "items": {
+      "plusSubscription": "Plus Subscription",
+      "matchFootball": "MATCH! FOOTBALL",
+      "alicePro": "Additional option Alice Pro",
+      "travelers": "Additional option Travelers"
+    }
+  }
+}
+

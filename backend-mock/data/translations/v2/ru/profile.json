@@ -123,14 +123,38 @@
       "emailPlaceholder": "email@example.com",
       "emailRequired": "Введите email",
       "invalidEmail": "Некорректный email",
+      "phoneOrEmail": "Телефон или почта",
+      "phoneOrEmailPlaceholder": "+7 или email@example.com",
       "role": "Роль",
       "roles": {
         "member": "Взрослый",
         "child": "Ребенок"
       },
-      "send": "Отправить приглашение",
+      "send": "Отправить",
       "sending": "Отправка...",
-      "error": "Ошибка при отправке приглашения"
+      "error": "Ошибка при отправке приглашения",
+      "step1": {
+        "title": "Кто этот человек для вас?",
+        "description": "Делаем семейную группу удобнее",
+        "skip": "Пропустить"
+      },
+      "step2": {
+        "title": "Приглашение в семейную группу",
+        "description": "Приняв приглашение, близкий получит все возможности семейной группы",
+        "linkCopied": "Ссылка скопирована",
+        "copyHint": "Если ссылка не скопировалась",
+        "shareLink": "Поделиться ссылкой",
+        "sendSmsOrEmail": "Отправить смс или письмо",
+        "orShareLink": "Или поделиться ссылкой"
+      },
+      "relations": {
+        "partner": "Моя вторая половина",
+        "parent": "Родитель",
+        "child": "Мой ребёнок",
+        "sibling": "Брат или сестра",
+        "friend": "Друг",
+        "other": "Другое"
+      }
     },
     "empty": "Нет участников",
     "children": {

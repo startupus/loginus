@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useMemo, useState, useCallback, lazy, Suspense } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { PageTemplate } from '@/design-system/layouts/PageTemplate';
 // Прямые импорты для tree-shaking
@@ -7,12 +7,16 @@ import { Button } from '@/design-system/primitives/Button';
 import { Icon } from '@/design-system/primitives/Icon';
 import { Avatar } from '@/design-system/primitives/Avatar';
 import { Badge } from '@/design-system/primitives/Badge';
-import { Separator } from '@/design-system/primitives/Separator';
 import { DataSection } from '@/design-system/composites/DataSection';
 import { SeparatedList } from '@/design-system/composites/SeparatedList';
 import { familyApi } from '@/services/api/family';
 import { getInitials } from '@/utils/stringUtils';
 import { themeClasses } from '@/design-system/utils/themeClasses';
+
+// Lazy loading для модального окна - загружается только при открытии
+const InviteFamilyMemberModal = lazy(() => 
+  import('@/components/Modals/InviteFamilyMemberModal').then(m => ({ default: m.InviteFamilyMemberModal }))
+);
 
 /**
  * Интерфейс члена семьи
@@ -43,7 +47,8 @@ interface MemberItemProps {
   t: (key: string, defaultValue?: string, options?: any) => string;
 }
 
-const MemberItem: React.FC<MemberItemProps> = ({ member, isChild = false, t }) => (
+// Мемоизированный компонент для оптимизации рендеринга
+const MemberItem: React.FC<MemberItemProps> = React.memo(({ member, isChild = false, t }) => (
   <div className="flex items-center justify-between py-2">
     <div className="flex items-center gap-3">
       <Avatar
@@ -56,15 +61,15 @@ const MemberItem: React.FC<MemberItemProps> = ({ member, isChild = false, t }) =
         status={member.isOnline ? 'online' : 'offline'}
       />
       <div>
-        <div className="font-medium text-text-primary flex items-center gap-2">
+        <div className={`font-medium ${themeClasses.text.primary} flex items-center gap-2`}>
           {member.name}
           {member.role === 'admin' && (
-            <Badge variant="primary" size="sm">Admin</Badge>
+            <Badge variant="primary" size="sm">{t('family.role.admin', 'Admin')}</Badge>
           )}
         </div>
-        <div className="text-sm text-text-secondary">
+        <div className={`text-sm ${themeClasses.text.secondary}`}>
           {isChild 
-            ? t('family.child.age', { age: member.age || '?' }, `Возраст: ${member.age || '?'} лет`)
+            ? t('family.child.age', 'Возраст: {{age}} лет', { age: member.age || '?' })
             : member.email || member.phone
           }
         </div>
@@ -76,16 +81,48 @@ const MemberItem: React.FC<MemberItemProps> = ({ member, isChild = false, t }) =
       </Button>
     )}
   </div>
-);
+), (prevProps, nextProps) => {
+  // Кастомная функция сравнения для оптимизации
+  return (
+    prevProps.member.id === nextProps.member.id &&
+    prevProps.member.name === nextProps.member.name &&
+    prevProps.member.email === nextProps.member.email &&
+    prevProps.member.role === nextProps.member.role &&
+    prevProps.member.isOnline === nextProps.member.isOnline &&
+    prevProps.isChild === nextProps.isChild
+  );
+});
+
+MemberItem.displayName = 'MemberItem';
 
 /**
  * FamilyPage - страница управления семьей
  */
 const FamilyPage: React.FC = () => {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  
+  // Мемоизированные обработчики для оптимизации
+  const handleOpenModal = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsInviteModalOpen(true);
+  }, []);
+  
+  const handleCloseModal = useCallback(() => {
+    setIsInviteModalOpen(false);
+  }, []);
+  
+  const handleSuccess = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ['family-members'] });
+    setIsInviteModalOpen(false);
+  }, [queryClient]);
+  
   const { data, isLoading } = useQuery({
     queryKey: ['family-members'],
     queryFn: () => familyApi.getMembers(),
+    staleTime: 5 * 60 * 1000, // 5 минут - данные считаются свежими
+    gcTime: 10 * 60 * 1000, // 10 минут - время хранения в кэше (было cacheTime)
   });
 
   // Мемоизация фильтрации для оптимизации
@@ -125,29 +162,29 @@ const FamilyPage: React.FC = () => {
       contentClassName="space-y-8 max-w-4xl mx-auto"
     >
         {/* Promo Block */}
-        <div className="bg-gradient-to-r from-warning to-warning/80 rounded-2xl p-8 text-white shadow-lg relative overflow-hidden">
-          <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-6">
+        <div className={`${themeClasses.promo.container} bg-gradient-to-r from-warning to-warning/80 dark:from-warning/90 dark:to-warning/70`}>
+          <div className={themeClasses.promo.content}>
             <div className="flex-1">
-              <h2 className="text-2xl font-bold mb-2 text-white">
+              <h2 className={`${themeClasses.promo.title} ${themeClasses.text.white}`}>
                 {t('family.promo.plus.title', 'Плюса хватит всем')}
               </h2>
-              <p className="text-white/80 mb-6 max-w-xl font-medium">
+              <p className={`${themeClasses.promo.description} ${themeClasses.text.whiteOpacity}`}>
                 {t('family.promo.plus.description', 'Подключите до 3 близких к подписке Плюс')}
               </p>
               <Button 
                 variant="secondary" 
-                className="bg-text-primary text-background hover:bg-text-primary/90 border-none"
+                className="bg-text-primary text-background hover:bg-text-primary/90 dark:bg-text-primary dark:text-dark dark:hover:bg-text-primary/90 border-none"
               >
                 {t('family.promo.plus.action', 'Расширить за 250 ₽')}
               </Button>
             </div>
-            <div className="hidden md:block text-white/20">
+            <div className={`hidden md:block ${themeClasses.text.whiteOpacity}`}>
                <Icon name="users" size="xl" className="w-32 h-32" />
             </div>
           </div>
           {/* Decorative circles */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/20 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full translate-y-1/3 -translate-x-1/4 blur-2xl"></div>
+          <div className={themeClasses.decorative.promoCircle}></div>
+          <div className={themeClasses.decorative.promoCircleSmall}></div>
         </div>
 
         {/* Family Group Section */}
@@ -156,9 +193,14 @@ const FamilyPage: React.FC = () => {
           title={t('family.group.title', 'Семейная группа')}
           description={t('family.group.description', 'Управляйте доступом близких к сервисам')}
           action={
-            <Button variant="primary" size="sm" className="gap-2">
-                <Icon name="user-plus" size="sm" />
-                {t('family.invite', 'Пригласить')}
+            <Button 
+              variant="primary" 
+              size="sm"
+              leftIcon={<Icon name="user-plus" size="sm" />}
+              onClick={handleOpenModal}
+              className="md:min-w-auto"
+            >
+              <span className="hidden md:inline">{t('family.inviteButton', 'Пригласить')}</span>
             </Button>
           }
         >
@@ -169,7 +211,7 @@ const FamilyPage: React.FC = () => {
                   <MemberItem key={member.id} member={member} t={t} />
                 ))
               ) : (
-                <div className="text-center py-4 text-text-secondary">
+                <div className={`text-center py-4 ${themeClasses.text.secondary}`}>
                   {t('family.empty', 'Нет участников')}
                 </div>
               )}
@@ -183,9 +225,9 @@ const FamilyPage: React.FC = () => {
           title={t('family.children.title', 'Детские аккаунты')}
           description={t('family.children.description', 'Безопасный интернет и контент для детей')}
            action={
-            <Button variant="outline" size="sm" className="gap-2">
+            <Button variant="outline" size="sm" className="gap-2 md:min-w-auto">
                 <Icon name="plus" size="sm" />
-                {t('family.child.create', 'Создать аккаунт')}
+                <span className="hidden md:inline">{t('family.child.create', 'Создать аккаунт')}</span>
             </Button>
           }
         >
@@ -233,18 +275,35 @@ const FamilyPage: React.FC = () => {
                   <Icon name="chevron-right" size="sm" className={`${themeClasses.text.secondary} group-hover:text-primary transition-colors`} />
                 </div>
               ))}
-              <Separator />
-              <button className={`flex items-center gap-3 py-2 px-2 -mx-2 w-full text-left text-error hover:bg-error/10 dark:hover:bg-error/20 rounded-lg transition-colors`}>
-                 <div className={`p-2 rounded-lg ${themeClasses.iconCircle.error}`}>
-                    <Icon name="trash-2" size="md" />
-                 </div>
-                 <div className="font-medium">
+              <div className={themeClasses.list.item}>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-error hover:bg-error/10 dark:hover:bg-error/20 transition-colors gap-3"
+                  leftIcon={
+                    <div className="p-1.5 bg-error/10 text-error rounded-full flex items-center justify-center shrink-0">
+                      <Icon name="trash" size="sm" />
+                    </div>
+                  }
+                >
+                  <span className={`font-medium ${themeClasses.text.primary}`}>
                     {t('family.features.delete', 'Удалить группу')}
-                 </div>
-              </button>
+                  </span>
+                </Button>
+              </div>
             </SeparatedList>
           </div>
         </DataSection>
+
+        {/* Модальное окно приглашения члена семьи */}
+        {isInviteModalOpen && (
+          <Suspense fallback={null}>
+            <InviteFamilyMemberModal
+              isOpen={isInviteModalOpen}
+              onClose={handleCloseModal}
+              onSuccess={handleSuccess}
+            />
+          </Suspense>
+        )}
     </PageTemplate>
   );
 };

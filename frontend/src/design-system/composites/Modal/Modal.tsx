@@ -25,7 +25,7 @@ export interface ModalProps {
   /**
    * Размер модального окна
    */
-  size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
   
   /**
    * Footer с действиями
@@ -41,6 +41,11 @@ export interface ModalProps {
    * Референс на элемент для привязки позиционирования (опционально)
    */
   anchorRef?: React.RefObject<HTMLElement>;
+  
+  /**
+   * Показать кнопку закрытия (крестик)
+   */
+  showCloseButton?: boolean;
   
   /**
    * Дополнительные классы
@@ -66,6 +71,7 @@ export const Modal: React.FC<ModalProps> = ({
   footer,
   position = 'center',
   anchorRef,
+  showCloseButton = false,
   className = '',
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
@@ -182,6 +188,7 @@ export const Modal: React.FC<ModalProps> = ({
     md: 'max-w-[570px]',      // Из TailGrids Modal1.jsx
     lg: 'max-w-2xl',
     xl: 'max-w-4xl',
+    '2xl': 'max-w-5xl',
     full: 'max-w-full m-4',
   };
 
@@ -212,6 +219,31 @@ export const Modal: React.FC<ModalProps> = ({
         className={`w-full ${sizeClasses[size]} rounded-[20px] bg-white px-8 py-12 text-center dark:bg-dark-2 md:px-[70px] md:py-[60px] ${className}`}
         style={position !== 'center' ? { ...positionStyles, position: 'fixed', zIndex: 101, pointerEvents: 'auto' } : {}}
         >
+        {/* Close Button */}
+        {showCloseButton && (
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full bg-gray-1 hover:bg-gray-2 dark:bg-dark-3 dark:hover:bg-dark-4 transition-colors text-text-primary hover:text-error shadow-sm"
+            aria-label="Close"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="stroke-current"
+            >
+              <path
+                d="M12 4L4 12M4 4L12 12"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        )}
+        
         {/* Title - из TailGrids Modal1.jsx */}
           {title && (
           <>

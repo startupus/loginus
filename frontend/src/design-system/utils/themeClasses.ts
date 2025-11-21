@@ -106,6 +106,8 @@ export const backgroundClasses = {
   surface: 'bg-background dark:bg-surface',
   // Поверхность с возвышением
   surfaceElevated: 'bg-surface-elevated dark:bg-dark-2',
+  // Третичный фон (для информационных блоков)
+  tertiary: 'bg-gray-1/50 dark:bg-dark-3/50',
 };
 
 /**

@@ -197,31 +197,31 @@
       {
         "id": "1",
         "name": "Дмитрий Лукьян",
-        "avatar": null,
+        "avatar": "https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/d33b16ca7cd113d5a60a.webp",
         "role": "owner"
       },
       {
         "id": "2",
         "name": "Артемий Л.",
-        "avatar": null,
+        "avatar": "https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/7504ddd175f79330ae19.webp",
         "role": "member"
       },
       {
         "id": "3",
         "name": "Оксана Л.",
-        "avatar": null,
+        "avatar": "https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/e3d62fb45a9255ffacbc.webp",
         "role": "member"
       },
       {
         "id": "4",
         "name": "Настя Лукьян",
-        "avatar": null,
+        "avatar": "https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/692fb3ccc028a306ee0f.webp",
         "role": "member"
       },
       {
         "id": "5",
         "name": "Аня",
-        "avatar": null,
+        "avatar": "https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/c06fdaa38e6c02ca365c.webp",
         "role": "member"
       }
     ],
@@ -235,27 +235,27 @@
           {
             "id": "1",
             "name": "Дмитрий Лукьян",
-            "avatar": null
+            "avatar": "https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/d33b16ca7cd113d5a60a.webp"
           },
           {
             "id": "2",
             "name": "Артемий Л.",
-            "avatar": null
+            "avatar": "https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/7504ddd175f79330ae19.webp"
           },
           {
             "id": "3",
             "name": "Оксана Л.",
-            "avatar": null
+            "avatar": "https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/e3d62fb45a9255ffacbc.webp"
           },
           {
             "id": "4",
             "name": "Настя Лукьян",
-            "avatar": null
+            "avatar": "https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/692fb3ccc028a306ee0f.webp"
           },
           {
             "id": "5",
             "name": "Аня К.",
-            "avatar": null
+            "avatar": "https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/c06fdaa38e6c02ca365c.webp"
           }
         ]
       },
@@ -268,17 +268,17 @@
           {
             "id": "10",
             "name": "Мария С.",
-            "avatar": null
+            "avatar": "https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/deb4c7a8510b7e303522.webp"
           },
           {
             "id": "11",
             "name": "Иван П.",
-            "avatar": null
+            "avatar": "https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/a98a60a15cbd81f691de.webp"
           },
           {
             "id": "12",
             "name": "Елена К.",
-            "avatar": null
+            "avatar": "https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/185e9da5bb2e68722b6b.webp"
           }
         ]
       },
@@ -291,37 +291,37 @@
           {
             "id": "20",
             "name": "Алексей М.",
-            "avatar": null
+            "avatar": "https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/72d8ef0bfc7289491011.webp"
           },
           {
             "id": "21",
             "name": "Светлана Р.",
-            "avatar": null
+            "avatar": "https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/ee1c88b1efccb86ccbfc.webp"
           },
           {
             "id": "22",
             "name": "Михаил Т.",
-            "avatar": null
+            "avatar": "https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/fff280518cf59cf9b644.webp"
           },
           {
             "id": "23",
             "name": "Ольга В.",
-            "avatar": null
+            "avatar": "https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/f51e3559cb03a1ef9bf2.webp"
           },
           {
             "id": "24",
             "name": "Павел Д.",
-            "avatar": null
+            "avatar": "https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/2304fdb8b218a2006745.webp"
           },
           {
             "id": "25",
             "name": "Наталья Ж.",
-            "avatar": null
+            "avatar": "https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/fee0452b9300856d718e.webp"
           },
           {
             "id": "26",
             "name": "Андрей К.",
-            "avatar": null
+            "avatar": "https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/6bba13fab0f50d638d39.webp"
           }
         ]
       }

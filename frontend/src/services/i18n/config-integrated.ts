@@ -32,7 +32,7 @@ const i18nMode = getEffectiveI18nMode();
 const loadedModules = new Map<string, Set<string>>();
 
 // Доступные модули локализации
-const availableModules = ['common', 'dashboard', 'auth', 'profile', 'errors', 'landing', 'about', 'work', 'modals', 'support'] as const;
+const availableModules = ['common', 'dashboard', 'auth', 'profile', 'errors', 'landing', 'about', 'work', 'modals', 'support', 'payment'] as const;
 type ModuleNameLegacy = typeof availableModules[number];
 
 // Статические ресурсы: RU подгружаем сразу, чтобы не было водопада чанков на первом экране

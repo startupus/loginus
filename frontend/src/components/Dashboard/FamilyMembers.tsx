@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Avatar, Icon, ScrollButton } from '../../design-system/primitives';
@@ -6,6 +6,12 @@ import { DataSection, AddButton } from '../../design-system/composites';
 import { getInitials } from '../../utils/stringUtils';
 import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
 import { themeClasses } from '../../design-system/utils/themeClasses';
+import { useModal } from '../../hooks/useModal';
+
+// Lazy loading модального окна
+const EditFamilyMemberAvatarModal = lazy(() => 
+  import('../Modals/EditFamilyMemberAvatarModal').then(m => ({ default: m.EditFamilyMemberAvatarModal }))
+);
 
 export interface FamilyMember {
   id: string;
@@ -34,6 +40,9 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const editAvatarModal = useModal();
+  const [selectedMember, setSelectedMember] = useState<FamilyMember | null>(null);
+  const [hoveredMemberId, setHoveredMemberId] = useState<string | null>(null);
   
   const handleViewAll = () => {
     navigate(buildPathWithLang('/family', currentLang));
@@ -65,6 +74,20 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
       return () => container.removeEventListener('scroll', handleScroll);
     }
   }, [members]);
+
+  const handleEditAvatar = (e: React.MouseEvent, member: FamilyMember) => {
+    e.stopPropagation();
+    setSelectedMember(member);
+    editAvatarModal.open();
+  };
+
+  const handleAvatarSaved = (avatarUrl: string) => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Avatar saved for member:', selectedMember?.id, 'url:', avatarUrl);
+    }
+    // TODO: Обновить аватар члена семьи через API
+    editAvatarModal.close();
+  };
   
   
   return (
@@ -103,36 +126,53 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
           onScroll={handleScroll}
         >
           {members.map((member, index) => (
-            <button
+            <div
               key={member.id}
-              onClick={() => onMemberClick?.(member)}
-              className={`group flex-shrink-0 flex flex-col items-center justify-center gap-3 p-4 rounded-lg border transition-all duration-200 animate-fade-in w-[140px] h-[140px] ${
-                member.role === 'owner' 
-                  ? 'bg-primary/5 dark:bg-primary/10 border-primary/30 hover:border-primary/50 hover:bg-primary/10 dark:hover:bg-primary/20' 
-                  : `${themeClasses.card.gridItem} ${themeClasses.border.default} hover:border-primary/30 dark:hover:border-primary/30 ${themeClasses.card.gridItemHover}`
-              }`}
-              style={{ animationDelay: `${index * 30}ms` }}
+              className="relative flex-shrink-0"
+              onMouseEnter={() => setHoveredMemberId(member.id)}
+              onMouseLeave={() => setHoveredMemberId(null)}
             >
-              {/* Аватар с индикатором статуса */}
-              <div className="flex-shrink-0 relative transition-transform duration-200 group-hover:scale-110">
-                <Avatar
-                  src={member.avatar || undefined}
-                  initials={getInitials(member.name)}
-                  name={member.name}
-                  size="2xl"
-                  rounded
-                  showStatus
-                  status={(member as any).isOnline ? 'online' : 'offline'}
-                />
-              </div>
+              <button
+                onClick={() => onMemberClick?.(member)}
+                className={`group flex-shrink-0 flex flex-col items-center justify-center gap-3 p-4 rounded-lg border transition-all duration-200 animate-fade-in w-[140px] h-[140px] ${
+                  member.role === 'owner' 
+                    ? 'bg-primary/5 dark:bg-primary/10 border-primary/30 hover:border-primary/50 hover:bg-primary/10 dark:hover:bg-primary/20' 
+                    : `${themeClasses.card.gridItem} ${themeClasses.border.default} hover:border-primary/30 dark:hover:border-primary/30 ${themeClasses.card.gridItemHover}`
+                }`}
+                style={{ animationDelay: `${index * 30}ms` }}
+              >
+                {/* Аватар с индикатором статуса */}
+                <div className="flex-shrink-0 relative transition-transform duration-200 group-hover:scale-110">
+                  <Avatar
+                    src={member.avatar || undefined}
+                    initials={getInitials(member.name)}
+                    name={member.name}
+                    size="2xl"
+                    rounded
+                    showStatus
+                    status={(member as any).isOnline ? 'online' : 'offline'}
+                  />
+                </div>
+                
+                {/* Имя */}
+                <div className="flex flex-col items-center gap-1.5 w-full min-w-0 flex-1 justify-center">
+                  <p className="text-xs font-medium text-center text-text-primary group-hover:text-primary transition-colors duration-200 line-clamp-1 break-words w-full">
+                    {member.name}
+                  </p>
+                </div>
+              </button>
               
-              {/* Имя */}
-              <div className="flex flex-col items-center gap-1.5 w-full min-w-0 flex-1 justify-center">
-                <p className="text-xs font-medium text-center text-text-primary group-hover:text-primary transition-colors duration-200 line-clamp-1 break-words w-full">
-                  {member.name}
-                </p>
-              </div>
-            </button>
+              {/* Кнопка редактирования аватара (показывается при наведении) */}
+              {hoveredMemberId === member.id && (
+                <button
+                  onClick={(e) => handleEditAvatar(e, member)}
+                  className="absolute top-2 right-2 w-8 h-8 rounded-full bg-primary hover:bg-primary-hover text-white flex items-center justify-center shadow-lg transition-all duration-200 animate-fade-in z-10"
+                  aria-label={t('dashboard.family.editAvatar', 'Изменить аватар')}
+                >
+                  <Icon name="edit" size="xs" />
+                </button>
+              )}
+            </div>
           ))}
           
           {/* Кнопка добавить */}
@@ -161,6 +201,21 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
           />
         )}
       </div>
+
+      {/* Модальное окно редактирования аватара */}
+      {selectedMember && (
+        <Suspense fallback={null}>
+          <EditFamilyMemberAvatarModal
+            isOpen={editAvatarModal.isOpen}
+            onClose={editAvatarModal.close}
+            onSuccess={handleAvatarSaved}
+            initialData={{
+              name: selectedMember.name,
+              avatar: selectedMember.avatar,
+            }}
+          />
+        </Suspense>
+      )}
     </DataSection>
   );
 };

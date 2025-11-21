@@ -1,244 +1,289 @@
-import React, { useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link, useParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 // Прямые импорты для tree-shaking
 import { PageTemplate } from '@/design-system/layouts/PageTemplate';
 import { DataSection } from '@/design-system/composites/DataSection';
 import { SeparatedList } from '@/design-system/composites/SeparatedList';
-import { Button } from '@/design-system/primitives/Button';
 import { Icon } from '@/design-system/primitives/Icon';
 import { Badge } from '@/design-system/primitives/Badge';
 import { paymentApi } from '@/services/api/payment';
 import { themeClasses } from '@/design-system/utils/themeClasses';
+import { buildPathWithLang } from '@/utils/routing';
 
-interface PaymentMethod {
+/**
+ * Интерфейс платежа из истории
+ */
+interface PaymentHistoryItem {
   id: string;
-  type: string;
-  last4: string;
-  expiry: string;
-  system: string;
-  isDefault?: boolean;
-}
-
-interface Transaction {
-  id: string;
+  title: string;
+  description: string;
   amount: number;
   currency: string;
-  date: string;
-  description: string;
-  status: 'success' | 'pending' | 'failed';
-  merchant: string;
 }
 
-const PayPage: React.FC = () => {
-  const { t } = useTranslation();
-  const [methods, setMethods] = useState<PaymentMethod[]>([]);
-  const [history, setHistory] = useState<Transaction[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+/**
+ * Компонент баннера с подсказкой (Плюс кешбэк или Сплит баланс)
+ */
+interface HintBannerProps {
+  icon: React.ReactNode;
+  title: string;
+  value: string;
+  href?: string;
+}
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        const [methodsRes, historyRes] = await Promise.all([
-          paymentApi.getMethods(),
-          paymentApi.getHistory(),
-        ]);
-        setMethods(methodsRes.data);
-        setHistory(historyRes.data);
-      } catch (error) {
-        console.error('Failed to fetch payment data', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  if (isLoading) {
-    return (
-      <PageTemplate title={t('sidebar.payments', 'Платежи')} showSidebar={true}>
-        <div className="flex justify-center items-center min-h-[200px]">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+const HintBanner: React.FC<HintBannerProps> = ({ icon, title, value, href }) => {
+  const content = (
+    <div className={`flex items-center gap-3 p-4 rounded-lg ${themeClasses.background.gray2} hover:opacity-80 transition-opacity cursor-pointer`}>
+      <div className="flex-shrink-0 w-11 h-11 flex items-center justify-center">
+        {icon}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className={`text-sm ${themeClasses.text.primary} line-clamp-2`}>
+          {title}
         </div>
-      </PageTemplate>
+      </div>
+      <div className="flex-shrink-0">
+        <span className={`text-base font-medium ${themeClasses.text.primary}`}>
+          {value}
+        </span>
+      </div>
+    </div>
+  );
+
+  if (href) {
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer" className="block">
+        {content}
+      </a>
     );
   }
 
-  return (
-    <PageTemplate 
-      title={t('sidebar.payments', 'Платежи')}
-      showSidebar={true}
-      contentClassName="space-y-8 max-w-4xl mx-auto"
-    >
-      {/* Promo Blocks Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Plus Promo */}
-        <div className="bg-gradient-to-br from-primary to-info rounded-2xl p-6 text-white shadow-lg relative overflow-hidden group cursor-pointer hover:shadow-xl transition-all">
-          <div className="relative z-10">
-            <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-4">
-              <Icon name="plus" size="lg" className="text-white" />
-            </div>
-            <h3 className="text-xl font-bold mb-2">{t('payment.promo.plus.title', 'Подключите Плюс')}</h3>
-            <p className="text-white/80 mb-4">{t('payment.promo.plus.description', 'Кино, музыка, книги в одной мультиподписке')}</p>
-            <Button variant="outline" size="sm" className="bg-white text-primary hover:bg-gray-1 border-primary hover:border-primary">
-              {t('common.connect', 'Подключить')}
-            </Button>
-          </div>
-          {/* Decorative elements */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/4 translate-x-1/4 blur-2xl group-hover:scale-110 transition-transform"></div>
-        </div>
+  return <div>{content}</div>;
+};
 
-        {/* Split Promo */}
-        <div className="bg-gradient-to-br from-success to-info rounded-2xl p-6 text-white shadow-lg relative overflow-hidden group cursor-pointer hover:shadow-xl transition-all">
-          <div className="relative z-10">
-            <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-4">
-              <Icon name="pie-chart" size="lg" className="text-white" />
-            </div>
-            <h3 className="text-xl font-bold mb-2">{t('payment.promo.split.title', 'Сплит')}</h3>
-            <p className="text-white/80 mb-4">
-              {t('payment.promo.split.limit', 'Вам одобрено 150 000 ₽', { amount: '150 000' })}
-            </p>
-            <Button variant="outline" size="sm" className="bg-white text-success hover:bg-gray-1 border-success hover:border-success">
-              {t('common.details', 'Подробнее')}
-            </Button>
-          </div>
-          {/* Decorative elements */}
-          <div className="absolute bottom-0 right-0 w-40 h-40 bg-white/10 rounded-full translate-y-1/4 translate-x-1/4 blur-2xl group-hover:scale-110 transition-transform"></div>
+/**
+ * Компонент элемента списка способов оплаты
+ */
+interface PaymentMethodItemProps {
+  icon: React.ReactNode;
+  title: string;
+  badge?: number;
+  href: string;
+}
+
+const PaymentMethodItem: React.FC<PaymentMethodItemProps> = ({ icon, title, badge, href }) => {
+  const { lang } = useParams<{ lang: string }>();
+  const fullHref = buildPathWithLang(href, lang || 'ru');
+
+  return (
+    <Link
+      to={fullHref}
+      className={`flex items-center gap-3 p-4 rounded-lg ${themeClasses.background.default} ${themeClasses.border.default} hover:border-primary transition-colors group`}
+    >
+      <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center">
+        {icon}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className={`text-base font-medium ${themeClasses.text.primary}`}>
+          {title}
         </div>
       </div>
+      <div className="flex items-center gap-2 flex-shrink-0">
+        {badge !== undefined && badge > 0 && (
+          <Badge variant="primary" size="sm">
+            {badge}
+          </Badge>
+        )}
+        <Icon name="chevron-right" size="sm" className={`${themeClasses.text.secondary} group-hover:text-primary transition-colors`} />
+      </div>
+    </Link>
+  );
+};
 
-      {/* Cards Section */}
-      <DataSection
-        id="cards"
-        title={t('payment.methods.title', 'Способы оплаты')}
-        description={t('payment.methods.description', 'Ваши карты для оплаты сервисов')}
-        action={
-            <Button variant="primary" size="sm" className="gap-2">
-                <Icon name="credit-card" size="sm" />
-                {t('payment.methods.add', 'Открыть карту Пэй')}
-            </Button>
-        }
-      >
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {/* Loginus Pay Card */}
-          <div className="bg-gradient-to-br from-text-primary to-text-primary/80 text-background p-6 rounded-xl shadow-lg relative overflow-hidden aspect-video flex flex-col justify-between cursor-pointer hover:scale-[1.02] transition-transform">
-              <div className="flex justify-between items-start z-10">
-                  <div className="flex items-center gap-2">
-                    <Icon name="credit-card" size="lg" className="text-white" />
-                    <span className="font-bold">Loginus Pay</span>
-                  </div>
-                  <Badge variant="success" size="sm" className="bg-success text-white border-none">
-                      {t('payment.methods.cashback', 'Кешбэк')} 5%
-                  </Badge>
-              </div>
-              <div className="z-10">
-                  <div className="text-sm opacity-60 mb-1">{t('payment.methods.balance', 'Баланс')}</div>
-                  <div className="text-2xl font-bold">12 450 ₽</div>
-              </div>
-              <div className="absolute -top-12 -right-12 w-48 h-48 bg-gradient-to-br from-primary/30 to-info/30 rounded-full blur-2xl"></div>
-          </div>
+/**
+ * Компонент элемента истории платежей
+ */
+interface PaymentHistoryItemComponentProps {
+  payment: PaymentHistoryItem;
+}
 
-          {/* User Cards */}
-          {methods.map((method) => (
-            <div key={method.id} className="bg-gradient-to-br from-gray-1 to-gray-2 dark:from-gray-2 dark:to-gray-1 p-6 rounded-xl border border-border relative overflow-hidden aspect-video flex flex-col justify-between group hover:border-primary transition-colors cursor-pointer">
-                <div className="flex justify-between items-start z-10">
-                    <Icon name="credit-card" size="lg" className="text-text-secondary" />
-                     {method.isDefault && (
-                        <Badge variant="primary" size="sm">
-                            Main
-                        </Badge>
-                     )}
-                </div>
-                <div className="z-10">
-                    <div className="text-2xl tracking-widest mb-2 text-text-primary">•••• {method.last4}</div>
-                    <div className="flex justify-between items-end">
-                        <div className="text-sm text-text-secondary">{method.expiry}</div>
-                        <div className="font-bold uppercase text-text-secondary">{method.system}</div>
-                    </div>
-                </div>
-            </div>
-          ))}
-          
-          {/* Add New Card Button */}
-          <button className={`${themeClasses.border.dashed} rounded-xl p-6 aspect-video flex flex-col items-center justify-center gap-3 hover:border-primary hover:bg-primary/5 transition-all group`}>
-            <div className="w-12 h-12 rounded-full bg-gray-1 dark:bg-dark-3 flex items-center justify-center text-text-secondary group-hover:text-primary transition-colors">
-              <Icon name="plus" size="lg" />
-            </div>
-            <span className="font-medium text-text-secondary group-hover:text-primary transition-colors">
-              {t('common.add', 'Добавить')}
-            </span>
-          </button>
+const PaymentHistoryItemComponent: React.FC<PaymentHistoryItemComponentProps> = ({ payment }) => {
+  return (
+    <div className="flex items-center justify-between py-3">
+      <div className="flex items-center gap-3 flex-1 min-w-0">
+        <div className={`w-10 h-10 rounded-lg ${themeClasses.background.gray2} flex items-center justify-center flex-shrink-0`}>
+          <Icon name="credit-card" size="sm" className={themeClasses.text.secondary} />
         </div>
-      </DataSection>
-
-       {/* Subscriptions Section */}
-       <DataSection
-        id="subscriptions"
-        title={t('payment.subscriptions.title', 'Подписки')}
-        description={t('payment.subscriptions.description', 'Управление подписками на сервисы')}
-      >
-          <div className="bg-background dark:bg-surface rounded-lg border border-border overflow-hidden">
-             <SeparatedList className="p-4">
-                <div className="flex items-center justify-between py-2">
-                     <div className="flex items-center gap-3">
-                         <div className="w-10 h-10 bg-gradient-to-br from-primary to-info text-white rounded-lg flex items-center justify-center font-bold">
-                             <Icon name="plus" size="md" />
-                         </div>
-                         <div>
-                            <div className="font-medium text-text-primary">Loginus Plus</div>
-                            <div className="text-sm text-text-secondary">Следующее списание 20.11.2025</div>
-                         </div>
-                     </div>
-                     <div className="text-right">
-                         <div className="font-medium text-text-primary">299 ₽</div>
-                         <div className="text-xs text-success">Активна</div>
-                     </div>
-                </div>
-             </SeparatedList>
+        <div className="flex-1 min-w-0">
+          <div className={`font-medium ${themeClasses.text.primary} mb-1`}>
+            {payment.title}
           </div>
-      </DataSection>
+          <div className={`text-sm ${themeClasses.text.secondary} truncate`}>
+            {payment.description}
+          </div>
+        </div>
+      </div>
+      <div className="flex-shrink-0 text-right ml-4">
+        <div className={`font-medium ${themeClasses.text.primary}`}>
+          {payment.amount < 0 ? '−' : '+'}{Math.abs(payment.amount).toLocaleString('ru-RU')} {payment.currency}
+        </div>
+      </div>
+    </div>
+  );
+};
 
+const PayPage: React.FC = () => {
+  const { t } = useTranslation();
+  const { lang } = useParams<{ lang: string }>();
 
-      {/* History Section */}
-      <DataSection
-        id="history"
-        title={t('payment.history.title', 'История платежей')}
-        description={t('payment.history.description', 'Ваши последние транзакции')}
-      >
-        <div className="bg-background dark:bg-surface rounded-lg border border-border overflow-hidden">
-          <SeparatedList className="p-4">
-            {history.map((item) => (
-              <div key={item.id} className="flex items-center justify-between py-2">
-                <div className="flex items-center gap-3">
-                   <div className={`p-2 rounded-full ${item.status === 'failed' ? 'bg-error/10 text-error' : 'bg-gray-1 dark:bg-dark-3 text-text-secondary'}`}>
-                    <Icon name={item.status === 'failed' ? 'alert-circle' : 'shopping-bag'} size="sm" />
-                  </div>
-                  <div>
-                    <div className="font-medium text-text-primary">{item.merchant}</div>
-                    <div className="text-sm text-text-secondary">
-                      {new Date(item.date).toLocaleDateString()} • {item.description}
-                    </div>
-                  </div>
-                </div>
-                <div className="text-right">
-                    <div className={`font-medium ${item.amount > 0 ? 'text-text-primary' : 'text-success'}`}>
-                        {item.amount > 0 ? '-' : '+'}{Math.abs(item.amount)} {item.currency}
-                    </div>
-                     {item.status === 'failed' && (
-                         <div className="text-xs text-error">{t('common.error', 'Ошибка')}</div>
-                     )}
-                </div>
+  // Загрузка данных о способах оплаты
+  const { data: methodsData } = useQuery({
+    queryKey: ['payment', 'methods'],
+    queryFn: async () => {
+      try {
+        const response = await paymentApi.getMethods();
+        return response.data || [];
+      } catch (error) {
+        console.error('[PayPage] Error loading payment methods:', error);
+        return [];
+      }
+    },
+  });
+
+  // Загрузка истории платежей
+  const { data: historyData } = useQuery({
+    queryKey: ['payment', 'history'],
+    queryFn: async () => {
+      try {
+        const response = await paymentApi.getHistory();
+        return response.data || [];
+      } catch (error) {
+        console.error('[PayPage] Error loading payment history:', error);
+        return [];
+      }
+    },
+  });
+
+  // Моки данных для истории платежей (согласно референсу)
+  const mockHistory: PaymentHistoryItem[] = useMemo(() => [
+    {
+      id: '1',
+      title: t('payment.history.items.plusSubscription', 'Подписка Плюса'),
+      description: t('payment.history.items.matchFootball', 'МАТЧ! ФУТБОЛ'),
+      amount: -380,
+      currency: '₽',
+    },
+    {
+      id: '2',
+      title: t('payment.history.items.plusSubscription', 'Подписка Плюса'),
+      description: t('payment.history.items.alicePro', 'Дополнительная опция Алиса Про'),
+      amount: -100,
+      currency: '₽',
+    },
+    {
+      id: '3',
+      title: t('payment.history.items.plusSubscription', 'Подписка Плюса'),
+      description: t('payment.history.items.travelers', 'Дополнительная опция Путешественникам'),
+      amount: -200,
+      currency: '₽',
+    },
+  ], [t]);
+
+  // Используем моки, если нет данных из API
+  const history = historyData && historyData.length > 0 ? historyData : mockHistory;
+
+  // Количество карт (из референса - 8)
+  const cardsCount = methodsData?.length || 8;
+
+  return (
+    <PageTemplate 
+      title={t('payment.title', 'Способы оплаты')}
+      showSidebar={true}
+      showFooter={false}
+      contentClassName="p-3 sm:p-6 space-y-6"
+    >
+      {/* Секция способов оплаты */}
+      <section className={`${themeClasses.card.rounded} p-6 sm:p-8`}>
+        <h2 className={`text-xl sm:text-2xl font-semibold ${themeClasses.text.primary} mb-6`}>
+          {t('payment.methods.title', 'Способы оплаты')}
+        </h2>
+        
+        <div className="space-y-3">
+          <PaymentMethodItem
+            icon={<Icon name="credit-card" size="lg" className={themeClasses.text.primary} />}
+            title={t('payment.methods.cards', 'Карты')}
+            badge={cardsCount}
+            href="/pay/cards"
+          />
+        </div>
+      </section>
+
+      {/* Секция подсказок (баннеры) */}
+      <section className={`${themeClasses.card.rounded} p-6 sm:p-8`} data-testid="hints">
+        <div className="space-y-3">
+          {/* Баннер Плюс кешбэк */}
+          <HintBanner
+            icon={
+              <div className="w-11 h-11 rounded-full bg-white flex items-center justify-center">
+                {/* Иконка Яндекс Плюса - используем простую иконку */}
+                <Icon name="plus" size="lg" className="text-black" />
               </div>
+            }
+            title={t('payment.hints.plus.title', 'Кешбэк за покупки баллами Плюса')}
+            value={t('payment.hints.plus.value', '0')}
+            href="https://plus.yandex.ru/?from=yandexid&clientSource=yandexid&utm_source=yandexid&utm_medium=payment_history&utm_campaign=yandexid_plus&clientSubSource=pay"
+          />
+
+          {/* Баннер Сплит баланс */}
+          <HintBanner
+            icon={
+              <div className="w-11 h-11 rounded-full bg-white flex items-center justify-center">
+                {/* Иконка Сплита - используем простую иконку */}
+                <Icon name="chartBar" size="lg" className="text-green-600" />
+              </div>
+            }
+            title={t('payment.hints.split.title', 'Баланс Сплита')}
+            value={t('payment.hints.split.value', '120 000,00 ₽')}
+            href="https://split.yandex.ru/standalone/account"
+          />
+        </div>
+      </section>
+
+      {/* Секция истории платежей */}
+      <section className={`${themeClasses.card.rounded} p-6 sm:p-8`} data-testid="payments-history">
+        <h2 
+          id="payments-history"
+          className={`text-xl sm:text-2xl font-semibold ${themeClasses.text.primary} mb-6`}
+        >
+          <a
+            href="#payments-history"
+            className="hover:text-primary dark:hover:text-primary transition-colors"
+          >
+            {t('payment.history.title', 'История платежей')}
+          </a>
+        </h2>
+
+        <div className={`${themeClasses.background.default} ${themeClasses.border.default} rounded-lg overflow-hidden`}>
+          <SeparatedList className="p-4">
+            {history.map((payment) => (
+              <PaymentHistoryItemComponent key={payment.id} payment={payment} />
             ))}
-             {history.length === 0 && (
-                <div className="text-center py-4 text-text-secondary">
-                  {t('payment.history.empty', 'История пуста')}
-                </div>
-              )}
           </SeparatedList>
         </div>
-      </DataSection>
+
+        {/* Ссылка "Все платежи" */}
+        <div className={`mt-6 pt-4 border-t ${themeClasses.border.dark}`}>
+          <Link
+            to={buildPathWithLang('/pay/history', lang || 'ru')}
+            className={`inline-flex items-center gap-2 text-sm ${themeClasses.text.primary} hover:text-primary transition-colors`}
+          >
+            <span>{t('payment.history.allPayments', 'Все платежи')}</span>
+            <Icon name="chevron-right" size="sm" />
+          </Link>
+        </div>
+      </section>
     </PageTemplate>
   );
 };

@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
 // Прямые импорты для tree-shaking
 import { PageTemplate } from '@/design-system/layouts/PageTemplate';
 import { DataSection } from '@/design-system/composites/DataSection';
@@ -8,9 +7,14 @@ import { SeparatedList } from '@/design-system/composites/SeparatedList';
 import { SecurityListItem } from '@/design-system/composites/SecurityListItem';
 import { Button } from '@/design-system/primitives/Button';
 import { Icon } from '@/design-system/primitives/Icon';
-import { Spinner } from '@/design-system/primitives/Spinner';
 import { useThemeClasses, themeClasses } from '@/design-system/utils';
 import { securityApi } from '@/services/api/security';
+import { useModal } from '@/hooks/useModal';
+import type { AuthFactor } from '@/components/Modals';
+
+// Lazy loading для модалок
+const AuthMethodsModal = lazy(() => import('@/components/Modals/AuthMethodsModal').then(m => ({ default: m.AuthMethodsModal })));
+
 
 interface Device {
   id: string;
@@ -34,47 +38,74 @@ interface Activity {
 /**
  * SecurityPage - страница управления безопасностью аккаунта
  * Реализована по референсу Yandex ID: https://id.yandex.ru/security
+ * 
+ * Оптимизация: загрузка устройств не блокирует рендеринг страницы
  */
 const SecurityPage: React.FC = () => {
   const { t } = useTranslation();
   const { getGradientStyleFromVars } = useThemeClasses();
   const [devices, setDevices] = useState<Device[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [devicesCount, setDevicesCount] = useState<number>(1); // Оптимистичное значение по умолчанию
+  const authMethodsModal = useModal();
   // Моковые данные для даты последнего изменения пароля (14 месяцев назад)
   const passwordLastChanged = '14 месяцев назад';
+  
+  // Текущий путь аутентификации
+  const [authPath, setAuthPath] = useState<AuthFactor[]>([
+    {
+      id: 'password',
+      type: 'password',
+      name: t('security.factors.password', 'Пароль'),
+      description: t('security.factors.passwordDesc', 'Основной способ входа'),
+      icon: 'key',
+      enabled: true,
+      required: true,
+      available: true,
+    },
+  ]);
+
+  // Список подключенных аккаунтов (TODO: получать из API)
+  const [connectedAccounts, setConnectedAccounts] = useState<string[]>([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
+    // Асинхронная загрузка устройств в фоне, не блокирует рендеринг
+    let isMounted = true;
+    
+    const fetchDevices = async () => {
       try {
         const devicesRes = await securityApi.getDevices();
-        setDevices(devicesRes.data?.data || devicesRes.data || []);
+        const devicesList = devicesRes.data?.data || devicesRes.data || [];
+        if (isMounted) {
+          setDevices(devicesList);
+          setDevicesCount(devicesList.length || 1);
+        }
       } catch (error) {
         console.error('Failed to fetch security data', error);
-      } finally {
-        setIsLoading(false);
+        // Оставляем значение по умолчанию при ошибке
       }
     };
 
-    fetchData();
+    // Загружаем с задержкой через requestIdleCallback для не блокирования рендера
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      (window as any).requestIdleCallback(() => {
+        fetchDevices();
+      }, { timeout: 500 });
+    } else {
+      setTimeout(fetchDevices, 100);
+    }
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  if (isLoading) {
-    return (
-      <PageTemplate title={t('security.title', 'Безопасность')} showSidebar={true}>
-        <div className={themeClasses.state.loading}>
-          <Spinner size="lg" color="primary" />
-        </div>
-      </PageTemplate>
-    );
-  }
-
   return (
-    <PageTemplate 
-      title={t('security.title', 'Безопасность')}
-      showSidebar={true}
-      contentClassName={themeClasses.container.content}
-    >
+    <>
+      <PageTemplate 
+        title={t('security.title', 'Безопасность')}
+        showSidebar={true}
+        contentClassName={themeClasses.container.content}
+      >
       {/* Промо-блок "Усиленная защита" */}
       <div 
         className={themeClasses.promo.container}
@@ -98,14 +129,13 @@ const SecurityPage: React.FC = () => {
                 {t('security.enhancedProtection.subtitle', 'С двухфакторным входом надёжнее')}
               </span>
             </div>
-            <Link to="/security/enter-methods">
-              <Button 
-                variant="outline"
-                className={themeClasses.promo.button}
-              >
-                {t('security.enhancedProtection.action', 'Защитить по максимуму')}
-              </Button>
-            </Link>
+            <Button 
+              variant="outline"
+              className={themeClasses.promo.button}
+              onClick={authMethodsModal.open}
+            >
+              {t('security.enhancedProtection.action', 'Защитить по максимуму')}
+            </Button>
           </div>
           <div className="hidden md:block">
             <Icon name="shield" size="xl" className={themeClasses.promo.icon} />
@@ -129,7 +159,7 @@ const SecurityPage: React.FC = () => {
               icon="key"
               title={t('security.loginMethods.password', 'Обычный пароль')}
               description={t('security.loginMethods.current', 'Текущий способ')}
-              href="/security/enter-methods"
+              onClick={authMethodsModal.open}
             />
 
             {/* Кнопка обновления пароля с информацией о дате */}
@@ -174,7 +204,7 @@ const SecurityPage: React.FC = () => {
               icon="smartphone"
               title={t('security.devices.title', 'Ваши устройства')}
               description={t('security.devices.description', 'На которых вы вошли в Loginus')}
-              badge={devices.length || 1}
+              badge={devicesCount}
               href="/security/devices"
             />
           </SeparatedList>
@@ -227,7 +257,25 @@ const SecurityPage: React.FC = () => {
           </SeparatedList>
         </div>
       </DataSection>
-    </PageTemplate>
+      </PageTemplate>
+      
+      {/* Модальное окно настройки способов входа */}
+      {authMethodsModal.isOpen && (
+        <Suspense fallback={null}>
+          <AuthMethodsModal
+            isOpen={authMethodsModal.isOpen}
+            onClose={authMethodsModal.close}
+            currentPath={authPath}
+            connectedAccounts={connectedAccounts}
+            onSave={(newPath) => {
+              setAuthPath(newPath);
+              // TODO: Сохранить путь на сервер
+              console.log('New auth path:', newPath);
+            }}
+          />
+        </Suspense>
+      )}
+    </>
   );
 };
 

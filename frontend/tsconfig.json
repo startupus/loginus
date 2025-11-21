@@ -13,6 +13,12 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolvePackageJsonExports": true,
+    "resolvePackageJsonImports": true,
+    "types": ["node"],
 
     /* Linting */
     "strict": true,

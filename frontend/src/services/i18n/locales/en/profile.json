@@ -40,6 +40,53 @@
       "title": "Activity History",
       "description": "Recent activity in your account",
       "empty": "Activity history is empty"
+    },
+    "authMethods": {
+      "title": "Configure Login Methods",
+      "description": "Configure the sequence of authentication factors for account login. You can use a combination of password, codes, and linked accounts.",
+      "pathTitle": "Login Path",
+      "addFactor": "Add Factor",
+      "addFactorTitle": "Add Authentication Factor",
+      "addFactorDescription": "Select an authentication method to add to the login path",
+      "required": "Required",
+      "empty": "Add at least one authentication factor",
+      "noFactors": "No available factors to add",
+      "currentPath": "Login Path",
+      "available": "Available Factors",
+      "connectToEnable": "Connect external accounts on the data page to use them for login"
+    },
+    "factors": {
+      "password": "Password",
+      "passwordDesc": "Primary login method",
+      "emailCode": "Email Code",
+      "emailCodeDesc": "Verification via email",
+      "smsCode": "SMS Code",
+      "smsCodeDesc": "Verification via SMS",
+      "totp": "Authenticator App",
+      "totpDesc": "Google Authenticator, Microsoft Authenticator and others",
+      "biometric": "Biometric",
+      "biometricDesc": "Fingerprint or Face ID",
+      "passkey": "Physical Key",
+      "passkeyDesc": "YubiKey or other hardware security key",
+      "github": "GitHub",
+      "githubDesc": "Login via GitHub account",
+      "google": "Google",
+      "googleDesc": "Login via Google account",
+      "yandex": "Yandex",
+      "yandexDesc": "Login via Yandex account",
+      "vk": "VKontakte",
+      "vkDesc": "Login via VKontakte",
+      "backupCodes": "Backup Codes",
+      "backupCodesDesc": "One-time codes for account recovery",
+      "requiresSetup": "Requires Setup",
+      "categories": {
+        "all": "All",
+        "basic": "Basic",
+        "code": "Codes",
+        "biometric": "Biometric",
+        "oauth": "Social Networks",
+        "backup": "Backup"
+      }
     }
   },
   "personalData": {
@@ -123,14 +170,41 @@
       "emailPlaceholder": "email@example.com",
       "emailRequired": "Enter email",
       "invalidEmail": "Invalid email",
+      "phoneOrEmail": "Phone or email",
+      "phoneOrEmailPlaceholder": "+1 or email@example.com",
       "role": "Role",
       "roles": {
         "member": "Adult",
         "child": "Child"
       },
-      "send": "Send invitation",
+      "send": "Send",
       "sending": "Sending...",
-      "error": "Error sending invitation"
+      "error": "Error sending invitation",
+      "step1": {
+        "title": "Who is this person to you?",
+        "description": "Making family group more convenient",
+        "skip": "Skip"
+      },
+      "step2": {
+        "title": "Family group invitation",
+        "description": "By accepting the invitation, your loved one will get all family group features",
+        "linkCopied": "Link copied",
+        "copyHint": "If the link was not copied",
+        "shareLink": "Share link",
+        "sendSmsOrEmail": "Send SMS or email",
+        "orShareLink": "Or share link"
+      },
+      "relations": {
+        "partner": "My partner",
+        "parent": "Parent",
+        "child": "My child",
+        "sibling": "Brother or sister",
+        "friend": "Friend",
+        "other": "Other"
+      }
+    },
+    "role": {
+      "admin": "Admin"
     },
     "empty": "No members",
     "children": {
@@ -139,11 +213,27 @@
     },
     "child": {
       "create": "Create Account",
-      "age": "Age",
+      "age": "Age: {{age}} years",
       "promo": {
         "title": "Create Child Account",
         "description": "Set age, time, and content limits. It's free."
       }
+    },
+    "inviteButton": "Invite",
+    "promo": {
+      "plus": {
+        "title": "Plus for everyone",
+        "description": "Connect up to 3 loved ones to Plus subscription",
+        "action": "Extend for 250 ₽"
+      }
+    },
+    "features": {
+      "title": "Group features",
+      "pay": "Family payment",
+      "plus": "Plus for loved ones",
+      "y360": "Yandex 360 plan",
+      "roles": "Roles",
+      "delete": "Delete group"
     }
   },
   "payment": {

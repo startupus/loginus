@@ -162,6 +162,12 @@ const SupportPage: React.FC = () => {
       // Обновляем сообщения и историю чатов (используем chatId из variables)
       queryClient.invalidateQueries({ queryKey: ['support', 'messages', variables.chatId] });
       queryClient.invalidateQueries({ queryKey: ['support', 'chats'] });
+      // Возвращаем фокус в поле ввода после отправки сообщения
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.focus();
+        }
+      }, 0);
     },
     onError: (error) => {
       console.error('[SupportPage] Error sending message:', error);
@@ -201,6 +207,12 @@ const SupportPage: React.FC = () => {
       // Обновляем сообщения и историю чатов
       queryClient.invalidateQueries({ queryKey: ['support', 'messages', variables.chatId] });
       queryClient.invalidateQueries({ queryKey: ['support', 'chats'] });
+      // Возвращаем фокус в поле ввода после редактирования сообщения
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.focus();
+        }
+      }, 0);
     },
     onError: (error) => {
       console.error('[SupportPage] Error editing message:', error);

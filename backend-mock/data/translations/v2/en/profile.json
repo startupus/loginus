@@ -123,14 +123,38 @@
       "emailPlaceholder": "email@example.com",
       "emailRequired": "Enter email",
       "invalidEmail": "Invalid email",
+      "phoneOrEmail": "Phone or email",
+      "phoneOrEmailPlaceholder": "+1 or email@example.com",
       "role": "Role",
       "roles": {
         "member": "Adult",
         "child": "Child"
       },
-      "send": "Send invitation",
+      "send": "Send",
       "sending": "Sending...",
-      "error": "Error sending invitation"
+      "error": "Error sending invitation",
+      "step1": {
+        "title": "Who is this person to you?",
+        "description": "Making family group more convenient",
+        "skip": "Skip"
+      },
+      "step2": {
+        "title": "Family group invitation",
+        "description": "By accepting the invitation, your loved one will get all family group features",
+        "linkCopied": "Link copied",
+        "copyHint": "If the link was not copied",
+        "shareLink": "Share link",
+        "sendSmsOrEmail": "Send SMS or email",
+        "orShareLink": "Or share link"
+      },
+      "relations": {
+        "partner": "My partner",
+        "parent": "Parent",
+        "child": "My child",
+        "sibling": "Brother or sister",
+        "friend": "Friend",
+        "other": "Other"
+      }
     },
     "empty": "No members",
     "children": {

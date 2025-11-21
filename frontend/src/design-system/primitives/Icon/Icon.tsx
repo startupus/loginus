@@ -7,7 +7,17 @@ export interface IconProps extends React.SVGAttributes<SVGElement> {
   children?: React.ReactNode;
 }
 
-export const Icon: React.FC<IconProps> = ({
+// Мемоизированные стили размеров для оптимизации
+const SIZE_STYLES = {
+  xs: 'w-3 h-3',
+  sm: 'w-4 h-4',
+  md: 'w-5 h-5',
+  lg: 'w-6 h-6',
+  xl: 'w-8 h-8',
+  '2xl': 'w-12 h-12',
+} as const;
+
+export const Icon: React.FC<IconProps> = React.memo(({
   name,
   size = 'md',
   color = 'currentColor',
@@ -15,16 +25,7 @@ export const Icon: React.FC<IconProps> = ({
   children,
   ...props
 }) => {
-  const sizeStyles = {
-    xs: 'w-3 h-3',
-    sm: 'w-4 h-4',
-    md: 'w-5 h-5',
-    lg: 'w-6 h-6',
-    xl: 'w-8 h-8',
-    '2xl': 'w-12 h-12',
-  };
-
-  const combinedClassName = `${sizeStyles[size]} ${className}`.trim();
+  const combinedClassName = `${SIZE_STYLES[size]} ${className}`.trim();
   
   if (children) {
     return (
@@ -94,6 +95,14 @@ export const Icon: React.FC<IconProps> = ({
         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
       />
     ),
+    'user-plus': (
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+      />
+    ),
     logout: (
       <path
         strokeLinecap="round"
@@ -142,6 +151,46 @@ export const Icon: React.FC<IconProps> = ({
         strokeLinejoin="round"
         strokeWidth={2}
         d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+      />
+    ),
+    'refresh-cw': (
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+      />
+    ),
+    activity: (
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+      />
+    ),
+    smartphone: (
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
+      />
+    ),
+    link: (
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+      />
+    ),
+    grid: (
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
       />
     ),
     
@@ -460,14 +509,6 @@ export const Icon: React.FC<IconProps> = ({
         d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
       />
     ),
-    'refresh-cw': (
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-      />
-    ),
     'arrow-right': (
       <path
         strokeLinecap="round"
@@ -631,4 +672,14 @@ export const Icon: React.FC<IconProps> = ({
       {name && icons[name] ? icons[name] : null}
     </svg>
   );
-};
+}, (prevProps, nextProps) => {
+  // Кастомная функция сравнения для оптимизации
+  return (
+    prevProps.name === nextProps.name &&
+    prevProps.size === nextProps.size &&
+    prevProps.color === nextProps.color &&
+    prevProps.className === nextProps.className
+  );
+});
+
+Icon.displayName = 'Icon';

@@ -28,3 +28,9 @@ export type { EditProfileModalProps } from './EditProfileModal';
 export { EditAvatarModal } from './EditAvatarModal';
 export type { EditAvatarModalProps } from './EditAvatarModal';
 
+export { EditFamilyMemberAvatarModal } from './EditFamilyMemberAvatarModal';
+export type { EditFamilyMemberAvatarModalProps } from './EditFamilyMemberAvatarModal';
+
+export { AuthMethodsModal } from './AuthMethodsModal';
+export type { AuthMethodsModalProps, AuthFactor, AuthFactorType, AuthPath } from './AuthMethodsModal';
+

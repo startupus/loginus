@@ -81,8 +81,9 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
           
           <div className="flex items-center gap-4">
+            {/* Поиск скрыт на мобильных (xl), отображается на десктопе */}
             {showSearch && (
-              <div className="relative w-[200px] sm:w-[300px] m-0 p-0">
+              <div className="relative w-[200px] sm:w-[300px] m-0 p-0 hidden xl:block">
                 <Input
                   type="text"
                   placeholder={t('common.search', 'Поиск...')}
@@ -93,13 +94,13 @@ export const Header: React.FC<HeaderProps> = ({
             
             {actions}
             
-            {/* Колокольчик с событиями */}
+            {/* Колокольчик с событиями - скрыт на мобильных, показан на десктопе */}
             {userData && (
               <button
                 onClick={() => {
                   // TODO: открыть панель уведомлений
                 }}
-                className="relative p-2 rounded-lg hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors duration-200 group"
+                className="relative p-2 rounded-lg hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors duration-200 group hidden xl:block"
                 aria-label={t('header.notifications', 'Уведомления')}
               >
                 <Icon name="bell" size="md" className={`${themeClasses.text.secondary} group-hover:text-primary transition-colors`} />

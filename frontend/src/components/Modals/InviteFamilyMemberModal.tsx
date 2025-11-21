@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Input } from '../../design-system/primitives';
+import { Button, Input, Icon } from '../../design-system/primitives';
 import { Modal } from '../../design-system/composites';
 import { familyApi } from '../../services/api/family';
+import { themeClasses } from '../../design-system/utils/themeClasses';
 
 export interface InviteFamilyMemberModalProps {
   isOpen: boolean;
@@ -11,7 +12,18 @@ export interface InviteFamilyMemberModalProps {
 }
 
 /**
+ * Типы отношений для приглашаемого члена семьи
+ */
+type RelationType = 'partner' | 'parent' | 'child' | 'sibling' | 'friend' | 'other';
+
+/**
+ * Шаги процесса приглашения
+ */
+type InviteStep = 'relation' | 'invite' | 'sendMethod';
+
+/**
  * InviteFamilyMemberModal - модальное окно для приглашения члена семьи
+ * Многошаговый процесс по референсу Яндекс ID
  */
 export const InviteFamilyMemberModal: React.FC<InviteFamilyMemberModalProps> = ({
   isOpen,
@@ -19,45 +31,117 @@ export const InviteFamilyMemberModal: React.FC<InviteFamilyMemberModalProps> = (
   onSuccess,
 }) => {
   const { t } = useTranslation();
-  const [email, setEmail] = useState('');
-  const [role, setRole] = useState<'member' | 'child'>('member');
+  
+  // Состояние шага
+  const [currentStep, setCurrentStep] = useState<InviteStep>('relation');
+  
+  // Выбранное отношение
+  const [selectedRelation, setSelectedRelation] = useState<RelationType | null>(null);
+  
+  // Ссылка приглашения (генерируется после выбора отношения)
+  const [inviteLink, setInviteLink] = useState<string>('');
+  
+  // Телефон или email для отправки
+  const [phoneOrEmail, setPhoneOrEmail] = useState('');
+  
+  // Состояния загрузки и ошибок
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [linkCopied, setLinkCopied] = useState(false);
 
-  const validateForm = (): boolean => {
-    if (!email.trim()) {
-      setError(t('family.invite.emailRequired', 'Введите email'));
-      return false;
+  /**
+   * Генерирует ссылку приглашения
+   */
+  const generateInviteLink = async (relation: RelationType | null): Promise<string> => {
+    try {
+      // TODO: Интеграция с API для генерации реальной ссылки
+      const inviteId = Math.random().toString(36).substring(2, 15);
+      const link = `${window.location.origin}/family/invite?invite-id=${inviteId}${relation ? `&relation=${relation}` : ''}`;
+      
+      // Имитация API запроса
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      return link;
+    } catch (err) {
+      throw new Error(t('family.invite.error', 'Ошибка при генерации ссылки'));
     }
-
-    // Простая валидация email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError(t('family.invite.invalidEmail', 'Некорректный email'));
-      return false;
-    }
-
-    setError(null);
-    return true;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  /**
+   * Обработчик выбора отношения
+   */
+  const handleSelectRelation = async (relation: RelationType) => {
+    setSelectedRelation(relation);
+    setIsLoading(true);
+    try {
+      const link = await generateInviteLink(relation);
+      setInviteLink(link);
+      setCurrentStep('invite');
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  /**
+   * Обработчик пропуска выбора отношения
+   */
+  const handleSkipRelation = async () => {
+    setSelectedRelation(null);
+    setIsLoading(true);
+    try {
+      const link = await generateInviteLink(null);
+      setInviteLink(link);
+      setCurrentStep('invite');
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  /**
+   * Копирование ссылки в буфер обмена
+   */
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(inviteLink);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 3000);
+    } catch (err) {
+      setError(t('family.invite.error', 'Не удалось скопировать ссылку'));
+    }
+  };
+
+  /**
+   * Обработчик перехода к отправке SMS/email
+   */
+  const handleShowSendMethod = () => {
+    setCurrentStep('sendMethod');
+  };
+
+  /**
+   * Обработчик отправки SMS/email
+   */
+  const handleSendInvite = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateForm()) {
+    if (!phoneOrEmail.trim()) {
+      setError(t('family.invite.emailRequired', 'Введите телефон или email'));
       return;
     }
 
     setIsLoading(true);
     try {
+      // TODO: Интеграция с API для отправки SMS/email
       await familyApi.inviteMember({
-        email: email.trim(),
-        role,
+        email: phoneOrEmail.trim(),
+        role: 'member',
       });
-      setEmail('');
-      setRole('member');
+      
       onSuccess?.();
-      onClose();
+      handleClose();
     } catch (err: any) {
       setError(err.message || t('family.invite.error', 'Ошибка при отправке приглашения'));
     } finally {
@@ -65,92 +149,268 @@ export const InviteFamilyMemberModal: React.FC<InviteFamilyMemberModalProps> = (
     }
   };
 
+  /**
+   * Обработчик поделиться ссылкой
+   */
+  const handleShareLink = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: t('family.invite.step2.title', 'Приглашение в семейную группу'),
+          text: t('family.invite.step2.description', 'Приняв приглашение, близкий получит все возможности семейной группы'),
+          url: inviteLink,
+        });
+      } catch (err) {
+        // Если пользователь отменил шаринг, ничего не делаем
+        if ((err as Error).name !== 'AbortError') {
+          // Fallback: копируем ссылку
+          handleCopyLink();
+        }
+      }
+    } else {
+      // Fallback: копируем ссылку
+      handleCopyLink();
+    }
+  };
+
+  /**
+   * Закрытие модалки с очисткой состояния
+   */
   const handleClose = () => {
-    setEmail('');
-    setRole('member');
+    setCurrentStep('relation');
+    setSelectedRelation(null);
+    setInviteLink('');
+    setPhoneOrEmail('');
     setError(null);
+    setLinkCopied(false);
     onClose();
+  };
+
+  /**
+   * Рендер шага выбора отношения
+   */
+  const renderRelationStep = () => {
+    const relations: RelationType[] = ['partner', 'parent', 'child', 'sibling', 'friend', 'other'];
+    
+    return (
+      <div className="space-y-6">
+        {/* Иллюстрация */}
+        <div className="flex justify-center">
+          <div className={`w-[220px] h-[120px] ${themeClasses.background.gray} dark:bg-dark-3 rounded-xl flex items-center justify-center`}>
+            <Icon name="users" size="xl" className="text-primary" />
+          </div>
+        </div>
+
+        {/* Заголовок и описание */}
+        <div className="text-center space-y-2">
+          <h3 className="text-2xl font-semibold text-text-primary">
+            {t('family.invite.step1.title', 'Кто этот человек для вас?')}
+          </h3>
+          <p className="text-base text-text-secondary">
+            {t('family.invite.step1.description', 'Делаем семейную группу удобнее')}
+          </p>
+        </div>
+
+        {/* Кнопки выбора отношения */}
+        <div className="flex flex-wrap gap-2 justify-center">
+          {relations.map((relation) => (
+            <button
+              key={relation}
+              type="button"
+              onClick={() => handleSelectRelation(relation)}
+              disabled={isLoading}
+              className={`px-4 py-2 rounded-xl border transition-all duration-200 ${
+                isLoading
+                  ? 'bg-gray-1 dark:bg-dark-3 border-border text-text-secondary cursor-not-allowed opacity-50'
+                  : 'bg-white dark:bg-dark-2 border-border text-text-primary hover:border-primary hover:bg-primary/5 dark:hover:bg-primary/10'
+              }`}
+            >
+              {t(`family.invite.relations.${relation}`)}
+            </button>
+          ))}
+        </div>
+
+        {/* Кнопка "Пропустить" */}
+        <div className="flex justify-center pt-2">
+          <button
+            type="button"
+            onClick={handleSkipRelation}
+            disabled={isLoading}
+            className="text-text-secondary hover:text-primary transition-colors text-sm font-medium"
+          >
+            {t('family.invite.step1.skip', 'Пропустить')}
+          </button>
+        </div>
+
+        {/* Ошибка */}
+        {error && (
+          <div className="text-error text-sm text-center">{error}</div>
+        )}
+      </div>
+    );
+  };
+
+  /**
+   * Рендер шага приглашения (ссылка + действия)
+   */
+  const renderInviteStep = () => {
+    return (
+      <div className="space-y-6">
+        {/* Иллюстрация */}
+        <div className="flex justify-center">
+          <div className={`w-[220px] h-[120px] ${themeClasses.background.gray} dark:bg-dark-3 rounded-xl flex items-center justify-center`}>
+            <Icon name="link" size="xl" className="text-primary" />
+          </div>
+        </div>
+
+        {/* Заголовок и описание */}
+        <div className="text-center space-y-2">
+          <h3 className="text-2xl font-semibold text-text-primary">
+            {t('family.invite.step2.title', 'Приглашение в семейную группу')}
+          </h3>
+          <p className="text-base text-text-secondary">
+            {t('family.invite.step2.description', 'Приняв приглашение, близкий получит все возможности семейной группы')}
+          </p>
+        </div>
+
+        {/* Выбранное отношение (если было выбрано) */}
+        {selectedRelation && (
+          <div className="flex flex-wrap gap-2 justify-center opacity-60">
+            <button
+              type="button"
+              disabled
+              className="px-4 py-2 rounded-xl border bg-primary/10 border-primary text-primary cursor-not-allowed"
+            >
+              {t(`family.invite.relations.${selectedRelation}`)}
+            </button>
+          </div>
+        )}
+
+        {/* Баннер со ссылкой */}
+        <div 
+          className={`p-4 rounded-xl ${themeClasses.background.gray} dark:bg-dark-3 border ${themeClasses.border.default} space-y-2 cursor-pointer hover:border-primary/50 transition-colors`}
+          onClick={handleCopyLink}
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm text-text-secondary mb-1">
+                {linkCopied 
+                  ? t('family.invite.step2.linkCopied', 'Ссылка скопирована') 
+                  : t('family.invite.step2.copyHint', 'Если ссылка не скопировалась')
+                }
+              </p>
+              <p className="text-sm text-text-primary font-mono break-all">
+                {inviteLink}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCopyLink();
+              }}
+              className="flex-shrink-0 p-2 rounded-lg hover:bg-gray-2 dark:hover:bg-dark-2 transition-colors"
+              aria-label={t('family.invite.step2.linkCopied', 'Скопировать')}
+            >
+              <Icon name={linkCopied ? 'check' : 'copy'} size="sm" className={linkCopied ? 'text-success' : 'text-text-secondary'} />
+            </button>
+          </div>
+        </div>
+
+        {/* Действия */}
+        <div className="space-y-2">
+          <Button
+            type="button"
+            variant="primary"
+            fullWidth
+            onClick={handleShareLink}
+          >
+            {t('family.invite.step2.shareLink', 'Поделиться ссылкой')}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            fullWidth
+            onClick={handleShowSendMethod}
+          >
+            {t('family.invite.step2.sendSmsOrEmail', 'Отправить смс или письмо')}
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  /**
+   * Рендер шага отправки SMS/email
+   */
+  const renderSendMethodStep = () => {
+    return (
+      <div className="space-y-6">
+        {/* Иллюстрация */}
+        <div className="flex justify-center">
+          <div className={`w-[220px] h-[120px] ${themeClasses.background.gray} dark:bg-dark-3 rounded-xl flex items-center justify-center`}>
+            <Icon name="mail" size="xl" className="text-primary" />
+          </div>
+        </div>
+
+        {/* Заголовок и описание */}
+        <div className="text-center space-y-2">
+          <h3 className="text-2xl font-semibold text-text-primary">
+            {t('family.invite.step2.title', 'Приглашение в семейную группу')}
+          </h3>
+          <p className="text-base text-text-secondary">
+            {t('family.invite.step2.description', 'Приняв приглашение, близкий получит все возможности семейной группы')}
+          </p>
+        </div>
+
+        {/* Форма отправки */}
+        <form onSubmit={handleSendInvite} className="space-y-4">
+          <Input
+            type="text"
+            label={t('family.invite.phoneOrEmail', 'Телефон или почта')}
+            value={phoneOrEmail}
+            onChange={(e) => setPhoneOrEmail(e.target.value)}
+            placeholder={t('family.invite.phoneOrEmailPlaceholder', '+7 или email@example.com')}
+            disabled={isLoading}
+            error={error || undefined}
+            fullWidth
+            required
+          />
+
+          <div className="space-y-2 pt-2">
+            <Button
+              type="submit"
+              variant="primary"
+              fullWidth
+              loading={isLoading}
+            >
+              {t('family.invite.send', 'Отправить')}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              fullWidth
+              onClick={() => setCurrentStep('invite')}
+              disabled={isLoading}
+            >
+              {t('family.invite.step2.orShareLink', 'Или поделиться ссылкой')}
+            </Button>
+          </div>
+        </form>
+      </div>
+    );
   };
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title={t('family.invite.title', 'Пригласить в семью')}
       size="md"
+      showCloseButton={true}
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <Input
-            type="email"
-            label={t('family.invite.email', 'Email')}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder={t('family.invite.emailPlaceholder', 'email@example.com')}
-            disabled={isLoading}
-            error={error || undefined}
-            fullWidth
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-text-primary mb-2">
-            {t('family.invite.role', 'Роль')}
-          </label>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => setRole('member')}
-              className={`flex-1 px-4 py-2 rounded-lg border transition-all duration-200 ${
-                role === 'member'
-                  ? 'bg-primary/10 border-primary text-primary dark:bg-primary/20'
-                  : 'bg-gray-1 dark:bg-gray-2 border-border text-text-secondary hover:border-primary/30'
-              }`}
-              disabled={isLoading}
-            >
-              {t('family.invite.roles.member', 'Взрослый')}
-            </button>
-            <button
-              type="button"
-              onClick={() => setRole('child')}
-              className={`flex-1 px-4 py-2 rounded-lg border transition-all duration-200 ${
-                role === 'child'
-                  ? 'bg-primary/10 border-primary text-primary dark:bg-primary/20'
-                  : 'bg-gray-1 dark:bg-gray-2 border-border text-text-secondary hover:border-primary/30'
-              }`}
-              disabled={isLoading}
-            >
-              {t('family.invite.roles.child', 'Ребенок')}
-            </button>
-          </div>
-        </div>
-
-        {/* Кнопки */}
-        <div className="flex gap-3 pt-4">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={handleClose}
-            disabled={isLoading}
-            className="flex-1"
-          >
-            {t('common.cancel', 'Отмена')}
-          </Button>
-          <Button
-            type="submit"
-            variant="primary"
-            disabled={isLoading || !email.trim()}
-            className="flex-1"
-          >
-            {isLoading 
-              ? t('family.invite.sending', 'Отправка...') 
-              : t('family.invite.send', 'Отправить приглашение')
-            }
-          </Button>
-        </div>
-      </form>
+      {currentStep === 'relation' && renderRelationStep()}
+      {currentStep === 'invite' && renderInviteStep()}
+      {currentStep === 'sendMethod' && renderSendMethodStep()}
     </Modal>
   );
 };
-

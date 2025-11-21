@@ -9,12 +9,11 @@ import { PersonalModule } from './personal/personal.module';
 import { SecurityModule } from './security/security.module';
 import { FamilyModule } from './family/family.module';
 import { PaymentModule } from './payment/payment.module';
-import { TranslationsModule } from './translations/translations.module';
 import { TranslationsV2Module } from './translations-v2/translations-v2.module';
 import { SupportModule } from './support/support.module';
 
 @Module({
-  imports: [DataPreloaderModule, AuthModule, ProfileModule, AdminModule, PersonalModule, SecurityModule, FamilyModule, PaymentModule, TranslationsModule, TranslationsV2Module, SupportModule],
+  imports: [DataPreloaderModule, AuthModule, ProfileModule, AdminModule, PersonalModule, SecurityModule, FamilyModule, PaymentModule, TranslationsV2Module, SupportModule],
   controllers: [AppController],
   providers: [AppService],
 })

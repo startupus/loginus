@@ -52,6 +52,7 @@ export const AVAILABLE_MODULES: readonly ModuleName[] = [
   'work',
   'modals',
   'support',
+  'payment',
 ] as const;
 
 /**
@@ -95,6 +96,8 @@ export const KEY_TO_MODULE_MAP: Record<string, ModuleName> = {
   errors: 'errors',
   modals: 'modals',
   support: 'support',
+  payment: 'payment',
+  pay: 'payment',
 };
 
 /**

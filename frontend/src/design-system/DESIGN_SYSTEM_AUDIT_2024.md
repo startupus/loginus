@@ -144,7 +144,7 @@ const className = themeClasses.card.default;
 - ✅ `apiClient` - единый axios клиент в `services/api/client.ts`
 - ✅ Все запросы через `services/api/*` (auth.ts, profile.ts, security.ts, support.ts, personal.ts)
 - ✅ Мок данные через NestJS backend (`backend-mock/`)
-- ✅ Единый префикс: `/api/v1`
+- ✅ Единый префикс: `/api/v2`
 - ✅ Interceptors для авторизации и логирования
 - ✅ Все страницы используют единое API (SecurityPage, DashboardPage, DataPage и т.д.)
 

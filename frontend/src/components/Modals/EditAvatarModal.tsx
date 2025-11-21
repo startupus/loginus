@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Button, Avatar } from '../../design-system/primitives';
 import { Modal } from '../../design-system/composites';
 import { getInitials } from '../../utils/stringUtils';
+import { PREDEFINED_AVATARS, AVATAR_BACKGROUND_COLORS } from '../../utils/avatars';
 
 export interface EditAvatarModalProps {
   isOpen: boolean;
@@ -14,45 +15,6 @@ export interface EditAvatarModalProps {
     backgroundColor?: string;
   };
 }
-
-// Цвета фона для аватара (из референса)
-const BACKGROUND_COLORS = [
-  { value: '#edeff2', label: 'светло-серый' },
-  { value: '#fdebeb', label: 'светло-красный' },
-  { value: '#ffedd1', label: 'светло-оранжевый' },
-  { value: '#fcf1c5', label: 'светло-желтый' },
-  { value: '#e1fae7', label: 'светло-зеленый' },
-  { value: '#e1f7f4', label: 'светло-бирюзовый' },
-  { value: '#e3f3fa', label: 'светло-синий' },
-  { value: '#efedf7', label: 'светло-фиолетовый' },
-  { value: '#fae9f6', label: 'светло-пурпурный' },
-];
-
-// Готовые аватары (иконки) - можно расширить список
-const DEFAULT_AVATARS = [
-  { url: 'https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/1b1b8e713e99ec22c81a.webp', label: 'Academic cap' },
-  { url: 'https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/fff280518cf59cf9b644.webp', label: 'Alien' },
-  { url: 'https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/7504ddd175f79330ae19.webp', label: 'Bear' },
-  { url: 'https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/692fb3ccc028a306ee0f.webp', label: 'Cat' },
-  { url: 'https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/2304fdb8b218a2006745.webp', label: 'Chess' },
-  { url: 'https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/72d8ef0bfc7289491011.webp', label: 'Cosmonaut' },
-  { url: 'https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/deb4c7a8510b7e303522.webp', label: 'Dino' },
-  { url: 'https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/a98a60a15cbd81f691de.webp', label: 'Dog' },
-  { url: 'https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/fee0452b9300856d718e.webp', label: 'Football' },
-  { url: 'https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/c06fdaa38e6c02ca365c.webp', label: 'Fox' },
-  { url: 'https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/33bca4e6a3c408683127.webp', label: 'Ghost' },
-  { url: 'https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/ee1c88b1efccb86ccbfc.webp', label: 'Goose' },
-  { url: 'https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/f51e3559cb03a1ef9bf2.webp', label: 'Hare' },
-  { url: 'https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/6bba13fab0f50d638d39.webp', label: 'GingerbreadBoy' },
-  { url: 'https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/2976b8c96507853a40ae.webp', label: 'Moai' },
-  { url: 'https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/185e9da5bb2e68722b6b.webp', label: 'Parrot' },
-  { url: 'https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/d33b16ca7cd113d5a60a.webp', label: 'Robot' },
-  { url: 'https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/36b1d44b445b96ecacb0.webp', label: 'Rover' },
-  { url: 'https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/5c79c459b78c5af5809d.webp', label: 'Turtle' },
-  { url: 'https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/e3d62fb45a9255ffacbc.webp', label: 'Unicorn' },
-  { url: 'https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/704ef1c300c8fbffe829.webp', label: 'Yac' },
-  { url: 'https://id.yastatic.net/s3/yandex-id-static/yandex-id/_/_next/static/assets/fcacc0117be1cd34023f.webp', label: 'Whale' },
-];
 
 /**
  * EditAvatarModal - модальное окно для редактирования аватара
@@ -66,7 +28,7 @@ export const EditAvatarModal: React.FC<EditAvatarModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const [selectedAvatar, setSelectedAvatar] = useState<string | null>(initialData?.avatar || null);
-  const [selectedBackground, setSelectedBackground] = useState<string>(initialData?.backgroundColor || BACKGROUND_COLORS[0].value);
+  const [selectedBackground, setSelectedBackground] = useState<string>(initialData?.backgroundColor || AVATAR_BACKGROUND_COLORS[0].value);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(initialData?.avatar || null);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -77,7 +39,7 @@ export const EditAvatarModal: React.FC<EditAvatarModalProps> = ({
   React.useEffect(() => {
     if (initialData) {
       setSelectedAvatar(initialData.avatar || null);
-      setSelectedBackground(initialData.backgroundColor || BACKGROUND_COLORS[0].value);
+      setSelectedBackground(initialData.backgroundColor || AVATAR_BACKGROUND_COLORS[0].value);
       setAvatarPreview(initialData.avatar || null);
     }
   }, [initialData]);
@@ -152,7 +114,7 @@ export const EditAvatarModal: React.FC<EditAvatarModalProps> = ({
 
   const handleClose = () => {
     setSelectedAvatar(initialData?.avatar || null);
-    setSelectedBackground(initialData?.backgroundColor || BACKGROUND_COLORS[0].value);
+    setSelectedBackground(initialData?.backgroundColor || AVATAR_BACKGROUND_COLORS[0].value);
     setAvatarPreview(initialData?.avatar || null);
     setAvatarFile(null);
     setErrors({});
@@ -198,7 +160,7 @@ export const EditAvatarModal: React.FC<EditAvatarModalProps> = ({
             {t('modals.avatar.backgroundColor', 'Фон аватара')}
           </label>
           <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t('modals.avatar.backgroundColor', 'Фон аватара')}>
-            {BACKGROUND_COLORS.map((color) => (
+            {AVATAR_BACKGROUND_COLORS.map((color) => (
               <button
                 key={color.value}
                 type="button"
@@ -261,7 +223,7 @@ export const EditAvatarModal: React.FC<EditAvatarModalProps> = ({
 
           {/* Готовые аватары */}
           <div className="grid grid-cols-6 sm:grid-cols-8 gap-2" role="radiogroup" aria-label={t('modals.avatar.image', 'Изображение аватара')}>
-            {DEFAULT_AVATARS.map((avatar) => (
+            {PREDEFINED_AVATARS.map((avatar) => (
               <button
                 key={avatar.url}
                 type="button"

@@ -15,7 +15,8 @@ export type ModuleName =
   | 'about'
   | 'work'
   | 'modals'
-  | 'support';
+  | 'support'
+  | 'payment';
 
 /**
  * Доступные локали

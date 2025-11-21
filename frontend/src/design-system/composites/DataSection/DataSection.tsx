@@ -57,7 +57,7 @@ export interface DataSectionProps {
  *   <DocumentsList />
  * </DataSection>
  */
-export const DataSection: React.FC<DataSectionProps> = ({
+export const DataSection: React.FC<DataSectionProps> = React.memo(({
   id,
   title,
   description,
@@ -69,12 +69,12 @@ export const DataSection: React.FC<DataSectionProps> = ({
   const currentLang = useCurrentLanguage() || 'ru';
   
   // Формируем полный URL с языком для открытия в новой вкладке
-  const getFullUrl = (href: string) => {
+  const getFullUrl = React.useCallback((href: string) => {
     if (href.startsWith('http://') || href.startsWith('https://')) {
       return href;
     }
     return buildPathWithLang(href, currentLang);
-  };
+  }, [currentLang]);
 
   return (
     <section 
@@ -131,5 +131,18 @@ export const DataSection: React.FC<DataSectionProps> = ({
       )}
     </section>
   );
-};
+}, (prevProps, nextProps) => {
+  // Кастомная функция сравнения для оптимизации
+  return (
+    prevProps.id === nextProps.id &&
+    prevProps.title === nextProps.title &&
+    prevProps.description === nextProps.description &&
+    prevProps.className === nextProps.className &&
+    prevProps.action === nextProps.action &&
+    prevProps.viewAllLink === nextProps.viewAllLink &&
+    prevProps.children === nextProps.children
+  );
+});
+
+DataSection.displayName = 'DataSection';
 

@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 // Прямые импорты для tree-shaking
 import { Icon } from '../../primitives/Icon';
 import { Logo } from '../../primitives/Logo';
+import { Input } from '../../primitives/Input';
 import { useSidebar } from '../../hooks/useSidebar';
 import { useTheme } from '../../contexts';
 import { useLanguageStore } from '@/store';
@@ -58,6 +59,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const { setThemeMode, isDark } = useTheme();
   const { isOpen, toggleSidebar, openDropdown, toggleDropdown } = useSidebar();
   
+  // Блокировка скролла body когда сайдбар открыт на мобильных
+  useEffect(() => {
+    if (!isOpen) {
+      // Сайдбар открыт на мобильных (isOpen = false означает открыт)
+      // Блокируем скролл body только на мобильных устройствах (< xl)
+      if (window.innerWidth < 1280) {
+        document.body.style.overflow = 'hidden';
+      }
+    } else {
+      // Сайдбар закрыт - разблокируем скролл
+      document.body.style.overflow = '';
+    }
+    
+    // Cleanup при размонтировании компонента
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+  
   return (
     <>
       <div
@@ -67,7 +87,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       >
         <div>
           {showLogo && (
-            <div className="px-10 pt-10 pb-9">
+            <div className="px-10 pt-10 pb-6">
               <button 
                 onClick={() => navigate(buildPathWithLang('/', currentLang))}
                 className="cursor-pointer"
@@ -76,6 +96,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </button>
             </div>
           )}
+          
+          {/* Поиск - видим только на мобильных устройствах (< xl) */}
+          <div className="px-6 pb-4 xl:hidden">
+            <Input
+              type="text"
+              placeholder={t('common.search', 'Поиск...')}
+              rightIcon={<Icon name="search" size="sm" className="text-text-secondary dark:text-dark-6" />}
+            />
+          </div>
           
           <nav>
             <ul>

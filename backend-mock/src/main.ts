@@ -15,15 +15,15 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   });
 
-  // Global prefix для v1 API
-  app.setGlobalPrefix('api/v1');
+  // Global prefix для API v2
+  app.setGlobalPrefix('api/v2');
   
-  // Для v2 API используем отдельный роутинг через Express напрямую
-  // Это позволяет обойти глобальный префикс для v2 эндпоинтов
+  // Для translations v2 используем отдельный роутинг через Express напрямую
+  // Это позволяет обойти глобальный префикс для translations эндпоинтов
   const expressApp = app.getHttpAdapter().getInstance();
   const translationsV2Service = app.get(TranslationsV2Service);
   
-  // Регистрируем v2 роуты на /api/v2/translations
+  // Регистрируем translations роуты на /api/v2/translations
   // ВАЖНО: Порядок имеет значение - более специфичные роуты должны быть раньше
   
   // 1. Статус (самый специфичный)
@@ -82,7 +82,7 @@ async function bootstrap() {
 
   const port = process.env.PORT || 3001;
   await app.listen(port);
-  console.log(`🚀 Backend Mock запущен на http://localhost:${port}/api/v1`);
+  console.log(`🚀 Backend Mock запущен на http://localhost:${port}/api/v2`);
 }
 
 bootstrap();

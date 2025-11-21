@@ -25,7 +25,9 @@ export class FamilyService {
   getMembers() {
     return {
       success: true,
-      data: this.members,
+      data: {
+        members: this.members,
+      },
     };
   }
 
@@ -34,10 +36,14 @@ export class FamilyService {
       id: String(this.members.length + 1),
       email: inviteDto.email,
       role: inviteDto.role,
-      name: 'Pending Invitation',
+      name: inviteDto.email.split('@')[0], // Используем часть email как имя для демо
       avatar: null,
       joinedAt: new Date().toISOString(),
+      isOnline: false,
     };
+    
+    // Добавляем нового члена в список для отображения
+    this.members.push(newMember);
     
     return {
       success: true,

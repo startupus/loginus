@@ -12,7 +12,10 @@
     "back": "Back",
     "error": "An error occurred while loading data",
     "login": "Login",
-    "save": "Save"
+    "save": "Save",
+    "cancel": "Cancel",
+    "reset": "Reset",
+    "remove": "Remove"
   },
   "header": {
     "notifications": "Notifications"

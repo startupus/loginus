@@ -10,9 +10,11 @@
     "pnpm": ">=8.0.0"
   },
   "scripts": {
-    "dev": "pnpm --filter frontend dev & pnpm --filter backend-mock start:dev",
+    "dev": "./scripts/start-dev.sh",
+    "dev:simple": "pnpm --filter frontend dev & pnpm --filter backend-mock start:dev",
     "dev:frontend": "pnpm --filter frontend dev",
     "dev:backend": "pnpm --filter backend-mock start:dev",
+    "stop": "./scripts/stop-dev.sh",
     "build": "pnpm --filter frontend build",
     "build:all": "pnpm --filter frontend build && pnpm --filter backend-mock build",
     "test": "pnpm --filter frontend test",
