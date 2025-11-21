@@ -10,9 +10,10 @@ import { SecurityModule } from './security/security.module';
 import { FamilyModule } from './family/family.module';
 import { PaymentModule } from './payment/payment.module';
 import { TranslationsModule } from './translations/translations.module';
+import { SupportModule } from './support/support.module';
 
 @Module({
-  imports: [DataPreloaderModule, AuthModule, ProfileModule, AdminModule, PersonalModule, SecurityModule, FamilyModule, PaymentModule, TranslationsModule],
+  imports: [DataPreloaderModule, AuthModule, ProfileModule, AdminModule, PersonalModule, SecurityModule, FamilyModule, PaymentModule, TranslationsModule, SupportModule],
   controllers: [AppController],
   providers: [AppService],
 })

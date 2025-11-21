@@ -61,7 +61,7 @@ export const Header: React.FC<HeaderProps> = ({
   };
   
   return (
-    <header className="bg-background/80 dark:bg-dark-2/80 backdrop-blur-md border-b border-border dark:border-dark-3 sticky xl:static top-0 z-30">
+    <header className={`bg-background/95 dark:bg-dark-2/95 backdrop-blur-lg ${themeClasses.border.bottom} sticky xl:static top-0 z-30`}>
       <div className="w-full">
         <div className="relative flex items-center justify-between py-4 px-4 xl:px-6">
           <div className="flex items-center gap-4">
@@ -83,11 +83,10 @@ export const Header: React.FC<HeaderProps> = ({
           
           <div className="flex items-center gap-4">
             {showSearch && (
-              <div className="relative w-[200px] sm:w-[300px]">
+              <div className="relative w-[200px] sm:w-[300px] m-0 p-0">
                 <Input
                   type="text"
                   placeholder={t('common.search', 'Поиск...')}
-                  className="!py-2"
                   rightIcon={<Icon name="search" size="sm" className="text-text-secondary dark:text-dark-6" />}
                 />
               </div>

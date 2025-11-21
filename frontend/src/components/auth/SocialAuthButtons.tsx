@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { themeClasses } from '../../design-system/utils/themeClasses';
 
 /**
  * Компонент для отображения альтернативных способов входа через социальные сети
@@ -113,7 +114,7 @@ export const SocialAuthButtons: React.FC = () => {
   };
 
   return (
-    <div className="w-full bg-gray-2 dark:bg-gray-3 p-4 border-t border-gray-3 dark:border-gray-3">
+    <div className={`w-full bg-gray-2 dark:bg-gray-3 p-4 border-t ${themeClasses.border.default}`}>
       <p className="text-sm text-text-secondary mb-3 text-center">
         {t('auth.socialAuth.title', 'Или войдите через')}
       </p>
@@ -127,7 +128,7 @@ export const SocialAuthButtons: React.FC = () => {
             <button
               key={provider.id}
               onClick={() => handleSocialAuth(provider.id)}
-              className="aspect-square flex items-center justify-center p-2 rounded-lg border border-stroke dark:border-dark-3 bg-white dark:bg-dark-2 hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+              className="aspect-square flex items-center justify-center p-2 rounded-lg border border-border bg-white dark:bg-dark-2 hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
               aria-label={t(`auth.socialAuth.${provider.id}`, provider.name)}
               title={provider.name}
             >

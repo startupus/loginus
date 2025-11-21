@@ -5,6 +5,7 @@ import { Icon, ScrollButton } from '../../design-system/primitives';
 import { DataSection } from '../../design-system/composites/DataSection';
 import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
 import { getDocumentLabel } from '../../utils/i18nMappings';
+import { themeClasses } from '../../design-system/utils/themeClasses';
 
 export interface DocumentType {
   type: string;
@@ -116,7 +117,7 @@ export const DocumentsGrid: React.FC<DocumentsGridProps> = ({
             <button
               key={`${doc.type}-${index}`}
               onClick={() => onAddDocument?.(doc.type)}
-              className="group flex-shrink-0 flex flex-col items-center gap-3 p-4 rounded-lg bg-gray-1/50 dark:bg-dark-3/50 border border-stroke dark:border-dark-3/50 hover:border-primary/30 dark:hover:border-primary/30 hover:bg-gray-1 dark:hover:bg-dark-3 transition-all duration-200 animate-fade-in relative min-w-[120px]"
+              className={`group flex-shrink-0 flex flex-col items-center gap-3 p-4 rounded-lg bg-gray-1/50 dark:bg-dark-3/50 ${themeClasses.border.default} hover:border-primary/30 dark:hover:border-primary/30 hover:bg-gray-1 dark:hover:bg-dark-3 transition-all duration-200 animate-fade-in relative min-w-[120px]`}
               style={{ animationDelay: `${index * 30}ms` }}
             >
               {/* Иконка */}

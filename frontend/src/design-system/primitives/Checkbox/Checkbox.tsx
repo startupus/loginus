@@ -1,4 +1,5 @@
 import React from 'react';
+import { themeClasses } from '../../utils/themeClasses';
 
 export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type' | 'onChange' | 'size'> {
   /**
@@ -69,7 +70,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
         className={`flex ${sizes[size]} cursor-pointer items-center justify-center rounded border transition-colors ${
           checked
             ? 'border-primary bg-primary'
-            : 'border-stroke dark:border-dark-3'
+            : themeClasses.border.default
         } ${
           disabled ? 'opacity-50 cursor-not-allowed' : ''
         } ${className}`}

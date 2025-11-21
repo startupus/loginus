@@ -98,16 +98,17 @@ export const WidgetCard: React.FC<WidgetCardProps> = ({
   isDragging = false,
   className = '',
 }) => {
-  // Базовые классы из TailGrids Card1.jsx SingleCard - ТОЧНЫЕ из исходника
-  // Добавлены анимации из mega шаблона: hover:-translate-y-1 для поднятия карточки
-  const baseClasses = 'overflow-hidden rounded-lg shadow-1 duration-300 hover:shadow-3 hover:-translate-y-1 dark:shadow-card dark:hover:shadow-3 transition-all';
+  // Базовые классы - приведены к стандарту дизайн-системы (как ProfileCard и DataSection)
+  // Используем rounded-xl вместо rounded-lg для единообразия
+  // Убраны тени для единообразия с ProfileCard и DataSection
+  const baseClasses = 'overflow-hidden rounded-xl transition-all';
   
-  // Варианты фона из TailGrids - используем стандартизированные классы
+  // Варианты фона - используем стандартизированные классы (как ProfileCard и DataSection)
   const variantClasses = {
-    default: '!bg-white dark:!bg-dark-2',  // Белый фон в светлой теме, темный в темной (!important для гарантии)
+    default: 'bg-white dark:bg-dark-2',  // Единый стандарт с ProfileCard и DataSection
     primary: 'bg-primary/5 dark:bg-primary/20',
     feature: 'bg-gradient-to-br from-primary/5 to-secondary/5 dark:from-primary/20 dark:to-secondary/20',
-    compact: '!bg-white dark:!bg-dark-2',  // Белый фон в светлой теме, темный в темной (!important для гарантии)
+    compact: 'bg-white dark:bg-dark-2',  // Единый стандарт с ProfileCard и DataSection
   };
   
   // Padding - из TailGrids Card1.jsx

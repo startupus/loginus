@@ -43,13 +43,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       setIsDark(dark);
 
-      // Обновить класс на html элементе
-      if (dark) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-
       // Синхронизировать токены темы с CSS переменными для динамического изменения
       const currentTheme = themeMode === 'corporate' ? corporateTheme : dark ? darkTheme : lightTheme;
       const root = document.documentElement;
@@ -61,6 +54,10 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         return `${parseInt(result[1], 16)} ${parseInt(result[2], 16)} ${parseInt(result[3], 16)}`;
       };
       
+      // Устанавливаем переменные ПЕРЕД добавлением класса dark
+      // Это гарантирует, что inline стили будут иметь приоритет над CSS
+      const borderColor = hexToRgb(currentTheme.colors.border) || (dark ? '31 41 55' : '226 232 240');
+      
       // Цвета - конвертируем hex в RGB формат для CSS переменных
       root.style.setProperty('--color-primary', hexToRgb(currentTheme.colors.primary) || '14 165 233');
       root.style.setProperty('--color-secondary', hexToRgb(currentTheme.colors.secondary) || '100 116 139');
@@ -70,10 +67,44 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       root.style.setProperty('--color-info', hexToRgb(currentTheme.colors.info) || '59 130 246');
       root.style.setProperty('--color-background', hexToRgb(currentTheme.colors.background) || '255 255 255');
       root.style.setProperty('--color-surface', hexToRgb(currentTheme.colors.surface) || '248 250 252');
+      // surface-elevated: белый в светлой теме, более светлый серый в темной теме
+      const surfaceElevatedColor = dark 
+        ? '55 65 81' // #374151 - более светлый серый для контраста в темной теме
+        : '255 255 255'; // Белый в светлой теме
+      root.style.setProperty('--color-surface-elevated', surfaceElevatedColor);
       root.style.setProperty('--color-text-primary', hexToRgb(currentTheme.colors.text.primary) || '15 23 42');
       root.style.setProperty('--color-text-secondary', hexToRgb(currentTheme.colors.text.secondary) || '100 116 139');
       root.style.setProperty('--color-text-disabled', hexToRgb(currentTheme.colors.text.disabled) || '203 213 225');
-      root.style.setProperty('--color-border', hexToRgb(currentTheme.colors.border) || '226 232 240');
+      root.style.setProperty('--color-border', borderColor);
+      // Обновляем --color-stroke чтобы он соответствовал --color-border (для совместимости)
+      root.style.setProperty('--color-stroke', borderColor);
+      
+      // Обновить класс на html элементе ПОСЛЕ установки переменных
+      // Inline стили имеют приоритет над CSS, поэтому они будут использоваться
+      if (dark) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      
+      // Повторно устанавливаем переменные после добавления класса для гарантии
+      // Используем requestAnimationFrame для гарантии применения после изменения класса
+      requestAnimationFrame(() => {
+        root.style.setProperty('--color-border', borderColor);
+        root.style.setProperty('--color-stroke', borderColor);
+        root.style.setProperty('--color-surface-elevated', surfaceElevatedColor);
+        // Дополнительная проверка в dev режиме
+        if (process.env.NODE_ENV === 'development') {
+          const computedBorder = getComputedStyle(root).getPropertyValue('--color-border').trim();
+          if (computedBorder !== borderColor) {
+            console.warn(`[ThemeContext] Border color mismatch: expected "${borderColor}", got "${computedBorder}"`);
+            console.warn('[ThemeContext] Attempting to fix...');
+            // Пытаемся исправить, устанавливая значение напрямую на :root
+            root.style.setProperty('--color-border', borderColor);
+            root.style.setProperty('--color-stroke', borderColor);
+          }
+        }
+      });
       
       // Spacing
       root.style.setProperty('--spacing-xs', currentTheme.spacing.xs);

@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Icon } from '../../design-system/primitives';
 import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';
 import { useContactMasking } from '@/hooks/useContactMasking';
+import { themeClasses } from '../../design-system/utils/themeClasses';
 
 export interface ProfileCardMenuProps {
   /**
@@ -236,7 +237,7 @@ export const ProfileCardMenu: React.FC<ProfileCardMenuProps> = ({
       aria-label={t('profile.menu', 'Меню профиля')}
       id="react-aria-profile-card-menu"
       data-testid="profile-card-menu"
-      className="fixed z-[100000] w-[320px] max-h-[212px] bg-white dark:bg-surface rounded-lg shadow-lg border border-border dark:border-dark-3/50 overflow-hidden py-1"
+      className={`fixed z-[100000] w-[320px] max-h-[212px] bg-white dark:bg-surface rounded-lg shadow-lg ${themeClasses.border.default} overflow-hidden py-1`}
       style={{
         top: `${position.top}px`,
         left: `${position.left}px`,

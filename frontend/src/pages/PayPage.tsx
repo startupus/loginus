@@ -8,6 +8,7 @@ import { Button } from '@/design-system/primitives/Button';
 import { Icon } from '@/design-system/primitives/Icon';
 import { Badge } from '@/design-system/primitives/Badge';
 import { paymentApi } from '@/services/api/payment';
+import { themeClasses } from '@/design-system/utils/themeClasses';
 
 interface PaymentMethod {
   id: string;
@@ -160,7 +161,7 @@ const PayPage: React.FC = () => {
           ))}
           
           {/* Add New Card Button */}
-          <button className="border-2 border-dashed border-border rounded-xl p-6 aspect-video flex flex-col items-center justify-center gap-3 hover:border-primary hover:bg-primary/5 transition-all group">
+          <button className={`${themeClasses.border.dashed} rounded-xl p-6 aspect-video flex flex-col items-center justify-center gap-3 hover:border-primary hover:bg-primary/5 transition-all group`}>
             <div className="w-12 h-12 rounded-full bg-gray-1 dark:bg-dark-3 flex items-center justify-center text-text-secondary group-hover:text-primary transition-colors">
               <Icon name="plus" size="lg" />
             </div>

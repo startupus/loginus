@@ -118,7 +118,7 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
       <div className="relative" ref={menuRef}>
         <button
           onClick={toggleMenu}
-          className="group !p-1 rounded-full transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-dark"
+          className="group p-1 rounded-full transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-dark"
           aria-label={t('profile.menu', 'Меню профиля')}
         >
           <Avatar

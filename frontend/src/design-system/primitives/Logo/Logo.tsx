@@ -78,9 +78,10 @@ export const Logo: React.FC<LogoProps> = ({
         >
           <span className={`${classes.iconText} font-extrabold leading-none tracking-tight`}>iD</span>
         </div>
-        {/* Зеленая точка */}
+        {/* Зеленая точка - обводка адаптируется под тему: белая в светлой теме, темная в темной теме */}
+        {/* Используем тот же подход, что и в Avatar: border-white dark:border-dark-2 */}
         <div 
-          className={`absolute -bottom-1 -right-1 ${classes.dot} bg-success rounded-full border-2 border-background dark:border-text-primary shadow-sm z-10`}
+          className={`absolute -bottom-1 -right-1 ${classes.dot} bg-success rounded-full border-2 border-white dark:border-dark-2 shadow-sm z-10`}
         ></div>
       </div>
       {showText && (

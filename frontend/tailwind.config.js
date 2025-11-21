@@ -38,7 +38,7 @@ export default {
         dark: {
           DEFAULT: 'rgb(var(--color-background) / <alpha-value>)',  // Основной темный фон
           2: 'rgb(var(--color-surface) / <alpha-value>)',            // Фон карточек/секций
-          3: 'rgb(var(--color-border) / <alpha-value>)',              // Границы
+          3: 'rgb(var(--color-gray-3) / <alpha-value>)',              // Старый цвет для совместимости (55 65 81)
           4: 'rgb(var(--color-text-secondary) / <alpha-value>)',      // Вторичный текст
           6: 'rgb(var(--color-text-secondary) / <alpha-value>)',      // Вторичный текст (альтернативный)
         },

@@ -5,6 +5,7 @@ import { Avatar, Icon, Badge } from '../../design-system/primitives';
 import { DataSection, AddButton } from '../../design-system/composites';
 import { getInitials } from '../../utils/stringUtils';
 import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
+import { themeClasses } from '../../design-system/utils/themeClasses';
 
 export interface WorkGroupMember {
   id: string;
@@ -75,7 +76,7 @@ export const WorkGroups: React.FC<WorkGroupsProps> = ({
         {groups.map((group, index) => (
           <div
             key={group.id}
-            className="group flex flex-col gap-3 p-4 rounded-lg bg-gray-1/50 dark:bg-gray-2/50 border border-border dark:border-dark-3/50 hover:border-primary/30 dark:hover:border-primary/30 hover:bg-gray-1 dark:hover:bg-gray-2 transition-all duration-200 animate-fade-in"
+            className={`group flex flex-col gap-3 p-4 rounded-lg ${themeClasses.card.gridItem} ${themeClasses.border.default} hover:border-primary/30 dark:hover:border-primary/30 ${themeClasses.card.gridItemHover} transition-all duration-200 animate-fade-in`}
             style={{ animationDelay: `${index * 30}ms` }}
           >
             {/* Название группы и роль */}
@@ -125,7 +126,7 @@ export const WorkGroups: React.FC<WorkGroupsProps> = ({
                   </div>
                 ))}
                 {group.members.length > MAX_VISIBLE_AVATARS && (
-                  <div className="relative w-8 h-8 rounded-full bg-gray-1 dark:bg-gray-2 border-2 border-background dark:border-surface flex items-center justify-center">
+                  <div className="relative w-8 h-8 rounded-full bg-gray-1 dark:bg-dark-3 border-2 border-background dark:border-surface flex items-center justify-center">
                     <span className="text-xs font-medium text-text-secondary">
                       +{group.members.length - MAX_VISIBLE_AVATARS}
                     </span>

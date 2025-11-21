@@ -5,6 +5,7 @@ import { Avatar, Icon, ScrollButton } from '../../design-system/primitives';
 import { DataSection, AddButton } from '../../design-system/composites';
 import { getInitials } from '../../utils/stringUtils';
 import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
+import { themeClasses } from '../../design-system/utils/themeClasses';
 
 export interface FamilyMember {
   id: string;
@@ -108,7 +109,7 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
               className={`group flex-shrink-0 flex flex-col items-center justify-center gap-3 p-4 rounded-lg border transition-all duration-200 animate-fade-in w-[140px] h-[140px] ${
                 member.role === 'owner' 
                   ? 'bg-primary/5 dark:bg-primary/10 border-primary/30 hover:border-primary/50 hover:bg-primary/10 dark:hover:bg-primary/20' 
-                  : 'bg-gray-1/50 dark:bg-gray-2/50 border-border dark:border-dark-3/50 hover:border-primary/30 dark:hover:border-primary/30 hover:bg-gray-1 dark:hover:bg-gray-2'
+                  : `${themeClasses.card.gridItem} ${themeClasses.border.default} hover:border-primary/30 dark:hover:border-primary/30 ${themeClasses.card.gridItemHover}`
               }`}
               style={{ animationDelay: `${index * 30}ms` }}
             >

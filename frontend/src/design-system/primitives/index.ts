@@ -7,6 +7,7 @@ export * from './Separator';
 export * from './CodeInput';
 export * from './UniversalInput';
 export * from './Logo';
+export * from './LoginusIdLogo';
 export * from './Checkbox';
 export * from './ScrollButton/ScrollButton';
 

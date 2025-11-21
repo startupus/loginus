@@ -61,8 +61,8 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
                 ref={editButtonRef}
                 variant="ghost"
                 size="sm"
+                iconOnly
                 onClick={() => setIsMenuOpen(true)}
-                className="!p-1"
                 aria-label={t('profile.edit', 'Редактировать')}
               >
                 <Icon name="edit" size="sm" />

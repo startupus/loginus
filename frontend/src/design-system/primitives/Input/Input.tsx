@@ -57,16 +57,18 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     ref
   ) => {
     // Базовые классы - используем стандартизированные классы темы
-    const baseInputClasses = 'w-full rounded-md border px-5 py-[10px] transition focus:border-primary active:border-primary disabled:cursor-default';
+    // УБИРАЕМ border из baseInputClasses, так как он уже есть в themeClasses.border.default
+    // Используем те же стили, что и Textarea для единообразия
+    const baseInputClasses = 'w-full rounded-md px-5 py-[12px] transition focus:border-primary active:border-primary disabled:cursor-default leading-normal';
     
     // Классы границ в зависимости от состояния - используем стандартизированные классы
     const borderClasses = error 
-      ? 'border-error' // Ошибка - красная граница
-      : themeClasses.border.default; // Стандартная граница
+      ? 'border border-error' // Ошибка - красная граница
+      : themeClasses.border.default; // Стандартная граница (уже содержит border)
     
     // Классы фона и текста - используем стандартизированные классы
-    // placeholder должен использовать прямой класс, так как Tailwind не поддерживает динамические классы в template strings
-    const bgClasses = `bg-white dark:bg-transparent ${themeClasses.text.primary} placeholder:text-text-secondary`;
+    // ИСПРАВЛЕНО: используем правильный фон для темной темы (dark-3 вместо transparent)
+    const bgClasses = `${themeClasses.input.background} ${themeClasses.text.primary} ${themeClasses.input.placeholder}`;
     
     // Disabled классы - используем стандартизированные классы для обеих тем
     const disabledClasses = 'disabled:border-gray-2 disabled:bg-gray-2 dark:disabled:border-dark-3 dark:disabled:bg-dark-3';
@@ -77,9 +79,29 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const inputClassName = `${baseInputClasses} ${borderClasses} ${bgClasses} ${disabledClasses} ${paddingClasses} ${className}`.trim();
     
     const widthClass = fullWidth ? 'w-full' : '';
+    
+    // Убираем margin и padding у внешнего контейнера, если нет label, error и helperText (как в Textarea)
+    const containerClass = !label && !error && !helperText ? `${widthClass} m-0 p-0` : widthClass;
+    // Убираем margin у внутреннего контейнера, если нет label, error и helperText
+    const innerContainerClass = !label && !error && !helperText 
+      ? `relative ${fullWidth ? 'w-full' : ''} m-0 p-0` 
+      : `relative ${fullWidth ? 'w-full' : ''}`;
+
+    // Если нет label, error и helperText, возвращаем только input без оберток (как в Textarea)
+    // Но если есть иконки, нужна обертка для позиционирования
+    if (!label && !error && !helperText && !leftIcon && !rightIcon) {
+      return (
+        <input
+          ref={ref}
+          disabled={disabled}
+          className={inputClassName}
+          {...props}
+        />
+      );
+    }
 
     return (
-      <div className={widthClass}>
+      <div className={containerClass}>
         {/* Label - используем стандартизированные классы */}
         {label && (
           <label className={`mb-[10px] block text-base font-medium ${themeClasses.text.primary}`}>
@@ -88,7 +110,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         )}
         
         {/* Input с иконками */}
-        <div className="relative">
+        <div className={innerContainerClass}>
           {/* Left Icon - из TailGrids NameInput */}
           {leftIcon && (
             <span className="absolute left-4 top-1/2 -translate-y-1/2">

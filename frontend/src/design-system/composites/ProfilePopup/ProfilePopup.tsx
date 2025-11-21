@@ -107,7 +107,6 @@ export const ProfilePopup: React.FC<ProfilePopupProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       size="sm"
-      className="!max-w-md"
       position={anchorRef ? 'top-right' : 'center'}
       anchorRef={anchorRef}
     >
@@ -127,8 +126,8 @@ export const ProfilePopup: React.FC<ProfilePopupProps> = ({
           <Button
             variant="ghost"
             size="sm"
+            iconOnly
             onClick={onClose}
-            className="!p-2"
           >
             <Icon name="close" size="sm" />
           </Button>
@@ -152,11 +151,11 @@ export const ProfilePopup: React.FC<ProfilePopupProps> = ({
               <Button
                 variant="ghost"
                 size="sm"
+                iconOnly
                 onClick={() => {
                   onEdit();
                   onClose();
                 }}
-                className="!p-1"
               >
                 <Icon name="edit" size="sm" />
               </Button>

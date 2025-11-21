@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getAvatarGradient } from '@/utils/stringUtils';
 
 export interface AvatarProps {
@@ -86,6 +87,7 @@ export const Avatar: React.FC<AvatarProps & { children?: never }> = ({
   status = 'online',
   className = '',
 }) => {
+  const { t } = useTranslation();
   // Состояние для отслеживания ошибки загрузки изображения
   const [imageError, setImageError] = useState(false);
 
@@ -216,7 +218,11 @@ export const Avatar: React.FC<AvatarProps & { children?: never }> = ({
         <AvatarContent />
         <span 
           className={`absolute ${statusPositions[size]} ${statusSizes[size]} ${statusColors[status]} ${statusBorder} rounded-full z-10`}
-          aria-label={`Статус: ${status === 'online' ? 'онлайн' : status === 'offline' ? 'офлайн' : 'отошёл'}`}
+          aria-label={t('avatar.status', 'Статус: {{status}}', { 
+            status: status === 'online' ? t('avatar.status.online', 'онлайн') : 
+                    status === 'offline' ? t('avatar.status.offline', 'офлайн') : 
+                    t('avatar.status.away', 'отошёл') 
+          })}
         />
       </span>
     );

@@ -7,9 +7,17 @@ import { personalApi } from '@/services/api/personal';
 import { useAuthStore } from '@/store';
 import { useModal } from '@/hooks/useModal';
 import type { DocumentType, AddressType } from '@/components/Modals';
-import { ProfileCard } from '@/components/Dashboard/ProfileCard';
-import { DocumentsGrid } from '@/components/Dashboard/DocumentsGrid';
-import { AddressesGrid } from '@/components/Dashboard/AddressesGrid';
+import { 
+  ProfileCard,
+  DocumentsGrid,
+  AddressesGrid,
+  VehiclesSection,
+  PetsSection,
+  ContactsSection,
+  ExternalAccountsSection,
+  PublicDataSection,
+  DataManagementSection,
+} from '@/components/Dashboard';
 import { appQueryClient } from '@/providers/RootProvider';
 import { themeClasses } from '@/design-system/utils/themeClasses';
 
@@ -281,7 +289,129 @@ const DataPage: React.FC = () => {
           />
         </div>
 
-        {/* TODO: Добавить секции для автомобилей, питомцев, контактов, публичных данных и управления данными */}
+        {/* Vehicles Section - полная ширина */}
+        <div className="w-full mb-6">
+          <VehiclesSection
+            vehicles={personalData?.vehicles || []}
+            onAddVehicle={vehicleModal.open}
+          />
+        </div>
+
+        {/* Pets Section - полная ширина */}
+        <div className="w-full mb-6">
+          <PetsSection
+            pets={personalData?.pets || []}
+            onAddPet={petModal.open}
+          />
+        </div>
+
+        {/* Contacts Section - полная ширина */}
+        <div className="w-full mb-6">
+          <ContactsSection
+            contacts={[
+              {
+                type: 'email',
+                label: t('personalData.contacts.email', 'Email в Loginus'),
+                value: user.email || '',
+              },
+              {
+                type: 'phone',
+                label: t('personalData.contacts.phone', 'Основной телефон'),
+                value: user.phone || '',
+                href: '/security/phones',
+              },
+              {
+                type: 'backup-email',
+                label: t('personalData.contacts.backupEmail', 'Запасная почта'),
+                value: '', // TODO: добавить поле backupEmail в user
+              },
+            ]}
+          />
+        </div>
+
+        {/* External Accounts Section - полная ширина */}
+        <div className="w-full mb-6">
+          <ExternalAccountsSection
+            accounts={[]} // TODO: получить список подключенных аккаунтов из API
+            onConnect={(providerId) => {
+              // TODO: реализовать подключение аккаунта
+              console.log('Connect account:', providerId);
+            }}
+            onDisconnect={(providerId) => {
+              // TODO: реализовать отключение аккаунта
+              console.log('Disconnect account:', providerId);
+            }}
+          />
+        </div>
+
+        {/* Public Data Section - полная ширина */}
+        <div className="w-full mb-6">
+          <PublicDataSection
+            items={[
+              {
+                id: 'public-profile',
+                label: t('personalData.publicData.publicProfile', 'Публичный профиль в поиске Loginus'),
+                href: '/personal/public-profile',
+                icon: 'globe',
+              },
+              {
+                id: 'reviews',
+                label: t('personalData.publicData.reviews', 'Ваши отзывы и оценки'),
+                href: '/reviews',
+                icon: 'star',
+              },
+              {
+                id: 'public-address',
+                label: t('personalData.publicData.publicAddress', 'Добавить публичный адрес'),
+                description: t('personalData.publicData.publicAddressDesc', 'Для ваших страниц в Loginus'),
+                onClick: () => {
+                  // TODO: открыть модалку добавления публичного адреса
+                  console.log('Add public address');
+                },
+                icon: 'map-pin',
+              },
+            ]}
+          />
+        </div>
+
+        {/* Data Management Section - полная ширина */}
+        <div className="w-full mb-6">
+          <DataManagementSection
+            items={[
+              {
+                id: 'inclusion',
+                label: t('personalData.dataManagement.inclusion', 'Специальные возможности'),
+                href: '/personal/inclusion',
+                icon: 'settings',
+              },
+              {
+                id: 'data-access',
+                label: t('personalData.dataManagement.dataAccess', 'Доступы к данным'),
+                href: '/personal/data-access',
+                icon: 'key',
+              },
+              {
+                id: 'notifications',
+                label: t('personalData.dataManagement.notifications', 'Уведомления сервисов'),
+                href: '/personal/communication-preferences',
+                icon: 'bell',
+              },
+              {
+                id: 'data-on-services',
+                label: t('personalData.dataManagement.dataOnServices', 'Данные на сервисах'),
+                href: '/personal/data',
+                icon: 'cloud',
+              },
+              {
+                id: 'delete-profile',
+                label: t('personalData.dataManagement.deleteProfile', 'Удалить профиль'),
+                onClick: deleteProfileModal.open,
+                icon: 'trash',
+                variant: 'danger',
+              },
+            ]}
+          />
+        </div>
       </div>
 
       {/* Модалки - lazy loaded для оптимизации первой загрузки */}

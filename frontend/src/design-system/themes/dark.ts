@@ -16,7 +16,7 @@ export const darkTheme: Theme = {
       secondary: '#cbd5e1',
       disabled: '#475569',
     },
-    border: '#334155',
+    border: '#1e293b', // Граница совпадает с surface для минимальной видимости в темной теме
   },
   typography: {
     fontFamily: 'Inter, system-ui, sans-serif',

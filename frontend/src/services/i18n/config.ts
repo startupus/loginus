@@ -21,7 +21,7 @@ const initialLanguage = getStoredLanguage();
 const loadedModules = new Map<string, Set<string>>();
 
 // Доступные модули локализации
-const availableModules = ['common', 'dashboard', 'auth', 'profile', 'errors', 'landing', 'about', 'work', 'modals'] as const;
+const availableModules = ['common', 'dashboard', 'auth', 'profile', 'errors', 'landing', 'about', 'work', 'modals', 'support'] as const;
 type ModuleName = typeof availableModules[number];
 
 // Статические ресурсы: RU подгружаем сразу, чтобы не было водопада чанков на первом экране
@@ -188,6 +188,7 @@ i18n.on('missingKey', (lngs, _ns, key) => {
   else if (key.startsWith('work.')) module = 'work';
   else if (key.startsWith('errors.')) module = 'errors';
   else if (key.startsWith('modals.')) module = 'modals';
+  else if (key.startsWith('support.')) module = 'support';
   
   if (module && (!loadedModules.has(lng) || !loadedModules.get(lng)!.has(module))) {
     // Загружаем модуль асинхронно без блокировки

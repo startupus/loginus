@@ -5,6 +5,7 @@ import { Icon, ScrollButton } from '../../design-system/primitives';
 import { DataSection, AddButton } from '../../design-system/composites';
 import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
 import { getAddressLabel } from '../../utils/i18nMappings';
+import { themeClasses } from '../../design-system/utils/themeClasses';
 
 export interface AddressType {
   type: string;
@@ -105,11 +106,11 @@ export const AddressesGrid: React.FC<AddressesGridProps> = ({
             <button
               key={addressItem.type}
               onClick={() => onAddAddress?.(addressItem.type)}
-              className="group flex-shrink-0 flex flex-col items-center justify-center gap-3 p-4 rounded-lg bg-gray-1/50 dark:bg-gray-2/50 border border-border dark:border-dark-3/50 hover:border-primary/30 dark:hover:border-primary/30 hover:bg-gray-1 dark:hover:bg-gray-2 transition-all duration-200 animate-fade-in relative w-[140px] h-[140px]"
+              className={`group flex-shrink-0 flex flex-col items-center justify-center gap-3 p-4 rounded-lg ${themeClasses.card.gridItem} ${themeClasses.border.default} hover:border-primary/30 dark:hover:border-primary/30 ${themeClasses.card.gridItemHover} transition-all duration-200 animate-fade-in relative w-[140px] h-[140px]`}
               style={{ animationDelay: `${index * 30}ms` }}
             >
               {/* Иконка */}
-              <div className="w-12 h-12 rounded-lg bg-gray-1 dark:bg-gray-2 flex items-center justify-center transition-colors duration-200 group-hover:bg-gray-2 dark:group-hover:bg-gray-3 flex-shrink-0">
+              <div className={`w-12 h-12 ${themeClasses.card.gridItemIcon} flex items-center justify-center transition-colors duration-200 group-hover:bg-gray-2 dark:group-hover:bg-dark-4 flex-shrink-0`}>
                 <Icon 
                   name={addressItem.icon} 
                   size="md" 

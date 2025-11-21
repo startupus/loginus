@@ -36,6 +36,12 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
    * Использовать градиент
    */
   gradient?: boolean;
+  
+  /**
+   * Кнопка только с иконкой (без текста)
+   * Автоматически уменьшает padding для компактного вида
+   */
+  iconOnly?: boolean;
 }
 
 /**
@@ -45,6 +51,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
  * @example
  * <Button variant="primary">Нажми меня</Button>
  * <Button variant="primary" gradient>С градиентом</Button>
+ * <Button variant="outline" iconOnly><Icon name="paperclip" /></Button>
  */
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
@@ -57,12 +64,20 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       rightIcon,
       disabled,
       gradient = false,
+      iconOnly = false,
       className = '',
       children,
       ...props
     },
     ref
   ) => {
+    // Определяем iconOnly: явно указан или автоматически по содержимому
+    // Автоматическое определение: есть children (React элемент), но нет текста и нет leftIcon/rightIcon
+    const hasTextContent = children && typeof children === 'string' && String(children).trim().length > 0;
+    const hasOnlyIcon = children && !hasTextContent && !leftIcon && !rightIcon;
+    // Если iconOnly явно указан, используем его; иначе определяем автоматически
+    const isIconOnly = iconOnly === true || (iconOnly !== false && hasOnlyIcon && !loading);
+    
     // Базовые классы из TailGrids Buttons (ТОЧНЫЕ из исходников)
     const baseStyles = 'inline-flex items-center justify-center border text-center font-medium transition-all duration-200';
 
@@ -96,12 +111,14 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     };
 
     // Размеры (адаптировано из TailGrids)
+    // Для iconOnly используем компактный padding (квадратные кнопки)
+    // Уменьшаем padding для более компактного вида иконок - используем меньшие значения
     const sizeStyles = {
-      xs: 'px-4 py-2 text-xs gap-1',
-      sm: 'px-6 py-2.5 text-sm gap-1.5',
-      md: 'px-7 py-3 text-base gap-2',      // Стандартный из TailGrids
-      lg: 'px-9 py-4 text-lg gap-2.5',
-      xl: 'px-11 py-5 text-xl gap-3',
+      xs: isIconOnly ? 'p-1 text-xs' : 'px-4 py-2 text-xs gap-1',
+      sm: isIconOnly ? 'p-1.5 text-sm' : 'px-6 py-2.5 text-sm gap-1.5',
+      md: isIconOnly ? 'p-2 text-base' : 'px-7 py-3 text-base gap-2',      // Стандартный из TailGrids
+      lg: isIconOnly ? 'p-2.5 text-lg' : 'px-9 py-4 text-lg gap-2.5',
+      xl: isIconOnly ? 'p-3 text-xl' : 'px-11 py-5 text-xl gap-3',
     };
     
     // Disabled стили - для primary используем голубой цвет с opacity, для остальных серый

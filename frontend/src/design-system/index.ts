@@ -24,6 +24,12 @@ export type { ButtonProps } from './primitives/Button';
 export { Input } from './primitives/Input';
 export type { InputProps } from './primitives/Input';
 
+export { Textarea } from './primitives/Textarea';
+export type { TextareaProps } from './primitives/Textarea';
+
+export { Spinner } from './primitives/Spinner';
+export type { SpinnerProps } from './primitives/Spinner';
+
 export { Badge } from './primitives/Badge';
 export type { BadgeProps } from './primitives/Badge';
 
@@ -44,6 +50,9 @@ export type { UniversalInputProps } from './primitives/UniversalInput';
 
 export { Logo } from './primitives/Logo';
 export type { LogoProps } from './primitives/Logo';
+
+export { LoginusIdLogo } from './primitives/LoginusIdLogo';
+export type { LoginusIdLogoProps } from './primitives/LoginusIdLogo';
 
 export { Checkbox } from './primitives/Checkbox';
 export type { CheckboxProps } from './primitives/Checkbox';
@@ -116,6 +125,12 @@ export type { LinkButtonProps } from './composites/LinkButton';
 
 export { ProgressBar } from './composites/ProgressBar';
 export type { ProgressBarProps } from './composites/ProgressBar';
+
+export { ChatMessage } from './composites/ChatMessage';
+export type { ChatMessageProps } from './composites/ChatMessage';
+
+export { ChatHistory } from './composites/ChatHistory';
+export type { ChatHistoryProps, ChatHistoryItem } from './composites/ChatHistory';
 
 // ============================================================================
 // LAYOUTS (Organisms) - Макеты страниц

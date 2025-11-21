@@ -83,10 +83,10 @@ export const AddButton: React.FC<AddButtonProps> = ({
 
   const currentSize = sizeClasses[size];
 
-  // Определяем классы границы
+  // Определяем классы границы - ИСПРАВЛЕНО: убираем border-2, используем только themeClasses
   const borderClasses = {
-    dashed: 'border-2 border-dashed',
-    solid: 'border-2 border-solid',
+    dashed: themeClasses.border.dashed, // Уже содержит border border-dashed border-border
+    solid: themeClasses.border.default,  // Уже содержит border border-border
     none: 'border-0',
   };
 
@@ -101,7 +101,7 @@ export const AddButton: React.FC<AddButtonProps> = ({
     rounded-xl 
     ${backgroundClasses[background]}
     ${borderClasses[borderStyle]}
-    ${borderStyle !== 'none' ? `${themeClasses.border.default} hover:border-primary dark:hover:border-primary` : ''}
+    ${borderStyle !== 'none' ? 'hover:border-primary dark:hover:border-primary' : ''}
     transition-all duration-200 
     cursor-pointer
   `.trim().replace(/\s+/g, ' ');

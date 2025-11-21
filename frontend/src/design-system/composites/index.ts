@@ -20,4 +20,9 @@ export * from './SectionHeader';
 export * from './TrustIndicator';
 export * from './LinkButton';
 export * from './ProgressBar';
+export * from './ChatMessage';
+export * from './ChatHistory';
+export * from './ChatHeader';
+export * from './ProductCarousel';
+export * from './SecurityListItem';
 

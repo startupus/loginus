@@ -152,10 +152,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </nav>
         </div>
 
-        <div className="p-6 space-y-3">
+        <div className="p-6 space-y-1">
           <button
             onClick={() => navigate(buildPathWithLang('/support', currentLang))}
-            className={`${themeClasses.text.secondary} dark:text-dark-6 hover:text-primary flex w-full items-center py-2 text-sm font-medium duration-200`}
+            className={`${themeClasses.text.secondary} dark:text-dark-6 hover:text-primary flex w-full items-center py-1.5 text-sm font-medium duration-200`}
           >
             <Icon name="help-circle" size="sm" className="mr-3" />
             <span>{t('sidebar.help', 'Справка')}</span>
@@ -163,7 +163,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           
           <button
             onClick={() => window.open('https://loginus.ru', '_blank')}
-            className={`${themeClasses.text.secondary} dark:text-dark-6 hover:text-primary flex w-full items-center py-2 text-sm font-medium duration-200`}
+            className={`${themeClasses.text.secondary} dark:text-dark-6 hover:text-primary flex w-full items-center py-1.5 text-sm font-medium duration-200`}
           >
             <Icon name="globe" size="sm" className="mr-3" />
             <span>{t('sidebar.loginusIdSite', 'Loginus ID для сайта')}</span>

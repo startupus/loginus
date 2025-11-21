@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Icon } from '../../design-system/primitives';
+import { themeClasses } from '../../design-system/utils/themeClasses';
 
 export interface AvailableWidget {
   id: string;
@@ -50,7 +51,7 @@ export const WidgetSelector: React.FC<WidgetSelectorProps> = ({
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-border dark:border-dark-3">
+          <div className={`flex items-center justify-between p-6 border-b ${themeClasses.border.default}`}>
             <h2 className="text-xl font-bold text-text-primary">
               {t('dashboard.widgets.title', 'Добавить виджет')}
             </h2>
@@ -69,7 +70,7 @@ export const WidgetSelector: React.FC<WidgetSelectorProps> = ({
               {availableWidgets.map((widget) => (
                 <div
                   key={widget.id}
-                  className="flex items-center gap-4 p-4 rounded-lg border border-border dark:border-dark-3 bg-background dark:bg-dark-3 hover:border-primary dark:hover:border-primary/50 transition-colors"
+                  className={`flex items-center gap-4 p-4 rounded-lg ${themeClasses.border.default} bg-background dark:bg-dark-3 hover:border-primary dark:hover:border-primary/50 transition-colors`}
                 >
                   {/* Иконка */}
                   <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-primary/10 dark:bg-primary/20 flex items-center justify-center">

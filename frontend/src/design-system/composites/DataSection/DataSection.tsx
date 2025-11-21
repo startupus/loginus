@@ -80,7 +80,7 @@ export const DataSection: React.FC<DataSectionProps> = ({
     <section 
       id={id} 
       className={`
-        !bg-white dark:!bg-dark-2
+        bg-white dark:bg-dark-2
         rounded-xl 
         p-6 sm:p-8
         ${className}
@@ -117,7 +117,7 @@ export const DataSection: React.FC<DataSectionProps> = ({
 
       {/* View All Link */}
       {viewAllLink && (
-        <div className="mt-6 pt-4 border-t border-gray-2 dark:border-dark-3/50">
+        <div className={`mt-6 pt-4 border-t ${themeClasses.border.dark}`}>
           <a
             href={getFullUrl(typeof viewAllLink === 'string' ? viewAllLink : viewAllLink.href)}
             target="_blank"

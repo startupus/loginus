@@ -29,6 +29,8 @@
     --color-text-secondary: 100 116 139;
     --color-text-disabled: 203 213 225;
     --color-border: 226 232 240;
+    /* Переопределяем --color-white для совместимости с tailgrids-bank (если не определена, будет белая) */
+    --color-white: 255 255 255;
     
     /* Gray colors для TailGrids совместимости */
     --color-gray-1: 249 250 251;
@@ -65,20 +67,23 @@
     --color-error: 239 68 68;
     --color-warning: 245 158 11;
     --color-info: 59 130 246;
-    --color-background: 17 24 39;
-    --color-surface: 31 41 55;
+    --color-background: 15 23 42; /* #0f172a из dark.ts */
+    --color-surface: 30 41 59; /* #1e293b из dark.ts - ИСПРАВЛЕНО для соответствия */
     /* Приподнятая поверхность для контраста на темном фоне */
     --color-surface-elevated: 55 65 81;
     --color-text-primary: 248 250 252;
     --color-text-secondary: 148 163 184;
     --color-text-disabled: 71 85 105;
-    --color-border: 55 65 81;
+    /* Более мягкая граница для темной темы - будет перезаписана ThemeContext через inline стили */
+    --color-border: 30 41 55;
+    /* Переопределяем --color-white для темной темы (используется в tailgrids-bank компонентах) */
+    --color-white: 30 41 55; /* Темно-серая вместо белой в темной теме */
     
     /* Gray colors для темной темы */
     --color-gray-1: 17 24 39;
     --color-gray-2: 31 41 55;
     --color-gray-3: 55 65 81;
-    --color-stroke: 55 65 81;
+    --color-stroke: 30 41 55;
   }
   
   html {
@@ -91,9 +96,109 @@
     background-color: rgb(var(--color-background));
     color: rgb(var(--color-text-primary));
   }
+  
+  /* СИСТЕМНОЕ ИСПРАВЛЕНИЕ: Принудительно устанавливаем цвет границы для всех элементов с классом border-border */
+  /* Это гарантирует, что границы всегда используют правильный цвет из темы */
+  .border-border,
+  [class*="border-border"] {
+    border-color: rgb(var(--color-border)) !important;
+  }
+  
+  /* Для темной темы - переопределяем через селектор с более высоким приоритетом */
+  html.dark .border-border,
+  html.dark [class*="border-border"] {
+    border-color: rgb(var(--color-border)) !important;
+  }
+  
+  /* СИСТЕМНОЕ ИСПРАВЛЕНИЕ: border-stroke должен использовать тот же цвет, что и border-border */
+  .border-stroke,
+  [class*="border-stroke"] {
+    border-color: rgb(var(--color-stroke)) !important;
+  }
+  
+  html.dark .border-stroke,
+  html.dark [class*="border-stroke"] {
+    border-color: rgb(var(--color-stroke)) !important;
+  }
+  
 }
 
 @layer utilities {
+  /* СИСТЕМНОЕ ИСПРАВЛЕНИЕ: Принудительно устанавливаем правильный фон для всех карточек в темной теме */
+  /* Используем @layer utilities для максимального приоритета над Tailwind классами и output.css из tailgrids-bank */
+  /* Это гарантирует, что все компоненты с bg-white dark:bg-dark-2 используют единый цвет из темы */
+  
+  /* ПРАВИЛО 1: Прямое переопределение класса dark:bg-dark-2 с максимальной специфичностью */
+  html.dark .bg-white.dark\:bg-dark-2,
+  html.dark .dark\:bg-dark-2.bg-white {
+    background-color: rgb(var(--color-surface)) !important;
+  }
+  
+  /* ПРАВИЛО 2: Альтернативный селектор для случаев, когда классы разделены пробелами в атрибуте class */
+  html.dark [class*="bg-white"][class*="dark:bg-dark-2"],
+  html.dark [class*="dark:bg-dark-2"][class*="bg-white"] {
+    background-color: rgb(var(--color-surface)) !important;
+  }
+  
+  /* ПРАВИЛО 3A: КРИТИЧНО - Сначала применяем правильный фон для input/textarea с dark:bg-dark-3 */
+  /* Это правило должно быть ПЕРЕД Правилом 3, чтобы иметь приоритет */
+  html.dark input.bg-white[class*="dark:bg-dark-3"],
+  html.dark input[class*="bg-white"][class*="dark:bg-dark-3"],
+  html.dark input[class*="rounded-md"][class*="border-border"][class*="dark:bg-dark-3"],
+  html.dark input[type="text"][class*="dark:bg-dark-3"],
+  html.dark input[type="search"][class*="dark:bg-dark-3"],
+  html.dark input[type="email"][class*="dark:bg-dark-3"],
+  html.dark input[type="password"][class*="dark:bg-dark-3"],
+  html.dark textarea.bg-white[class*="dark:bg-dark-3"],
+  html.dark textarea[class*="bg-white"][class*="dark:bg-dark-3"],
+  html.dark textarea[class*="rounded-md"][class*="border-border"][class*="dark:bg-dark-3"] {
+    background-color: rgb(var(--color-gray-3)) !important; /* dark-3 = 55 65 81 */
+  }
+  
+  /* ПРАВИЛО 3: Для всех элементов с bg-white и rounded (кроме rounded-full) в темной теме */
+  /* НЕ применяется к input/textarea благодаря Правилу 3A выше */
+  html.dark .bg-white[class*="rounded"]:not([class*="rounded-full"]):not([class*="!bg"]):not(input):not(textarea) {
+    background-color: rgb(var(--color-surface)) !important;
+  }
+  
+  /* ПРАВИЛО 4: Универсальное правило для dark:bg-dark-2 - переопределяет output.css из tailgrids-bank */
+  /* Применяется ТОЛЬКО к карточкам, модалкам и другим UI элементам, НЕ к header */
+  html.dark .dark\:bg-dark-2:not(header):not(header *),
+  html.dark .dark\:bg-dark-2:is(.dark *):not(header):not(header *) {
+    background-color: rgb(var(--color-surface)) !important;
+  }
+  
+  /* ПРАВИЛО 5: Дополнительная защита - переопределяем через атрибут class для максимальной специфичности */
+  /* Применяется ТОЛЬКО к элементам внутри карточек/модалок, НЕ к header */
+  html.dark [class*="dark:bg-dark-2"]:not(header):not(header *) {
+    background-color: rgb(var(--color-surface)) !important;
+  }
+  
+  /* СИСТЕМНОЕ ИСПРАВЛЕНИЕ: Переопределяем неправильные фоны для grid элементов */
+  /* Правило 6: Исправляем dark:bg-gray-2/50 на dark:bg-dark-3/50 для карточек grid элементов */
+  /* Используем более специфичный селектор для гарантированного переопределения */
+  html.dark button[class*="bg-gray-1/50"][class*="dark:bg-gray-2/50"],
+  html.dark button[class*="dark:bg-gray-2/50"][class*="bg-gray-1/50"],
+  html.dark [class*="bg-gray-1/50"][class*="dark:bg-gray-2/50"] {
+    background-color: rgba(var(--color-gray-3), 0.5) !important; /* dark-3 с opacity 50% */
+  }
+  
+  /* Правило 7: Исправляем dark:bg-gray-2 на dark:bg-dark-3 для иконок в grid элементах */
+  html.dark div[class*="bg-gray-1"][class*="dark:bg-gray-2"]:not([class*="hover"]):not([class*="group-hover"]):not([class*="rounded-full"]) {
+    background-color: rgb(var(--color-gray-3)) !important; /* dark-3 */
+  }
+  
+  /* Правило 8: Исправляем dark:bg-transparent на dark:bg-dark-3 для Input и Textarea */
+  html.dark input[class*="dark:bg-transparent"],
+  html.dark textarea[class*="dark:bg-transparent"] {
+    background-color: rgb(var(--color-gray-3)) !important; /* dark-3 */
+  }
+  
+  /* Правило 9: Исправляем hover состояния для grid элементов */
+  html.dark button[class*="bg-gray-1/50"][class*="dark:hover:bg-gray-2"] {
+    background-color: rgb(var(--color-gray-3)) !important; /* dark-3 при hover */
+  }
+  
   .container-custom {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }

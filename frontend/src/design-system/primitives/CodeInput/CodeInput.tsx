@@ -1,4 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { themeClasses } from '../../utils/themeClasses';
 
 export interface CodeInputProps {
   /**
@@ -50,6 +52,7 @@ export const CodeInput: React.FC<CodeInputProps> = ({
   disabled = false,
   value: controlledValue,
 }) => {
+  const { t } = useTranslation();
   const [otp, setOtp] = useState<string[]>(Array(length).fill(''));
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -181,23 +184,24 @@ export const CodeInput: React.FC<CodeInputProps> = ({
             autoFocus={autoFocus && index === 0}
             className={`
               flex w-14 h-14 items-center justify-center rounded-lg 
-              border bg-white p-2 text-center 
-              text-2xl font-medium text-text-primary outline-none 
+              border p-2 text-center 
+              text-2xl font-medium outline-none 
               focus:ring-2
               disabled:opacity-50 disabled:cursor-not-allowed
-              dark:bg-dark-3 dark:text-text-primary
+              ${themeClasses.background.default}
+              ${themeClasses.text.primary}
               ${
                 error && error.trim() !== ''
-                  ? 'border-error focus:border-error focus:ring-error/20' 
-                  : 'border-stroke dark:border-dark-3 focus:border-primary focus:ring-primary/20'
+                  ? `${themeClasses.border.default} border-error focus:border-error focus:ring-error/20` 
+                  : `${themeClasses.border.default} focus:border-primary focus:ring-primary/20`
               }
             `}
-            aria-label={`Цифра ${index + 1} из ${length}`}
+            aria-label={t('codeInput.digit', 'Цифра {{index}} из {{total}}', { index: index + 1, total: length })}
           />
         ))}
       </div>
       {error && (
-        <p className="mt-2 text-sm text-error text-center" role="alert">
+        <p className={`mt-2 text-sm text-error text-center ${themeClasses.text.secondary}`} role="alert">
           {error}
         </p>
       )}

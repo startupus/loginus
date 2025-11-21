@@ -4,6 +4,7 @@ import { Icon, Button, Badge } from '../../design-system/primitives';
 import { DataSection } from '../../design-system/composites/DataSection';
 import { Modal } from '../../design-system/composites/Modal';
 import { getSubscriptionName, getSubscriptionFeatures } from '../../utils/i18nMappings';
+import { themeClasses } from '../../design-system/utils/themeClasses';
 
 /**
  * Тип подписки
@@ -69,8 +70,8 @@ export const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
             onClick={() => handleCardClick(subscription)}
             className={`
               group relative p-4 rounded-lg border-2 transition-all duration-200
-              bg-white dark:bg-dark-2
-              border-border dark:border-dark-3
+              ${themeClasses.card.gridItem}
+              ${themeClasses.border.default}
               hover:border-primary hover:shadow-md hover:-translate-y-0.5
               text-left
               ${subscription.active ? 'border-primary shadow-sm' : ''}
@@ -198,7 +199,7 @@ export const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
             )}
             
             {/* Действия */}
-            <div className="flex gap-3 pt-4 border-t border-border dark:border-dark-3/50">
+            <div className={`flex gap-3 pt-4 border-t ${themeClasses.border.default}`}>
               {!selectedSubscription.active && (
                 <Button 
                   variant="primary" 
