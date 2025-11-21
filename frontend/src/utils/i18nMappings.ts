@@ -43,14 +43,22 @@ export const getAddressLabel = (type: string, t: TFunction, fallback?: string): 
 };
 
 export const getSubscriptionName = (type: string, t: TFunction, fallback?: string): string => {
-  const map: Record<string, string> = {
-    'monthly': 'dashboard.subscriptions.plan.monthly',
-    'annual': 'dashboard.subscriptions.plan.annual',
-    'premium': 'dashboard.subscriptions.plan.premium',
-    'free': 'dashboard.subscriptions.plan.free',
+  const map: Record<string, { key: string; defaultValue: string }> = {
+    'monthly': { key: 'dashboard.subscriptions.plan.monthly', defaultValue: 'Месячный' },
+    'annual': { key: 'dashboard.subscriptions.plan.annual', defaultValue: 'Годовой' },
+    'premium': { key: 'dashboard.subscriptions.plan.premium', defaultValue: 'Премиум' },
+    'free': { key: 'dashboard.subscriptions.plan.free', defaultValue: 'Бесплатно' },
   };
-  const key = map[type];
-  return key ? t(key) : (fallback ?? type);
+  const mapping = map[type];
+  if (!mapping) {
+    return fallback ?? type;
+  }
+  const translated = t(mapping.key, { defaultValue: fallback ?? mapping.defaultValue });
+  // Если i18next вернул сам ключ (перевод не найден), используем fallback
+  if (translated === mapping.key || translated.startsWith('dashboard.subscriptions.')) {
+    return fallback ?? mapping.defaultValue;
+  }
+  return translated;
 };
 
 export const getSubscriptionFeatures = (type: string, t: TFunction, fallback?: string[]): string[] => {
