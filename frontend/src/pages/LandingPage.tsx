@@ -47,8 +47,8 @@ const LandingPage: React.FC = () => {
         }}
         navItems={[
           { label: t('landing.nav.about', 'О Loginus ID'), href: buildPathWithLang('/about', currentLang) },
-          { label: t('landing.nav.features', 'Возможности'), href: '/#features' },
-          { label: t('landing.nav.faq', 'FAQ'), href: '/#faq' },
+          { label: t('landing.nav.features', 'Возможности'), href: buildPathWithLang('/features', currentLang) },
+          { label: t('landing.nav.help', 'Справка'), href: buildPathWithLang('/help', currentLang) },
         ]}
       />
 
@@ -120,7 +120,7 @@ const LandingPage: React.FC = () => {
                   </Button>
                   
                   <a
-                    href="/#features"
+                    href={buildPathWithLang('/about', currentLang)}
                     className="inline-flex items-center gap-2 px-8 py-4 text-base font-medium text-text-secondary hover:text-primary transition-colors"
                   >
                     {t('landing.hero.ctaLearnMore', 'Узнать больше')}

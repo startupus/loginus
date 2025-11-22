@@ -1,0 +1,87 @@
+{
+  "features": {
+    "hero": {
+      "title": "Loginus ID Features",
+      "description": "A single account to manage all your data, payments and services. Secure, fast and convenient.",
+      "cta": "Get Started",
+      "back": "Back to Home"
+    },
+    "main": {
+      "title": "Key Features",
+      "subtitle": "Everything you need for convenient and secure work with your data",
+      "security": {
+        "title": "Security and Data Protection",
+        "description": "Multi-level protection of your data using modern encryption technologies and two-factor authentication.",
+        "detail1": "Data encryption according to GOST standards",
+        "detail2": "Two-factor authentication (2FA)",
+        "detail3": "Active session control",
+        "detail4": "Suspicious activity notifications"
+      },
+      "fastAuth": {
+        "title": "Fast Authorization",
+        "description": "Single sign-on to all Loginus ecosystem services without the need to remember multiple passwords.",
+        "detail1": "One account for all services",
+        "detail2": "Biometric authentication",
+        "detail3": "QR code for quick login",
+        "detail4": "Social networks and providers"
+      },
+      "personalData": {
+        "title": "Personal Data Management",
+        "description": "Store and manage all your data in one secure place.",
+        "detail1": "Documents and certificates",
+        "detail2": "Addresses and contacts",
+        "detail3": "Medical data",
+        "detail4": "Educational documents"
+      },
+      "payments": {
+        "title": "Payments and Subscriptions",
+        "description": "Manage payment methods, subscriptions and track all transactions.",
+        "detail1": "Secure card storage",
+        "detail2": "Subscription management",
+        "detail3": "Transaction history",
+        "detail4": "Automatic payments"
+      },
+      "family": {
+        "title": "Family Access",
+        "description": "Create family groups, manage children's accounts and share subscriptions.",
+        "detail1": "Family groups up to 6 people",
+        "detail2": "Children's accounts with parental controls",
+        "detail3": "Shared subscriptions and purchases",
+        "detail4": "Access management for each member"
+      },
+      "privacy": {
+        "title": "Privacy and Control",
+        "description": "Full control over your data and privacy settings.",
+        "detail1": "Granular privacy settings",
+        "detail2": "Application access management",
+        "detail3": "Data export at any time",
+        "detail4": "Account and data deletion"
+      }
+    },
+    "additional": {
+      "title": "Additional Features",
+      "mobile": {
+        "title": "Mobile Applications",
+        "description": "Access all features from iOS and Android devices"
+      },
+      "api": {
+        "title": "API for Developers",
+        "description": "Integrate Loginus ID into your applications via OAuth 2.0"
+      },
+      "support": {
+        "title": "24/7 Support",
+        "description": "Round-the-clock technical support and assistance"
+      },
+      "compliance": {
+        "title": "Standards Compliance",
+        "description": "Compliance with GOST, GDPR and other security standards"
+      }
+    },
+    "cta": {
+      "title": "Ready to Start?",
+      "description": "Create your Loginus ID and get access to all features today.",
+      "button": "Create Account"
+    }
+  }
+}
+

@@ -94,8 +94,8 @@ const AboutPage: React.FC = () => {
         }}
         navItems={[
           { label: t('landing.nav.about', 'О Loginus ID'), href: buildPathWithLang('/about', currentLang) },
-          { label: t('landing.nav.features', 'Возможности'), href: buildPathWithLang('/', currentLang) + '#features' },
-          { label: t('landing.nav.faq', 'FAQ'), href: buildPathWithLang('/', currentLang) + '#faq' },
+          { label: t('landing.nav.features', 'Возможности'), href: buildPathWithLang('/features', currentLang) },
+          { label: t('landing.nav.help', 'Справка'), href: buildPathWithLang('/help', currentLang) },
         ]}
       />
 

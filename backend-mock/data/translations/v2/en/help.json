@@ -1,0 +1,82 @@
+{
+  "help": {
+    "sidebar": {
+      "title": "Help Sections",
+      "yourId": "Your Loginus ID",
+      "login": "Login",
+      "loginNoPassword": "Login without password",
+      "loginPhone": "Login by phone number",
+      "loginOtp": "Login with one-time password",
+      "loginPasswordOtp": "Login with password + one-time password",
+      "loginSocial": "Via external login methods",
+      "loginProfiles": "Profiles in Loginus ID",
+      "registration": "Account Registration",
+      "security": "Account Protection",
+      "recovery": "Access Recovery",
+      "key": "Loginus Key",
+      "family": "Family Group",
+      "data": "Data",
+      "payments": "Loginus Pay",
+      "support": "Support Service"
+    },
+    "header": {
+      "title": "Your Loginus ID",
+      "description": "Many Loginus services are only available after registration: for example, without an account you won't be able to use many features. Loginus ID is a unified account on Loginus. Use it to authorize on all Loginus services.",
+      "description2": "If you need to change your password or specify a different last name, just update the information in Loginus ID. Changes will automatically appear in all services. Here you can also link a phone number to Loginus ID and configure the login method."
+    },
+    "categories": {
+      "security": {
+        "title": "Account Protection",
+        "changePassword": "Why Loginus asks to change password",
+        "loginChallenge": "Login verification",
+        "virusCheck": "Virus protection"
+      },
+      "key": {
+        "title": "Login with Loginus Key app",
+        "setup": "Set up Loginus Key",
+        "external": "Generate passwords for other sites",
+        "appPasswords": "Create app passwords"
+      },
+      "phone": {
+        "title": "Phone Number",
+        "noSms": "SMS or notification not received",
+        "attach": "Link phone number",
+        "change": "Change already linked number"
+      },
+      "recovery": {
+        "title": "Access Recovery",
+        "cantLogin": "Can't log into account",
+        "restore": "Access recovery",
+        "forgotLogin": "Don't remember login or email address"
+      },
+      "email": {
+        "title": "Email and Notifications",
+        "messages": "What emails and SMS Loginus sends",
+        "additional": "Additional email addresses",
+        "recovery": "Recovery email address"
+      },
+      "data": {
+        "title": "My Data",
+        "personal": "My personal data",
+        "public": "My public data on Loginus",
+        "manage": "Data management"
+      },
+      "family": {
+        "title": "Family Group",
+        "group": "Family group",
+        "children": "Children's accounts"
+      },
+      "pay": {
+        "title": "Loginus Pay and Payments",
+        "cards": "Loginus Pay and bank cards",
+        "subscriptions": "My services and subscriptions"
+      }
+    },
+    "additionalHelp": {
+      "title": "Didn't find the answer?",
+      "description": "If you didn't find the answer to your question in the help section, contact support.",
+      "contact": "Contact Support"
+    }
+  }
+}
+

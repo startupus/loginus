@@ -21,7 +21,7 @@ const initialLanguage = getStoredLanguage();
 const loadedModules = new Map<string, Set<string>>();
 
 // Доступные модули локализации
-const availableModules = ['common', 'dashboard', 'auth', 'profile', 'errors', 'landing', 'about', 'work', 'modals', 'support', 'payment'] as const;
+const availableModules = ['common', 'dashboard', 'auth', 'profile', 'errors', 'landing', 'about', 'features', 'help', 'work', 'modals', 'support', 'payment'] as const;
 type ModuleName = typeof availableModules[number];
 
 // Статические ресурсы: RU подгружаем сразу, чтобы не было водопада чанков на первом экране

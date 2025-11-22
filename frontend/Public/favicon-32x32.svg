@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Фон квадрата -->
+  <rect width="32" height="32" rx="6" fill="#111827"/>
+  
+  <!-- Текст "iD" - уменьшенный размер -->
+  <text x="16" y="22" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="800" fill="white" text-anchor="middle">iD</text>
+  
+  <!-- Зеленая точка -->
+  <circle cx="24" cy="24" r="3" fill="#22c55e"/>
+</svg>
+
