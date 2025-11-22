@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { LandingHeader } from '../../design-system/layouts/LandingHeader';
+import { LandingFooter } from '../../design-system/layouts/LandingFooter';
 import { Icon } from '../../design-system/primitives/Icon';
 import { Button } from '../../design-system/primitives/Button';
 import { useLanguageStore } from '../../store';
@@ -121,23 +122,23 @@ export const HelpArticlePage: React.FC<HelpArticlePageProps> = ({
       />
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 pt-24 pb-20 lg:pt-28">
-        <div className="flex flex-col lg:flex-row gap-8 max-w-7xl mx-auto">
+      <main className={themeClasses.layout.mainContent}>
+        <div className={`${themeClasses.layout.flexRow} ${themeClasses.container.maxWidth}`}>
           {/* Sidebar Navigation */}
           <HelpSidebar currentPath={location.pathname} />
 
           {/* Article Content */}
-          <div className="flex-1 min-w-0">
-            <div className="flex flex-col lg:flex-row gap-8">
+          <div className={`${themeClasses.utility.flex1} ${themeClasses.utility.minW0}`}>
+            <div className={themeClasses.layout.flexRow}>
               {/* Main Article */}
-              <article className="flex-1 min-w-0 max-w-3xl" ref={contentRef}>
-                <h1 className="text-4xl font-bold text-text-primary mb-8 lg:text-5xl">
+              <article className={`${themeClasses.utility.flex1} ${themeClasses.utility.minW0} ${themeClasses.utility.maxW3xl}`} ref={contentRef}>
+                <h1 className={`${themeClasses.typographySize.h1} ${themeClasses.text.primary} ${themeClasses.spacing.mb8}`}>
                   {title}
                 </h1>
                 {children}
 
                 {/* CTA - Написать в службу поддержки */}
-                <div className="mt-12 pt-8 border-t border-border">
+                <div className={`${themeClasses.spacing.mt12} ${themeClasses.spacing.pt8} ${themeClasses.border.top}`}>
                   <Button
                     variant="primary"
                     onClick={() => {
@@ -151,12 +152,12 @@ export const HelpArticlePage: React.FC<HelpArticlePageProps> = ({
                 </div>
 
                 {/* Feedback - Была ли статья полезна? */}
-                <div className="mt-8 pt-8 border-t border-border">
-                  <p className="text-sm font-medium text-text-secondary mb-4">
+                <div className={`${themeClasses.spacing.mt8} ${themeClasses.spacing.pt8} ${themeClasses.border.top}`}>
+                  <p className={`${themeClasses.typographySize.bodySmall} ${themeClasses.typographySize.medium} ${themeClasses.text.secondary} ${themeClasses.spacing.mb4}`}>
                     {t('help.feedback.question', 'Была ли статья полезна?')}
                   </p>
                   {!feedbackSubmitted ? (
-                    <div className="flex gap-3">
+                    <div className={`${themeClasses.utility.flex} ${themeClasses.spacing.gap3}`}>
                       <Button
                         variant={wasHelpful === true ? 'primary' : 'outline'}
                         size="sm"
@@ -181,7 +182,7 @@ export const HelpArticlePage: React.FC<HelpArticlePageProps> = ({
                       </Button>
                     </div>
                   ) : (
-                    <p className="text-sm text-text-secondary">
+                    <p className={`${themeClasses.typographySize.bodySmall} ${themeClasses.text.secondary}`}>
                       {t('help.feedback.thankYou', 'Спасибо за ваш отзыв!')}
                     </p>
                   )}
@@ -189,43 +190,43 @@ export const HelpArticlePage: React.FC<HelpArticlePageProps> = ({
 
                 {/* Navigation - Предыдущая/Следующая статьи */}
                 {(prevArticle || nextArticle) && (
-                  <div className="mt-8 pt-8 border-t border-border flex flex-col sm:flex-row justify-between gap-4">
+                  <div className={`${themeClasses.spacing.mt8} ${themeClasses.spacing.pt8} ${themeClasses.border.top} ${themeClasses.utility.flexColSmRow} ${themeClasses.utility.justifyBetween} ${themeClasses.spacing.gap3}`}>
                     {prevArticle && (
                       <a
                         href={buildPathWithLang(prevArticle.href, currentLang)}
-                        className="flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary transition-colors group"
+                        className={`${themeClasses.layout.centered} ${themeClasses.spacing.gap3} ${themeClasses.typographySize.bodySmall} ${themeClasses.text.secondary} ${themeClasses.text.hoverPrimary} ${themeClasses.utility.transitionColors} group`}
                         onClick={(e) => {
                           e.preventDefault();
                           navigate(buildPathWithLang(prevArticle.href, currentLang));
                         }}
                       >
-                        <Icon name="chevron-left" size="sm" className="group-hover:-translate-x-1 transition-transform" />
+                        <Icon name="chevron-left" size="sm" className={`${themeClasses.utility.groupHoverTranslateXLeft} ${themeClasses.utility.transitionTransform}`} />
                         <div>
-                          <span className="block text-xs text-text-secondary mb-1">
+                          <span className={`block ${themeClasses.typographySize.bodyXSmall} ${themeClasses.text.secondary} ${themeClasses.spacing.mb3}`}>
                             {t('help.navigation.prev', 'Предыдущая')}
                           </span>
-                          <span className="font-medium">{prevArticle.title}</span>
+                          <span className={themeClasses.typographySize.medium}>{prevArticle.title}</span>
                         </div>
                       </a>
                     )}
                     {nextArticle && (
                       <a
                         href={buildPathWithLang(nextArticle.href, currentLang)}
-                        className={`flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary transition-colors group ${
-                          !prevArticle ? 'ml-auto' : ''
+                        className={`${themeClasses.layout.centered} ${themeClasses.spacing.gap3} ${themeClasses.typographySize.bodySmall} ${themeClasses.text.secondary} ${themeClasses.text.hoverPrimary} ${themeClasses.utility.transitionColors} group ${
+                          !prevArticle ? themeClasses.spacing.mlAuto : ''
                         }`}
                         onClick={(e) => {
                           e.preventDefault();
                           navigate(buildPathWithLang(nextArticle.href, currentLang));
                         }}
                       >
-                        <div className="text-right">
-                          <span className="block text-xs text-text-secondary mb-1">
+                        <div className={themeClasses.layout.textRight}>
+                          <span className={`block ${themeClasses.typographySize.bodyXSmall} ${themeClasses.text.secondary} ${themeClasses.spacing.mb3}`}>
                             {t('help.navigation.next', 'Следующая')}
                           </span>
-                          <span className="font-medium">{nextArticle.title}</span>
+                          <span className={themeClasses.typographySize.medium}>{nextArticle.title}</span>
                         </div>
-                        <Icon name="chevron-right" size="sm" className="group-hover:translate-x-1 transition-transform" />
+                        <Icon name="chevron-right" size="sm" className={`${themeClasses.utility.groupHoverTranslateXRight} ${themeClasses.utility.transitionTransform}`} />
                       </a>
                     )}
                   </div>
@@ -234,29 +235,29 @@ export const HelpArticlePage: React.FC<HelpArticlePageProps> = ({
 
               {/* Mini Table of Contents - справа от статьи */}
               {sections.length > 0 && (
-                <aside className="hidden lg:block w-64 flex-shrink-0">
+                <aside className={`${themeClasses.utility.hiddenLgBlock} ${themeClasses.utility.w64} ${themeClasses.utility.flexShrink0}`}>
                   <nav 
-                    className="dc-mini-toc sticky top-32"
+                    className={`dc-mini-toc ${themeClasses.utility.sticky}`}
                     aria-label={t('help.toc.label', 'Навигация по статье')}
                   >
-                    <h2 className="dc-mini-toc__title text-sm font-semibold text-text-primary mb-4">
+                    <h2 className={`dc-mini-toc__title ${themeClasses.typographySize.bodySmall} ${themeClasses.typographySize.semibold} ${themeClasses.text.primary} ${themeClasses.spacing.mb4}`}>
                       {t('help.toc.title', 'В этой статье:')}
                     </h2>
-                    <ul className="dc-mini-toc__sections space-y-1" aria-label={t('help.toc.sections', 'Содержание текущей статьи')}>
+                    <ul className={`dc-mini-toc__sections ${themeClasses.spacing.spaceY1}`} aria-label={t('help.toc.sections', 'Содержание текущей статьи')}>
                       {sections.map((section) => {
                         const isActive = activeSection === section.id;
                         return (
                           <li 
                             key={section.id}
                             data-hash={`#${section.id}`}
-                            className={`dc-mini-toc__section relative pl-4 ${isActive ? 'dc-mini-toc__section_active' : ''}`}
+                            className={`dc-mini-toc__section relative ${themeClasses.spacing.pl4} ${isActive ? 'dc-mini-toc__section_active' : ''}`}
                           >
                             {/* Левая вертикальная линия - индикатор */}
                             <div 
-                              className={`absolute left-0 top-0 bottom-0 w-0.5 transition-all ${
+                              className={`${themeClasses.utility.absolute} ${themeClasses.utility.left0} ${themeClasses.utility.top0} ${themeClasses.utility.bottom0} ${themeClasses.utility.w0_5} transition-all ${
                                 isActive 
-                                  ? 'bg-primary w-1' 
-                                  : 'bg-border opacity-30'
+                                  ? `${themeClasses.background.primary} ${themeClasses.utility.w1}` 
+                                  : `${themeClasses.background.border} ${themeClasses.utility.opacity30}`
                               }`}
                             />
                             <a
@@ -265,10 +266,10 @@ export const HelpArticlePage: React.FC<HelpArticlePageProps> = ({
                                 e.preventDefault();
                                 scrollToSection(section.id);
                               }}
-                              className={`dc-mini-toc__section-link block px-3 py-2 text-sm transition-colors ${
+                                    className={`dc-mini-toc__section-link block ${themeClasses.spacing.px3} ${themeClasses.spacing.py2} ${themeClasses.typographySize.bodySmall} ${themeClasses.utility.transitionColors} ${
                                 isActive
-                                  ? 'font-medium text-text-primary'
-                                  : 'text-text-secondary hover:text-text-primary'
+                                  ? `${themeClasses.typographySize.medium} ${themeClasses.text.primary}`
+                                  : `${themeClasses.text.secondary} ${themeClasses.text.hoverPrimary}`
                               }`}
                             >
                               {section.title}
@@ -287,40 +288,7 @@ export const HelpArticlePage: React.FC<HelpArticlePageProps> = ({
       </main>
 
       {/* Footer */}
-      <footer className={`border-t ${themeClasses.border.default} ${themeClasses.background.default} py-10`}>
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-            <div className="flex items-center gap-3">
-              <div 
-                className="w-8 h-8 rounded-lg flex items-center justify-center ring-1 ring-black/5 !bg-gray-900 text-white dark:!bg-white dark:!text-gray-900"
-              >
-                <span className="text-sm font-extrabold leading-none">iD</span>
-              </div>
-              <p className="text-sm text-text-secondary">
-                {(() => {
-                  const projectStartYear = 2025;
-                  const currentYear = new Date().getFullYear();
-                  const yearRange = currentYear === projectStartYear 
-                    ? projectStartYear.toString() 
-                    : `${projectStartYear} - ${currentYear}`;
-                  return t('landing.footer.copyright', '© {{year}} Loginus ID. Все права защищены.', { year: yearRange });
-                })()}
-              </p>
-            </div>
-            <div className="flex gap-8">
-              <a href={buildPathWithLang('/about', currentLang)} className="text-sm font-medium text-text-secondary hover:text-primary transition-colors">
-                {t('landing.footer.links.about', 'О проекте')}
-              </a>
-              <a href={buildPathWithLang('/privacy', currentLang)} className="text-sm font-medium text-text-secondary hover:text-primary transition-colors">
-                {t('landing.footer.links.privacy', 'Конфиденциальность')}
-              </a>
-              <a href={buildPathWithLang('/terms', currentLang)} className="text-sm font-medium text-text-secondary hover:text-primary transition-colors">
-                {t('landing.footer.links.terms', 'Условия')}
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <LandingFooter />
     </div>
   );
 };

@@ -119,9 +119,9 @@ export const HelpSidebar: React.FC<HelpSidebarProps> = ({ currentPath }) => {
   };
 
   return (
-    <aside className="w-full lg:w-64 flex-shrink-0">
-      <nav className={`${themeClasses.card.shadow} rounded-lg p-4 sticky top-32`}>
-        <ul className="space-y-1">
+    <aside className={`${themeClasses.utility.wFull} ${themeClasses.utility.lgW64} ${themeClasses.utility.flexShrink0}`}>
+      <nav className={`${themeClasses.card.shadow} ${themeClasses.utility.roundedLg} ${themeClasses.utility.p4} ${themeClasses.utility.sticky}`}>
+        <ul className={themeClasses.spacing.spaceY1}>
           {helpMenuItems.map((item) => {
             const isActive = isActiveSection(item.path);
             const isExpanded = expandedSections.has(item.path);
@@ -131,44 +131,44 @@ export const HelpSidebar: React.FC<HelpSidebarProps> = ({ currentPath }) => {
               <li key={item.path}>
                 {hasChildren ? (
                   <div>
-                    <div className="flex items-center">
+                    <div className={`${themeClasses.layout.centered}`}>
                       <button
                         onClick={() => toggleSection(item.path)}
-                        className="flex-shrink-0 p-1 rounded hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors"
+                        className={`${themeClasses.utility.flexShrink0} ${themeClasses.spacing.p1} ${themeClasses.utility.roundedLg} ${themeClasses.list.itemHover}`}
                         aria-label={`${isExpanded ? 'Свернуть' : 'Развернуть'} ${item.label}`}
                         aria-expanded={isExpanded}
                       >
                         <Icon
                           name="chevron-right"
                           size="sm"
-                          className={`text-text-secondary transition-transform duration-200 ${
-                            isExpanded ? 'rotate-90' : ''
+                          className={`${themeClasses.text.secondary} ${themeClasses.utility.transitionTransformDuration} ${
+                            isExpanded ? themeClasses.utility.rotate90 : ''
                           }`}
                         />
                       </button>
                       <a
                         href={buildPathWithLang(item.path, currentLang)}
-                        className={`flex-1 px-2 py-2 text-sm rounded-md transition-colors ${
+                        className={`${themeClasses.utility.flex1} ${themeClasses.spacing.px2} ${themeClasses.spacing.py2} ${themeClasses.typographySize.bodySmall} ${themeClasses.utility.roundedLg} ${themeClasses.utility.transitionColors} ${
                           isActive
-                            ? 'font-medium text-text-primary bg-primary/10 dark:bg-primary/20'
-                            : 'text-text-secondary hover:text-text-primary hover:bg-gray-1 dark:hover:bg-dark-3'
+                            ? `${themeClasses.text.primary} ${themeClasses.active.navItem}`
+                            : `${themeClasses.text.secondary} ${themeClasses.text.hoverPrimary} ${themeClasses.active.navItemInactive}`
                         }`}
                       >
                         {item.label}
                       </a>
                     </div>
                     {isExpanded && item.children && (
-                      <ul className="ml-6 mt-1 space-y-1 border-l border-border pl-4">
+                      <ul className={`${themeClasses.spacing.ml6} ${themeClasses.spacing.mt1} ${themeClasses.spacing.spaceY1} ${themeClasses.border.left} ${themeClasses.spacing.pl4}`}>
                         {item.children.map((child) => {
                           const isChildActive = isActiveSection(child.path);
                           return (
                             <li key={child.path}>
                               <a
                                 href={buildPathWithLang(child.path, currentLang)}
-                                className={`block px-3 py-2 text-sm rounded-md transition-colors ${
+                                className={`block ${themeClasses.spacing.px3} ${themeClasses.spacing.py2} ${themeClasses.typographySize.bodySmall} ${themeClasses.utility.roundedLg} ${themeClasses.utility.transitionColors} ${
                                   isChildActive
-                                    ? 'font-medium text-text-primary bg-primary/10 dark:bg-primary/20'
-                                    : 'text-text-secondary hover:text-text-primary hover:bg-gray-1 dark:hover:bg-dark-3'
+                                    ? `${themeClasses.text.primary} ${themeClasses.active.navItem}`
+                                    : `${themeClasses.text.secondary} ${themeClasses.text.hoverPrimary} ${themeClasses.active.navItemInactive}`
                                 }`}
                               >
                                 {child.label}
@@ -182,10 +182,10 @@ export const HelpSidebar: React.FC<HelpSidebarProps> = ({ currentPath }) => {
                 ) : (
                   <a
                     href={buildPathWithLang(item.path, currentLang)}
-                    className={`block px-3 py-2 text-sm rounded-md transition-colors ${
+                    className={`block ${themeClasses.spacing.px3} ${themeClasses.spacing.py2} ${themeClasses.typographySize.bodySmall} ${themeClasses.utility.roundedLg} ${themeClasses.utility.transitionColors} ${
                       isActive
-                        ? 'font-medium text-text-primary bg-primary/10 dark:bg-primary/20'
-                        : 'text-text-secondary hover:text-text-primary hover:bg-gray-1 dark:hover:bg-dark-3'
+                        ? `${themeClasses.text.primary} ${themeClasses.active.navItem}`
+                        : `${themeClasses.text.secondary} ${themeClasses.text.hoverPrimary} ${themeClasses.active.navItemInactive}`
                     }`}
                   >
                     {item.label}

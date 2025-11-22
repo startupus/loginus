@@ -8,7 +8,7 @@ import { Icon } from '../../primitives/Icon';
 import { Logo } from '../../primitives/Logo';
 // Lazy load ProfilePopup - загружается только при открытии (оптимизация первой загрузки)
 const ProfilePopup = lazy(() => import('../../composites/ProfilePopup').then(m => ({ default: m.ProfilePopup })));
-import { useTheme } from '../../contexts';
+import { useTheme, useClientSafe } from '../../contexts';
 import { getInitials } from '@/utils/stringUtils';
 import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';
 import { themeClasses } from '../../utils/themeClasses';
@@ -107,8 +107,13 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { themeMode, setThemeMode, isDark } = useTheme();
+  const { client } = useClientSafe();
   const [isProfilePopupOpen, setIsProfilePopupOpen] = useState(false);
   const currentLang = useCurrentLanguage();
+  
+  // Клиентский брендинг
+  const customLogo = client?.branding?.logo;
+  const logoText = client?.name || 'Loginus';
 
   const handleThemeToggle = () => {
     setThemeMode(themeMode === 'dark' ? 'light' : 'dark');
@@ -126,11 +131,17 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
 
   return (
     <>
-    <header className={`fixed left-0 top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b ${themeClasses.border.default} dark:bg-dark-2/80 ${className}`}>
-        <div className="container mx-auto">
-          <div className="relative flex items-center justify-between py-4 px-4">
-            {/* Logo - используем компонент из дизайн-системы */}
-            <Logo size="md" showText={true} />
+    <header className={`${themeClasses.utility.headerFixed} ${themeClasses.utility.headerBackground} ${themeClasses.border.bottom} ${themeClasses.border.default} ${className}`}>
+        <div className={themeClasses.utility.headerContainer}>
+          <div className={themeClasses.utility.headerContent}>
+            {/* Logo - используем компонент из дизайн-системы с поддержкой клиентского брендинга */}
+            <Logo 
+              size="md" 
+              showText={true} 
+              text={logoText}
+              customLogo={customLogo}
+              customLogoAlt={logoText}
+            />
           
           {/* Nav + Actions */}
           <div className="flex items-center gap-8">
@@ -142,7 +153,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
                     <li key={index}>
                       <a
                         href={item.href}
-                        className="text-base font-medium text-text-secondary hover:text-primary transition-colors"
+                        className={`${themeClasses.typographySize.body} ${themeClasses.typographySize.medium} ${themeClasses.text.secondary} ${themeClasses.text.hoverPrimary} ${themeClasses.utility.transitionColors}`}
                       >
                         {item.label}
                       </a>
@@ -153,7 +164,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
             )}
             
             {/* Actions */}
-            <div className="flex items-center gap-4">
+            <div className={`${themeClasses.utility.flex} ${themeClasses.layout.centered} ${themeClasses.spacing.gap4}`}>
               {/* Language Switcher */}
               {onLanguageChange && (
                 <Button variant="ghost" size="sm" onClick={onLanguageChange}>
@@ -182,7 +193,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={() => setIsProfilePopupOpen(true)}
-                  className="flex items-center gap-2"
+                  className={`${themeClasses.utility.flex} ${themeClasses.layout.centered} gap-2`}
                 >
                   <Avatar
                     src={userAvatar}
@@ -190,7 +201,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
                     size="sm"
                     rounded
                   />
-                  <span className="hidden sm:inline text-sm font-medium text-text-primary">
+                  <span className={`${themeClasses.utility.hiddenSmInline} ${themeClasses.typographySize.bodySmall} ${themeClasses.typographySize.medium} ${themeClasses.text.primary}`}>
                     {userName}
                   </span>
                 </Button>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { HelpArticlePage } from './HelpArticlePage';
+import { themeClasses } from '../../design-system/utils/themeClasses';
 
 const KeyHelpPage: React.FC = () => {
   const { t } = useTranslation();
@@ -10,8 +11,8 @@ const KeyHelpPage: React.FC = () => {
       title={t('help.key.title', 'Loginus Ключ')}
       sections={[]}
     >
-      <div className="prose prose-lg max-w-none dark:prose-invert">
-        <p className="text-lg text-text-secondary">
+      <div className={themeClasses.typography.prose}>
+        <p className={`${themeClasses.typographySize.bodyLarge} ${themeClasses.text.secondary}`}>
           {t('help.key.content', 'Содержимое страницы Loginus Ключ будет добавлено позже.')}
         </p>
       </div>

@@ -29,6 +29,25 @@ export const useClient = (): ClientContextType => {
   return context;
 };
 
+/**
+ * useClientSafe - безопасная версия useClient для публичных страниц
+ * Возвращает дефолтные значения если ClientProvider не найден
+ * Используется в публичных страницах (Help, Landing) где клиент может быть не установлен
+ */
+export const useClientSafe = (): ClientContextType => {
+  try {
+    return useClient();
+  } catch {
+    // Fallback для публичных страниц без клиента
+    return {
+      client: null,
+      setClient: () => {},
+      applyClientTheme: () => {},
+      hasFeature: () => false,
+    };
+  }
+};
+
 export const ClientProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [client, setClientState] = useState<ClientConfig | null>(null);
 

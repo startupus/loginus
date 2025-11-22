@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест фавиконов - Loginus ID</title>
+    
+    <!-- Фавиконы -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" sizes="32x32" href="/favicon-32x32.svg" />
+    <link rel="icon" type="image/svg+xml" sizes="16x16" href="/favicon-16x16.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    
+    <!-- Цвет темы -->
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            padding: 40px;
+            background: #f8f9fa;
+            color: #212529;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #0f172a;
+                color: #f8fafc;
+            }
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #0ea5e9;
+        }
+        
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            .card {
+                background: #1e293b;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            }
+        }
+        
+        .favicon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .favicon-item {
+            text-align: center;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            .favicon-item {
+                background: #0f172a;
+                border-color: #334155;
+            }
+        }
+        
+        .favicon-preview {
+            width: 64px;
+            height: 64px;
+            margin: 1rem auto;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+        }
+        
+        .favicon-preview.small {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .favicon-preview.medium {
+            width: 32px;
+            height: 32px;
+        }
+        
+        h2 {
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+            color: #334155;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            h2 {
+                color: #cbd5e1;
+            }
+        }
+        
+        h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: #475569;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            h3 {
+                color: #94a3b8;
+            }
+        }
+        
+        p {
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            p {
+                color: #94a3b8;
+            }
+        }
+        
+        .info-box {
+            background: #dbeafe;
+            border-left: 4px solid #0ea5e9;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            .info-box {
+                background: #1e3a5f;
+                border-left-color: #38bdf8;
+            }
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        
+        .status.success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            .status.success {
+                background: #064e3b;
+                color: #6ee7b7;
+            }
+        }
+        
+        code {
+            background: #f1f5f9;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #e11d48;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            code {
+                background: #334155;
+                color: #fda4af;
+            }
+        }
+        
+        .test-section {
+            margin-top: 2rem;
+        }
+        
+        .button {
+            background: #0ea5e9;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        
+        .button:hover {
+            background: #0284c7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Тест фавиконов Loginus ID</h1>
+        
+        <div class="card">
+            <div class="status success">✓ Адаптивные фавиконы активны</div>
+            <p style="margin-top: 1rem;">
+                Фавиконы автоматически переключаются между светлой и темной темой на основе настроек вашей системы.
+            </p>
+        </div>
+        
+        <div class="card">
+            <h2>📋 Инструкция по тестированию</h2>
+            
+            <div class="info-box">
+                <strong>Как протестировать:</strong>
+                <ol style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                    <li>Проверьте отображение фавикона во вкладке браузера</li>
+                    <li>Переключите тему системы (macOS: System Preferences → General → Appearance)</li>
+                    <li>Обратите внимание, как фавикон автоматически изменяет цвета</li>
+                    <li>Проверьте на разных размерах окна браузера</li>
+                </ol>
+            </div>
+            
+            <div class="test-section">
+                <h3>Текущая тема системы</h3>
+                <p>
+                    Ваша система использует: 
+                    <span id="theme-mode" style="font-weight: 600;"></span>
+                </p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>🎨 Предварительный просмотр фавиконов</h2>
+            
+            <div class="favicon-grid">
+                <div class="favicon-item">
+                    <h3>64x64</h3>
+                    <img src="/favicon.svg" width="64" height="64" alt="Favicon 64x64" />
+                    <p><code>favicon.svg</code></p>
+                </div>
+                
+                <div class="favicon-item">
+                    <h3>32x32</h3>
+                    <img src="/favicon-32x32.svg" width="64" height="64" alt="Favicon 32x32" style="width: 32px; height: 32px;" />
+                    <p><code>favicon-32x32.svg</code></p>
+                </div>
+                
+                <div class="favicon-item">
+                    <h3>16x16</h3>
+                    <img src="/favicon-16x16.svg" width="64" height="64" alt="Favicon 16x16" style="width: 16px; height: 16px;" />
+                    <p><code>favicon-16x16.svg</code></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>🎯 Цветовая схема</h2>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #e2e8f0;">
+                        <th style="padding: 0.75rem; text-align: left;">Элемент</th>
+                        <th style="padding: 0.75rem; text-align: left;">Светлая тема</th>
+                        <th style="padding: 0.75rem; text-align: left;">Темная тема</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                        <td style="padding: 0.75rem;">Фон</td>
+                        <td style="padding: 0.75rem;"><code>#111827</code></td>
+                        <td style="padding: 0.75rem;"><code>#f8fafc</code></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                        <td style="padding: 0.75rem;">Текст</td>
+                        <td style="padding: 0.75rem;"><code>#ffffff</code></td>
+                        <td style="padding: 0.75rem;"><code>#0f172a</code></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.75rem;">Зеленая точка</td>
+                        <td style="padding: 0.75rem;"><code>#22c55e</code></td>
+                        <td style="padding: 0.75rem;"><code>#22c55e</code></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="card">
+            <h2>✅ Проверка совместимости</h2>
+            <p>
+                <strong>Полная поддержка:</strong> Chrome 89+, Firefox 96+, Safari 15+, Edge 89+
+            </p>
+            <p>
+                <strong>Частичная поддержка:</strong> Старые версии браузеров (только SVG, без автоматического переключения темы)
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        // Определяем текущую тему
+        const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const themeText = isDarkMode ? '🌙 Темная тема' : '☀️ Светлая тема';
+        document.getElementById('theme-mode').textContent = themeText;
+        
+        // Отслеживаем изменения темы
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            const newTheme = e.matches ? '🌙 Темная тема' : '☀️ Светлая тема';
+            document.getElementById('theme-mode').textContent = newTheme;
+            
+            // Показываем уведомление
+            console.log('Тема изменена на:', newTheme);
+        });
+    </script>
+</body>
+</html>
+

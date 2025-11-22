@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useImperativeHandle, forwardRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { themeClasses } from '../../utils/themeClasses';
 
@@ -39,11 +39,18 @@ export interface CodeInputProps {
   value?: string;
 }
 
+export interface CodeInputRef {
+  /**
+   * Установить фокус на первое поле
+   */
+  focus: () => void;
+}
+
 /**
  * CodeInput - компонент для ввода кода подтверждения
  * Поддерживает автоматический переход между полями, Backspace, вставку
  */
-export const CodeInput: React.FC<CodeInputProps> = ({
+export const CodeInput = forwardRef<CodeInputRef, CodeInputProps>(({
   length = 6,
   onComplete,
   onChange,
@@ -51,10 +58,17 @@ export const CodeInput: React.FC<CodeInputProps> = ({
   autoFocus = false,
   disabled = false,
   value: controlledValue,
-}) => {
+}, ref) => {
   const { t } = useTranslation();
   const [otp, setOtp] = useState<string[]>(Array(length).fill(''));
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Предоставляем метод focus родительскому компоненту
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      inputRefs.current[0]?.focus();
+    },
+  }));
 
   // Контролируемый режим
   const isControlled = controlledValue !== undefined;
@@ -192,7 +206,7 @@ export const CodeInput: React.FC<CodeInputProps> = ({
               ${themeClasses.text.primary}
               ${
                 error && error.trim() !== ''
-                  ? `${themeClasses.border.default} border-error focus:border-error focus:ring-error/20` 
+                  ? `border-error focus:border-error focus:ring-error/20` 
                   : `${themeClasses.border.default} focus:border-primary focus:ring-primary/20`
               }
             `}
@@ -201,11 +215,13 @@ export const CodeInput: React.FC<CodeInputProps> = ({
         ))}
       </div>
       {error && (
-        <p className={`mt-2 text-sm text-error text-center ${themeClasses.text.secondary}`} role="alert">
+        <p className="mt-2 text-sm text-error text-center" role="alert">
           {error}
         </p>
       )}
     </div>
   );
-};
+});
+
+CodeInput.displayName = 'CodeInput';
 

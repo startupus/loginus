@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AuthPageLayout } from '../../design-system/composites/AuthPageLayout';
-import { CodeInput } from '../../design-system/primitives/CodeInput';
+import { CodeInput, CodeInputRef } from '../../design-system/primitives/CodeInput';
 import { Button } from '../../design-system/primitives/Button';
 import { Logo } from '../../design-system/primitives/Logo';
 import { Icon } from '../../design-system/primitives/Icon';
@@ -36,6 +36,7 @@ export const VerifyCodePage: React.FC = () => {
   const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [canResend, setCanResend] = useState(false);
+  const codeInputRef = useRef<CodeInputRef>(null);
 
   const contact = state?.contact || '';
   const contactType = state?.type || 'phone';
@@ -192,6 +193,10 @@ export const VerifyCodePage: React.FC = () => {
     // Очищаем код и ошибку при нажатии "Попробовать снова"
     setCode('');
     setError(null);
+    // Устанавливаем фокус на первое поле ввода
+    setTimeout(() => {
+      codeInputRef.current?.focus();
+    }, 0);
   };
 
   const handleResend = async () => {
@@ -281,6 +286,7 @@ export const VerifyCodePage: React.FC = () => {
         </div>
 
         <CodeInput
+          ref={codeInputRef}
           length={6}
           onComplete={handleCodeComplete}
           onChange={(c) => setCode(c)}
@@ -293,7 +299,13 @@ export const VerifyCodePage: React.FC = () => {
         <Button
           variant="primary"
           fullWidth
-          onClick={() => handleCodeComplete(code)}
+          onClick={() => {
+            if (error) {
+              handleRetry();
+            } else {
+              handleCodeComplete(code);
+            }
+          }}
           loading={isVerifying}
           className="shadow-lg hover:shadow-xl"
         >

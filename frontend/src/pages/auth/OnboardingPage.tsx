@@ -38,6 +38,7 @@ export const OnboardingPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [skipPassword, setSkipPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
 
   // Refs для автофокуса и навигации
   const firstNameRef = useRef<HTMLInputElement>(null);
@@ -56,13 +57,32 @@ export const OnboardingPage: React.FC = () => {
     }
   }, [currentStep]);
 
+  // Валидация паролей
+  useEffect(() => {
+    if (currentStep === 2 && !skipPassword) {
+      if (confirmPassword.length > 0) {
+        if (password !== confirmPassword) {
+          setPasswordError(t('onboarding.step2.passwordsDoNotMatch', 'Пароли не совпадают'));
+        } else if (password.length < 8) {
+          setPasswordError(t('onboarding.step2.passwordTooShort', 'Пароль должен содержать минимум 8 символов'));
+        } else {
+          setPasswordError(null);
+        }
+      } else {
+        setPasswordError(null);
+      }
+    } else {
+      setPasswordError(null);
+    }
+  }, [password, confirmPassword, skipPassword, currentStep, t]);
+
   const isStepValid = () => {
     if (currentStep === 1) {
       return firstName.trim().length > 0 && lastName.trim().length > 0;
     }
     if (currentStep === 2) {
       if (skipPassword) return true;
-      return password.length >= 8 && password === confirmPassword;
+      return password.length >= 8 && password === confirmPassword && !passwordError;
     }
     return false;
   };
@@ -222,7 +242,13 @@ export const OnboardingPage: React.FC = () => {
                 type="password"
                 label={t('onboarding.step2.password', 'Пароль')}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  // Очищаем ошибку при изменении пароля
+                  if (passwordError) {
+                    setPasswordError(null);
+                  }
+                }}
                 helperText={t('onboarding.step2.passwordHint', 'Минимум 8 символов')}
                 disabled={skipPassword}
                 onKeyDown={(e) => {
@@ -238,7 +264,14 @@ export const OnboardingPage: React.FC = () => {
                 type="password"
                 label={t('onboarding.step2.confirmPassword', 'Подтвердите пароль')}
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  // Очищаем ошибку при начале ввода
+                  if (passwordError) {
+                    setPasswordError(null);
+                  }
+                }}
+                error={passwordError || undefined}
                 disabled={skipPassword}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
@@ -261,7 +294,13 @@ export const OnboardingPage: React.FC = () => {
               <Checkbox
                 ref={skipPasswordCheckboxRef}
                 checked={skipPassword}
-                onChange={setSkipPassword}
+                onChange={(value) => {
+                  setSkipPassword(value);
+                  // Очищаем ошибку при включении чекбокса
+                  if (value) {
+                    setPasswordError(null);
+                  }
+                }}
                 label={t('onboarding.step2.skipPassword', 'Пропустить, создать позже')}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
@@ -269,6 +308,10 @@ export const OnboardingPage: React.FC = () => {
                     // Переключаем чекбокс
                     const newValue = !skipPassword;
                     setSkipPassword(newValue);
+                    // Очищаем ошибку при включении чекбокса
+                    if (newValue) {
+                      setPasswordError(null);
+                    }
                     // После переключения переходим к кнопке (форма всегда валидна после переключения)
                     setTimeout(() => {
                       finishButtonRef.current?.focus();

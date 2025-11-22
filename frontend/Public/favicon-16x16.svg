@@ -1,11 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
-  <!-- Фон квадрата -->
-  <rect width="16" height="16" rx="3" fill="#111827"/>
+  <style>
+    @media (prefers-color-scheme: light) {
+      .bg { fill: #111827; }
+      .text { fill: #ffffff; }
+    }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #f8fafc; }
+      .text { fill: #0f172a; }
+    }
+  </style>
   
-  <!-- Упрощенный символ - только зеленая точка, так как текст слишком мал -->
+  <!-- Фон квадрата - адаптивный под тему -->
+  <rect width="16" height="16" rx="3" class="bg"/>
+  
+  <!-- Упрощенный символ - буква "i" и зеленая точка -->
+  <circle cx="6" cy="5" r="1" class="text"/>
+  <rect x="5.5" y="6" width="1" height="4" class="text"/>
+  
+  <!-- Зеленая точка -->
   <circle cx="12" cy="12" r="2.5" fill="#22c55e"/>
-  <!-- Маленькая буква "i" -->
-  <circle cx="6" cy="5" r="1" fill="white"/>
-  <rect x="5.5" y="6" width="1" height="4" fill="white"/>
 </svg>
 

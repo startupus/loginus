@@ -11,9 +11,10 @@ import { FamilyModule } from './family/family.module';
 import { PaymentModule } from './payment/payment.module';
 import { TranslationsV2Module } from './translations-v2/translations-v2.module';
 import { SupportModule } from './support/support.module';
+import { HelpModule } from './help/help.module';
 
 @Module({
-  imports: [DataPreloaderModule, AuthModule, ProfileModule, AdminModule, PersonalModule, SecurityModule, FamilyModule, PaymentModule, TranslationsV2Module, SupportModule],
+  imports: [DataPreloaderModule, AuthModule, ProfileModule, AdminModule, PersonalModule, SecurityModule, FamilyModule, PaymentModule, TranslationsV2Module, SupportModule, HelpModule],
   controllers: [AppController],
   providers: [AppService],
 })

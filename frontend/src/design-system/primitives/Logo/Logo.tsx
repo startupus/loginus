@@ -32,6 +32,16 @@ export interface LogoProps {
    * Дополнительные классы
    */
   className?: string;
+  
+  /**
+   * Кастомный логотип (URL изображения) для клиентского брендинга
+   */
+  customLogo?: string;
+  
+  /**
+   * Alt текст для кастомного логотипа
+   */
+  customLogoAlt?: string;
 }
 
 /**
@@ -45,6 +55,8 @@ export const Logo: React.FC<LogoProps> = ({
   href = '/',
   onClick,
   className = '',
+  customLogo,
+  customLogoAlt,
 }) => {
   const sizeClasses = {
     sm: {
@@ -52,24 +64,41 @@ export const Logo: React.FC<LogoProps> = ({
       text: 'text-xl',
       dot: 'w-2.5 h-2.5',
       iconText: 'text-sm',
+      image: 'h-8',
     },
     md: {
       icon: 'w-10 h-10',
       text: 'text-2xl',
       dot: 'w-3 h-3',
       iconText: 'text-[18px]',
+      image: 'h-10',
     },
     lg: {
       icon: 'w-12 h-12',
       text: 'text-3xl',
       dot: 'w-4 h-4',
       iconText: 'text-xl',
+      image: 'h-12',
     },
   };
 
   const classes = sizeClasses[size];
 
-  const logoContent = (
+  // Если передан кастомный логотип, показываем его
+  const logoContent = customLogo ? (
+    <div className={`flex items-center gap-3 ${className}`}>
+      <img 
+        src={customLogo} 
+        alt={customLogoAlt || text || 'Logo'} 
+        className={`${classes.image} object-contain`}
+      />
+      {showText && (
+        <span className={`${classes.text} font-bold ${themeClasses.text.primary}`}>
+          {text}
+        </span>
+      )}
+    </div>
+  ) : (
     <div className={`flex items-center gap-3 ${className}`}>
       <div className="relative">
         {/* Знак: почти черный фон в светлой теме, белый фон в темной теме - уникальный элемент */}
