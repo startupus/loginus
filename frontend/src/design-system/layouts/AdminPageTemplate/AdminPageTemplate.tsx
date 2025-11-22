@@ -89,6 +89,12 @@ const AdminTemplateBody: React.FC<AdminPageTemplateProps> = ({
       icon: 'settings', 
       active: location.pathname.includes('/admin/backup')
     },
+    { 
+      label: t('admin.sidebar.menuSettings', 'Настройки меню'), 
+      path: buildPathWithLang('/admin/menu-settings', currentLang), 
+      icon: 'menu', 
+      active: location.pathname.includes('/admin/menu-settings')
+    },
   ];
 
   const finalSidebarItems = sidebarItems || (showSidebar ? defaultAdminSidebarItems : undefined);

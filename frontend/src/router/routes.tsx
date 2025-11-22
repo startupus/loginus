@@ -45,8 +45,14 @@ const PaymentsHelpPage = lazy(() => import('@/pages/help/PaymentsHelpPage'));
 const AdminDashboardPage = lazy(() => import('@/pages/admin/AdminDashboardPage'));
 const UsersManagementPage = lazy(() => import('@/pages/admin/UsersManagementPage'));
 const CompaniesManagementPage = lazy(() => import('@/pages/admin/CompaniesManagementPage'));
+const CompanyDetailPage = lazy(() => import('@/pages/admin/CompanyDetailPage'));
 const AuthFlowBuilderPage = lazy(() => import('@/pages/admin/AuthFlowBuilderPage'));
 const BackupSettingsPage = lazy(() => import('@/pages/admin/BackupSettingsPage'));
+const MenuSettingsPage = lazy(() => import('@/pages/admin/MenuSettingsPage'));
+
+// Custom Pages
+const IframePage = lazy(() => import('@/pages/IframePage'));
+const EmbeddedAppPage = lazy(() => import('@/pages/EmbeddedAppPage'));
 
 // Error Page - статический импорт, так как нужен для обработки ошибок загрузки других модулей
 import ErrorPage from '@/pages/ErrorPage';
@@ -80,7 +86,11 @@ export {
   AdminDashboardPage,
   UsersManagementPage,
   CompaniesManagementPage,
+  CompanyDetailPage,
   AuthFlowBuilderPage,
   BackupSettingsPage,
+  MenuSettingsPage,
+  IframePage,
+  EmbeddedAppPage,
   ErrorPage,
 };

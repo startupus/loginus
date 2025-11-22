@@ -125,11 +125,11 @@ export const VerifyCodePage: React.FC = () => {
         
         // Используем данные пользователя из ответа API, если они есть
         const userData = userFromResponse || {
-          id: userId,
-          name: contact,
-          email: contactType === 'email' ? contact : '',
-          phone: contactType === 'phone' ? contact : '',
-          avatar: undefined,
+            id: userId,
+            name: contact,
+            email: contactType === 'email' ? contact : '',
+            phone: contactType === 'phone' ? contact : '',
+            avatar: undefined,
         };
         
         // Создаем базовые данные пользователя с ролью

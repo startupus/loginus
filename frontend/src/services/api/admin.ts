@@ -36,6 +36,45 @@ export interface AdminStatsResponse {
   };
 }
 
+export interface CompanyService {
+  id: string;
+  name: string;
+  type: 'mobile' | 'web' | 'desktop' | 'api';
+  status: 'active' | 'inactive';
+}
+
+export interface AdminCompany {
+  id: string;
+  name: string;
+  domain: string;
+  subscriptionPlan: 'basic' | 'premium' | 'enterprise';
+  services?: CompanyService[];
+  userCount?: number;
+  servicesCount?: number;
+  lastActivity?: string;
+  createdAt: string;
+  updatedAt: string;
+  settings?: {
+    branding: {
+      logo: string | null;
+      primaryColor: string;
+    };
+    features: {
+      familyAccess: boolean;
+      biometricAuth: boolean;
+      '2fa': boolean;
+    };
+  };
+}
+
+export interface AdminCompaniesResponse {
+  success: boolean;
+  data: {
+    companies: AdminCompany[];
+    total: number;
+  };
+}
+
 export const adminApi = {
   /**
    * Получить статистику админки
@@ -78,5 +117,30 @@ export const adminApi = {
    * Получить пользователей компании
    */
   getUsersByCompany: (companyId: string) => apiClient.get<{ success: boolean; data: { users: AdminUser[]; total: number } }>(`/admin/companies/${companyId}/users`),
+
+  /**
+   * Получить список компаний
+   */
+  getCompanies: () => apiClient.get<AdminCompaniesResponse>('/admin/companies'),
+
+  /**
+   * Получить компанию по ID
+   */
+  getCompanyById: (id: string) => apiClient.get<{ success: boolean; data: AdminCompany }>(`/admin/companies/${id}`),
+
+  /**
+   * Создать компанию
+   */
+  createCompany: (companyData: Partial<AdminCompany>) => apiClient.post<{ success: boolean; data: AdminCompany }>('/admin/companies', companyData),
+
+  /**
+   * Обновить компанию
+   */
+  updateCompany: (id: string, companyData: Partial<AdminCompany>) => apiClient.put<{ success: boolean; data: AdminCompany }>(`/admin/companies/${id}`, companyData),
+
+  /**
+   * Удалить компанию
+   */
+  deleteCompany: (id: string) => apiClient.delete<{ success: boolean; data: AdminCompany }>(`/admin/companies/${id}`),
 };
 

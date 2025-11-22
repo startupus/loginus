@@ -67,6 +67,11 @@ export class AdminController {
     return this.adminService.updateCompany(id, companyData);
   }
 
+  @Delete('companies/:id')
+  deleteCompany(@Param('id') id: string) {
+    return this.adminService.deleteCompany(id);
+  }
+
   @Get('audit-logs')
   getAuditLogs() {
     return this.adminService.getAuditLogs();

@@ -1,0 +1,94 @@
+{
+  "items": [
+    {
+      "id": "profile",
+      "type": "default",
+      "enabled": true,
+      "order": 1,
+      "systemId": "profile",
+      "label": "Профиль",
+      "icon": "home",
+      "path": "/dashboard"
+    },
+    {
+      "id": "data",
+      "type": "default",
+      "enabled": true,
+      "order": 2,
+      "systemId": "data",
+      "label": "Данные",
+      "icon": "document",
+      "path": "/data",
+      "children": [
+        {
+          "id": "data-documents",
+          "type": "default",
+          "enabled": true,
+          "order": 1,
+          "systemId": "data-documents",
+          "label": "Документы",
+          "path": "/data/documents"
+        },
+        {
+          "id": "data-addresses",
+          "type": "default",
+          "enabled": true,
+          "order": 2,
+          "systemId": "data-addresses",
+          "label": "Адреса",
+          "path": "/data/addresses"
+        }
+      ]
+    },
+    {
+      "id": "security",
+      "type": "default",
+      "enabled": true,
+      "order": 3,
+      "systemId": "security",
+      "label": "Безопасность",
+      "icon": "shield",
+      "path": "/security"
+    },
+    {
+      "id": "family",
+      "type": "default",
+      "enabled": true,
+      "order": 4,
+      "systemId": "family",
+      "label": "Семья",
+      "icon": "users",
+      "path": "/family"
+    },
+    {
+      "id": "work",
+      "type": "default",
+      "enabled": true,
+      "order": 5,
+      "systemId": "work",
+      "label": "Работа",
+      "icon": "briefcase",
+      "path": "/work"
+    },
+    {
+      "id": "payments",
+      "type": "default",
+      "enabled": true,
+      "order": 6,
+      "systemId": "payments",
+      "label": "Платежи",
+      "icon": "credit-card",
+      "path": "/pay"
+    },
+    {
+      "id": "support",
+      "type": "default",
+      "enabled": true,
+      "order": 7,
+      "systemId": "support",
+      "label": "Поддержка",
+      "icon": "help-circle",
+      "path": "/support"
+    }
+  ]
+}

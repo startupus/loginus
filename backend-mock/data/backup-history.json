@@ -1,0 +1,53 @@
+{
+  "backups": [
+    {
+      "id": "backup-1",
+      "createdAt": "2024-01-15T10:30:00Z",
+      "type": "auto",
+      "size": 5242880,
+      "storage": "local",
+      "status": "success",
+      "includes": {
+        "users": true,
+        "settings": true,
+        "logs": false
+      },
+      "error": null
+    },
+    {
+      "id": "backup-2",
+      "createdAt": "2024-01-14T10:30:00Z",
+      "type": "manual",
+      "size": 5242880,
+      "storage": "local",
+      "status": "success",
+      "includes": {
+        "users": true,
+        "settings": true,
+        "logs": true
+      },
+      "error": null
+    },
+    {
+      "id": "backup-3",
+      "createdAt": "2024-01-13T10:30:00Z",
+      "type": "auto",
+      "size": 4194304,
+      "storage": "yandex-disk",
+      "status": "success",
+      "includes": {
+        "users": true,
+        "settings": true,
+        "logs": false
+      },
+      "error": null
+    }
+  ],
+  "lastSync": {
+    "date": "2024-01-15T08:00:00Z",
+    "status": "success",
+    "updatedRecords": 15,
+    "enrichedRecords": 3
+  }
+}
+

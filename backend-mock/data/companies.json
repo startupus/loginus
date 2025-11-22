@@ -15,6 +15,20 @@
       }
     },
     "subscriptionPlan": "premium",
+    "services": [
+      {
+        "id": "s1",
+        "name": "Мобильное приложение",
+        "type": "mobile",
+        "status": "active"
+      },
+      {
+        "id": "s2",
+        "name": "Интернет-магазин",
+        "type": "web",
+        "status": "active"
+      }
+    ],
     "createdAt": "2024-01-01T00:00:00Z",
     "updatedAt": "2024-01-15T00:00:00Z"
   },
@@ -34,6 +48,14 @@
       }
     },
     "subscriptionPlan": "basic",
+    "services": [
+      {
+        "id": "s3",
+        "name": "Веб-платформа",
+        "type": "web",
+        "status": "active"
+      }
+    ],
     "createdAt": "2024-01-05T00:00:00Z",
     "updatedAt": "2024-01-10T00:00:00Z"
   },
@@ -53,6 +75,32 @@
       }
     },
     "subscriptionPlan": "enterprise",
+    "services": [
+      {
+        "id": "s4",
+        "name": "iOS приложение",
+        "type": "mobile",
+        "status": "active"
+      },
+      {
+        "id": "s5",
+        "name": "Android приложение",
+        "type": "mobile",
+        "status": "active"
+      },
+      {
+        "id": "s6",
+        "name": "API для партнеров",
+        "type": "api",
+        "status": "active"
+      },
+      {
+        "id": "s7",
+        "name": "Десктопное приложение",
+        "type": "desktop",
+        "status": "active"
+      }
+    ],
     "createdAt": "2024-01-10T00:00:00Z",
     "updatedAt": "2024-01-12T00:00:00Z"
   }

@@ -18,6 +18,16 @@ export interface SidebarItem {
   icon?: string;
   active?: boolean;
   children?: SidebarItem[];
+  // Кастомные типы пунктов меню
+  type?: 'default' | 'external' | 'iframe' | 'embedded';
+  // Для external
+  externalUrl?: string;
+  openInNewTab?: boolean;
+  // Для iframe
+  iframeUrl?: string;
+  iframeCode?: string;
+  // Для embedded
+  embeddedAppUrl?: string;
 }
 
 export interface SidebarProps {
@@ -121,8 +131,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         // Раскрытие/закрытие подменю
                         toggleDropdown(item.path);
                       } else {
-                        // Если нет children, просто переходим
-                        onNavigate ? onNavigate(item.path) : navigate(item.path);
+                        // Обработка кастомных типов
+                        if (item.type === 'external' && item.externalUrl) {
+                          if (item.openInNewTab) {
+                            window.open(item.externalUrl, '_blank');
+                          } else {
+                            window.location.href = item.externalUrl;
+                          }
+                        } else {
+                          // Обычный переход
+                          onNavigate ? onNavigate(item.path) : navigate(item.path);
+                        }
                       }
                     }}
                     className={`${themeClasses.text.secondary} dark:text-dark-6 hover:border-primary hover:bg-primary/5 relative flex w-full items-center border-r-4 border-transparent py-[10px] pr-4 pl-9 text-base font-medium duration-200 transition-all hover:translate-x-1 text-left ${

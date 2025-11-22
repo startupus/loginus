@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
 // Lazy load Sidebar - не критичен для первого рендера (оптимизация первой загрузки)
 const Sidebar = lazy(() => import('../Sidebar').then(m => ({ default: m.Sidebar })));
 import type { SidebarItem } from '../Sidebar/Sidebar';
@@ -11,6 +12,7 @@ import { useAuthStore } from '@/store';
 import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';
 import { SidebarProvider, useSidebar } from '../../hooks';
 import { themeClasses } from '../../utils/themeClasses';
+import { menuSettingsApi, MenuItemConfig } from '@/services/api/menu-settings';
 
 export interface PageTemplateProps {
   children: React.ReactNode;
@@ -65,6 +67,64 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
     ? showSidebar 
     : sidebarItems !== undefined && sidebarItems.length > 0;
 
+  // Загрузка настроек меню из API
+  const { data: userMenuData } = useQuery({
+    queryKey: ['user-menu'],
+    queryFn: () => menuSettingsApi.getUserMenu(),
+    staleTime: 5 * 60 * 1000, // 5 минут
+    gcTime: 30 * 60 * 1000, // 30 минут
+  });
+
+  // Функция для преобразования MenuItemConfig в SidebarItem
+  const convertMenuItemToSidebarItem = (item: MenuItemConfig): SidebarItem => {
+    let path = item.path || '';
+    
+    // Для кастомных типов формируем путь
+    if (item.type === 'iframe') {
+      path = buildPathWithLang('/iframe', currentLang);
+      if (item.iframeUrl) {
+        path += `?url=${encodeURIComponent(item.iframeUrl)}`;
+      } else if (item.iframeCode) {
+        path += `?code=${encodeURIComponent(item.iframeCode)}`;
+      }
+    } else if (item.type === 'embedded') {
+      path = buildPathWithLang('/embedded', currentLang);
+      if (item.embeddedAppUrl) {
+        path += `?url=${encodeURIComponent(item.embeddedAppUrl)}`;
+      }
+    } else if (item.type === 'external') {
+      // Для внешних ссылок используем специальный путь или externalUrl
+      path = item.path || item.externalUrl || '#';
+    } else if (item.path) {
+      // Для системных пунктов добавляем язык
+      path = buildPathWithLang(item.path, currentLang);
+    }
+
+    const sidebarItem: SidebarItem = {
+      label: item.label || item.id,
+      path,
+      icon: item.icon,
+      type: item.type,
+      externalUrl: item.externalUrl,
+      openInNewTab: item.openInNewTab,
+      iframeUrl: item.iframeUrl,
+      iframeCode: item.iframeCode,
+      embeddedAppUrl: item.embeddedAppUrl,
+      active: location.pathname === path || 
+              (item.path && location.pathname.includes(item.path)) ||
+              (item.type === 'iframe' && location.pathname.includes('/iframe')) ||
+              (item.type === 'embedded' && location.pathname.includes('/embedded')),
+    };
+
+    // Обрабатываем children
+    if (item.children && item.children.length > 0) {
+      sidebarItem.children = item.children.map(convertMenuItemToSidebarItem);
+    }
+
+    return sidebarItem;
+  };
+
+  // Дефолтные пункты меню (fallback)
   const defaultSidebarItems: SidebarItem[] = [
     { 
       label: t('sidebar.profile', 'Профиль'), 
@@ -120,7 +180,13 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
     },
   ];
 
-  const finalSidebarItems = sidebarItems || (shouldShowSidebar ? defaultSidebarItems : undefined);
+  // Используем меню из API, если оно загружено, иначе дефолтное
+  const menuItemsFromApi = userMenuData?.data?.data || [];
+  const configuredSidebarItems = menuItemsFromApi.length > 0
+    ? menuItemsFromApi.map(convertMenuItemToSidebarItem)
+    : defaultSidebarItems;
+
+  const finalSidebarItems = sidebarItems || (shouldShowSidebar ? configuredSidebarItems : undefined);
 
   const dashboardUser = customUserData || (user ? {
     id: user.id || '1',

@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { Suspense } from 'react';
-import { LandingPage, AboutPage, FeaturesPage, AuthPage, VerifyCodePage, RegisterPage, OnboardingPage, DashboardPage, PersonalDocumentsPage, PersonalAddressesPage, FamilyPage, WorkPage, SecurityPage, DataPage, PayPage, SupportPage, HelpPage, AuthorizationHelpPage, RegistrationHelpPage, SecurityHelpPage, RecoveryHelpPage, KeyHelpPage, FamilyHelpPage, DataHelpPage, PaymentsHelpPage, AdminDashboardPage, UsersManagementPage, CompaniesManagementPage, AuthFlowBuilderPage, BackupSettingsPage, ErrorPage } from './routes';
+import { LandingPage, AboutPage, FeaturesPage, AuthPage, VerifyCodePage, RegisterPage, OnboardingPage, DashboardPage, PersonalDocumentsPage, PersonalAddressesPage, FamilyPage, WorkPage, SecurityPage, DataPage, PayPage, SupportPage, HelpPage, AuthorizationHelpPage, RegistrationHelpPage, SecurityHelpPage, RecoveryHelpPage, KeyHelpPage, FamilyHelpPage, DataHelpPage, PaymentsHelpPage, AdminDashboardPage, UsersManagementPage, CompaniesManagementPage, CompanyDetailPage, AuthFlowBuilderPage, BackupSettingsPage, MenuSettingsPage, IframePage, EmbeddedAppPage, ErrorPage } from './routes';
 import { LanguageRoute } from './LanguageRoute';
 import { AdminRoute } from './AdminRoute';
 import { themeClasses } from '../design-system/utils/themeClasses';
@@ -347,6 +347,19 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
   },
   {
+    path: '/:lang/admin/companies/:id',
+    element: (
+      <LanguageRoute>
+        <AdminRoute requiredRole="super_admin">
+          <Suspense fallback={<LoadingFallback />}>
+            <CompanyDetailPage />
+          </Suspense>
+        </AdminRoute>
+      </LanguageRoute>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
     path: '/:lang/admin/auth-flow',
     element: (
       <LanguageRoute>
@@ -368,6 +381,41 @@ const router = createBrowserRouter([
             <BackupSettingsPage />
           </Suspense>
         </AdminRoute>
+      </LanguageRoute>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/:lang/admin/menu-settings',
+    element: (
+      <LanguageRoute>
+        <AdminRoute>
+          <Suspense fallback={<LoadingFallback />}>
+            <MenuSettingsPage />
+          </Suspense>
+        </AdminRoute>
+      </LanguageRoute>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/:lang/iframe',
+    element: (
+      <LanguageRoute>
+        <Suspense fallback={<LoadingFallback />}>
+          <IframePage />
+        </Suspense>
+      </LanguageRoute>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/:lang/embedded',
+    element: (
+      <LanguageRoute>
+        <Suspense fallback={<LoadingFallback />}>
+          <EmbeddedAppPage />
+        </Suspense>
       </LanguageRoute>
     ),
     errorElement: <ErrorPage />,

@@ -1,0 +1,46 @@
+{
+  "sync": {
+    "enabled": true,
+    "schedule": "daily",
+    "time": "02:00",
+    "type": "two-way",
+    "centralServer": {
+      "url": "",
+      "apiKey": "",
+      "connected": false
+    },
+    "enrichment": {
+      "enabled": true,
+      "sources": [
+        "База должников",
+        "База проблемных клиентов"
+      ],
+      "autoEnrich": true
+    }
+  },
+  "backup": {
+    "autoBackup": {
+      "enabled": false,
+      "schedule": "daily",
+      "time": "03:00",
+      "include": {
+        "users": true,
+        "settings": true,
+        "logs": false
+      }
+    },
+    "storage": {
+      "type": "local",
+      "yandexDisk": {
+        "token": "",
+        "path": "/backups",
+        "connected": false
+      },
+      "custom": {
+        "type": "",
+        "endpoint": "",
+        "credentials": {}
+      }
+    }
+  }
+}

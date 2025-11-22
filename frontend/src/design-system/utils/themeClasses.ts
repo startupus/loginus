@@ -445,6 +445,8 @@ export const inputClasses = {
   background: 'bg-white dark:bg-dark-3',
   // Placeholder цвет
   placeholder: 'placeholder:text-text-secondary',
+  // Стандартные классы для select элементов (dropdown)
+  default: 'w-full px-4 py-2.5 rounded-lg border border-border bg-white dark:bg-dark-3 text-text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all disabled:cursor-not-allowed disabled:opacity-50',
 };
 
 /**

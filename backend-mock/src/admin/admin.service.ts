@@ -141,10 +141,13 @@ export class AdminService {
     return {
       success: true,
       data: {
-        users: paginatedUsers,
-        total,
-        page,
-        limit,
+        data: paginatedUsers,
+        meta: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+        },
       },
     };
   }
@@ -247,11 +250,41 @@ export class AdminService {
 
   getCompanies() {
     const companies = this.getCompaniesData();
+    const users = this.getUsersData();
+    
+    // Обогащаем компании статистикой
+    const companiesWithStats = companies.map(company => {
+      // Количество пользователей компании
+      const companyUsers = users.filter(u => u.companyId === company.id);
+      const userCount = companyUsers.length;
+      
+      // Количество сервисов
+      const servicesCount = company.services?.length || 0;
+      
+      // Последняя активность - максимальная дата updatedAt среди пользователей или updatedAt компании
+      let lastActivity = company.updatedAt;
+      if (companyUsers.length > 0) {
+        const userActivities = companyUsers.map(u => new Date(u.updatedAt).getTime());
+        const maxUserActivity = Math.max(...userActivities);
+        const companyActivity = new Date(company.updatedAt).getTime();
+        lastActivity = maxUserActivity > companyActivity 
+          ? new Date(maxUserActivity).toISOString()
+          : company.updatedAt;
+      }
+      
+      return {
+        ...company,
+        userCount,
+        servicesCount,
+        lastActivity,
+      };
+    });
+    
     return {
       success: true,
       data: {
-        companies,
-        total: companies.length,
+        companies: companiesWithStats,
+        total: companiesWithStats.length,
       },
     };
   }
@@ -267,9 +300,34 @@ export class AdminService {
       };
     }
 
+    const users = this.getUsersData();
+    
+    // Количество пользователей компании
+    const companyUsers = users.filter(u => u.companyId === id);
+    const userCount = companyUsers.length;
+    
+    // Количество сервисов
+    const servicesCount = company.services?.length || 0;
+    
+    // Последняя активность - максимальная дата updatedAt среди пользователей или updatedAt компании
+    let lastActivity = company.updatedAt;
+    if (companyUsers.length > 0) {
+      const userActivities = companyUsers.map(u => new Date(u.updatedAt).getTime());
+      const maxUserActivity = Math.max(...userActivities);
+      const companyActivity = new Date(company.updatedAt).getTime();
+      lastActivity = maxUserActivity > companyActivity 
+        ? new Date(maxUserActivity).toISOString()
+        : company.updatedAt;
+    }
+
     return {
       success: true,
-      data: company,
+      data: {
+        ...company,
+        userCount,
+        servicesCount,
+        lastActivity,
+      },
     };
   }
 
@@ -313,6 +371,27 @@ export class AdminService {
     return {
       success: true,
       data: companies[companyIndex],
+    };
+  }
+
+  deleteCompany(id: string) {
+    const companies = this.getCompaniesData();
+    const companyIndex = companies.findIndex(c => c.id === id);
+    
+    if (companyIndex === -1) {
+      return {
+        success: false,
+        error: 'Company not found',
+      };
+    }
+
+    const deletedCompany = companies[companyIndex];
+    companies.splice(companyIndex, 1);
+    this.saveCompanies(companies);
+
+    return {
+      success: true,
+      data: deletedCompany,
     };
   }
 

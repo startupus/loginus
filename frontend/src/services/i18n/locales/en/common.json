@@ -15,7 +15,12 @@
     "save": "Save",
     "cancel": "Cancel",
     "reset": "Reset",
-    "remove": "Remove"
+    "remove": "Remove",
+    "retry": "Retry",
+    "create": "Create",
+    "edit": "Edit",
+    "delete": "Delete",
+    "loading": "Loading..."
   },
   "header": {
     "notifications": "Notifications"
@@ -41,6 +46,20 @@
     "loginusIdSite": "Loginus ID for Website",
     "langSwitcher": "Language switcher",
     "brandPreset": "Toggle brand preset"
+  },
+  "iframe": {
+    "title": "Embedded Content",
+    "error": {
+      "title": "Error",
+      "noContent": "URL or code not specified for display"
+    }
+  },
+  "embedded": {
+    "title": "Embedded Application",
+    "error": {
+      "title": "Error",
+      "noUrl": "Application URL not specified"
+    }
   }
 }
 

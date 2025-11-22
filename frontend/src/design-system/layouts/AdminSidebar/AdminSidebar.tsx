@@ -112,7 +112,17 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                         }
                         toggleDropdown(item.path);
                       } else {
-                        onNavigate ? onNavigate(item.path) : navigate(item.path);
+                        // Обработка кастомных типов
+                        if (item.type === 'external' && item.externalUrl) {
+                          if (item.openInNewTab) {
+                            window.open(item.externalUrl, '_blank');
+                          } else {
+                            window.location.href = item.externalUrl;
+                          }
+                        } else {
+                          // Обычный переход
+                          onNavigate ? onNavigate(item.path) : navigate(item.path);
+                        }
                       }
                     }}
                     className={`text-slate-400 dark:text-slate-500 hover:bg-slate-800 dark:hover:bg-slate-900 relative flex w-full items-center border-l-4 border-transparent py-[10px] pr-4 pl-9 text-base font-medium duration-200 transition-all hover:translate-x-1 text-left ${

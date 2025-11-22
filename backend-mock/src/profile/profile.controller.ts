@@ -1,9 +1,13 @@
 import { Controller, Get, Put, Body } from '@nestjs/common';
 import { ProfileService } from './profile.service';
+import { MenuSettingsService } from '../admin/menu-settings.service';
 
 @Controller('profile')
 export class ProfileController {
-  constructor(private readonly profileService: ProfileService) {}
+  constructor(
+    private readonly profileService: ProfileService,
+    private readonly menuSettingsService: MenuSettingsService,
+  ) {}
 
   @Get()
   getProfile() {
@@ -28,6 +32,14 @@ export class ProfileController {
   @Get('dashboard')
   getDashboard() {
     return this.profileService.getDashboard();
+  }
+
+  @Get('menu')
+  getMenu() {
+    return {
+      success: true,
+      data: this.menuSettingsService.getUserMenu(),
+    };
   }
 }
 
