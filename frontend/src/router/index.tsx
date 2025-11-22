@@ -1,7 +1,8 @@
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { Suspense } from 'react';
-import { LandingPage, AboutPage, FeaturesPage, AuthPage, VerifyCodePage, RegisterPage, OnboardingPage, DashboardPage, PersonalDocumentsPage, PersonalAddressesPage, FamilyPage, WorkPage, SecurityPage, DataPage, PayPage, SupportPage, HelpPage, AuthorizationHelpPage, RegistrationHelpPage, SecurityHelpPage, RecoveryHelpPage, KeyHelpPage, FamilyHelpPage, DataHelpPage, PaymentsHelpPage, ErrorPage } from './routes';
+import { LandingPage, AboutPage, FeaturesPage, AuthPage, VerifyCodePage, RegisterPage, OnboardingPage, DashboardPage, PersonalDocumentsPage, PersonalAddressesPage, FamilyPage, WorkPage, SecurityPage, DataPage, PayPage, SupportPage, HelpPage, AuthorizationHelpPage, RegistrationHelpPage, SecurityHelpPage, RecoveryHelpPage, KeyHelpPage, FamilyHelpPage, DataHelpPage, PaymentsHelpPage, AdminDashboardPage, UsersManagementPage, CompaniesManagementPage, AuthFlowBuilderPage, BackupSettingsPage, ErrorPage } from './routes';
 import { LanguageRoute } from './LanguageRoute';
+import { AdminRoute } from './AdminRoute';
 import { themeClasses } from '../design-system/utils/themeClasses';
 
 const LoadingFallback = () => (
@@ -301,6 +302,72 @@ const router = createBrowserRouter([
         <Suspense fallback={<LoadingFallback />}>
           <PaymentsHelpPage />
         </Suspense>
+      </LanguageRoute>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  // Административные маршруты
+  {
+    path: '/:lang/admin',
+    element: (
+      <LanguageRoute>
+        <AdminRoute>
+          <Suspense fallback={<LoadingFallback />}>
+            <AdminDashboardPage />
+          </Suspense>
+        </AdminRoute>
+      </LanguageRoute>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/:lang/admin/users',
+    element: (
+      <LanguageRoute>
+        <AdminRoute>
+          <Suspense fallback={<LoadingFallback />}>
+            <UsersManagementPage />
+          </Suspense>
+        </AdminRoute>
+      </LanguageRoute>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/:lang/admin/companies',
+    element: (
+      <LanguageRoute>
+        <AdminRoute requiredRole="super_admin">
+          <Suspense fallback={<LoadingFallback />}>
+            <CompaniesManagementPage />
+          </Suspense>
+        </AdminRoute>
+      </LanguageRoute>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/:lang/admin/auth-flow',
+    element: (
+      <LanguageRoute>
+        <AdminRoute>
+          <Suspense fallback={<LoadingFallback />}>
+            <AuthFlowBuilderPage />
+          </Suspense>
+        </AdminRoute>
+      </LanguageRoute>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/:lang/admin/backup',
+    element: (
+      <LanguageRoute>
+        <AdminRoute>
+          <Suspense fallback={<LoadingFallback />}>
+            <BackupSettingsPage />
+          </Suspense>
+        </AdminRoute>
       </LanguageRoute>
     ),
     errorElement: <ErrorPage />,

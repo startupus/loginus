@@ -41,6 +41,13 @@ const FamilyHelpPage = lazy(() => import('@/pages/help/FamilyHelpPage'));
 const DataHelpPage = lazy(() => import('@/pages/help/DataHelpPage'));
 const PaymentsHelpPage = lazy(() => import('@/pages/help/PaymentsHelpPage'));
 
+// Admin Pages
+const AdminDashboardPage = lazy(() => import('@/pages/admin/AdminDashboardPage'));
+const UsersManagementPage = lazy(() => import('@/pages/admin/UsersManagementPage'));
+const CompaniesManagementPage = lazy(() => import('@/pages/admin/CompaniesManagementPage'));
+const AuthFlowBuilderPage = lazy(() => import('@/pages/admin/AuthFlowBuilderPage'));
+const BackupSettingsPage = lazy(() => import('@/pages/admin/BackupSettingsPage'));
+
 // Error Page - статический импорт, так как нужен для обработки ошибок загрузки других модулей
 import ErrorPage from '@/pages/ErrorPage';
 
@@ -70,5 +77,10 @@ export {
   FamilyHelpPage,
   DataHelpPage,
   PaymentsHelpPage,
+  AdminDashboardPage,
+  UsersManagementPage,
+  CompaniesManagementPage,
+  AuthFlowBuilderPage,
+  BackupSettingsPage,
   ErrorPage,
 };

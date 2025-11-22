@@ -5,6 +5,10 @@ import App from './App.tsx';
 import './index.css';
 // i18n должен загружаться синхронно для корректной работы useTranslation
 import './services/i18n';
+// Утилиты для отладки админки (только в dev режиме)
+if (process.env.NODE_ENV === 'development') {
+  import('./utils/adminDebug');
+}
 
 // Проверка наличия root элемента
 const rootElement = document.getElementById('root');

@@ -120,16 +120,29 @@ export const VerifyCodePage: React.FC = () => {
       } else {
         // Существующий пользователь - переходим сразу, профиль загружаем в фоне
         const userId = response.data.data.userId || '1';
+        const userFromResponse = response.data.data.user; // Данные пользователя из ответа API
         const { useAuthStore } = await import('../../store');
         
-        // Создаем базовые данные пользователя
+        // Используем данные пользователя из ответа API, если они есть
+        const userData = userFromResponse || {
+          id: userId,
+          name: contact,
+          email: contactType === 'email' ? contact : '',
+          phone: contactType === 'phone' ? contact : '',
+          avatar: undefined,
+        };
+        
+        // Создаем базовые данные пользователя с ролью
         useAuthStore.getState().login(
           {
-            id: userId,
-            name: contact,
-            email: contactType === 'email' ? contact : '',
-            phone: contactType === 'phone' ? contact : '',
-            avatar: undefined,
+            id: userData.id || userId,
+            name: userData.name || contact,
+            email: userData.email || (contactType === 'email' ? contact : ''),
+            phone: userData.phone || (contactType === 'phone' ? contact : ''),
+            avatar: userData.avatar || undefined,
+            role: userData.role || 'user',
+            companyId: userData.companyId || null,
+            permissions: userData.permissions || [],
           },
           tokens.accessToken,
           tokens.refreshToken
@@ -138,20 +151,24 @@ export const VerifyCodePage: React.FC = () => {
         // Переходим на дашборд сразу
         navigate(buildPathWithLang('/dashboard', currentLang));
         
-        // Загружаем профиль в фоне без блокировки
+        // Загружаем профиль в фоне без блокировки для обновления данных
         setTimeout(async () => {
           try {
             const { profileApi } = await import('../../services/api/profile');
             const profileResponse = await profileApi.getProfile();
             
             if (profileResponse.data) {
-              const userData = profileResponse.data;
+              const profileData = profileResponse.data;
               useAuthStore.getState().updateUser({
                 id: userId,
-                name: userData.name || userData.displayName || contact,
-                email: userData.email || '',
-                phone: userData.phone || contact,
-                avatar: userData.avatar || undefined,
+                name: profileData.name || profileData.displayName || contact,
+                email: profileData.email || '',
+                phone: profileData.phone || contact,
+                avatar: profileData.avatar || undefined,
+                // Сохраняем роль, если она не была установлена ранее
+                role: userData.role || profileData.role || 'user',
+                companyId: userData.companyId || profileData.companyId || null,
+                permissions: userData.permissions || profileData.permissions || [],
               });
             }
           } catch (error) {

@@ -152,15 +152,21 @@ const DataPage: React.FC = () => {
   });
 
   // Синхронизируем данные пользователя из API с authStore
+  // ВАЖНО: Сохраняем роль и права при обновлении, чтобы не потерять их
   useEffect(() => {
     if (data?.data?.user) {
       const apiUser = data.data.user;
+      const currentUser = useAuthStore.getState().user;
       updateUser({
         id: apiUser.id,
         name: apiUser.name,
         email: apiUser.email,
         phone: apiUser.phone,
         avatar: apiUser.avatar,
+        // Сохраняем роль и права из текущего состояния, если они не пришли из API
+        role: apiUser.role || currentUser?.role,
+        companyId: apiUser.companyId !== undefined ? apiUser.companyId : currentUser?.companyId,
+        permissions: apiUser.permissions || currentUser?.permissions,
       });
     }
   }, [data, updateUser]);

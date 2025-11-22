@@ -25,6 +25,7 @@ export class DataPreloaderService {
     const filesToPreload = [
       { key: 'profile.json', filePath: path.join(dataDir, 'profile.json') },
       { key: 'users.json', filePath: path.join(dataDir, 'users.json') },
+      { key: 'companies.json', filePath: path.join(dataDir, 'companies.json') },
       // Предзагружаем критичные модули v2 (common, profile) для быстрого старта
       { key: 'translations/v2/ru/common.json', filePath: path.join(dataDir, 'translations/v2/ru/common.json') },
       { key: 'translations/v2/ru/profile.json', filePath: path.join(dataDir, 'translations/v2/ru/profile.json') },

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, ReactNode } from 'react';
+import type { UserRole } from '../../store/authStore';
 
-type Role = 'guest' | 'user' | 'admin' | 'owner';
+type Role = 'guest' | 'user' | 'admin' | 'owner' | UserRole;
 
 interface PermissionContextType {
   role: Role;
@@ -9,7 +10,7 @@ interface PermissionContextType {
   hasFeature: (feature: string) => boolean;
 }
 
-const roleOrder: Role[] = ['guest', 'user', 'admin', 'owner'];
+const roleOrder: Role[] = ['guest', 'user', 'company_admin_staff', 'company_admin', 'super_admin_staff', 'super_admin', 'admin', 'owner'];
 
 const PermissionContext = createContext<PermissionContextType | undefined>(undefined);
 

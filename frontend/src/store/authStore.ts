@@ -1,12 +1,17 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+export type UserRole = 'super_admin' | 'super_admin_staff' | 'company_admin' | 'company_admin_staff' | 'user';
+
 interface User {
   id: string;
   name: string;
   email: string;
   phone: string;
   avatar?: string;
+  role?: UserRole;
+  companyId?: string | null;
+  permissions?: string[];
 }
 
 interface AuthState {

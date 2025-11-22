@@ -1,0 +1,60 @@
+[
+  {
+    "id": "1",
+    "name": "Компания 1",
+    "domain": "company1.com",
+    "settings": {
+      "branding": {
+        "logo": null,
+        "primaryColor": "#3B82F6"
+      },
+      "features": {
+        "familyAccess": true,
+        "biometricAuth": true,
+        "2fa": true
+      }
+    },
+    "subscriptionPlan": "premium",
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-15T00:00:00Z"
+  },
+  {
+    "id": "2",
+    "name": "Компания 2",
+    "domain": "company2.com",
+    "settings": {
+      "branding": {
+        "logo": null,
+        "primaryColor": "#10B981"
+      },
+      "features": {
+        "familyAccess": false,
+        "biometricAuth": true,
+        "2fa": false
+      }
+    },
+    "subscriptionPlan": "basic",
+    "createdAt": "2024-01-05T00:00:00Z",
+    "updatedAt": "2024-01-10T00:00:00Z"
+  },
+  {
+    "id": "3",
+    "name": "Компания 3",
+    "domain": "company3.com",
+    "settings": {
+      "branding": {
+        "logo": null,
+        "primaryColor": "#8B5CF6"
+      },
+      "features": {
+        "familyAccess": true,
+        "biometricAuth": false,
+        "2fa": true
+      }
+    },
+    "subscriptionPlan": "enterprise",
+    "createdAt": "2024-01-10T00:00:00Z",
+    "updatedAt": "2024-01-12T00:00:00Z"
+  }
+]
+

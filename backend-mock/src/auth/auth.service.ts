@@ -43,15 +43,24 @@ export class AuthService {
 
   login(loginDto: { login: string; password: string }) {
     // Mock login - в реальности здесь будет проверка в БД
+    // Получаем пользователя из users.json для возврата роли
+    const users = this.getUsers();
+    const user = users.find(u => 
+      u.email === loginDto.login || u.phone === loginDto.login
+    ) || users[0]; // Fallback на первого пользователя для мока
+    
     return {
       success: true,
       data: {
         user: {
-          id: '1',
-          name: 'Дмитрий Лукьян',
-          email: 'lukyan.dmitriy@ya.ru',
-          phone: '+79091503444',
-          avatar: null,
+          id: user.id,
+          name: user.displayName || `${user.firstName} ${user.lastName}`,
+          email: user.email,
+          phone: user.phone,
+          avatar: user.avatar || null,
+          role: user.role || 'user',
+          companyId: user.companyId || null,
+          permissions: user.permissions || [],
         },
         tokens: {
           accessToken: 'mock_access_token_' + Date.now(),
@@ -223,6 +232,10 @@ export class AuthService {
         sessions.delete(sessionId);
         
         const checkResult = this.checkAccount(currentSession.contact, currentSession.type);
+        const userId = checkResult.data.userId || '1';
+        const users = this.getUsers();
+        const user = users.find(u => u.id === userId) || users[0];
+        
         const tokens = {
           accessToken: 'mock_access_token_' + Date.now(),
           refreshToken: 'mock_refresh_token_' + Date.now(),
@@ -234,8 +247,18 @@ export class AuthService {
           data: {
             verified: true,
             token: tokens.accessToken,
-            userId: checkResult.data.userId || '1',
+            userId,
             isNewUser: false, // Всегда существующий пользователь
+            user: {
+              id: user.id,
+              name: user.displayName || `${user.firstName} ${user.lastName}`,
+              email: user.email,
+              phone: user.phone,
+              avatar: user.avatar || null,
+              role: user.role || 'user',
+              companyId: user.companyId || null,
+              permissions: user.permissions || [],
+            },
             tokens,
           },
         };
@@ -253,6 +276,26 @@ export class AuthService {
         
         const checkResult = this.checkAccount(currentSession.contact, currentSession.type);
         const isNewUser = !checkResult.data.exists;
+        const userId = checkResult.data.userId || (isNewUser ? 'new_user_' + Date.now() : null);
+        
+        // Получаем данные пользователя если это существующий пользователь
+        let user = null;
+        if (!isNewUser && userId) {
+          const users = this.getUsers();
+          const foundUser = users.find(u => u.id === userId);
+          if (foundUser) {
+            user = {
+              id: foundUser.id,
+              name: foundUser.displayName || `${foundUser.firstName} ${foundUser.lastName}`,
+              email: foundUser.email,
+              phone: foundUser.phone,
+              avatar: foundUser.avatar || null,
+              role: foundUser.role || 'user',
+              companyId: foundUser.companyId || null,
+              permissions: foundUser.permissions || [],
+            };
+          }
+        }
 
         const tokens = {
           accessToken: 'mock_access_token_' + Date.now(),
@@ -265,8 +308,9 @@ export class AuthService {
           data: {
             verified: true,
             token: tokens.accessToken,
-            userId: checkResult.data.userId || (isNewUser ? 'new_user_' + Date.now() : null),
+            userId,
             isNewUser,
+            ...(user && { user }),
             tokens,
           },
         };

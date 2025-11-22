@@ -144,6 +144,8 @@ export const UniversalInput: React.FC<UniversalInputProps> = ({
   const hasPhoneDigits = useMemo(() => {
     // Если в значении есть "@", это email - не показываем иконку телефона
     if (value && value.includes('@')) return false;
+    // Если есть буквы (латиница или кириллица), это не телефон - не показываем иконку
+    if (value && /[a-zA-Zа-яА-ЯёЁ]/.test(value)) return false;
     if (!isPhone || !normalizedValue) return false;
     return normalizedValue.length > 2; // Больше чем просто +7
   }, [isPhone, normalizedValue, value]);
@@ -237,8 +239,11 @@ export const UniversalInput: React.FC<UniversalInputProps> = ({
         disabled={disabled}
         label={label}
         leftIcon={
-          // Не показываем иконку телефона, если в значении есть "@" (это email)
-          (isPhone || hasValue) && !(value && value.includes('@')) ? (
+          // Не показываем иконку телефона, если:
+          // 1. В значении есть "@" (это email)
+          // 2. В значении есть буквы (латиница или кириллица) - это не телефон
+          // 3. Это действительно телефон (isPhone) или есть значение, но только если нет букв
+          (isPhone || (hasValue && !/[a-zA-Zа-яА-ЯёЁ]/.test(value))) && !(value && value.includes('@')) ? (
             <span className={`flex items-center gap-1 ${hasPhoneDigits ? themeClasses.text.primary : themeClasses.text.secondary}`}>
               <span className="text-base">🇷🇺</span>
               <span className="text-sm font-medium">+7</span>

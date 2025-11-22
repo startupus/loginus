@@ -37,20 +37,52 @@ export class ProfileService {
     return this.profileCache;
   }
 
+  private getUsersData() {
+    const preloaded = this.preloader.getPreloadedData<any[]>('users.json');
+    if (preloaded) {
+      return preloaded;
+    }
+    const usersPath = path.join(__dirname, '../../data/users.json');
+    const usersData = fs.readFileSync(usersPath, 'utf-8');
+    return JSON.parse(usersData);
+  }
+
   getProfile() {
     const profileData = this.getProfileData();
+    const profileUser = profileData.user;
+    
+    // Получаем роль из users.json по ID пользователя
+    const users = this.getUsersData();
+    const userFromUsers = users.find((u: any) => u.id === profileUser.id);
+    
     return {
       success: true,
-      data: profileData.user,
+      data: {
+        ...profileUser,
+        role: userFromUsers?.role || 'user',
+        companyId: userFromUsers?.companyId || null,
+        permissions: userFromUsers?.permissions || [],
+      },
     };
   }
 
   getDashboard() {
     const profileData = this.getProfileData();
+    const profileUser = profileData.user;
+    
+    // Получаем роль из users.json по ID пользователя
+    const users = this.getUsersData();
+    const userFromUsers = users.find((u: any) => u.id === profileUser.id);
+    
     return {
       success: true,
       data: {
-        user: profileData.user,
+        user: {
+          ...profileUser,
+          role: userFromUsers?.role || 'user',
+          companyId: userFromUsers?.companyId || null,
+          permissions: userFromUsers?.permissions || [],
+        },
         dashboard: profileData.dashboard,
       },
     };
