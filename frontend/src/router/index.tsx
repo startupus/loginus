@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { Suspense } from 'react';
-import { LandingPage, AboutPage, FeaturesPage, AuthPage, VerifyCodePage, RegisterPage, OnboardingPage, DashboardPage, PersonalDocumentsPage, PersonalAddressesPage, FamilyPage, WorkPage, SecurityPage, DataPage, PayPage, SupportPage, HelpPage, ErrorPage } from './routes';
+import { LandingPage, AboutPage, FeaturesPage, AuthPage, VerifyCodePage, RegisterPage, OnboardingPage, DashboardPage, PersonalDocumentsPage, PersonalAddressesPage, FamilyPage, WorkPage, SecurityPage, DataPage, PayPage, SupportPage, HelpPage, AuthorizationHelpPage, RegistrationHelpPage, SecurityHelpPage, RecoveryHelpPage, KeyHelpPage, FamilyHelpPage, DataHelpPage, PaymentsHelpPage, ErrorPage } from './routes';
 import { LanguageRoute } from './LanguageRoute';
 import { themeClasses } from '../design-system/utils/themeClasses';
 
@@ -212,6 +212,94 @@ const router = createBrowserRouter([
       <LanguageRoute>
         <Suspense fallback={<LoadingFallback />}>
           <HelpPage />
+        </Suspense>
+      </LanguageRoute>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/:lang/help/authorization',
+    element: (
+      <LanguageRoute>
+        <Suspense fallback={<LoadingFallback />}>
+          <AuthorizationHelpPage />
+        </Suspense>
+      </LanguageRoute>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/:lang/help/registration',
+    element: (
+      <LanguageRoute>
+        <Suspense fallback={<LoadingFallback />}>
+          <RegistrationHelpPage />
+        </Suspense>
+      </LanguageRoute>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/:lang/help/security',
+    element: (
+      <LanguageRoute>
+        <Suspense fallback={<LoadingFallback />}>
+          <SecurityHelpPage />
+        </Suspense>
+      </LanguageRoute>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/:lang/help/recovery',
+    element: (
+      <LanguageRoute>
+        <Suspense fallback={<LoadingFallback />}>
+          <RecoveryHelpPage />
+        </Suspense>
+      </LanguageRoute>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/:lang/help/key',
+    element: (
+      <LanguageRoute>
+        <Suspense fallback={<LoadingFallback />}>
+          <KeyHelpPage />
+        </Suspense>
+      </LanguageRoute>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/:lang/help/family',
+    element: (
+      <LanguageRoute>
+        <Suspense fallback={<LoadingFallback />}>
+          <FamilyHelpPage />
+        </Suspense>
+      </LanguageRoute>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/:lang/help/data',
+    element: (
+      <LanguageRoute>
+        <Suspense fallback={<LoadingFallback />}>
+          <DataHelpPage />
+        </Suspense>
+      </LanguageRoute>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/:lang/help/payments',
+    element: (
+      <LanguageRoute>
+        <Suspense fallback={<LoadingFallback />}>
+          <PaymentsHelpPage />
         </Suspense>
       </LanguageRoute>
     ),

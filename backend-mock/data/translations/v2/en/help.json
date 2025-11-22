@@ -76,7 +76,108 @@
       "title": "Didn't find the answer?",
       "description": "If you didn't find the answer to your question in the help section, contact support.",
       "contact": "Contact Support"
+    },
+    "cta": {
+      "contactSupport": "Contact Support"
+    },
+    "feedback": {
+      "question": "Was this article helpful?",
+      "yes": "Yes",
+      "no": "No",
+      "thankYou": "Thank you for your feedback!"
+    },
+    "navigation": {
+      "prev": "Previous",
+      "next": "Next"
+    },
+    "toc": {
+      "label": "Article navigation",
+      "title": "In this article:",
+      "sections": "Contents of current article"
+    },
+    "authorization": {
+      "title": "Login to Loginus",
+      "intro": "To work with Loginus personal services (Mail, Disk, etc.), log in to your account using one of the following methods:",
+      "methods": {
+        "password": "enter your login and password on the service",
+        "qr": "scan QR code in Loginus app",
+        "biometric": "set up face recognition or fingerprint",
+        "phone": "enter phone number on any Loginus service",
+        "key": "using Loginus Key:",
+        "keyQr": "scan QR code or enter one-time password",
+        "keyPassword": "enter permanent password, then use one-time password from Loginus Key or another app based on TOTP RFC algorithm, or scan QR code in Loginus Key app",
+        "keyPicture": "select a picture"
+      },
+      "sections": {
+        "setAuthMethods": "Set up login methods",
+        "cannotAuth": "Can't log into account",
+        "foreignPc": "How to safely log into Loginus on someone else's device"
+      },
+      "setAuthMethods": {
+        "intro": "You can choose how to log into your account:",
+        "step1": "Open the Security tab.",
+        "step2": "In the Login method section, click on the current login method and select:",
+        "passwordSms": "Password + SMS",
+        "passwordSmsDesc": "more secure than password login. To log in, you'll need to enter your password first, then a code from SMS, push notification code, or the last 6 digits of incoming number. This way, even if someone knows your password, they won't be able to access your account without access to your phone.",
+        "passwordOtp": "Password + one-time password",
+        "passwordOtpDesc": "the most reliable method. To log in, you'll need to enter your regular password first, then a one-time password from Loginus Key app or another app based on TOTP RFC algorithm.",
+        "password": "Regular password",
+        "passwordDesc": "the simplest. Just enter your password to log in. Not secure, as someone who knows your password can easily access your account.",
+        "step3": "If needed, enable auxiliary methods that don't require password entry:",
+        "qr": "Login using QR code from Loginus app.",
+        "picture": "Login by picture from Loginus Key."
+      },
+      "cannotAuth": {
+        "intro": "If you see the message \"Sorry, this login is taken\", you might be on the registration page or already logged into an account registered through the simplified system without a login.",
+        "steps": "To log into an account with a login:",
+        "step1": "Go to the authorization page.",
+        "step2": "Check that Caps Lock is not active and English layout is selected.",
+        "step3": "In the Login or email field, enter your login and click Login. If you don't have a Login or email field, click More → Login with login → enter your login in the Login or email field and click Login.",
+        "step4": "Enter your account password and click Login again.",
+        "phone": "If when logging in by phone number you don't see the profile you need in the account list, try finding it by name. To do this, click No matching profile → Find by first and last name. If it doesn't work right away, try different spelling variations.",
+        "loginPhone": "If you can't log in using phone number to an account that has a login on Loginus:",
+        "loginPhoneStep1": "Log into the account with your login and password. You can do this in a browser, on the authorization page, or in a search app, such as Loginus Start or Loginus — with Alice.",
+        "loginPhoneStep2": "After authorization, confirm your phone number on the confirmation page. Now you'll be able to log into your account using your phone number."
+      },
+      "foreignPc": {
+        "intro": "When you've logged into Loginus, you'll only need to enter your password again on this device if you don't access Loginus services for three months or more. This is convenient for a personal or home computer, but dangerous on public computers (e.g., in internet cafes): if you forget to log out, the next person using the same computer will have access to your data.",
+        "incognito": "To secure your account on someone else's computer, use incognito mode in your browser.",
+        "noIncognito": "If the computer doesn't have a browser that supports incognito mode:",
+        "disableAutofill": "Disable form autofill and password saving.",
+        "clearCache": "Before starting work, clear cache and delete cookie files.",
+        "finishing": "When finishing work:",
+        "logout": "Log out of your account — click your portrait in the top right corner and select Log out from the dropdown menu.",
+        "clearAgain": "Clear cache and delete cookie files again.",
+        "forgot": "If you forgot to log out of your account on someone else's device, go to Log out on all devices link in the Devices section and set a new password that's hard to guess."
+      }
+    },
+    "registration": {
+      "title": "Account Registration",
+      "content": "Account registration page content will be added later."
+    },
+    "security": {
+      "title": "Account Protection",
+      "content": "Account protection page content will be added later."
+    },
+    "recovery": {
+      "title": "Access Recovery",
+      "content": "Access recovery page content will be added later."
+    },
+    "key": {
+      "title": "Loginus Key",
+      "content": "Loginus Key page content will be added later."
+    },
+    "family": {
+      "title": "Family Group",
+      "content": "Family group page content will be added later."
+    },
+    "data": {
+      "title": "Data",
+      "content": "Data page content will be added later."
+    },
+    "payments": {
+      "title": "Loginus Pay",
+      "content": "Loginus Pay page content will be added later."
     }
   }
 }
-

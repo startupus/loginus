@@ -31,6 +31,16 @@ const PayPage = lazy(() => import('@/pages/PayPage'));
 const SupportPage = lazy(() => import('@/pages/SupportPage'));
 const HelpPage = lazy(() => import('@/pages/HelpPage'));
 
+// Help Articles
+const AuthorizationHelpPage = lazy(() => import('@/pages/help/AuthorizationHelpPage'));
+const RegistrationHelpPage = lazy(() => import('@/pages/help/RegistrationHelpPage'));
+const SecurityHelpPage = lazy(() => import('@/pages/help/SecurityHelpPage'));
+const RecoveryHelpPage = lazy(() => import('@/pages/help/RecoveryHelpPage'));
+const KeyHelpPage = lazy(() => import('@/pages/help/KeyHelpPage'));
+const FamilyHelpPage = lazy(() => import('@/pages/help/FamilyHelpPage'));
+const DataHelpPage = lazy(() => import('@/pages/help/DataHelpPage'));
+const PaymentsHelpPage = lazy(() => import('@/pages/help/PaymentsHelpPage'));
+
 // Error Page - статический импорт, так как нужен для обработки ошибок загрузки других модулей
 import ErrorPage from '@/pages/ErrorPage';
 
@@ -52,5 +62,13 @@ export {
   PayPage,
   SupportPage,
   HelpPage,
+  AuthorizationHelpPage,
+  RegistrationHelpPage,
+  SecurityHelpPage,
+  RecoveryHelpPage,
+  KeyHelpPage,
+  FamilyHelpPage,
+  DataHelpPage,
+  PaymentsHelpPage,
   ErrorPage,
 };
