@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { themeClasses } from '../../utils/themeClasses';
 
 export interface ModalProps {
   /**
@@ -216,14 +217,14 @@ export const Modal: React.FC<ModalProps> = ({
       {/* Modal Content - классы из TailGrids Modal1.jsx */}
         <div
         ref={modalRef}
-        className={`w-full ${sizeClasses[size]} rounded-[20px] bg-white px-8 py-12 text-center dark:bg-dark-2 md:px-[70px] md:py-[60px] ${className}`}
+        className={`w-full ${sizeClasses[size]} rounded-[20px] ${themeClasses.card.shadow} px-8 py-12 text-center md:px-[70px] md:py-[60px] ${className}`}
         style={position !== 'center' ? { ...positionStyles, position: 'fixed', zIndex: 101, pointerEvents: 'auto' } : {}}
         >
         {/* Close Button */}
         {showCloseButton && (
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full bg-gray-1 hover:bg-gray-2 dark:bg-dark-3 dark:hover:bg-dark-4 transition-colors text-text-primary hover:text-error shadow-sm"
+            className={`absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full ${themeClasses.background.gray} ${themeClasses.active.navItemInactive} transition-colors ${themeClasses.text.primary} hover:text-error shadow-sm`}
             aria-label="Close"
           >
             <svg
@@ -256,7 +257,7 @@ export const Modal: React.FC<ModalProps> = ({
           )}
 
         {/* Content - из TailGrids Modal1.jsx */}
-        <div className="mb-10 text-base leading-relaxed text-text-secondary">
+        <div className={`mb-10 text-base leading-relaxed ${themeClasses.text.secondary}`}>
           {children}
         </div>
 

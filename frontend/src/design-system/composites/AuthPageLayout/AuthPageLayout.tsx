@@ -89,7 +89,7 @@ const ThemeSwitcher: React.FC<{ onClick: () => void }> = ({ onClick }) => {
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-text-primary hover:bg-gray-2 dark:hover:bg-dark-3 transition-all"
+      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${themeClasses.text.primary} ${themeClasses.active.navItemInactive} transition-all`}
       title="Переключить тему"
     >
       {isDark ? (
@@ -127,7 +127,7 @@ const LanguageSwitcher: React.FC = () => {
   return (
     <button
       onClick={handleToggle}
-      className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-text-secondary hover:text-primary transition-colors"
+      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${themeClasses.text.secondary} ${themeClasses.link.primary} transition-colors`}
       title="Переключить язык"
     >
       {(currentLang || language) === 'ru' ? '🇷🇺 RU' : '🇬🇧 EN'}
@@ -147,8 +147,8 @@ export const AuthPageLayout: React.FC<AuthPageLayoutProps> = ({
 }) => {
   const { themeMode, setThemeMode } = useTheme();
   const backgroundClasses = {
-    default: 'bg-gray-1 dark:bg-dark',
-    image: 'bg-gray-1 dark:bg-dark bg-[url("/auth-bg.svg")] bg-cover bg-center',
+    default: themeClasses.background.gray,
+    image: `${themeClasses.background.gray} bg-[url("/auth-bg.svg")] bg-cover bg-center`,
     gradient: 'bg-gradient-to-br from-primary/5 to-secondary/5 dark:from-dark-2 dark:to-dark',
   };
 
@@ -190,7 +190,7 @@ export const AuthPageLayout: React.FC<AuthPageLayoutProps> = ({
               {/* Переключатель темы */}
               <ThemeSwitcher onClick={handleThemeToggle} />
               {header.title && (
-                <h1 className="text-xl font-bold text-text-primary">
+                <h1 className={`text-xl font-bold ${themeClasses.text.primary}`}>
                   {header.title}
                 </h1>
               )}
@@ -216,7 +216,7 @@ export const AuthPageLayout: React.FC<AuthPageLayoutProps> = ({
             {/* Центральная часть: текст футера */}
             <div className="flex-1 text-center space-y-2">
               {footer.text && (
-                <p className="text-xs sm:text-sm text-text-secondary">
+                <p className={`text-xs sm:text-sm ${themeClasses.text.secondary}`}>
                   {footer.text}{' '}
                   {footer.links && footer.links.length > 0 && (
                     <>
@@ -224,7 +224,7 @@ export const AuthPageLayout: React.FC<AuthPageLayoutProps> = ({
                         <React.Fragment key={index}>
                           <Link
                             to={link.href}
-                            className="text-xs sm:text-sm text-primary hover:text-primary/80 transition-colors underline"
+                            className={`text-xs sm:text-sm ${themeClasses.link.primary} transition-colors underline`}
                           >
                             {link.text}
                           </Link>
@@ -239,7 +239,7 @@ export const AuthPageLayout: React.FC<AuthPageLayoutProps> = ({
                 <p className="text-xs sm:text-sm">
                   <Link
                     to={footer.additionalLink.href}
-                    className="text-text-secondary hover:text-primary transition-colors"
+                    className={`${themeClasses.text.secondary} ${themeClasses.link.primary} transition-colors`}
                   >
                     {footer.additionalLink.text}
                   </Link>
