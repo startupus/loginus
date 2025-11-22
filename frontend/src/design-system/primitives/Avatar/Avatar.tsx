@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getAvatarGradient } from '@/utils/stringUtils';
+import { themeClasses } from '../../utils/themeClasses';
 
 export interface AvatarProps {
   /**
@@ -156,7 +157,7 @@ export const Avatar: React.FC<AvatarProps & { children?: never }> = ({
   // Цвет индикатора статуса
   const statusColors = {
     online: 'bg-success',
-    offline: 'bg-gray-3 dark:bg-dark-6',
+    offline: `${themeClasses.background.gray2}`, // Используем gray2 для offline статуса
     away: 'bg-warning',
   };
 
@@ -194,7 +195,7 @@ export const Avatar: React.FC<AvatarProps & { children?: never }> = ({
     // Fallback иконка профиля - показывается всегда, когда нет src и нет initials
     return (
       <div
-        className={`${baseStyles} bg-gray-2 dark:bg-dark-3 text-text-secondary ${className}`.trim()}
+        className={`${baseStyles} ${themeClasses.background.gray2} ${themeClasses.text.secondary} ${className}`.trim()}
       >
         <svg
           className="w-2/3 h-2/3"

@@ -1,4 +1,5 @@
 import React from 'react';
+import { themeClasses } from '../../utils/themeClasses';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   /**
@@ -95,7 +96,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       outline: 'border-2 border-primary bg-transparent text-primary hover:bg-primary hover:text-white',
       
       // Ghost - использует токены темы
-      ghost: 'border-transparent bg-transparent text-text-secondary hover:bg-gray-2 dark:hover:bg-dark-3',
+      ghost: `border-transparent bg-transparent ${themeClasses.text.secondary} ${themeClasses.active.navItemInactive}`,
       
       // Error - использует токены темы
       error: 'border-error bg-error text-white hover:bg-error/90 hover:border-error/90',

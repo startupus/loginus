@@ -1,4 +1,5 @@
 import React from 'react';
+import { themeClasses } from '../../utils/themeClasses';
 
 export interface BadgeProps {
   /**
@@ -108,14 +109,14 @@ export const Badge: React.FC<BadgeProps> = ({
         opacity: 'bg-info/10 text-info',
       },
       gray: {
-        solid: 'bg-gray-3 text-text-primary',
-        outline: 'border border-gray-3 text-text-primary dark:border-border',
-        opacity: 'bg-gray-3/10 text-text-primary',
+        solid: `bg-gray-3 ${themeClasses.text.primary}`,
+        outline: `border border-gray-3 ${themeClasses.text.primary} ${themeClasses.border.default}`,
+        opacity: `bg-gray-3/10 ${themeClasses.text.primary}`,
       },
       dark: {
         solid: 'bg-dark text-white dark:bg-dark-2',
-        outline: 'border border-dark text-text-primary dark:border-dark-2',
-        opacity: 'bg-dark/10 text-text-primary',
+        outline: `border border-dark ${themeClasses.text.primary} dark:border-dark-2`,
+        opacity: `bg-dark/10 ${themeClasses.text.primary}`,
       },
     };
     
