@@ -102,7 +102,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <Input
               type="text"
               placeholder={t('common.search', 'Поиск...')}
-              rightIcon={<Icon name="search" size="sm" className="text-text-secondary dark:text-dark-6" />}
+              rightIcon={<Icon name="search" size="sm" className={themeClasses.text.secondary} />}
             />
           </div>
           
@@ -161,7 +161,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     )}
                   </button>
                   {item.children && openDropdown === item.path && (
-                    <ul className={`py-[6px] pr-10 pl-[50px] ${themeClasses.background.gray} dark:bg-dark-3 border-l-2 border-primary/30 dark:border-primary/40 ml-2`}>
+                    <ul className={`py-[6px] pr-10 pl-[50px] ${themeClasses.background.gray2} border-l-2 border-primary/30 dark:border-primary/40 ml-2`}>
                       {item.children.map((child, childIndex) => (
                         <li key={child.path || childIndex}>
                           <button
@@ -199,7 +199,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <span>{t('sidebar.loginusIdSite', 'Loginus ID для сайта')}</span>
           </button>
           
-          <div className="bg-stroke dark:bg-dark-3 my-3 h-px"></div>
+          <div className={`${themeClasses.background.gray2} my-3 h-px`}></div>
           
           <div className="flex items-center justify-between py-2">
             {showLanguageSwitcher && (

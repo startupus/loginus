@@ -134,7 +134,7 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
         </button>
 
         {isOpen && (
-          <div className={`absolute top-full right-0 mt-3 w-[280px] bg-white dark:bg-dark-2 rounded-xl shadow-card-2 ${themeClasses.border.default} z-50 overflow-hidden animate-in`}>
+          <div className={`absolute top-full right-0 mt-3 w-[280px] ${themeClasses.card.shadow} rounded-xl shadow-card-2 ${themeClasses.border.default} z-50 overflow-hidden animate-in`}>
             {/* Заголовок с аватаром и информацией */}
             <div className={`p-4 border-b ${themeClasses.border.default}`}>
               <div className="flex items-center gap-3 mb-2">
@@ -149,7 +149,7 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
                   <div className={`text-sm font-semibold ${themeClasses.text.primary} truncate`}>
                     {userData.name}
                   </div>
-                  <div className="text-xs text-text-secondary truncate">
+                  <div className={`text-xs ${themeClasses.text.secondary} truncate`}>
                     {maskedPhone} {userData.login && `• ${userData.login}`}
                   </div>
                 </div>
@@ -174,7 +174,7 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
                   <span className={`flex-1 text-sm ${themeClasses.text.primary}`}>
                     {t('modals.organization.title', 'Выбрать организацию')}
                   </span>
-                  <Icon name="chevron-down" size="xs" className="text-text-secondary dark:text-dark-6 group-hover:text-primary transition-colors" />
+                  <Icon name="chevron-down" size="xs" className={`${themeClasses.text.secondary} group-hover:text-primary transition-colors`} />
                 </button>
               </div>
             )}
@@ -194,7 +194,7 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
                 </div>
                 {userData.unreadMail !== undefined && userData.unreadMail > 0 && (
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-text-secondary">
+                    <span className={`text-xs ${themeClasses.text.secondary}`}>
                       {userData.unreadMail.toLocaleString()}
                     </span>
                     <span className="sr-only">{formatMailCounter(userData.unreadMail)}</span>
@@ -221,14 +221,14 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
                       return translation;
                     })()}
                   </div>
-                  <div className="text-xs text-text-secondary">
+                  <div className={`text-xs ${themeClasses.text.secondary}`}>
                     {userData.plusActive 
                       ? t('profile.plusDescription', 'Подписка активна')
                       : t('profile.plusInactive', 'Не подключено')}
                   </div>
                 </div>
                 {userData.gamePoints !== undefined && (
-                  <div className="text-xs text-text-secondary">
+                  <div className={`text-xs ${themeClasses.text.secondary}`}>
                     {userData.gamePoints > 0 ? userData.gamePoints.toLocaleString('ru-RU') : t('profile.plusPoints.none', 'нет баллов')}
                   </div>
                 )}
@@ -245,7 +245,7 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
                   <div className={`text-sm ${themeClasses.text.primary}`}>
                     {t('profile.personalData', 'Личные данные')}
                   </div>
-                  <div className="text-xs text-text-secondary">
+                  <div className={`text-xs ${themeClasses.text.secondary}`}>
                     {t('profile.personalDataDescription', 'ФИО, день рождения, пол')}
                   </div>
                 </div>
@@ -263,7 +263,7 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
                     <div className={`text-sm ${themeClasses.text.primary}`}>
                       {t('profile.phone', 'Телефон')}
                     </div>
-                    <div className="text-xs text-text-secondary">
+                    <div className={`text-xs ${themeClasses.text.secondary}`}>
                       {maskedPhone}
                     </div>
                   </div>
@@ -272,7 +272,7 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
             </div>
 
             {/* Разделитель */}
-            <div className="h-px bg-gray-2 dark:bg-dark-3 my-1"></div>
+            <div className={`h-px ${themeClasses.background.gray2} my-1`}></div>
 
             {/* Настройки */}
             <div className="p-1">
@@ -289,11 +289,11 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
                   <Icon 
                     name="chevron-down" 
                     size="xs" 
-                    className={`text-text-secondary dark:text-dark-6 transition-transform ${isSkinMenuOpen ? 'rotate-180' : ''}`}
+                    className={`${themeClasses.text.secondary} transition-transform ${isSkinMenuOpen ? 'rotate-180' : ''}`}
                   />
                 </button>
                 {isSkinMenuOpen && (
-                  <div className={`absolute left-0 right-0 top-full mt-1 bg-white dark:bg-dark-2 rounded-lg shadow-lg ${themeClasses.border.default} overflow-hidden z-10`}>
+                  <div className={`absolute left-0 right-0 top-full mt-1 ${themeClasses.card.shadow} rounded-lg shadow-lg ${themeClasses.border.default} overflow-hidden z-10`}>
                     <button
                       onClick={() => handleSkinChange('light')}
                       className="w-full px-3 py-2 text-sm text-left hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors"
@@ -343,7 +343,7 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
             </div>
 
             {/* Разделитель */}
-            <div className="h-px bg-gray-2 dark:bg-dark-3 my-1"></div>
+            <div className={`h-px ${themeClasses.background.gray2} my-1`}></div>
 
             {/* Сменить аккаунт */}
             <div className="p-1">

@@ -87,7 +87,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <Input
                   type="text"
                   placeholder={t('common.search', 'Поиск...')}
-                  rightIcon={<Icon name="search" size="sm" className="text-text-secondary dark:text-dark-6" />}
+                  rightIcon={<Icon name="search" size="sm" className={themeClasses.text.secondary} />}
                 />
               </div>
             )}
