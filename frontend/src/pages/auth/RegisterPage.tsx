@@ -7,6 +7,7 @@ import { Button } from '../../design-system/primitives/Button';
 import { Logo } from '../../design-system/primitives/Logo';
 import { useLanguageStore } from '../../store';
 import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
+import { themeClasses } from '../../design-system/utils/themeClasses';
 
 interface LocationState {
   contact: string;
@@ -82,10 +83,10 @@ export const RegisterPage: React.FC = () => {
     >
       <div className="w-full space-y-6">
         <div className="text-left">
-          <h1 className="text-3xl sm:text-4xl font-bold text-text-primary mb-3">
+          <h1 className={`text-3xl sm:text-4xl font-bold ${themeClasses.text.primary} mb-3`}>
             {t('auth.register.title', 'Создаём ваш аккаунт')}
           </h1>
-          <p className="text-base sm:text-lg text-text-secondary">
+          <p className={`text-base sm:text-lg ${themeClasses.text.secondary}`}>
             {t('auth.register.subtitle', 'Аккаунта с этим номером не найдено. Мы создадим новый аккаунт автоматически.')}
           </p>
         </div>

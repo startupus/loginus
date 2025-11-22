@@ -12,6 +12,7 @@ import { useContactMasking } from '../../hooks/useContactMasking';
 import { authApi } from '../../services/api/auth';
 import { useLanguageStore } from '../../store';
 import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
+import { themeClasses } from '../../design-system/utils/themeClasses';
 
 interface LocationState {
   contact: string;
@@ -263,23 +264,23 @@ export const VerifyCodePage: React.FC = () => {
         }}
       >
         <div className="text-left">
-          <h1 className="text-3xl sm:text-4xl font-bold text-text-primary mb-1">
+          <h1 className={`text-3xl sm:text-4xl font-bold ${themeClasses.text.primary} mb-1`}>
             {t('auth.verifyCode.title', 'Введите')}
           </h1>
-          <h2 className="text-3xl sm:text-4xl font-bold text-text-primary mb-3">
+          <h2 className={`text-3xl sm:text-4xl font-bold ${themeClasses.text.primary} mb-3`}>
             {t('auth.verifyCode.titleField', 'код подтверждения')}
           </h2>
           <div className="space-y-2 mb-4">
-            <p className="text-base sm:text-lg text-text-secondary">
+            <p className={`text-base sm:text-lg ${themeClasses.text.secondary}`}>
               {t('auth.verifyCode.description', 'Мы отправили 6-значный код подтверждения')}
             </p>
-            <div className="flex items-center gap-2 text-sm text-text-secondary">
+            <div className={`flex items-center gap-2 text-sm ${themeClasses.text.secondary}`}>
               <Icon name="phone" size="sm" color="rgb(var(--color-primary))" />
               <span>
-                {t('auth.verifyCode.subtitle', 'на')} <span className="font-semibold text-text-primary">{masked}</span>
+                {t('auth.verifyCode.subtitle', 'на')} <span className={`font-semibold ${themeClasses.text.primary}`}>{masked}</span>
               </span>
             </div>
-            <p className="text-sm text-text-secondary">
+            <p className={`text-sm ${themeClasses.text.secondary}`}>
               {t('auth.verifyCode.hint', 'Введите код из SMS сообщения')}
             </p>
           </div>

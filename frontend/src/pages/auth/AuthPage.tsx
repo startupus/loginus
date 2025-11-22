@@ -10,6 +10,7 @@ import { authApi } from '../../services/api/auth';
 import { useLanguageStore } from '../../store';
 import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
 import { SocialAuthButtons } from '../../components/auth/SocialAuthButtons';
+import { themeClasses } from '../../design-system/utils/themeClasses';
 
 /**
  * AuthPage - главная страница авторизации
@@ -100,13 +101,13 @@ export const AuthPage: React.FC = () => {
       <div className="flex flex-col min-h-full">
         <div className="w-full space-y-6 pb-6">
           <div className="text-left">
-            <h1 className="text-3xl sm:text-4xl font-bold text-text-primary mb-1">
+            <h1 className={`text-3xl sm:text-4xl font-bold ${themeClasses.text.primary} mb-1`}>
               {t('auth.title', 'Введите')}
             </h1>
-            <h2 className="text-3xl sm:text-4xl font-bold text-text-primary mb-3">
+            <h2 className={`text-3xl sm:text-4xl font-bold ${themeClasses.text.primary} mb-3`}>
               {t('auth.titleField', 'телефон или почту')}
             </h2>
-            <p className="text-base sm:text-lg text-text-secondary">
+            <p className={`text-base sm:text-lg ${themeClasses.text.secondary}`}>
               {t('auth.subtitle', 'Чтобы войти или зарегистрироваться')}
             </p>
           </div>

@@ -9,6 +9,7 @@ import { ProgressBar } from '../../design-system/composites/ProgressBar';
 import { Logo } from '../../design-system/primitives/Logo';
 import { useLanguageStore } from '../../store';
 import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
+import { themeClasses } from '../../design-system/utils/themeClasses';
 
 interface LocationState {
   contact: string;
@@ -185,10 +186,10 @@ export const OnboardingPage: React.FC = () => {
         {currentStep === 1 && (
           <>
             <div className="text-center">
-              <h1 className="text-2xl sm:text-3xl font-bold text-text-primary mb-2">
+              <h1 className={`text-2xl sm:text-3xl font-bold ${themeClasses.text.primary} mb-2`}>
                 {t('onboarding.step1.title', 'Как вас зовут?')}
               </h1>
-              <p className="text-base text-text-secondary">
+              <p className={`text-base ${themeClasses.text.secondary}`}>
                 {t('onboarding.step1.subtitle', 'Укажите ваше имя и фамилию')}
               </p>
             </div>
@@ -228,10 +229,10 @@ export const OnboardingPage: React.FC = () => {
         {currentStep === 2 && (
           <>
             <div className="text-center">
-              <h1 className="text-2xl sm:text-3xl font-bold text-text-primary mb-2">
+              <h1 className={`text-2xl sm:text-3xl font-bold ${themeClasses.text.primary} mb-2`}>
                 {t('onboarding.step2.title', 'Создайте пароль')}
               </h1>
-              <p className="text-base text-text-secondary">
+              <p className={`text-base ${themeClasses.text.secondary}`}>
                 {t('onboarding.step2.subtitle', 'Пароль нужен для дополнительной безопасности. Можно пропустить и создать позже.')}
               </p>
             </div>
