@@ -88,8 +88,13 @@ export const UniversalInput: React.FC<UniversalInputProps> = ({
   }, [value, isPhone]);
 
   // Форматируем значение для отображения
-  // Во время ввода показываем нормализованное БЕЗ +7 (так как +7 в leftIcon), при blur - отформатированное
+  // Применяем форматирование во время ввода и при blur
   const displayValue = useMemo(() => {
+    // Если в значении есть "@", это email - не применяем форматирование телефона
+    if (value && value.includes('@')) {
+      return value;
+    }
+    
     if (isPhone && normalizedValue) {
       // Если только +7 без цифр, не показываем (показываем placeholder)
       if (normalizedValue === '+7' || normalizedValue.length <= 2) {
@@ -101,31 +106,67 @@ export const UniversalInput: React.FC<UniversalInputProps> = ({
         ? normalizedValue.slice(2) 
         : normalizedValue;
       
-      if (focused) {
-        // Во время ввода показываем только цифры (без +7)
-        return withoutPrefix;
-      } else {
-        // При blur форматируем (XXX XXX-XX-XX)
-        if (normalizedValue.startsWith('+7') && normalizedValue.length === 12) {
-          const formatted = formatPhone(normalizedValue);
-          // Убираем +7 из начала отформатированного номера
-          return formatted.replace(/^\+7\s/, '');
+      // Форматируем номер во время ввода (начинаем с 1-й цифры)
+      if (normalizedValue.startsWith('+7') && withoutPrefix.length >= 1) {
+        // Форматируем частично введенный номер
+        const digits = withoutPrefix;
+        let formatted = '';
+        
+        // Первые 3 цифры (код оператора)
+        if (digits.length > 0) {
+          formatted = digits.slice(0, 3);
         }
-        return withoutPrefix;
+        
+        // Добавляем пробел после кода оператора (если есть хотя бы 4-я цифра)
+        if (digits.length > 3) {
+          formatted += ' ' + digits.slice(3, 6);
+        }
+        
+        // Добавляем дефис после первых 3 цифр номера (если есть хотя бы 7-я цифра)
+        if (digits.length > 6) {
+          formatted += '-' + digits.slice(6, 8);
+        }
+        
+        // Добавляем второй дефис (если есть хотя бы 9-я цифра)
+        if (digits.length > 8) {
+          formatted += '-' + digits.slice(8, 10);
+        }
+        
+        return formatted;
       }
+      
+        return withoutPrefix;
     }
     return value || '';
-  }, [normalizedValue, value, isPhone, focused]);
+  }, [normalizedValue, value, isPhone]);
 
   // Определяем, есть ли введенные цифры (для телефона)
   const hasPhoneDigits = useMemo(() => {
+    // Если в значении есть "@", это email - не показываем иконку телефона
+    if (value && value.includes('@')) return false;
     if (!isPhone || !normalizedValue) return false;
     return normalizedValue.length > 2; // Больше чем просто +7
-  }, [isPhone, normalizedValue]);
+  }, [isPhone, normalizedValue, value]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setHasValue(newValue.length > 0);
+    
+    // Если в значении есть "@", это email - убираем форматирование телефона
+    if (newValue.includes('@')) {
+      // Удаляем все форматирование телефона (пробелы, дефисы, +7 в начале)
+      // Но сохраняем "@" и все после него
+      const atIndex = newValue.indexOf('@');
+      const beforeAt = newValue.slice(0, atIndex);
+      const afterAt = newValue.slice(atIndex);
+      
+      // Убираем форматирование из части до "@"
+      const cleanedBeforeAt = beforeAt.replace(/[\s\-\(\)\+]/g, '');
+      
+      // Объединяем очищенную часть с частью после "@"
+      onChange(cleanedBeforeAt + afterAt);
+      return;
+    }
     
     // Определяем тип ввода на основе нового значения
     const newInputType = detectInputType(newValue);
@@ -196,7 +237,8 @@ export const UniversalInput: React.FC<UniversalInputProps> = ({
         disabled={disabled}
         label={label}
         leftIcon={
-          (isPhone || hasValue) ? (
+          // Не показываем иконку телефона, если в значении есть "@" (это email)
+          (isPhone || hasValue) && !(value && value.includes('@')) ? (
             <span className={`flex items-center gap-1 ${hasPhoneDigits ? themeClasses.text.primary : themeClasses.text.secondary}`}>
               <span className="text-base">🇷🇺</span>
               <span className="text-sm font-medium">+7</span>

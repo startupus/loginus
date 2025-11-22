@@ -154,13 +154,13 @@ i18n.use(initReactI18next).init({
         loadModule(initialLanguage, 'profile'),
         loadModule(initialLanguage, 'dashboard'),
       ]).then(([profileData, dashboardData]) => {
-        if (Object.keys(profileData).length > 0) {
-          i18n.addResourceBundle(initialLanguage, 'translation', profileData, true, true);
-        }
+          if (Object.keys(profileData).length > 0) {
+            i18n.addResourceBundle(initialLanguage, 'translation', profileData, true, true);
+          }
         if (Object.keys(dashboardData).length > 0) {
           i18n.addResourceBundle(initialLanguage, 'translation', dashboardData, true, true);
         }
-      }).catch(() => {});
+        }).catch(() => {});
     };
     
     if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {

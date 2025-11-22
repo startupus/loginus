@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AuthPageLayout } from '../../design-system/composites/AuthPageLayout';
@@ -28,7 +28,7 @@ export const RegisterPage: React.FC = () => {
   const contact = state?.contact || '';
   const contactType = state?.type || 'phone';
 
-  const handleCreateAccount = () => {
+  const handleCreateAccount = useCallback(() => {
     // Переходим на онбординг
     navigate(buildPathWithLang('/onboarding', currentLang), {
       state: {
@@ -37,11 +37,32 @@ export const RegisterPage: React.FC = () => {
         token: state?.token,
       },
     });
-  };
+  }, [navigate, currentLang, contact, contactType, state?.token]);
 
   const handleChangeContact = () => {
     navigate(buildPathWithLang('/auth', currentLang));
   };
+
+  // Обработка нажатия Enter для создания аккаунта
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Проверяем, что не находимся в поле ввода
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+        return;
+      }
+      
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleCreateAccount();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleCreateAccount]);
 
   if (!state) {
     navigate(buildPathWithLang('/auth', currentLang));
@@ -59,14 +80,7 @@ export const RegisterPage: React.FC = () => {
         logo: <Logo size="md" showText={false} />,
       }}
     >
-      <div 
-        className="w-full space-y-6"
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') {
-            handleCreateAccount();
-          }
-        }}
-      >
+      <div className="w-full space-y-6">
         <div className="text-left">
           <h1 className="text-3xl sm:text-4xl font-bold text-text-primary mb-3">
             {t('auth.register.title', 'Создаём ваш аккаунт')}

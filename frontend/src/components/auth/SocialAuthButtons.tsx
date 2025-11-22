@@ -114,7 +114,7 @@ export const SocialAuthButtons: React.FC = () => {
   };
 
   return (
-    <div className={`w-full bg-gray-2 dark:bg-gray-3 p-4 border-t ${themeClasses.border.default}`}>
+    <div className={`w-full bg-gray-2 dark:bg-dark-3 p-4 border-t ${themeClasses.border.default} rounded-b-lg`}>
       <p className="text-sm text-text-secondary mb-3 text-center">
         {t('auth.socialAuth.title', 'Или войдите через')}
       </p>

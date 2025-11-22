@@ -238,7 +238,9 @@ export const VerifyCodePage: React.FC = () => {
         logo: <Logo size="md" showText={false} />,
       }}
       footer={{
-        text: t('auth.footer.text', 'Нажимая «Продолжить», вы принимаете'),
+        text: t('auth.footer.text', 'Нажимая «{{button}}», вы принимаете', { 
+          button: error ? t('auth.retry', 'Попробовать снова') : t('auth.continue', 'Продолжить') 
+        }),
         links: [
           { href: '/terms', text: t('auth.footer.terms', 'пользовательское соглашение') },
           { href: '/privacy', text: t('auth.footer.privacy', 'политику конфиденциальности') },

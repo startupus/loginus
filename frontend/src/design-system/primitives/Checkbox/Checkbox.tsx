@@ -35,7 +35,7 @@ export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputE
  * @example
  * <Checkbox checked={isChecked} onChange={setIsChecked} label="Согласен" />
  */
-export const Checkbox: React.FC<CheckboxProps> = ({
+export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(({
   checked,
   onChange,
   label,
@@ -45,7 +45,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
   className = '',
   id,
   ...props
-}) => {
+}, ref) => {
   const sizes = {
     sm: 'h-4 w-4',
     md: 'h-5 w-5',
@@ -57,6 +57,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
   const checkbox = (
     <div className="relative">
       <input
+        ref={ref}
         type="checkbox"
         id={checkboxId}
         className="sr-only"
@@ -67,10 +68,10 @@ export const Checkbox: React.FC<CheckboxProps> = ({
       />
       <label
         htmlFor={checkboxId}
-        className={`flex ${sizes[size]} cursor-pointer items-center justify-center rounded border transition-colors ${
+        className={`flex ${sizes[size]} cursor-pointer items-center justify-center rounded border transition-colors focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 ${
           checked
             ? 'border-primary bg-primary'
-            : themeClasses.border.default
+            : `border border-gray-3 dark:border-gray-3 bg-white dark:bg-dark-2`
         } ${
           disabled ? 'opacity-50 cursor-not-allowed' : ''
         } ${className}`}
@@ -100,7 +101,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
   }
 
   const labelElement = (
-    <span className={`text-sm text-text-secondary ${disabled ? 'opacity-50' : ''}`}>
+    <span className={`text-sm ${themeClasses.text.primary} ${disabled ? 'opacity-50' : ''}`}>
       {label}
     </span>
   );
@@ -112,5 +113,5 @@ export const Checkbox: React.FC<CheckboxProps> = ({
       {labelPosition === 'right' && labelElement}
     </label>
   );
-};
+});
 

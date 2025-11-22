@@ -28,7 +28,7 @@ export const OnboardingPage: React.FC = () => {
   const state = location.state as LocationState | null;
 
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 3;
+  const totalSteps = 2;
 
   // Шаг 1: Имя и фамилия
   const [firstName, setFirstName] = useState('');
@@ -39,15 +39,13 @@ export const OnboardingPage: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [skipPassword, setSkipPassword] = useState(false);
 
-  // Шаг 3: Согласие
-  const [acceptTerms, setAcceptTerms] = useState(false);
-  const [acceptNewsletter, setAcceptNewsletter] = useState(false);
-
-  // Refs для автофокуса
+  // Refs для автофокуса и навигации
   const firstNameRef = useRef<HTMLInputElement>(null);
   const lastNameRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const confirmPasswordRef = useRef<HTMLInputElement>(null);
+  const skipPasswordCheckboxRef = useRef<HTMLInputElement>(null);
+  const finishButtonRef = useRef<HTMLButtonElement>(null);
 
   // Автофокус при смене шага
   useEffect(() => {
@@ -65,9 +63,6 @@ export const OnboardingPage: React.FC = () => {
     if (currentStep === 2) {
       if (skipPassword) return true;
       return password.length >= 8 && password === confirmPassword;
-    }
-    if (currentStep === 3) {
-      return acceptTerms;
     }
     return false;
   };
@@ -137,6 +132,14 @@ export const OnboardingPage: React.FC = () => {
     return null;
   }
 
+  // Определяем название кнопки для footer
+  const buttonLabel = currentStep === totalSteps
+    ? t('onboarding.finish', 'Завершить')
+    : t('common.next', 'Далее');
+
+  // Формируем текст footer с динамическим названием кнопки
+  const footerText = t('auth.footer.text', 'Нажимая «{{button}}», вы принимаете', { button: buttonLabel });
+
   return (
     <AuthPageLayout
       header={{
@@ -145,7 +148,7 @@ export const OnboardingPage: React.FC = () => {
         logo: <Logo size="md" showText={false} />,
       }}
       footer={{
-        text: t('auth.footer.text', 'Нажимая «Продолжить», вы принимаете'),
+        text: footerText,
         links: [
           { href: '/terms', text: t('auth.footer.terms', 'пользовательское соглашение') },
           { href: '/privacy', text: t('auth.footer.privacy', 'политику конфиденциальности') },
@@ -223,7 +226,8 @@ export const OnboardingPage: React.FC = () => {
                 helperText={t('onboarding.step2.passwordHint', 'Минимум 8 символов')}
                 disabled={skipPassword}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !skipPassword && password.length >= 8) {
+                  if (e.key === 'Enter' && !skipPassword) {
+                    e.preventDefault();
                     confirmPasswordRef.current?.focus();
                   }
                 }}
@@ -237,55 +241,40 @@ export const OnboardingPage: React.FC = () => {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 disabled={skipPassword}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' && isStepValid()) {
-                    handleNext();
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (skipPassword) {
+                      // Если чекбокс включен, форма валидна - переходим к кнопке
+                      finishButtonRef.current?.focus();
+                    } else {
+                      // Если форма валидна, переходим к кнопке, иначе к чекбоксу
+                      if (isStepValid()) {
+                        finishButtonRef.current?.focus();
+                      } else {
+                        skipPasswordCheckboxRef.current?.focus();
+                      }
+                    }
                   }
                 }}
               />
 
               <Checkbox
+                ref={skipPasswordCheckboxRef}
                 checked={skipPassword}
                 onChange={setSkipPassword}
                 label={t('onboarding.step2.skipPassword', 'Пропустить, создать позже')}
-              />
-            </div>
-          </>
-        )}
-
-        {/* Step 3: Согласие */}
-        {currentStep === 3 && (
-          <>
-            <div className="text-center">
-              <h1 className="text-2xl sm:text-3xl font-bold text-text-primary mb-2">
-                {t('onboarding.step3.title', 'Почти готово!')}
-              </h1>
-              <p className="text-base text-text-secondary">
-                {t('onboarding.step3.subtitle', 'Осталось принять условия использования')}
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              <Checkbox
-                checked={acceptTerms}
-                onChange={setAcceptTerms}
-                label={
-                  <>
-                    {t('onboarding.step3.acceptTerms', 'Я принимаю')}{' '}
-                    <a href="/terms" className="text-primary hover:underline">
-                      {t('onboarding.step3.userAgreement', 'пользовательское соглашение')}
-                    </a>{' '}
-                    {t('onboarding.step3.and', 'и')}{' '}
-                    <a href="/privacy" className="text-primary hover:underline">
-                      {t('onboarding.step3.privacyPolicy', 'политику конфиденциальности')}
-                    </a>
-                  </>
-                }
-              />
-
-              <Checkbox
-                checked={acceptNewsletter}
-                onChange={setAcceptNewsletter}
-                label={t('onboarding.step3.acceptNewsletter', 'Хочу получать новости и предложения')}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    // Переключаем чекбокс
+                    const newValue = !skipPassword;
+                    setSkipPassword(newValue);
+                    // После переключения переходим к кнопке (форма всегда валидна после переключения)
+                    setTimeout(() => {
+                      finishButtonRef.current?.focus();
+                    }, 0);
+                  }
+                }}
               />
             </div>
           </>
@@ -299,10 +288,17 @@ export const OnboardingPage: React.FC = () => {
             </Button>
           )}
           <Button
+            ref={finishButtonRef}
             variant="primary"
             onClick={handleNext}
             disabled={!isStepValid()}
             className={currentStep > 1 ? 'flex-1' : 'w-full'}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && isStepValid()) {
+                e.preventDefault();
+                handleNext();
+              }
+            }}
           >
             {currentStep === totalSteps
               ? t('onboarding.finish', 'Завершить')
