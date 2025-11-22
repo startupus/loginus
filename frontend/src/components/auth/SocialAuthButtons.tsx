@@ -114,8 +114,8 @@ export const SocialAuthButtons: React.FC = () => {
   };
 
   return (
-    <div className={`w-full bg-gray-2 dark:bg-dark-3 p-4 border-t ${themeClasses.border.default} rounded-b-lg`}>
-      <p className="text-sm text-text-secondary mb-3 text-center">
+    <div className={`w-full ${themeClasses.background.gray2} p-4 border-t ${themeClasses.border.default} rounded-b-lg`}>
+      <p className={`text-sm ${themeClasses.text.secondary} mb-3 text-center`}>
         {t('auth.socialAuth.title', 'Или войдите через')}
       </p>
       <div className="grid grid-cols-6 gap-3">
@@ -128,11 +128,11 @@ export const SocialAuthButtons: React.FC = () => {
             <button
               key={provider.id}
               onClick={() => handleSocialAuth(provider.id)}
-              className="aspect-square flex items-center justify-center p-2 rounded-lg border border-border bg-white dark:bg-dark-2 hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+              className={`aspect-square flex items-center justify-center p-2 rounded-lg ${themeClasses.border.default} ${themeClasses.card.default} ${themeClasses.active.navItemInactive} transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2`}
               aria-label={t(`auth.socialAuth.${provider.id}`, provider.name)}
               title={provider.name}
             >
-              <div className={`${iconSizeClass} text-text-secondary flex items-center justify-center`}>
+              <div className={`${iconSizeClass} ${themeClasses.text.secondary} flex items-center justify-center`}>
                 {provider.icon}
               </div>
             </button>
