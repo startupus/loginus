@@ -1,5 +1,6 @@
 import React from 'react';
 import { Icon } from '../../primitives';
+import { themeClasses } from '../../utils/themeClasses';
 
 export interface WidgetCardProps {
   /**
@@ -105,10 +106,10 @@ export const WidgetCard: React.FC<WidgetCardProps> = ({
   
   // Варианты фона - используем стандартизированные классы (как ProfileCard и DataSection)
   const variantClasses = {
-    default: 'bg-white dark:bg-dark-2',  // Единый стандарт с ProfileCard и DataSection
+    default: themeClasses.card.default,  // Единый стандарт с ProfileCard и DataSection
     primary: 'bg-primary/5 dark:bg-primary/20',
     feature: 'bg-gradient-to-br from-primary/5 to-secondary/5 dark:from-primary/20 dark:to-secondary/20',
-    compact: 'bg-white dark:bg-dark-2',  // Единый стандарт с ProfileCard и DataSection
+    compact: themeClasses.card.default,  // Единый стандарт с ProfileCard и DataSection
   };
   
   // Padding - из TailGrids Card1.jsx
@@ -193,14 +194,14 @@ export const WidgetCard: React.FC<WidgetCardProps> = ({
           {/* Drag Handle - три точки */}
           {draggable && (
             <button
-              className="p-1.5 rounded-lg bg-gray-1 dark:bg-dark-3 hover:bg-gray-2 dark:hover:bg-dark-4 cursor-grab active:cursor-grabbing transition-colors"
+              className={`p-1.5 rounded-lg ${themeClasses.background.gray2} ${themeClasses.active.navItemInactive} cursor-grab active:cursor-grabbing transition-colors`}
               aria-label="Перетащить виджет"
               onMouseDown={(e) => {
                 // Предотвращаем клик при начале перетаскивания
                 e.stopPropagation();
               }}
             >
-              <Icon name="menu" size="sm" className="text-text-secondary" />
+              <Icon name="menu" size="sm" className={themeClasses.text.secondary} />
             </button>
           )}
           
@@ -211,7 +212,7 @@ export const WidgetCard: React.FC<WidgetCardProps> = ({
                 e.stopPropagation();
                 onRemove(widgetId);
               }}
-              className="p-1.5 rounded-lg bg-gray-1 dark:bg-dark-3 hover:bg-error/10 dark:hover:bg-error/20 transition-colors"
+              className={`p-1.5 rounded-lg ${themeClasses.background.gray2} hover:bg-error/10 dark:hover:bg-error/20 transition-colors`}
               aria-label="Удалить виджет"
             >
               <Icon name="trash" size="sm" color="rgb(var(--color-error))" />
@@ -230,7 +231,7 @@ export const WidgetCard: React.FC<WidgetCardProps> = ({
               </div>
             )}
             {title && (
-              <h3 className="text-xl font-semibold text-text-primary hover:text-primary sm:text-[22px] md:text-xl lg:text-[22px] xl:text-xl 2xl:text-[22px]">
+              <h3 className={`text-xl font-semibold ${themeClasses.text.primary} hover:text-primary sm:text-[22px] md:text-xl lg:text-[22px] xl:text-xl 2xl:text-[22px]`}>
                 {title}
               </h3>
             )}
@@ -238,7 +239,7 @@ export const WidgetCard: React.FC<WidgetCardProps> = ({
         )}
         
         {/* Content - классы из TailGrids Card1.jsx */}
-        <div className={`text-base leading-relaxed text-text-secondary ${className.includes('flex flex-col') ? 'flex-1 flex flex-col min-h-0' : ''}`}>
+        <div className={`text-base leading-relaxed ${themeClasses.text.secondary} ${className.includes('flex flex-col') ? 'flex-1 flex flex-col min-h-0' : ''}`}>
           {children}
         </div>
         

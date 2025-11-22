@@ -1,4 +1,5 @@
 import React from 'react';
+import { themeClasses } from '../../utils/themeClasses';
 
 export interface ProgressBarProps {
   /**
@@ -59,14 +60,14 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
                 className={`flex-1 w-full ${sizes[size]} rounded-full transition-colors ${
                   isActive
                     ? 'bg-primary'
-                    : 'bg-gray-2 dark:bg-dark-3'
+                    : themeClasses.background.gray2
                 }`}
               />
               {showSteps && (
                 <span className={`text-xs font-medium ${
                   isActive
                     ? 'text-primary'
-                    : 'text-text-secondary'
+                    : themeClasses.text.secondary
                 }`}>
                   {stepNumber}
                 </span>

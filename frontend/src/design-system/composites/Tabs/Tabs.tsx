@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { themeClasses } from '../../utils/themeClasses';
 
 export interface Tab {
   id: string;
@@ -36,7 +37,7 @@ export const Tabs: React.FC<TabsProps> = ({ tabs, defaultTab, onChange }) => {
   return (
     <div className="w-full">
       {/* Tab Headers */}
-      <div className="border-b border-border">
+      <div className={`border-b ${themeClasses.border.default}`}>
         <nav className="-mb-px flex space-x-8">
           {tabs.map(tab => (
             <button
@@ -47,7 +48,7 @@ export const Tabs: React.FC<TabsProps> = ({ tabs, defaultTab, onChange }) => {
                 ${
                   activeTab === tab.id
                     ? 'border-primary text-primary'
-                    : 'border-transparent text-text-secondary hover:border-border hover:text-text-primary'
+                    : `border-transparent ${themeClasses.text.secondary} hover:${themeClasses.border.default} hover:${themeClasses.text.primary}`
                 }
               `}
             >

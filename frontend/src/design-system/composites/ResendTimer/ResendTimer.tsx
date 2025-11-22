@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useResendTimer } from '../../../hooks/useResendTimer';
+import { themeClasses } from '../../utils/themeClasses';
 
 export interface ResendTimerProps {
   /**
@@ -42,7 +43,7 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
   return (
     <div className="text-center">
       {!canResend ? (
-        <p className="text-sm text-text-secondary">
+        <p className={`text-sm ${themeClasses.text.secondary}`}>
           {label || defaultLabel} {format}
         </p>
       ) : (
@@ -50,7 +51,7 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
           type="button"
           onClick={onResend}
           disabled={disabled}
-          className="text-sm text-primary hover:text-primary/80 hover:underline transition-colors disabled:text-text-secondary disabled:no-underline disabled:cursor-not-allowed disabled:opacity-70"
+          className={`text-sm ${themeClasses.link.primary} hover:underline transition-colors disabled:${themeClasses.text.secondary} disabled:no-underline disabled:cursor-not-allowed disabled:opacity-70`}
         >
           {resendButtonText}
         </button>
