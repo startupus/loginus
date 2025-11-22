@@ -1,7 +1,8 @@
 import React, { Suspense, lazy, useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { PageTemplate } from '../design-system/layouts/PageTemplate';
+import { ErrorState } from '../design-system/composites/ErrorState';
 import { profileApi } from '../services/api/profile';
 import { workApi } from '../services/api/work';
 import { useAuthStore } from '../store';
@@ -29,6 +30,7 @@ const SectionSkeleton: React.FC = () => (
  */
 const WorkPage: React.FC = () => {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const { updateUser } = useAuthStore();
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<{ id: string; name: string } | null>(null);
@@ -85,13 +87,13 @@ const WorkPage: React.FC = () => {
   if (error) {
     return (
       <PageTemplate title={t('sidebar.work', 'Работа')} showSidebar={true}>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <p className="text-text-secondary mb-4">
-              {t('common.error', 'Произошла ошибка при загрузке данных')}
-            </p>
-          </div>
-        </div>
+        <ErrorState
+          title={t('common.error', 'Произошла ошибка при загрузке данных')}
+          action={{
+            label: t('common.retry', 'Повторить'),
+            onClick: () => queryClient.invalidateQueries({ queryKey: ['work-groups'] })
+          }}
+        />
       </PageTemplate>
     );
   }

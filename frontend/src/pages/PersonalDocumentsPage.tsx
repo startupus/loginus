@@ -6,6 +6,7 @@ import { PageTemplate } from '../design-system/layouts/PageTemplate';
 import { Button } from '../design-system/primitives/Button';
 import { Icon } from '../design-system/primitives/Icon';
 import { DataSection } from '../design-system/composites/DataSection';
+import { LoadingState } from '../design-system/composites/LoadingState';
 import { personalApi } from '../services/api/personal';
 
 /**
@@ -21,12 +22,7 @@ const PersonalDocumentsPage: React.FC = () => {
   if (isLoading) {
     return (
       <PageTemplate title={t('personalData.documents.title', 'Документы')} showSidebar={true}>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-text-secondary">{t('common.loading', 'Загрузка...')}</p>
-          </div>
-        </div>
+        <LoadingState text={t('common.loading', 'Загрузка...')} />
       </PageTemplate>
     );
   }

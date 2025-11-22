@@ -8,7 +8,7 @@ import { Icon } from '@/design-system/primitives/Icon';
 import { Avatar } from '@/design-system/primitives/Avatar';
 import { Textarea } from '@/design-system/primitives/Textarea';
 import { Spinner } from '@/design-system/primitives/Spinner';
-import { ChatMessage, ChatHistory, ChatHeader, ProductCarousel } from '@/design-system/composites';
+import { ChatMessage, ChatHistory, ChatHeader, ProductCarousel, ErrorState, EmptyState } from '@/design-system/composites';
 import type { ProductFolder } from '@/design-system/composites';
 import { themeClasses } from '@/design-system/utils/themeClasses';
 import { getInitials } from '@/utils/stringUtils';
@@ -384,18 +384,20 @@ const SupportPage: React.FC = () => {
         showSidebar={true}
         showFooter={false}
       >
-        <div className="flex justify-center items-center min-h-[200px]">
-          <div className="text-center">
-            <p className={themeClasses.text.secondary}>
-              {t('common.error', 'Произошла ошибка при загрузке данных')}
-            </p>
-            {process.env.NODE_ENV === 'development' && (
-              <p className="text-xs text-error mt-2">
-                {chatHistoryError?.message || servicesError?.message}
-              </p>
-            )}
-          </div>
-        </div>
+        <ErrorState
+          title={t('common.error', 'Произошла ошибка при загрузке данных')}
+          description={process.env.NODE_ENV === 'development' 
+            ? (chatHistoryError?.message || servicesError?.message)
+            : undefined
+          }
+          action={{
+            label: t('common.retry', 'Повторить'),
+            onClick: () => {
+              if (chatHistoryError) queryClient.invalidateQueries({ queryKey: ['chat-history'] });
+              if (servicesError) queryClient.invalidateQueries({ queryKey: ['support-services'] });
+            }
+          }}
+        />
       </PageTemplate>
     );
   }
@@ -408,13 +410,12 @@ const SupportPage: React.FC = () => {
         showSidebar={true}
         showFooter={false}
       >
-        <div className="flex justify-center items-center min-h-[200px]">
-          <div className="text-center">
-            <p className={themeClasses.text.secondary}>
-              {t('support.empty', 'Нет доступных чатов')}
-            </p>
-          </div>
-        </div>
+        <EmptyState
+          icon="message-circle"
+          title={t('support.empty', 'Нет доступных чатов')}
+          description={t('support.empty.description', 'Начните новый чат с поддержкой')}
+          variant="info"
+        />
       </PageTemplate>
     );
   }
