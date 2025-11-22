@@ -176,7 +176,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
               {showThemeSwitcher && (
                 <button
                   onClick={handleThemeToggle}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-text-primary hover:bg-gray-2 dark:hover:bg-dark-3 transition-all"
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${themeClasses.text.primary} ${themeClasses.active.navItemInactive} transition-all`}
                   title={`Текущая тема: ${themeMode}. Кликните для переключения`}
                 >
                   {isDark ? (
