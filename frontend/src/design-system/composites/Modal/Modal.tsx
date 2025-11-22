@@ -248,7 +248,7 @@ export const Modal: React.FC<ModalProps> = ({
         {/* Title - из TailGrids Modal1.jsx */}
           {title && (
           <>
-            <h3 className="pb-[18px] text-xl font-semibold text-text-primary sm:text-2xl">
+            <h3 className={`pb-[18px] text-xl font-semibold ${themeClasses.text.primary} sm:text-2xl`}>
               {title}
             </h3>
             {/* Separator - из TailGrids Modal1.jsx */}
