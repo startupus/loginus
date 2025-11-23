@@ -220,9 +220,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className={`${themeClasses.background.gray2} my-3 h-px`}></div>
           
           <div className="flex items-center justify-between py-2">
-            {/* {showLanguageSwitcher && (
+            {showLanguageSwitcher && (
               <LanguageSwitcher variant="compact" />
-            )} */}
+            )}
 
             {showThemeSwitcher && (
               <button
