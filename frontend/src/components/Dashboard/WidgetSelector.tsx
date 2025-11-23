@@ -45,14 +45,14 @@ export const WidgetSelector: React.FC<WidgetSelectorProps> = ({
       
       {/* Panel */}
       <div
-        className={`fixed right-0 top-0 h-screen w-full max-w-[400px] bg-white dark:bg-dark-2 shadow-card-2 z-50 transform transition-transform duration-300 ${
+        className={`fixed right-0 top-0 h-screen w-full max-w-[400px] ${themeClasses.card.default} shadow-card-2 z-50 transform transition-transform duration-300 ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className={`flex items-center justify-between p-6 border-b ${themeClasses.border.default}`}>
-            <h2 className="text-xl font-bold text-text-primary">
+            <h2 className={`text-xl font-bold ${themeClasses.text.primary}`}>
               {t('dashboard.widgets.title', 'Добавить виджет')}
             </h2>
             <button
@@ -60,7 +60,7 @@ export const WidgetSelector: React.FC<WidgetSelectorProps> = ({
               className="p-2 rounded-lg hover:bg-gray-1 dark:hover:bg-gray-2 transition-colors"
               aria-label={t('common.close', 'Закрыть')}
             >
-              <Icon name="close" size="md" className="text-text-secondary" />
+              <Icon name="close" size="md" className={themeClasses.text.secondary} />
             </button>
           </div>
 

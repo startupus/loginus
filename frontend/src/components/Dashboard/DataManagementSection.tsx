@@ -70,7 +70,7 @@ export const DataManagementSection: React.FC<DataManagementSectionProps> = ({
                 <Icon 
                   name={item.icon} 
                   size="sm" 
-                  className={isDanger ? 'text-error' : 'text-text-secondary'} 
+                  className={isDanger ? themeClasses.text.error : themeClasses.text.secondary} 
                 />
               </div>
               

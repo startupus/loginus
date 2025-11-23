@@ -46,7 +46,7 @@ export const PetsSection: React.FC<PetsSectionProps> = ({
         pets.length > 0 ? (
           <button
             onClick={handleViewAll}
-            className="text-sm text-text-secondary hover:text-primary transition-colors duration-200 flex items-center gap-1"
+            className={`text-sm ${themeClasses.text.secondary} hover:text-primary transition-colors duration-200 flex items-center gap-1`}
           >
             <span>
               {t('data.pets.viewAll', 'All pets')}
@@ -74,16 +74,16 @@ export const PetsSection: React.FC<PetsSectionProps> = ({
                   />
                 ) : (
                   <div className="w-12 h-12 rounded-lg bg-gray-1 dark:bg-dark-3 flex items-center justify-center flex-shrink-0">
-                    <Icon name="heart" size="md" className="text-text-secondary" />
+                    <Icon name="heart" size="md" className={themeClasses.text.secondary} />
                   </div>
                 )}
                 
                 {/* Информация о питомце */}
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-text-primary">
+                  <div className={`text-sm font-medium ${themeClasses.text.primary}`}>
                     {pet.name}
                   </div>
-                  <div className="text-xs text-text-secondary mt-1">
+                  <div className={`text-xs ${themeClasses.text.secondary} mt-1`}>
                     {pet.type}
                     {pet.breed && ` · ${pet.breed}`}
                     {pet.birthYear && ` · ${new Date().getFullYear() - pet.birthYear} ${t('common.years', 'лет')}`}
@@ -91,13 +91,13 @@ export const PetsSection: React.FC<PetsSectionProps> = ({
                 </div>
                 
                 {/* Стрелка */}
-                <Icon name="chevron-right" size="sm" className="text-text-secondary flex-shrink-0" />
+                <Icon name="chevron-right" size="sm" className={`${themeClasses.text.secondary} flex-shrink-0`} />
               </div>
             </button>
           ))
         ) : (
           <div className="text-center py-8">
-            <p className="text-sm text-text-secondary mb-4">
+            <p className={`text-sm ${themeClasses.text.secondary} mb-4`}>
               {t('data.pets.empty', 'You have no added pets yet')}
             </p>
           </div>
