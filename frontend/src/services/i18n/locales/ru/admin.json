@@ -363,7 +363,9 @@
       "delete": "Удалить",
       "downloadStarted": "Скачивание начато",
       "downloadError": "Ошибка при скачивании",
+      "downloadTitle": "Скачивание",
       "deleteConfirm": "Вы уверены, что хотите удалить этот бекап?",
+      "deleteConfirmTitle": "Подтверждение удаления",
       "storageLocal": "Локально",
       "storageYandex": "Яндекс Диск",
       "storageS3": "S3"
