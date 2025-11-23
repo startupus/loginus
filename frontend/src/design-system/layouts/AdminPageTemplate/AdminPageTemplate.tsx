@@ -58,18 +58,21 @@ const AdminTemplateBody: React.FC<AdminPageTemplateProps> = ({
   const currentLang = useCurrentLanguage();
   const { toggleSidebar } = useSidebar();
   
+  // Принудительно перерисовываем компонент при смене языка
+  // Используем i18n.language как зависимость для перерисовки
+  const [, forceUpdate] = useReducer(x => x + 1, 0);
+  
   // Предзагружаем модуль admin для переводов админ-панели
   useEffect(() => {
-    preloadModule('admin').catch((error) => {
+    preloadModule('admin').then(() => {
+      // Принудительно перерисовываем после загрузки модуля
+      forceUpdate();
+    }).catch((error) => {
       if (process.env.NODE_ENV === 'development') {
         console.warn('[i18n] Failed to preload admin module:', error);
       }
     });
   }, []);
-  
-  // Принудительно перерисовываем компонент при смене языка
-  // Используем i18n.language как зависимость для перерисовки
-  const [, forceUpdate] = useReducer(x => x + 1, 0);
   
   useEffect(() => {
     const handleLanguageChanged = () => {

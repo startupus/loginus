@@ -67,7 +67,7 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
     return (
       <button
         onClick={handleLanguageChange}
-        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${themeClasses.text.primary} hover:bg-gray-2 dark:hover:bg-dark-3 transition-all ${className}`}
+        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-2 dark:hover:bg-dark-3 transition-all ${className || themeClasses.text.primary}`}
         aria-label={`Switch language to ${currentLanguage === 'ru' ? 'English' : 'Russian'}`}
       >
         {showFlags && <span>{flag}</span>}
@@ -79,7 +79,7 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
   return (
     <button
       onClick={handleLanguageChange}
-      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${themeClasses.text.primary} hover:bg-gray-2 dark:hover:bg-dark-3 transition-all ${className}`}
+      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-2 dark:hover:bg-dark-3 transition-all ${className || themeClasses.text.primary}`}
       aria-label={`Switch language to ${currentLanguage === 'ru' ? 'English' : 'Russian'}`}
     >
       {showFlags && <span className="text-base">{flag}</span>}

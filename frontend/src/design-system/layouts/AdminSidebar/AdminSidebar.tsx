@@ -51,17 +51,20 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   const { isOpen, toggleSidebar, openDropdown, toggleDropdown } = useSidebar();
   const { client } = useClientSafe();
   
+  // Принудительно перерисовываем компонент при смене языка
+  const [, forceUpdate] = useReducer(x => x + 1, 0);
+  
   // Предзагружаем модуль admin для переводов
   useEffect(() => {
-    preloadModule('admin').catch((error) => {
+    preloadModule('admin').then(() => {
+      // Принудительно перерисовываем после загрузки модуля
+      forceUpdate();
+    }).catch((error) => {
       if (process.env.NODE_ENV === 'development') {
         console.warn('[i18n] Failed to preload admin module in AdminSidebar:', error);
       }
     });
   }, []);
-  
-  // Принудительно перерисовываем компонент при смене языка
-  const [, forceUpdate] = useReducer(x => x + 1, 0);
   
   useEffect(() => {
     const handleLanguageChanged = () => {
