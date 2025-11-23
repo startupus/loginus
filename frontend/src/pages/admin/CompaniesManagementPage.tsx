@@ -282,7 +282,7 @@ const CompaniesManagementPage: React.FC = () => {
                             variant="ghost"
                             size="sm"
                             iconOnly
-                            onClick={() => handleDeleteCompany(company.id)}
+                            onClick={() => handleDeleteClick(company.id)}
                             title={t('admin.companies.delete', 'Удалить')}
                           >
                             <Icon name="trash" size="sm" className="text-error" />
@@ -323,6 +323,28 @@ const CompaniesManagementPage: React.FC = () => {
           isCreateMode={isCreateMode}
         />
       )}
+
+      {/* Модальное окно подтверждения удаления */}
+      <Modal
+        isOpen={deleteConfirmModal.isOpen}
+        onClose={() => setDeleteConfirmModal({ companyId: null, isOpen: false })}
+        title={t('admin.companies.deleteConfirmTitle', 'Подтверждение удаления')}
+        size="sm"
+        footer={
+          <div className="flex gap-3 justify-end">
+            <Button variant="outline" onClick={() => setDeleteConfirmModal({ companyId: null, isOpen: false })}>
+              {t('common.cancel', 'Отменить')}
+            </Button>
+            <Button variant="error" onClick={handleDeleteConfirm}>
+              {t('common.delete', 'Удалить')}
+            </Button>
+          </div>
+        }
+      >
+        <p className={themeClasses.text.primary}>
+          {t('admin.companies.deleteConfirm', 'Вы уверены, что хотите удалить компанию?')}
+        </p>
+      </Modal>
     </AdminPageTemplate>
   );
 };
