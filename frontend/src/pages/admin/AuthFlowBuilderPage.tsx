@@ -175,7 +175,7 @@ const AuthFlowBuilderPage: React.FC = () => {
                           method.enabled ? 'bg-success' : 'bg-gray-3'
                         }`}
                       >
-                        <div className={`w-4 h-4 bg-white rounded-full transition-transform ${
+                        <div className={`w-4 h-4 ${themeClasses.background.surface} rounded-full transition-transform ${
                           method.enabled ? 'translate-x-5' : 'translate-x-1'
                         }`} />
                       </button>
@@ -233,7 +233,7 @@ const AuthFlowBuilderPage: React.FC = () => {
                           method.enabled ? 'bg-success' : 'bg-gray-3'
                         }`}
                       >
-                        <div className={`w-4 h-4 bg-white rounded-full transition-transform ${
+                        <div className={`w-4 h-4 ${themeClasses.background.surface} rounded-full transition-transform ${
                           method.enabled ? 'translate-x-5' : 'translate-x-1'
                         }`} />
                       </button>
@@ -291,7 +291,7 @@ const AuthFlowBuilderPage: React.FC = () => {
                           method.enabled ? 'bg-success' : 'bg-gray-3'
                         }`}
                       >
-                        <div className={`w-4 h-4 bg-white rounded-full transition-transform ${
+                        <div className={`w-4 h-4 ${themeClasses.background.surface} rounded-full transition-transform ${
                           method.enabled ? 'translate-x-5' : 'translate-x-1'
                         }`} />
                       </button>

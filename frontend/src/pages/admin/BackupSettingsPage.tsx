@@ -41,7 +41,7 @@ const BackupSettingsPage: React.FC = () => {
           onClick={handleCreateBackup}
           className="hidden sm:flex"
         >
-          {t('admin.backup.create', 'Создать бекап')}
+          {t('admin.backup.create.create', 'Создать бекап')}
         </Button>
       }
     >

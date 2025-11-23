@@ -629,46 +629,6 @@ const MenuSettingsPage: React.FC = () => {
           </div>
         </div>
       </Modal>
-
-      {/* Модальное окно подтверждения удаления */}
-      <Modal
-        isOpen={isDeleteModalOpen}
-        onClose={() => {
-          setIsDeleteModalOpen(false);
-          setItemToDelete(null);
-        }}
-        title={t('menuSettings.confirmDeleteTitle', 'Подтверждение удаления')}
-      >
-        <div className="space-y-4">
-          <p className={themeClasses.text.primary}>
-            {t('menuSettings.confirmDelete', 'Вы уверены, что хотите удалить этот пункт меню?')}
-          </p>
-          {itemToDelete && (
-            <div className={`p-3 rounded-lg ${themeClasses.background.gray2}`}>
-              <p className={`text-sm ${themeClasses.text.secondary}`}>
-                {t('menuSettings.deleteItemName', 'Пункт')}: <span className={`font-medium ${themeClasses.text.primary}`}>{itemToDelete.label}</span>
-              </p>
-            </div>
-          )}
-          <div className="flex justify-end gap-3 pt-4">
-            <Button
-              variant="ghost"
-              onClick={() => {
-                setIsDeleteModalOpen(false);
-                setItemToDelete(null);
-              }}
-            >
-              {t('common.cancel', 'Отмена')}
-            </Button>
-            <Button
-              variant="error"
-              onClick={handleConfirmDelete}
-            >
-              {t('common.delete', 'Удалить')}
-            </Button>
-          </div>
-        </div>
-      </Modal>
     </AdminPageTemplate>
   );
 };

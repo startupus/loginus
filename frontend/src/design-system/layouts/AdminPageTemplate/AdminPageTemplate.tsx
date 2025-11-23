@@ -105,53 +105,53 @@ const AdminTemplateBody: React.FC<AdminPageTemplateProps> = ({
   const defaultAdminSidebarItems: SidebarItem[] = React.useMemo(() => {
     // Убеждаемся, что переводы загружены, используя fallback значения
     return [
-      { 
+    { 
         label: t('admin.sidebar.dashboard', 'Дашборд'), 
-        path: buildPathWithLang('/admin', currentLang), 
-        icon: 'chartBar', 
-        active: location.pathname === buildPathWithLang('/admin', currentLang) || 
-                (location.pathname === buildPathWithLang('/admin/', currentLang))
-      },
-      { 
+      path: buildPathWithLang('/admin', currentLang), 
+      icon: 'chartBar', 
+      active: location.pathname === buildPathWithLang('/admin', currentLang) || 
+              (location.pathname === buildPathWithLang('/admin/', currentLang))
+    },
+    { 
         label: t('admin.sidebar.users', 'Пользователи'), 
-        path: buildPathWithLang('/admin/users', currentLang), 
-        icon: 'users', 
-        active: location.pathname.includes('/admin/users')
-      },
-      { 
+      path: buildPathWithLang('/admin/users', currentLang), 
+      icon: 'users', 
+      active: location.pathname.includes('/admin/users')
+    },
+    { 
         label: t('admin.sidebar.companies', 'Компании'), 
-        path: buildPathWithLang('/admin/companies', currentLang), 
-        icon: 'briefcase', 
-        active: location.pathname.includes('/admin/companies')
-      },
-      { 
+      path: buildPathWithLang('/admin/companies', currentLang), 
+      icon: 'briefcase', 
+      active: location.pathname.includes('/admin/companies')
+    },
+    { 
         label: t('admin.sidebar.settings', 'Настройки'), 
-        path: buildPathWithLang('/admin/settings', currentLang), 
-        icon: 'settings', 
-        active: location.pathname.includes('/admin/auth-flow') || 
-                location.pathname.includes('/admin/backup') || 
-                location.pathname.includes('/admin/menu-settings'),
-        children: [
-          { 
+      path: buildPathWithLang('/admin/settings', currentLang), 
+      icon: 'settings', 
+      active: location.pathname.includes('/admin/auth-flow') || 
+              location.pathname.includes('/admin/backup') || 
+              location.pathname.includes('/admin/menu-settings'),
+      children: [
+        { 
             label: t('admin.sidebar.authFlow', 'Алгоритм авторизации'), 
-            path: buildPathWithLang('/admin/auth-flow', currentLang), 
-            icon: 'shield', 
-            active: location.pathname.includes('/admin/auth-flow')
-          },
-          { 
+          path: buildPathWithLang('/admin/auth-flow', currentLang), 
+          icon: 'shield', 
+          active: location.pathname.includes('/admin/auth-flow')
+        },
+        { 
             label: t('admin.sidebar.backup', 'Бекапы и синхронизация'), 
-            path: buildPathWithLang('/admin/backup', currentLang), 
-            icon: 'server', 
-            active: location.pathname.includes('/admin/backup')
-          },
-          { 
+          path: buildPathWithLang('/admin/backup', currentLang), 
+          icon: 'server', 
+          active: location.pathname.includes('/admin/backup')
+        },
+        { 
             label: t('admin.sidebar.menuSettings', 'Настройки меню'), 
-            path: buildPathWithLang('/admin/menu-settings', currentLang), 
-            icon: 'menu', 
-            active: location.pathname.includes('/admin/menu-settings')
-          },
-        ]
-      },
+          path: buildPathWithLang('/admin/menu-settings', currentLang), 
+          icon: 'menu', 
+          active: location.pathname.includes('/admin/menu-settings')
+        },
+      ]
+    },
     ];
   }, [t, currentLang, location.pathname, i18n.language, adminModuleLoaded]);
 

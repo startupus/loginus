@@ -86,10 +86,19 @@ export const SyncSettingsSection: React.FC = () => {
     await testConnectionMutation.mutateAsync();
   };
 
-  const handleEnrichmentSourceToggle = (source: string) => {
-    const sources = syncSettings.enrichment.sources.includes(source)
-      ? syncSettings.enrichment.sources.filter(s => s !== source)
-      : [...syncSettings.enrichment.sources, source];
+  const handleEnrichmentSourceToggle = (sourceKey: string) => {
+    // Маппинг ключей на переведенные строки для проверки
+    const sourceKeyMap: Record<string, string> = {
+      'debtors': t('admin.backup.sync.dataSourceDebtors', 'База должников'),
+      'problematic': t('admin.backup.sync.dataSourceProblematic', 'База проблемных клиентов'),
+      'other': t('admin.backup.sync.dataSourceOther', 'Другие источники'),
+    };
+    
+    // Проверяем по ключу или по переведенной строке (для обратной совместимости)
+    const sourceLabel = sourceKeyMap[sourceKey] || sourceKey;
+    const sources = syncSettings.enrichment.sources.includes(sourceLabel) || syncSettings.enrichment.sources.includes(sourceKey)
+      ? syncSettings.enrichment.sources.filter(s => s !== sourceLabel && s !== sourceKey)
+      : [...syncSettings.enrichment.sources, sourceLabel];
     
     handleInputChange('enrichment.sources', sources);
   };
@@ -278,17 +287,35 @@ export const SyncSettingsSection: React.FC = () => {
                     {t('admin.backup.sync.dataSources', 'Источники данных')}
                   </label>
                   <div className="space-y-2">
-                    {['База должников', 'База проблемных клиентов', 'Другие источники'].map((source) => (
-                      <label key={source} className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={syncSettings.enrichment.sources.includes(source)}
-                          onChange={() => handleEnrichmentSourceToggle(source)}
-                          className="w-4 h-4 text-primary rounded"
-                        />
-                        <span className={themeClasses.text.primary}>{source}</span>
-                      </label>
-                    ))}
+                    {[
+                      { key: 'debtors', translationKey: 'admin.backup.sync.dataSourceDebtors', fallback: 'База должников' },
+                      { key: 'problematic', translationKey: 'admin.backup.sync.dataSourceProblematic', fallback: 'База проблемных клиентов' },
+                      { key: 'other', translationKey: 'admin.backup.sync.dataSourceOther', fallback: 'Другие источники' },
+                    ].map(({ key, translationKey, fallback }) => {
+                      const sourceLabel = t(translationKey, fallback);
+                      // Проверяем по переведенной строке или по ключу (для обратной совместимости)
+                      const isChecked = syncSettings.enrichment.sources.includes(sourceLabel) || 
+                                       syncSettings.enrichment.sources.includes(key) ||
+                                       syncSettings.enrichment.sources.some(s => {
+                                         const fallbackMap: Record<string, string> = {
+                                           'debtors': 'База должников',
+                                           'problematic': 'База проблемных клиентов',
+                                           'other': 'Другие источники',
+                                         };
+                                         return s === fallbackMap[key];
+                                       });
+                      return (
+                        <label key={key} className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => handleEnrichmentSourceToggle(key)}
+                            className="w-4 h-4 text-primary rounded"
+                          />
+                          <span className={themeClasses.text.primary}>{sourceLabel}</span>
+                        </label>
+                      );
+                    })}
                   </div>
                 </div>
 
