@@ -485,7 +485,7 @@ const UsersManagementPage: React.FC = () => {
                             variant="ghost"
                             size="sm"
                             iconOnly
-                            onClick={() => handleDeleteUser(user.id)}
+                            onClick={() => handleDeleteClick(user.id)}
                             title={t('admin.users.delete', 'Удалить')}
                           >
                             <Icon name="trash" size="sm" className="text-danger" />
@@ -584,6 +584,28 @@ const UsersManagementPage: React.FC = () => {
           <Icon name="plus" size="md" />
         </Button>
       </div>
+
+      {/* Модальное окно подтверждения удаления */}
+      <Modal
+        isOpen={deleteConfirmModal.isOpen}
+        onClose={() => setDeleteConfirmModal({ userId: null, isOpen: false })}
+        title={t('admin.users.deleteConfirmTitle', 'Подтверждение удаления')}
+        size="sm"
+        footer={
+          <div className="flex gap-3 justify-end">
+            <Button variant="outline" onClick={() => setDeleteConfirmModal({ userId: null, isOpen: false })}>
+              {t('common.cancel', 'Отменить')}
+            </Button>
+            <Button variant="error" onClick={handleDeleteConfirm}>
+              {t('common.delete', 'Удалить')}
+            </Button>
+          </div>
+        }
+      >
+        <p className={themeClasses.text.primary}>
+          {t('admin.users.deleteConfirm', 'Вы уверены, что хотите удалить пользователя?')}
+        </p>
+      </Modal>
     </AdminPageTemplate>
   );
 };
