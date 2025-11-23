@@ -21,7 +21,27 @@
     "activities": {
       "title": "Активности",
       "description": "Последние активности пользователей",
-      "viewAll": "Показать все"
+      "viewAll": "Показать все",
+      "actions": {
+        "createdInvoice": "создал счет",
+        "updatedInvoice": "обновил счет",
+        "deletedInvoice": "удалил счет",
+        "createdUser": "создал пользователя",
+        "updatedUser": "обновил пользователя",
+        "deletedUser": "удалил пользователя",
+        "createdCompany": "создал компанию",
+        "updatedCompany": "обновил компанию",
+        "deletedCompany": "удалил компанию"
+      },
+      "relativeTime": {
+        "justNow": "Только что",
+        "minutesAgo": "{{count}} мин. назад",
+        "hoursAgo": "{{count}} ч. назад",
+        "daysAgo": "{{count}} дн. назад",
+        "weeksAgo": "{{count}} нед. назад",
+        "monthsAgo": "{{count}} мес. назад",
+        "yearsAgo": "{{count}} г. назад"
+      }
     },
     "churn": {
       "title": "Отток пользователей",

@@ -119,7 +119,7 @@ export const SyncSettingsSection: React.FC = () => {
                 syncSettings.enabled ? 'bg-success' : 'bg-gray-3'
               }`}
             >
-              <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
+              <div className={`w-5 h-5 ${themeClasses.background.surface} rounded-full transition-transform ${
                 syncSettings.enabled ? 'translate-x-6' : 'translate-x-0.5'
               }`} />
             </button>
@@ -264,7 +264,7 @@ export const SyncSettingsSection: React.FC = () => {
                   syncSettings.enrichment.enabled ? 'bg-success' : 'bg-gray-3'
                 }`}
               >
-                <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
+                <div className={`w-5 h-5 ${themeClasses.background.surface} rounded-full transition-transform ${
                   syncSettings.enrichment.enabled ? 'translate-x-6' : 'translate-x-0.5'
                 }`} />
               </button>
@@ -308,7 +308,7 @@ export const SyncSettingsSection: React.FC = () => {
                       syncSettings.enrichment.autoEnrich ? 'bg-success' : 'bg-gray-3'
                     }`}
                   >
-                    <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
+                    <div className={`w-5 h-5 ${themeClasses.background.surface} rounded-full transition-transform ${
                       syncSettings.enrichment.autoEnrich ? 'translate-x-6' : 'translate-x-0.5'
                     }`} />
                   </button>

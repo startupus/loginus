@@ -7,6 +7,7 @@ import { Icon } from '../../design-system/primitives/Icon';
 import { useAdminWidgets } from '../../hooks/useAdminWidgets';
 import { useAdminPermissions } from '../../hooks/useAdminPermissions';
 import { themeClasses } from '../../design-system/utils/themeClasses';
+import { useCurrentLanguage } from '../../utils/routing';
 
 // Lazy loading для тяжелых компонентов
 const MasonryGrid = lazy(() => import('../../design-system/composites/MasonryGrid').then(m => ({ default: m.MasonryGrid })));
@@ -77,40 +78,41 @@ const AdminDashboardPage: React.FC = () => {
   });
 
   // Доступные виджеты админки с реактивностью к смене языка
+  const currentLang = useCurrentLanguage();
   const availableWidgets: AvailableAdminWidget[] = useMemo(() => [
     {
       id: 'overview',
-      title: t('admin.widgets.overview.title', 'Overview'),
-      description: t('admin.widgets.overview.description', 'Основные метрики системы'),
+      title: t('admin.widgets.overview.title', currentLang === 'ru' ? 'Обзор' : 'Overview'),
+      description: t('admin.widgets.overview.description', currentLang === 'ru' ? 'Основные метрики системы' : 'Key system metrics'),
       icon: 'bar-chart',
       enabled: enabledWidgets.has('overview'),
     },
     {
       id: 'activities',
-      title: t('admin.widgets.activities.title', 'Activities'),
-      description: t('admin.widgets.activities.description', 'Последние активности пользователей'),
+      title: t('admin.widgets.activities.title', currentLang === 'ru' ? 'Активности' : 'Activities'),
+      description: t('admin.widgets.activities.description', currentLang === 'ru' ? 'Последние активности пользователей' : 'Recent user activities'),
       icon: 'activity',
       enabled: enabledWidgets.has('activities'),
     },
     {
       id: 'churn',
-      title: t('admin.widgets.churn.title', 'Churn Rate'),
-      description: t('admin.widgets.churn.description', 'Процент оттока пользователей'),
+      title: t('admin.widgets.churn.title', currentLang === 'ru' ? 'Отток пользователей' : 'Churn Rate'),
+      description: t('admin.widgets.churn.description', currentLang === 'ru' ? 'Процент оттока пользователей' : 'User churn percentage'),
       icon: 'trending-down',
       enabled: enabledWidgets.has('churn'),
       requiredRole: 'super_admin',
     },
     {
       id: 'growth',
-      title: t('admin.widgets.growth.title', 'User Growth'),
-      description: t('admin.widgets.growth.description', 'Рост регистраций'),
+      title: t('admin.widgets.growth.title', currentLang === 'ru' ? 'Рост пользователей' : 'User Growth'),
+      description: t('admin.widgets.growth.description', currentLang === 'ru' ? 'Рост регистраций' : 'Registration growth'),
       icon: 'trending-up',
       enabled: enabledWidgets.has('growth'),
     },
     {
       id: 'companies',
-      title: t('admin.widgets.companies.title', 'Companies'),
-      description: t('admin.widgets.companies.description', 'Список компаний'),
+      title: t('admin.widgets.companies.title', currentLang === 'ru' ? 'Компании' : 'Companies'),
+      description: t('admin.widgets.companies.description', currentLang === 'ru' ? 'Список компаний' : 'Company list'),
       icon: 'building',
       enabled: enabledWidgets.has('companies'),
       requiredRole: 'super_admin',
@@ -121,7 +123,7 @@ const AdminDashboardPage: React.FC = () => {
       return false;
     }
     return true;
-  }), [t, i18n.language, enabledWidgets, isSuperAdmin]);
+  }), [t, i18n.language, currentLang, enabledWidgets, isSuperAdmin]);
 
   // Drag & Drop handlers
   const handleDragStart = (_e: React.DragEvent, widgetId: string) => {

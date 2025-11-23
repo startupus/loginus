@@ -1,5 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useReducer } from 'react';
 import { useTranslation } from 'react-i18next';
+import { preloadModule } from '../../../services/i18n/config';
 import { Icon } from '../../../design-system/primitives';
 import { WidgetCard } from '../../../design-system/composites/WidgetCard';
 import { Badge } from '../../../design-system/primitives/Badge';
@@ -53,41 +54,73 @@ export const OverviewMetricsWidget: React.FC<OverviewMetricsWidgetProps> = ({
   const { t, i18n } = useTranslation();
   const currentLang = useCurrentLanguage();
   const locale = currentLang === 'en' ? 'en' : 'ru';
+  const [, forceUpdate] = useReducer(x => x + 1, 0);
+
+  // Предзагружаем модуль admin для переводов
+  useEffect(() => {
+    preloadModule('admin').then(() => {
+      forceUpdate();
+    }).catch((error) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[i18n] Failed to preload admin module in OverviewMetricsWidget:', error);
+      }
+    });
+  }, []);
+
+  // Перезагружаем модуль при смене языка
+  useEffect(() => {
+    const handleLanguageChanged = async () => {
+      try {
+        await preloadModule('admin');
+        forceUpdate();
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('[i18n] Failed to reload admin module on language change:', error);
+        }
+      }
+    };
+    
+    i18n.on('languageChanged', handleLanguageChanged);
+    
+    return () => {
+      i18n.off('languageChanged', handleLanguageChanged);
+    };
+  }, [i18n]);
 
   // Используем useMemo с зависимостью от языка для реактивности переводов
   const metricsList = useMemo(() => [
     {
-      label: t('admin.metrics.totalRevenue', 'Total Revenue'),
+      label: t('admin.metrics.totalRevenue', currentLang === 'ru' ? 'Общий доход' : 'Total Revenue'),
       value: formatCurrency(metrics.totalRevenue || 0, 'USD', locale),
       change: '+2.5%',
       changePositive: true,
       icon: 'dollar-sign' as const,
     },
     {
-      label: t('admin.metrics.activeUsers', 'Active Users'),
+      label: t('admin.metrics.activeUsers', currentLang === 'ru' ? 'Активные пользователи' : 'Active Users'),
       value: formatNumber(metrics.activeUsers || 0, locale),
       change: '+9.5%',
       changePositive: true,
       icon: 'users' as const,
     },
     {
-      label: t('admin.metrics.customerLifetimeValue', 'Customer Lifetime Value'),
+      label: t('admin.metrics.customerLifetimeValue', currentLang === 'ru' ? 'Средняя ценность клиента' : 'Customer Lifetime Value'),
       value: formatCurrency(metrics.customerLifetimeValue || 0, 'USD', locale),
       change: '-1.6%',
       changePositive: false,
       icon: 'trending-up' as const,
     },
     {
-      label: t('admin.metrics.customerAcquisitionCost', 'Customer Acquisition Cost'),
+      label: t('admin.metrics.customerAcquisitionCost', currentLang === 'ru' ? 'Стоимость привлечения клиента' : 'Customer Acquisition Cost'),
       value: formatNumber(metrics.customerAcquisitionCost || 0, locale),
       change: '+3.5%',
       changePositive: true,
       icon: 'target' as const,
     },
-  ], [t, i18n.language, locale, metrics.totalRevenue, metrics.activeUsers, metrics.customerLifetimeValue, metrics.customerAcquisitionCost]);
+  ], [t, i18n.language, locale, currentLang, metrics.totalRevenue, metrics.activeUsers, metrics.customerLifetimeValue, metrics.customerAcquisitionCost]);
 
   // Используем useMemo для заголовка виджета
-  const widgetTitle = useMemo(() => t('admin.widgets.overview.title', 'Overview'), [t, i18n.language]);
+  const widgetTitle = useMemo(() => t('admin.widgets.overview.title', currentLang === 'ru' ? 'Обзор' : 'Overview'), [t, i18n.language, currentLang]);
 
   return (
     <WidgetCard

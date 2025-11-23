@@ -1,9 +1,12 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useReducer } from 'react';
 import { useTranslation } from 'react-i18next';
+import { preloadModule } from '../../../services/i18n/config';
 import { Icon } from '../../../design-system/primitives';
 import { WidgetCard } from '../../../design-system/composites/WidgetCard';
 import { Avatar } from '../../../design-system/primitives/Avatar';
 import { themeClasses } from '../../../design-system/utils/themeClasses';
+import { useCurrentLanguage } from '../../../utils/routing';
+import { formatRelativeTimeWithT } from '../../../utils/intl/formatters';
 
 export interface Activity {
   id: string;
@@ -81,12 +84,83 @@ export const RecentActivitiesWidget: React.FC<RecentActivitiesWidgetProps> = ({
   isDragging,
 }) => {
   const { t, i18n } = useTranslation();
+  const currentLang = useCurrentLanguage();
+  const [, forceUpdate] = useReducer(x => x + 1, 0);
+
+  // Предзагружаем модуль admin для переводов
+  useEffect(() => {
+    preloadModule('admin').then(() => {
+      forceUpdate();
+    }).catch((error) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[i18n] Failed to preload admin module in RecentActivitiesWidget:', error);
+      }
+    });
+  }, []);
+
+  // Перезагружаем модуль при смене языка
+  useEffect(() => {
+    const handleLanguageChanged = async () => {
+      try {
+        await preloadModule('admin');
+        forceUpdate();
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('[i18n] Failed to reload admin module on language change:', error);
+        }
+      }
+    };
+    
+    i18n.on('languageChanged', handleLanguageChanged);
+    
+    return () => {
+      i18n.off('languageChanged', handleLanguageChanged);
+    };
+  }, [i18n]);
 
   const displayedActivities = activities.slice(0, 4);
 
   // Используем useMemo для реактивности переводов при смене языка
-  const widgetTitle = useMemo(() => t('admin.widgets.activities.title', 'Activities'), [t, i18n.language]);
-  const viewAllLabel = useMemo(() => t('admin.widgets.activities.viewAll', 'View All'), [t, i18n.language]);
+  const widgetTitle = useMemo(() => t('admin.widgets.activities.title', currentLang === 'ru' ? 'Активности' : 'Activities'), [t, i18n.language, currentLang]);
+  const viewAllLabel = useMemo(() => t('admin.widgets.activities.viewAll', currentLang === 'ru' ? 'Показать все' : 'View All'), [t, i18n.language, currentLang]);
+
+  // Функция для перевода действия
+  const getActionLabel = (action: string) => {
+    // Маппинг действий на ключи переводов
+    const actionMap: Record<string, string> = {
+      'created invoice': 'admin.widgets.activities.actions.createdInvoice',
+      'updated invoice': 'admin.widgets.activities.actions.updatedInvoice',
+      'deleted invoice': 'admin.widgets.activities.actions.deletedInvoice',
+      'created user': 'admin.widgets.activities.actions.createdUser',
+      'updated user': 'admin.widgets.activities.actions.updatedUser',
+      'deleted user': 'admin.widgets.activities.actions.deletedUser',
+      'created company': 'admin.widgets.activities.actions.createdCompany',
+      'updated company': 'admin.widgets.activities.actions.updatedCompany',
+      'deleted company': 'admin.widgets.activities.actions.deletedCompany',
+    };
+    
+    const translationKey = actionMap[action.toLowerCase()];
+    if (translationKey) {
+      return t(translationKey, action);
+    }
+    return action;
+  };
+
+  // Функция для форматирования относительного времени
+  const formatActivityTime = (timestamp: string, relativeTime: string) => {
+    try {
+      return formatRelativeTimeWithT(timestamp, t, currentLang, 'admin.widgets.activities');
+    } catch {
+      // Fallback на переведенный relativeTime если есть
+      const relativeTimeMap: Record<string, string> = {
+        'Just Now': t('admin.widgets.activities.relativeTime.justNow', 'Только что'),
+        '15 minutes ago': t('admin.widgets.activities.relativeTime.minutesAgo', '15 мин. назад', { count: 15 }),
+        '5 months ago': t('admin.widgets.activities.relativeTime.monthsAgo', '5 мес. назад', { count: 5 }),
+        '2 weeks ago': t('admin.widgets.activities.relativeTime.weeksAgo', '2 нед. назад', { count: 2 }),
+      };
+      return relativeTimeMap[relativeTime] || relativeTime;
+    }
+  };
 
   return (
     <WidgetCard
@@ -126,14 +200,14 @@ export const RecentActivitiesWidget: React.FC<RecentActivitiesWidgetProps> = ({
                   {activity.userName}
                 </span>
                 <span className={themeClasses.text.secondary}>
-                  {activity.action}
+                  {getActionLabel(activity.action)}
                 </span>
                 <span className={`font-medium ${themeClasses.text.primary}`}>
                   {activity.details}
                 </span>
               </div>
               <p className={`text-xs mt-1 ${themeClasses.text.secondary}`}>
-                {activity.relativeTime}
+                {formatActivityTime(activity.timestamp, activity.relativeTime)}
               </p>
             </div>
           </div>

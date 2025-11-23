@@ -93,29 +93,73 @@ export function formatRelativeTime(
  * @param date - Дата
  * @param t - Функция перевода из useTranslation()
  * @param locale - Локаль ('ru' | 'en')
+ * @param namespace - Пространство имен для переводов (по умолчанию 'common')
  * @returns Отформатированное относительное время
  */
 export function formatRelativeTimeWithT(
   date: string | number | Date,
   t: (key: string, defaultValue?: string, options?: any) => string,
   locale: Locale = 'ru',
+  namespace?: string,
 ): string {
   const dateObj = typeof date === 'string' || typeof date === 'number' 
     ? new Date(date) 
     : date;
   
   const now = new Date();
-  const diff = now.getTime() - dateObj.getTime();
+  const diff = Math.abs(now.getTime() - dateObj.getTime());
+  const minutes = Math.floor(diff / (1000 * 60));
+  const hours = Math.floor(diff / (1000 * 60 * 60));
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const weeks = Math.floor(days / 7);
+  const months = Math.floor(days / 30);
+  const years = Math.floor(days / 365);
   
-  if (days === 0) {
-    return t('common.today', 'Сегодня');
+  // Используем namespace для ключей перевода, если указан
+  const getKey = (key: string) => namespace ? `${namespace}.${key}` : key;
+  
+  // Fallback значения для каждого языка
+  const fallbacks = {
+    ru: {
+      justNow: 'Только что',
+      minutesAgo: (count: number) => `${count} мин. назад`,
+      hoursAgo: (count: number) => `${count} ч. назад`,
+      yesterday: 'Вчера',
+      daysAgo: (count: number) => `${count} дн. назад`,
+      weeksAgo: (count: number) => `${count} нед. назад`,
+      monthsAgo: (count: number) => `${count} мес. назад`,
+      yearsAgo: (count: number) => `${count} г. назад`,
+    },
+    en: {
+      justNow: 'Just Now',
+      minutesAgo: (count: number) => `${count} min ago`,
+      hoursAgo: (count: number) => `${count} h ago`,
+      yesterday: 'Yesterday',
+      daysAgo: (count: number) => `${count} days ago`,
+      weeksAgo: (count: number) => `${count} weeks ago`,
+      monthsAgo: (count: number) => `${count} months ago`,
+      yearsAgo: (count: number) => `${count} years ago`,
+    },
+  };
+  
+  const fb = fallbacks[locale];
+  
+  if (minutes < 1) {
+    return t(getKey('relativeTime.justNow'), fb.justNow);
+  } else if (minutes < 60) {
+    return t(getKey('relativeTime.minutesAgo'), fb.minutesAgo(minutes), { count: minutes });
+  } else if (hours < 24) {
+    return t(getKey('relativeTime.hoursAgo'), fb.hoursAgo(hours), { count: hours });
   } else if (days === 1) {
-    return t('common.yesterday', 'Вчера');
+    return t(getKey('yesterday') || 'common.yesterday', fb.yesterday);
   } else if (days < 7) {
-    return t('common.daysAgo', `${days} дн. назад`, { count: days });
+    return t(getKey('daysAgo') || 'common.daysAgo', fb.daysAgo(days), { count: days });
+  } else if (weeks < 4) {
+    return t(getKey('relativeTime.weeksAgo'), fb.weeksAgo(weeks), { count: weeks });
+  } else if (months < 12) {
+    return t(getKey('relativeTime.monthsAgo'), fb.monthsAgo(months), { count: months });
   } else {
-    return formatDate(dateObj, locale, { day: 'numeric', month: 'short' });
+    return t(getKey('relativeTime.yearsAgo'), fb.yearsAgo(years), { count: years });
   }
 }
 

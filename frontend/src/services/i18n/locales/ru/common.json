@@ -3,6 +3,14 @@
     "today": "Сегодня",
     "yesterday": "Вчера",
     "daysAgo": "{{count}} дн. назад",
+    "relativeTime": {
+      "justNow": "Только что",
+      "minutesAgo": "{{count}} мин. назад",
+      "hoursAgo": "{{count}} ч. назад",
+      "weeksAgo": "{{count}} нед. назад",
+      "monthsAgo": "{{count}} мес. назад",
+      "yearsAgo": "{{count}} г. назад"
+    },
     "noData": "Нет данных",
     "close": "Закрыть",
     "search": "Поиск...",

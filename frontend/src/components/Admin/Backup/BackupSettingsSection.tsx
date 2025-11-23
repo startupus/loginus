@@ -84,7 +84,7 @@ export const BackupSettingsSection: React.FC = () => {
                 backupSettings.autoBackup.enabled ? 'bg-success' : 'bg-gray-3'
               }`}
             >
-              <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
+              <div className={`w-5 h-5 ${themeClasses.background.surface} rounded-full transition-transform ${
                 backupSettings.autoBackup.enabled ? 'translate-x-6' : 'translate-x-0.5'
               }`} />
             </button>
