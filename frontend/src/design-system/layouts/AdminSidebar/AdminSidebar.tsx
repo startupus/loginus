@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { preloadModule } from '@/services/i18n/config';
 import { Icon } from '../../primitives/Icon';
 import { AdminLogo } from '../../primitives/Logo';
 import { Input } from '../../primitives/Input';
@@ -8,7 +9,7 @@ import { useSidebar } from '../../hooks/useSidebar';
 import { useTheme, useClientSafe } from '../../contexts';
 import { useLanguageStore } from '@/store';
 import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';
-import { changeLanguage } from '@/services/i18n/config';
+import { LanguageSwitcher } from '../../composites/LanguageSwitcher';
 import type { SidebarItem } from '../Sidebar/Sidebar';
 
 export interface AdminSidebarProps {
@@ -44,12 +45,35 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   showLanguageSwitcher = true,
 }) => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const currentLang = useCurrentLanguage();
-  const { language, setLanguage } = useLanguageStore();
   const { setThemeMode, isDark } = useTheme();
   const { isOpen, toggleSidebar, openDropdown, toggleDropdown } = useSidebar();
   const { client } = useClientSafe();
+  
+  // Предзагружаем модуль admin для переводов
+  useEffect(() => {
+    preloadModule('admin').catch((error) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[i18n] Failed to preload admin module in AdminSidebar:', error);
+      }
+    });
+  }, []);
+  
+  // Принудительно перерисовываем компонент при смене языка
+  const [, forceUpdate] = useReducer(x => x + 1, 0);
+  
+  useEffect(() => {
+    const handleLanguageChanged = () => {
+      forceUpdate();
+    };
+    
+    i18n.on('languageChanged', handleLanguageChanged);
+    
+    return () => {
+      i18n.off('languageChanged', handleLanguageChanged);
+    };
+  }, [i18n]);
   
   // Клиентский брендинг - фирменный логотип
   const customLogo = client?.branding?.logo;
@@ -109,7 +133,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
               </button>
               <div className="mt-4">
                 <span className="text-xs font-semibold uppercase tracking-wider text-purple-400 dark:text-purple-300">
-                  {t('admin.sidebar.title', 'Админ-панель')}
+                  {t('admin.sidebar.title')}
                 </span>
               </div>
             </div>
@@ -119,7 +143,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           <div className="px-6 pb-4 xl:hidden border-b border-slate-700 dark:border-slate-800">
             <Input
               type="text"
-              placeholder={t('common.search', 'Поиск...')}
+              placeholder={t('common.search')}
               rightIcon={<Icon name="search" size="sm" className="text-slate-400 dark:text-slate-500" />}
             />
           </div>
@@ -206,7 +230,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
             className="text-slate-400 dark:text-slate-500 hover:text-purple-400 dark:hover:text-purple-300 flex w-full items-center py-1.5 text-sm font-medium duration-200"
           >
             <Icon name="help-circle" size="sm" className="mr-3" />
-            <span>{t('sidebar.help', 'Справка')}</span>
+            <span>{t('sidebar.help')}</span>
           </button>
           
           <button
@@ -214,32 +238,29 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
             className="text-slate-400 dark:text-slate-500 hover:text-purple-400 dark:hover:text-purple-300 flex w-full items-center py-1.5 text-sm font-medium duration-200"
           >
             <Icon name="user" size="sm" className="mr-3" />
-            <span>{t('admin.sidebar.backToProfile', 'Вернуться в профиль')}</span>
+            <span>{t('admin.sidebar.backToProfile')}</span>
           </button>
           
           <div className="border-slate-700 dark:border-slate-800 my-3 h-px"></div>
           
           <div className="flex items-center justify-between py-2">
             {showLanguageSwitcher && (
-              <button
-                onClick={async () => {
-                  const newLang = language === 'ru' ? 'en' : 'ru';
-                  setLanguage(newLang);
-                  await changeLanguage(newLang);
-                  const newPath = buildPathWithLang(window.location.pathname.replace(/^\/(ru|en)/, ''), newLang);
-                  navigate(newPath);
-                }}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-200 dark:text-slate-300 hover:bg-slate-800 dark:hover:bg-slate-900 transition-all"
-              >
-                {language === 'ru' ? '🇷🇺 RU' : '🇬🇧 EN'}
-              </button>
+              <LanguageSwitcher 
+                variant="compact" 
+                className="text-slate-200 dark:text-slate-300 hover:bg-slate-800 dark:hover:bg-slate-900"
+              />
             )}
 
             {showThemeSwitcher && (
               <button
                 onClick={() => setThemeMode(isDark ? 'light' : 'dark')}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-200 dark:text-slate-300 hover:bg-slate-800 dark:hover:bg-slate-900 transition-all"
-                title={`Текущая тема: ${isDark ? 'dark' : 'light'}. Кликните для переключения`}
+                title={t('common.theme.toggle', {
+                  mode: isDark
+                    ? t('common.theme.mode.dark', { defaultValue: 'dark' })
+                    : t('common.theme.mode.light', { defaultValue: 'light' }),
+                  defaultValue: `Current theme: ${isDark ? 'dark' : 'light'}. Click to switch`,
+                })}
               >
                 {isDark ? (
                   <Icon name="sun" size="sm" className="text-yellow-400" />

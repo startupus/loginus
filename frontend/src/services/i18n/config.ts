@@ -1,238 +1,332 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
-// Получаем сохраненный язык из localStorage (через zustand persist)
-const getStoredLanguage = (): string => {
+import { loadModule, loadModules } from './v2/loader';
+import { AVAILABLE_MODULES, CRITICAL_MODULES, getModuleByKey } from './v2/config';
+import type { Locale, ModuleName } from './v2/types';
+
+/**
+ * Возвращает язык из URL (приоритет) или из localStorage (fallback).
+ * Это предотвращает мигание текста при загрузке страницы.
+ */
+const getInitialLanguage = (): Locale => {
+  // Приоритет 1: язык из URL (если доступен)
+  if (typeof window !== 'undefined') {
+    const pathMatch = window.location.pathname.match(/^\/(ru|en)(\/|$)/);
+    if (pathMatch && (pathMatch[1] === 'ru' || pathMatch[1] === 'en')) {
+      return pathMatch[1] as Locale;
+    }
+  }
+  
+  // Приоритет 2: язык из localStorage (zustand persist)
   try {
     const stored = localStorage.getItem('loginus-language');
     if (stored) {
       const parsed = JSON.parse(stored);
-      return parsed?.state?.language || 'ru';
+      const lang = parsed?.state?.language;
+      if (lang === 'ru' || lang === 'en') {
+        return lang;
+      }
     }
-  } catch (e) {
-    // Игнорируем ошибки парсинга
+  } catch {
+    // Игнорируем ошибки чтения/парсинга
   }
+  
+  // Fallback: русский по умолчанию
   return 'ru';
 };
 
-const initialLanguage = getStoredLanguage();
-
-// Кэш загруженных модулей для избежания повторных загрузок
-const loadedModules = new Map<string, Set<string>>();
-
-// Доступные модули локализации
-const availableModules = ['common', 'dashboard', 'auth', 'profile', 'errors', 'landing', 'about', 'features', 'help', 'work', 'modals', 'support', 'payment', 'admin'] as const;
-type ModuleName = typeof availableModules[number];
-
-// Статические ресурсы: RU подгружаем сразу, чтобы не было водопада чанков на первом экране
-const staticResources: Record<'ru', Record<string, any>> = {
-  ru: {},
-};
-
-const ruModules = import.meta.glob('./locales/ru/*.json', { eager: true }) as Record<
-  string,
-  { default: Record<string, any> }
->;
-
-for (const modulePath in ruModules) {
-  const moduleData = ruModules[modulePath]?.default;
-  if (moduleData) {
-    Object.assign(staticResources.ru, moduleData);
-  }
-}
-
-// Помечаем ru-модули как уже загруженные, чтобы динамический импорт не дергался повторно
-loadedModules.set('ru', new Set(availableModules));
+const initialLanguage: Locale = getInitialLanguage();
 
 /**
- * Загружает модуль локализации
- * @param locale - код языка (ru, en)
- * @param module - название модуля
- * @returns Promise с данными модуля или пустым объектом при ошибке
+ * Трекер загруженных модулей, чтобы не дёргать один и тот же бандл повторно.
  */
-const loadModule = async (locale: string, module: ModuleName): Promise<Record<string, any>> => {
-  // Проверяем кэш - был ли уже загружен этот модуль для данного языка
-  if (loadedModules.has(locale) && loadedModules.get(locale)!.has(module)) {
-    // Модуль уже загружен, возвращаем пустой объект (данные уже в i18n)
+const loadedModules = new Map<Locale, Set<ModuleName>>();
+
+const markModuleAsLoaded = (locale: Locale, module: ModuleName) => {
+  if (!loadedModules.has(locale)) {
+    loadedModules.set(locale, new Set());
+  }
+  loadedModules.get(locale)!.add(module);
+};
+
+/**
+ * Глубокое объединение объектов переводов.
+ */
+const deepMerge = (target: Record<string, any>, source: Record<string, any>): Record<string, any> => {
+  const result = { ...target };
+
+  Object.keys(source).forEach((key) => {
+    const sourceValue = source[key];
+    const targetValue = result[key];
+
+    const isObject = (value: unknown): value is Record<string, any> =>
+      typeof value === 'object' && value !== null && !Array.isArray(value);
+
+    if (isObject(sourceValue) && isObject(targetValue)) {
+      result[key] = deepMerge(targetValue, sourceValue);
+    } else {
+      result[key] = sourceValue;
+    }
+  });
+
+  return result;
+};
+
+/**
+ * Загружает конкретный модуль перевода и помечает его как загруженный.
+ */
+const loadModuleForI18n = async (
+  locale: Locale,
+  module: ModuleName,
+  forceReload = false,
+): Promise<Record<string, any>> => {
+  const alreadyLoaded = loadedModules.has(locale) && loadedModules.get(locale)!.has(module);
+  if (alreadyLoaded && !forceReload) {
     return {};
   }
 
   try {
-    // Динамический импорт с кэшированием браузером
-    const data = await import(/* @vite-ignore */ `./locales/${locale}/${module}.json`);
-    const moduleData = data.default || {};
-    
-    // Помечаем модуль как загруженный
-    if (!loadedModules.has(locale)) {
-      loadedModules.set(locale, new Set());
+    const data = await loadModule(locale, module, {
+      useAPI: true,
+      useCache: true,
+      useStaticFallback: true,
+      forceRefresh: forceReload,
+    });
+
+    if (data && Object.keys(data).length > 0) {
+      markModuleAsLoaded(locale, module);
+      // Оборачиваем данные в родительский ключ модуля для правильной структуры
+      // Например, для модуля 'admin' данные будут доступны как admin.sidebar.title
+      return { [module]: data };
     }
-    loadedModules.get(locale)!.add(module);
-    
-    return moduleData;
+
+    return {};
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {
-      console.warn(`Failed to load module ${module} for locale ${locale}:`, error);
+      console.warn(`[i18n] Failed to load module ${module} for ${locale}:`, error);
     }
-    // Возвращаем пустой объект вместо ошибки для graceful degradation
     return {};
   }
 };
 
 /**
- * Загружает все модули для языка и объединяет их
- * @param locale - код языка
- * @returns Promise с объединенными данными всех модулей
+ * Загружает все модули для языка и объединяет их в один объект.
  */
-const loadAllModules = async (locale: string): Promise<Record<string, any>> => {
+const loadAllModulesForLanguage = async (locale: Locale): Promise<Record<string, any>> => {
   try {
-    // Загружаем все модули параллельно
-    const modules = await Promise.all(
-      availableModules.map(module => loadModule(locale, module))
+    const modules = await loadModules(
+      locale,
+      [...AVAILABLE_MODULES] as ModuleName[],
+      {
+        useAPI: true,
+        useCache: true,
+        useStaticFallback: true,
+      },
     );
-    
-    // Объединяем все модули в один объект
-    const merged = modules.reduce((acc, moduleData) => {
-      return { ...acc, ...moduleData };
+
+    const merged = Object.entries(modules).reduce<Record<string, any>>((acc, [moduleName, moduleData]) => {
+      if (moduleData && typeof moduleData === 'object' && Object.keys(moduleData).length > 0) {
+        markModuleAsLoaded(locale, moduleName as ModuleName);
+        return deepMerge(acc, moduleData);
+      }
+      return acc;
     }, {});
-    
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[i18n] Loaded & merged ${Object.keys(merged).length} top-level keys for ${locale}`);
+    }
+
     return merged;
   } catch (error) {
-    console.error(`Failed to load modules for locale ${locale}:`, error);
-    // Fallback на русский язык при ошибке
+    console.error(`[i18n] Failed to load modules for locale ${locale}:`, error);
     if (locale !== 'ru') {
-      return loadAllModules('ru');
+      return loadAllModulesForLanguage('ru');
     }
     return {};
   }
 };
 
-/**
- * Загружает критический модуль common для быстрого старта
- * @param locale - код языка
- */
-const loadCriticalModule = async (locale: string): Promise<Record<string, any>> => {
-  return loadModule(locale, 'common');
+const addBundle = (locale: Locale, data: Record<string, any>, context: string) => {
+  if (!data || Object.keys(data).length === 0) {
+    return;
+  }
+
+  if (process.env.NODE_ENV === 'development') {
+    const sampleKeys = Object.keys(data).slice(0, 10);
+    console.log(`[i18n] [${context}] add bundle for ${locale}: ${sampleKeys.length} keys`, sampleKeys);
+  }
+
+  i18n.addResourceBundle(locale, 'translation', data, true, true);
 };
 
-// Инициализация i18n с модульной загрузкой
+/**
+ * Базовая инициализация i18next. Все ресурсы загружаются динамически.
+ */
 i18n.use(initReactI18next).init({
-  resources: {
-    ru: {
-      translation: staticResources.ru,
-    },
-  }, // Остальные языки подгружаются динамически
+  resources: {},
   lng: initialLanguage,
   fallbackLng: 'ru',
   interpolation: {
     escapeValue: false,
   },
   react: {
-    useSuspense: false, // Отключаем Suspense для i18n, чтобы не блокировать рендеринг
+    useSuspense: false,
   },
-  // Отключаем возврат ключа если перевод не найден - используем fallback
   returnNull: false,
   returnEmptyString: false,
   returnObjects: false,
+  defaultNS: 'translation',
+  ns: ['translation'],
 });
 
-// Загружаем критический модуль common и profile при старте для быстрой инициализации
-// Profile нужен для Header/ProfileMenu, который рендерится сразу
-// Dashboard нужен для DashboardPage, который рендерится сразу
-// Оптимизация: загружаем common модуль сразу (критично), profile и dashboard модули - асинхронно после первого рендера
+// Синхронизируем document.documentElement.lang сразу при инициализации
+// Это предотвращает мигание текста при загрузке страницы
+if (typeof document !== 'undefined') {
+  document.documentElement.lang = initialLanguage;
+}
+
+// Экспортируем инстанс для дебага (только в dev).
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+  (window as any).i18next = i18n;
+}
+
+/**
+ * Загружаем критичные модули (common + profile) до первого рендера,
+ * чтобы базовые переводы были доступны сразу.
+ */
 (async () => {
   try {
-    // Загружаем common модуль сразу (критично для базовых переводов)
-    const commonData = await loadCriticalModule(initialLanguage);
-    if (Object.keys(commonData).length > 0) {
-      i18n.addResourceBundle(initialLanguage, 'translation', commonData, true, true);
-    }
-    
-    // Загружаем profile и dashboard модули асинхронно после первого рендера (не блокируем)
-    // Используем requestIdleCallback для неблокирующей загрузки
-    const loadSecondaryModules = () => {
-      Promise.all([
-        loadModule(initialLanguage, 'profile'),
-        loadModule(initialLanguage, 'dashboard'),
-      ]).then(([profileData, dashboardData]) => {
-          if (Object.keys(profileData).length > 0) {
-            i18n.addResourceBundle(initialLanguage, 'translation', profileData, true, true);
-          }
-        if (Object.keys(dashboardData).length > 0) {
-          i18n.addResourceBundle(initialLanguage, 'translation', dashboardData, true, true);
+    const criticalModules = await loadModules(
+      initialLanguage,
+      [...CRITICAL_MODULES] as ModuleName[],
+      {
+        useAPI: true,
+        useCache: true,
+        useStaticFallback: true,
+      },
+    );
+
+    const mergedCritical = Object.entries(criticalModules).reduce<Record<string, any>>((acc, [name, data]) => {
+      if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+        markModuleAsLoaded(initialLanguage, name as ModuleName);
+        return deepMerge(acc, data);
+      }
+      return acc;
+    }, {});
+
+    addBundle(initialLanguage, mergedCritical, 'critical');
+
+    // Дополнительная загрузка модулей для предзагрузки (не критично для первого рендера)
+    // dashboard уже загружен в критичных модулях, но можем предзагрузить другие
+    const preloadAdditionalModules = async () => {
+      try {
+        // Предзагружаем модули, которые могут понадобиться на странице
+        const additionalModules: ModuleName[] = ['modals', 'errors'];
+        await loadModules(
+          initialLanguage,
+          additionalModules,
+          {
+            useAPI: true,
+            useCache: true,
+            useStaticFallback: true,
+          },
+        ).then((modules) => {
+          const merged = Object.entries(modules).reduce<Record<string, any>>((acc, [name, data]) => {
+            if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+              markModuleAsLoaded(initialLanguage, name as ModuleName);
+              return deepMerge(acc, data);
+            }
+            return acc;
+          }, {});
+          addBundle(initialLanguage, merged, 'preload');
+        });
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('[i18n] Failed to preload additional modules:', error);
         }
-        }).catch(() => {});
+      }
     };
-    
+
     if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      (window as any).requestIdleCallback(loadSecondaryModules, { timeout: 2000 });
+      (window as any).requestIdleCallback(preloadAdditionalModules, { timeout: 2000 });
     } else {
-      // Fallback для браузеров без requestIdleCallback
-      setTimeout(loadSecondaryModules, 100);
+      setTimeout(preloadAdditionalModules, 100);
     }
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {
-      console.warn('Failed to load initial i18n modules:', error);
+      console.warn('[i18n] Failed to load critical modules:', error);
     }
   }
 })();
 
-// Автоматически загружаем модули при первом использовании ключа
+/**
+ * Автозагрузка модулей по событию missingKey (на всякий случай).
+ */
 i18n.on('missingKey', (lngs, _ns, key) => {
-  const lng = Array.isArray(lngs) ? lngs[0] : lngs;
-  if (!lng) return;
-  
-  // Определяем модуль по ключу и загружаем его
-  let module: ModuleName | null = null;
-  if (key.startsWith('dashboard.')) module = 'dashboard';
-  else if (key.startsWith('auth.') || key.startsWith('onboarding.')) module = 'auth';
-  else if (key.startsWith('profile.') || key.startsWith('security.') || key.startsWith('personalData.') || key.startsWith('personal.')) module = 'profile';
-  else if (key.startsWith('landing.')) module = 'landing';
-  else if (key.startsWith('about.')) module = 'about';
-  else if (key.startsWith('work.')) module = 'work';
-  else if (key.startsWith('errors.')) module = 'errors';
-  else if (key.startsWith('modals.')) module = 'modals';
-  else if (key.startsWith('support.')) module = 'support';
-  
-  if (module && (!loadedModules.has(lng) || !loadedModules.get(lng)!.has(module))) {
-    // Загружаем модуль асинхронно без блокировки
-    loadModule(lng, module).then((moduleData) => {
-      if (Object.keys(moduleData).length > 0) {
-        i18n.addResourceBundle(lng, 'translation', moduleData, true, true);
-        // Обновляем ресурсы для применения изменений
-        i18n.reloadResources(lng).catch(() => {});
-      }
-    }).catch(() => {});
+  const lng = (Array.isArray(lngs) ? lngs[0] : lngs) as Locale | undefined;
+  if (!lng) {
+    return;
   }
+
+  const module = getModuleByKey(key);
+  if (!module) {
+    return;
+  }
+
+  const isLoaded = loadedModules.has(lng) && loadedModules.get(lng)!.has(module);
+  if (isLoaded) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn(`[i18n] Key ${key} not found even though module ${module} is loaded`);
+    }
+    return;
+  }
+
+  loadModuleForI18n(lng, module)
+    .then((data) => addBundle(lng, data, `missingKey:${module}`))
+    .then(() => i18n.reloadResources(lng).catch(() => undefined))
+    .catch(() => undefined);
 });
 
 /**
- * Функция для динамической загрузки языка с модулями
- * @param locale - код языка
+ * Смена языка с полной загрузкой всех модулей.
  */
 export const changeLanguage = async (locale: string) => {
-  // Проверяем, загружен ли уже язык полностью
-  if (!loadedModules.has(locale) || loadedModules.get(locale)!.size < availableModules.length) {
-    // Загружаем все модули для нового языка
-    const allModules = await loadAllModules(locale);
-    i18n.addResourceBundle(locale, 'translation', allModules, true, true);
+  const targetLocale = (locale === 'en' ? 'en' : 'ru') as Locale;
+
+  try {
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[i18n] Changing language to ${targetLocale}`);
+    }
+
+    const allModules = await loadAllModulesForLanguage(targetLocale);
+    addBundle(targetLocale, allModules, 'changeLanguage');
+
+    await i18n.changeLanguage(targetLocale);
+    await i18n.reloadResources(targetLocale);
+    
+    // Синхронизируем document.documentElement.lang
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = targetLocale;
+    }
+    
+    i18n.emit('languageChanged', targetLocale);
+  } catch (error) {
+    console.error(`[i18n] Failed to change language to ${targetLocale}:`, error);
+    if (targetLocale !== 'ru') {
+      await changeLanguage('ru');
+    }
   }
-  await i18n.changeLanguage(locale);
-  // Перезагружаем ресурсы для принудительного обновления компонентов
-  await i18n.reloadResources(locale);
 };
 
 /**
- * Предзагружает модуль для текущего языка
- * @param module - название модуля для предзагрузки
+ * Предзагрузка модуля для текущего языка.
  */
 export const preloadModule = async (module: ModuleName) => {
-  const currentLang = i18n.language;
-  const moduleData = await loadModule(currentLang, module);
-  if (Object.keys(moduleData).length > 0) {
-    i18n.addResourceBundle(currentLang, 'translation', moduleData, true, true);
-  }
+  const currentLang = (i18n.language || initialLanguage) as Locale;
+  const data = await loadModuleForI18n(currentLang, module, true);
+  addBundle(currentLang, data, `preload:${module}`);
 };
-
 
 export default i18n;
 
