@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Icon } from '../../../design-system/primitives';
 import { WidgetCard } from '../../../design-system/composites/WidgetCard';
@@ -50,11 +50,12 @@ export const OverviewMetricsWidget: React.FC<OverviewMetricsWidgetProps> = ({
   insertPosition,
   isDragging,
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const currentLang = useCurrentLanguage();
   const locale = currentLang === 'en' ? 'en' : 'ru';
 
-  const metricsList = [
+  // Используем useMemo с зависимостью от языка для реактивности переводов
+  const metricsList = useMemo(() => [
     {
       label: t('admin.metrics.totalRevenue', 'Total Revenue'),
       value: formatCurrency(metrics.totalRevenue || 0, 'USD', locale),
@@ -83,11 +84,14 @@ export const OverviewMetricsWidget: React.FC<OverviewMetricsWidgetProps> = ({
       changePositive: true,
       icon: 'target' as const,
     },
-  ];
+  ], [t, i18n.language, locale, metrics.totalRevenue, metrics.activeUsers, metrics.customerLifetimeValue, metrics.customerAcquisitionCost]);
+
+  // Используем useMemo для заголовка виджета
+  const widgetTitle = useMemo(() => t('admin.widgets.overview.title', 'Overview'), [t, i18n.language]);
 
   return (
     <WidgetCard
-      title={t('admin.widgets.overview.title', 'Overview')}
+      title={widgetTitle}
       icon={<Icon name="bar-chart" size="lg" className="text-primary" />}
       widgetId={widgetId}
       draggable={draggable}

@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useState } from 'react';
+import React, { Suspense, lazy, useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { AdminPageTemplate } from '../../design-system/layouts/AdminPageTemplate';
@@ -51,7 +51,7 @@ const fetchAdminStats = async () => {
  * Использует структуру виджетов из DashboardPage и данные из TailAdmin SaaS Dashboard
  */
 const AdminDashboardPage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { isSuperAdmin, isCompanyAdmin } = useAdminPermissions();
   
   const [isWidgetSelectorOpen, setIsWidgetSelectorOpen] = useState(false);
@@ -76,8 +76,8 @@ const AdminDashboardPage: React.FC = () => {
     gcTime: 30 * 60 * 1000,
   });
 
-  // Доступные виджеты админки
-  const availableWidgets: AvailableAdminWidget[] = [
+  // Доступные виджеты админки с реактивностью к смене языка
+  const availableWidgets: AvailableAdminWidget[] = useMemo(() => [
     {
       id: 'overview',
       title: t('admin.widgets.overview.title', 'Overview'),
@@ -121,7 +121,7 @@ const AdminDashboardPage: React.FC = () => {
       return false;
     }
     return true;
-  });
+  }), [t, i18n.language, enabledWidgets, isSuperAdmin]);
 
   // Drag & Drop handlers
   const handleDragStart = (_e: React.DragEvent, widgetId: string) => {

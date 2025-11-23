@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Icon } from '../../../design-system/primitives';
 import { WidgetCard } from '../../../design-system/composites/WidgetCard';
@@ -80,13 +80,17 @@ export const RecentActivitiesWidget: React.FC<RecentActivitiesWidgetProps> = ({
   insertPosition,
   isDragging,
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const displayedActivities = activities.slice(0, 4);
 
+  // Используем useMemo для реактивности переводов при смене языка
+  const widgetTitle = useMemo(() => t('admin.widgets.activities.title', 'Activities'), [t, i18n.language]);
+  const viewAllLabel = useMemo(() => t('admin.widgets.activities.viewAll', 'View All'), [t, i18n.language]);
+
   return (
     <WidgetCard
-      title={t('admin.widgets.activities.title', 'Activities')}
+      title={widgetTitle}
       icon={<Icon name="activity" size="lg" className="text-primary" />}
       widgetId={widgetId}
       draggable={draggable}
@@ -102,9 +106,9 @@ export const RecentActivitiesWidget: React.FC<RecentActivitiesWidgetProps> = ({
       actions={
         <button
           className="text-sm text-primary hover:underline"
-          aria-label={t('admin.widgets.activities.viewAll', 'View All')}
+          aria-label={viewAllLabel}
         >
-          {t('admin.widgets.activities.viewAll', 'View All')}
+          {viewAllLabel}
         </button>
       }
     >
