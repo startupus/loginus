@@ -193,7 +193,7 @@ const UsersManagementPage: React.FC = () => {
     return (
       <AdminPageTemplate title={t('admin.users.title', 'Управление пользователями')} showSidebar={true}>
         <div className="flex items-center justify-center min-h-[400px]">
-          <Icon name="loader" size="lg" className="animate-spin text-primary" />
+          <Icon name="loader" size="lg" className="animate-spin" color="rgb(var(--color-primary))" />
         </div>
       </AdminPageTemplate>
     );

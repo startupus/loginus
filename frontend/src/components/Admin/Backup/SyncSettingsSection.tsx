@@ -50,7 +50,7 @@ export const SyncSettingsSection: React.FC = () => {
   if (isLoading || !syncSettings) {
     return (
       <div className="flex items-center justify-center p-8">
-        <Icon name="loader" size="lg" className="animate-spin text-primary" />
+        <Icon name="loader" size="lg" className="animate-spin" color="rgb(var(--color-primary))" />
       </div>
     );
   }

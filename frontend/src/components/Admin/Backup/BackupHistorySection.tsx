@@ -134,7 +134,7 @@ export const BackupHistorySection: React.FC = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <Icon name="loader" size="lg" className="animate-spin text-primary" />
+        <Icon name="loader" size="lg" className="animate-spin" color="rgb(var(--color-primary))" />
       </div>
     );
   }
