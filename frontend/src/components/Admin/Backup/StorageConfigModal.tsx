@@ -25,6 +25,7 @@ export const StorageConfigModal: React.FC<StorageConfigModalProps> = ({
   storageType,
   settings,
 }) => {
+  const [testResult, setTestResult] = useState<{ success: boolean; message: string; isOpen: boolean }>({ success: false, message: '', isOpen: false });
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isTesting, setIsTesting] = useState(false);
@@ -225,6 +226,23 @@ export const StorageConfigModal: React.FC<StorageConfigModalProps> = ({
           </>
         )}
       </div>
+
+      {/* Модальное окно результата теста */}
+      <Modal
+        isOpen={testResult.isOpen}
+        onClose={() => setTestResult({ success: false, message: '', isOpen: false })}
+        title={testResult.success ? t('admin.backup.storage.testSuccessTitle', 'Подключение успешно') : t('admin.backup.storage.testErrorTitle', 'Ошибка подключения')}
+        size="sm"
+        footer={
+          <div className="flex justify-end">
+            <Button variant="primary" onClick={() => setTestResult({ success: false, message: '', isOpen: false })}>
+              {t('common.close', 'Закрыть')}
+            </Button>
+          </div>
+        }
+      >
+        <p className={themeClasses.text.primary}>{testResult.message}</p>
+      </Modal>
     </Modal>
   );
 };
