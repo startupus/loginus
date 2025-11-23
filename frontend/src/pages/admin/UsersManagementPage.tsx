@@ -32,6 +32,7 @@ interface User {
 const UsersManagementPage: React.FC = () => {
   const { t } = useTranslation();
   const { isSuperAdmin, canAccessCompany } = useAdminPermissions();
+  const [deleteConfirmModal, setDeleteConfirmModal] = useState<{ userId: string | null; isOpen: boolean }>({ userId: null, isOpen: false });
   const currentLang = useCurrentLanguage();
   const locale = currentLang === 'en' ? 'en' : 'ru';
   const queryClient = useQueryClient();
@@ -130,9 +131,14 @@ const UsersManagementPage: React.FC = () => {
     setIsEditModalOpen(true);
   };
 
-  const handleDeleteUser = async (userId: string) => {
-    if (window.confirm(t('admin.users.deleteConfirm', 'Вы уверены, что хотите удалить пользователя?'))) {
-      await deleteMutation.mutateAsync(userId);
+  const handleDeleteClick = (userId: string) => {
+    setDeleteConfirmModal({ userId, isOpen: true });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (deleteConfirmModal.userId) {
+      await deleteMutation.mutateAsync(deleteConfirmModal.userId);
+      setDeleteConfirmModal({ userId: null, isOpen: false });
     }
   };
 
