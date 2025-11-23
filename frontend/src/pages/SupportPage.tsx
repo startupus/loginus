@@ -439,7 +439,7 @@ const SupportPage: React.FC = () => {
         {/* Основная область с историей и чатом */}
         <div className="flex flex-col lg:flex-row gap-3 sm:gap-6 flex-1 min-h-0 relative overflow-hidden">
         {/* Левая панель - История чатов */}
-          <div className={`w-full lg:w-80 flex-shrink-0 absolute lg:relative inset-0 lg:inset-auto z-50 lg:z-auto transition-transform duration-300 ease-in-out ${
+          <div className={`w-full lg:w-80 flex-shrink-0 absolute lg:relative inset-0 lg:inset-auto z-[25] lg:z-auto transition-transform duration-300 ease-in-out ${
             showChatHistory ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
           }`}>
         <ChatHistory

@@ -6,6 +6,7 @@
     "count": "{{count}}"
   },
   "hints": {
+    "title": "Useful Services",
     "plus": {
       "title": "Cashback for purchases with Plus points",
       "value": "0"
@@ -17,6 +18,7 @@
   },
   "history": {
     "title": "Payment History",
+    "empty": "Payment history is empty",
     "allPayments": "All payments",
     "items": {
       "plusSubscription": "Plus Subscription",

@@ -11,21 +11,30 @@ export class PaymentService {
   private history = [
     {
       id: '1',
-      type: 'subscription',
-      description: 'Яндекс Плюс',
-      amount: '399 ₽',
+      title: 'Подписка Плюса',
+      description: 'МАТЧ! ФУТБОЛ',
+      amount: -380,
+      currency: '₽',
       date: '2025-01-15',
       status: 'completed',
-      method: 'Visa •••• 4242',
     },
     {
       id: '2',
-      type: 'topup',
-      description: 'Пополнение',
-      amount: '1 000 ₽',
+      title: 'Подписка Плюса',
+      description: 'Дополнительная опция Алиса Про',
+      amount: -100,
+      currency: '₽',
       date: '2025-01-10',
       status: 'completed',
-      method: 'Сбербанк',
+    },
+    {
+      id: '3',
+      title: 'Подписка Плюса',
+      description: 'Дополнительная опция Путешественникам',
+      amount: -200,
+      currency: '₽',
+      date: '2025-01-08',
+      status: 'completed',
     },
   ];
 
