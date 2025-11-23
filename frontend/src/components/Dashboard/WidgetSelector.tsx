@@ -70,7 +70,7 @@ export const WidgetSelector: React.FC<WidgetSelectorProps> = ({
               {availableWidgets.map((widget) => (
                 <div
                   key={widget.id}
-                  className={`flex items-center gap-4 p-4 rounded-lg ${themeClasses.border.default} bg-background dark:bg-dark-3 hover:border-primary dark:hover:border-primary/50 transition-colors`}
+                  className={`flex items-center gap-4 p-4 rounded-lg ${themeClasses.border.default} ${themeClasses.background.surface} hover:border-primary dark:hover:border-primary/50 transition-colors`}
                 >
                   {/* Иконка */}
                   <div className={`flex-shrink-0 w-12 h-12 rounded-lg ${themeClasses.iconCircle.primary}`}>
