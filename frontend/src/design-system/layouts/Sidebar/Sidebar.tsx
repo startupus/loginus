@@ -202,7 +202,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         <div className="p-6 space-y-1">
           <button
-            onClick={() => navigate(buildPathWithLang('/support', currentLang))}
+            onClick={() => navigate(buildPathWithLang('/help', currentLang))}
             className={`${themeClasses.text.secondary} dark:text-dark-6 hover:text-primary flex w-full items-center py-1.5 text-sm font-medium duration-200`}
           >
             <Icon name="help-circle" size="sm" className="mr-3" />
@@ -220,9 +220,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className={`${themeClasses.background.gray2} my-3 h-px`}></div>
           
           <div className="flex items-center justify-between py-2">
-            {showLanguageSwitcher && (
+            {/* {showLanguageSwitcher && (
               <LanguageSwitcher variant="compact" />
-            )}
+            )} */}
 
             {showThemeSwitcher && (
               <button

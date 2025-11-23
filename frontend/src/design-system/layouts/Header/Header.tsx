@@ -96,9 +96,9 @@ export const Header: React.FC<HeaderProps> = ({
             {actions}
             
             {/* Переключатель языка - видим на десктопе */}
-            <div className="hidden xl:block">
+            {/* <div className="hidden xl:block">
               <LanguageSwitcher variant="compact" />
-            </div>
+            </div> */}
             
             {/* Колокольчик с событиями - скрыт на мобильных, показан на десктопе */}
             {userData && (

@@ -202,7 +202,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
         <div className={`p-6 space-y-1 border-t ${themeClasses.admin.sidebarBorder}`}>
           <button
-            onClick={() => navigate(buildPathWithLang('/support', currentLang))}
+            onClick={() => navigate(buildPathWithLang('/help', currentLang))}
             className={`${themeClasses.admin.sidebarText} ${themeClasses.admin.sidebarTextHover} flex w-full items-center py-1.5 text-sm font-medium duration-200`}
           >
             <Icon name="help-circle" size="sm" className="mr-3" />
@@ -220,12 +220,12 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           <div className={`${themeClasses.admin.sidebarBorder} my-3 h-px`}></div>
           
           <div className="flex items-center justify-between py-2">
-            {showLanguageSwitcher && (
+            {/* {showLanguageSwitcher && (
               <LanguageSwitcher 
                 variant="compact" 
                 className={`text-slate-200 dark:text-slate-300 ${themeClasses.admin.sidebarHover}`}
               />
-            )}
+            )} */}
 
             {showThemeSwitcher && (
               <button
