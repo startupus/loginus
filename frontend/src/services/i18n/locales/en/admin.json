@@ -120,7 +120,8 @@
     "add": "Add",
     "createCompany": "Create Company",
     "editCompany": "Edit Company",
-    "deleteConfirm": "Are you sure you want to delete this company?",
+      "deleteConfirm": "Are you sure you want to delete this company?",
+      "deleteConfirmTitle": "Confirm deletion",
     "empty": {
       "title": "No companies found",
       "description": "Try changing search parameters or filters"

@@ -19,6 +19,7 @@ import { formatDate } from '../../utils/intl/formatters';
 const CompaniesManagementPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [deleteConfirmModal, setDeleteConfirmModal] = useState<{ companyId: string | null; isOpen: boolean }>({ companyId: null, isOpen: false });
   const currentLang = useCurrentLanguage();
   const locale = currentLang === 'en' ? 'en' : 'ru';
   const queryClient = useQueryClient();
@@ -86,9 +87,14 @@ const CompaniesManagementPage: React.FC = () => {
     setIsEditModalOpen(true);
   };
 
-  const handleDeleteCompany = async (companyId: string) => {
-    if (window.confirm(t('admin.companies.deleteConfirm', 'Вы уверены, что хотите удалить компанию?'))) {
-      await deleteMutation.mutateAsync(companyId);
+  const handleDeleteClick = (companyId: string) => {
+    setDeleteConfirmModal({ companyId, isOpen: true });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (deleteConfirmModal.companyId) {
+      await deleteMutation.mutateAsync(deleteConfirmModal.companyId);
+      setDeleteConfirmModal({ companyId: null, isOpen: false });
     }
   };
 

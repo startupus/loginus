@@ -84,7 +84,7 @@ const AdminDashboardPage: React.FC = () => {
       id: 'overview',
       title: t('admin.widgets.overview.title', currentLang === 'ru' ? 'Обзор' : 'Overview'),
       description: t('admin.widgets.overview.description', currentLang === 'ru' ? 'Основные метрики системы' : 'Key system metrics'),
-      icon: 'bar-chart',
+      icon: 'chartBar',
       enabled: enabledWidgets.has('overview'),
     },
     {
@@ -179,7 +179,7 @@ const AdminDashboardPage: React.FC = () => {
 
   if (error) {
     return (
-      <AdminPageTemplate title={t('admin.dashboard.title', 'Админ-панель')} showSidebar={true}>
+      <AdminPageTemplate title={t('admin.dashboard.title', currentLang === 'ru' ? 'Админ-панель' : 'Admin Panel')} showSidebar={true}>
         <div className={themeClasses.state.error}>
           <div className={themeClasses.state.loadingSpinner}>
             <Icon name="alert-circle" size="lg" color="rgb(var(--color-error))" className="mx-auto mb-4" />
@@ -197,7 +197,7 @@ const AdminDashboardPage: React.FC = () => {
   // Показываем skeleton при загрузке
   if (isLoading) {
     return (
-      <AdminPageTemplate title={t('admin.dashboard.title', 'Админ-панель')} showSidebar={true}>
+      <AdminPageTemplate title={t('admin.dashboard.title', currentLang === 'ru' ? 'Админ-панель' : 'Admin Panel')} showSidebar={true}>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
           {[1, 2, 3].map((i) => (
             <WidgetSkeleton key={i} />
@@ -209,7 +209,7 @@ const AdminDashboardPage: React.FC = () => {
 
   return (
     <AdminPageTemplate 
-      title={t('admin.dashboard.title', 'Админ-панель')} 
+      title={t('admin.dashboard.title', currentLang === 'ru' ? 'Админ-панель' : 'Admin Panel')} 
       showSidebar={true}
     >
       <div className="space-y-4 sm:space-y-6">
