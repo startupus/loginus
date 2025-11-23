@@ -73,16 +73,16 @@ export const WidgetSelector: React.FC<WidgetSelectorProps> = ({
                   className={`flex items-center gap-4 p-4 rounded-lg ${themeClasses.border.default} bg-background dark:bg-dark-3 hover:border-primary dark:hover:border-primary/50 transition-colors`}
                 >
                   {/* Иконка */}
-                  <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-primary/10 dark:bg-primary/20 flex items-center justify-center">
-                    <Icon name={widget.icon} size="md" className="text-primary" />
+                  <div className={`flex-shrink-0 w-12 h-12 rounded-lg ${themeClasses.iconCircle.primary}`}>
+                    <Icon name={widget.icon} size="md" color="rgb(var(--color-primary))" />
                   </div>
 
                   {/* Информация */}
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-medium text-text-primary mb-1">
+                    <h3 className={`text-sm font-medium ${themeClasses.text.primary} mb-1`}>
                       {widget.title}
                     </h3>
-                    <p className="text-xs text-text-secondary line-clamp-2">
+                    <p className={`text-xs ${themeClasses.text.secondary} line-clamp-2`}>
                       {widget.description}
                     </p>
                   </div>
@@ -93,12 +93,12 @@ export const WidgetSelector: React.FC<WidgetSelectorProps> = ({
                     className={`flex-shrink-0 w-12 h-6 rounded-full transition-colors duration-200 ${
                       widget.enabled
                         ? 'bg-primary'
-                        : 'bg-gray-3 dark:bg-gray-2'
+                        : themeClasses.background.gray2
                     }`}
                     aria-label={widget.enabled ? t('common.disable', 'Отключить') : t('common.enable', 'Включить')}
                   >
                     <span
-                      className={`block w-5 h-5 rounded-full bg-white transition-transform duration-200 ${
+                      className={`block w-5 h-5 rounded-full ${themeClasses.background.surface} transition-transform duration-200 ${
                         widget.enabled ? 'translate-x-6' : 'translate-x-0.5'
                       }`}
                     />
