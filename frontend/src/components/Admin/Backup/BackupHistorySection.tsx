@@ -17,6 +17,8 @@ import { useCurrentLanguage } from '../../../utils/routing';
 export const BackupHistorySection: React.FC = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const [deleteConfirmModal, setDeleteConfirmModal] = useState<{ id: string; isOpen: boolean }>({ id: '', isOpen: false });
+  const [downloadMessage, setDownloadMessage] = useState<{ text: string; isOpen: boolean }>({ text: '', isOpen: false });
   const currentLang = useCurrentLanguage();
   const locale = currentLang === 'en' ? 'en' : 'ru';
   const [filters, setFilters] = useState<BackupHistoryFilters>({});
@@ -90,15 +92,20 @@ export const BackupHistorySection: React.FC = () => {
       const result = await downloadMutation.mutateAsync(id);
       // В реальном приложении здесь был бы скачивание файла
       // В моке просто показываем сообщение
-      alert(t('admin.backup.history.downloadStarted', 'Скачивание начато'));
+      setDownloadMessage({ text: t('admin.backup.history.downloadStarted', 'Скачивание начато'), isOpen: true });
     } catch (error) {
-      alert(t('admin.backup.history.downloadError', 'Ошибка при скачивании'));
+      setDownloadMessage({ text: t('admin.backup.history.downloadError', 'Ошибка при скачивании'), isOpen: true });
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm(t('admin.backup.history.deleteConfirm', 'Вы уверены, что хотите удалить этот бекап?'))) {
-      await deleteMutation.mutateAsync(id);
+  const handleDeleteClick = (id: string) => {
+    setDeleteConfirmModal({ id, isOpen: true });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (deleteConfirmModal.id) {
+      await deleteMutation.mutateAsync(deleteConfirmModal.id);
+      setDeleteConfirmModal({ id: '', isOpen: false });
     }
   };
 
@@ -318,7 +325,7 @@ export const BackupHistorySection: React.FC = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleDelete(backup.id)}
+                          onClick={() => handleDeleteClick(backup.id)}
                           title={t('admin.backup.history.delete', 'Удалить')}
                         >
                           <Icon name="trash-2" size="sm" className="text-danger" />
@@ -341,6 +348,45 @@ export const BackupHistorySection: React.FC = () => {
           backupId={restoreBackupId}
         />
       )}
+
+      {/* Модальное окно подтверждения удаления */}
+      <Modal
+        isOpen={deleteConfirmModal.isOpen}
+        onClose={() => setDeleteConfirmModal({ id: '', isOpen: false })}
+        title={t('admin.backup.history.deleteConfirmTitle', 'Подтверждение удаления')}
+        size="sm"
+        footer={
+          <div className="flex gap-3 justify-end">
+            <Button variant="outline" onClick={() => setDeleteConfirmModal({ id: '', isOpen: false })}>
+              {t('common.cancel', 'Отменить')}
+            </Button>
+            <Button variant="error" onClick={handleDeleteConfirm}>
+              {t('common.delete', 'Удалить')}
+            </Button>
+          </div>
+        }
+      >
+        <p className={themeClasses.text.primary}>
+          {t('admin.backup.history.deleteConfirm', 'Вы уверены, что хотите удалить этот бекап?')}
+        </p>
+      </Modal>
+
+      {/* Модальное окно сообщения о скачивании */}
+      <Modal
+        isOpen={downloadMessage.isOpen}
+        onClose={() => setDownloadMessage({ text: '', isOpen: false })}
+        title={t('admin.backup.history.downloadTitle', 'Скачивание')}
+        size="sm"
+        footer={
+          <div className="flex justify-end">
+            <Button variant="primary" onClick={() => setDownloadMessage({ text: '', isOpen: false })}>
+              {t('common.close', 'Закрыть')}
+            </Button>
+          </div>
+        }
+      >
+        <p className={themeClasses.text.primary}>{downloadMessage.text}</p>
+      </Modal>
     </div>
   );
 };
