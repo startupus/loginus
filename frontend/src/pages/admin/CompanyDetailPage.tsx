@@ -15,11 +15,14 @@ import { EmptyState } from '../../design-system/composites/EmptyState';
 import { adminApi, AdminUser, AdminCompany } from '../../services/api/admin';
 import { themeClasses } from '../../design-system/utils/themeClasses';
 import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
+import { formatDate } from '../../utils/intl/formatters';
 
 const CompanyDetailPage: React.FC = () => {
   const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const currentLang = useCurrentLanguage();
+  const locale = currentLang === 'en' ? 'en' : 'ru';
   const currentLang = useCurrentLanguage();
   const queryClient = useQueryClient();
 
@@ -154,14 +157,6 @@ const CompanyDetailPage: React.FC = () => {
     return labels[plan] || plan;
   };
 
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return '-';
-    return new Date(dateString).toLocaleDateString('ru-RU', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
 
   if (isLoadingCompany) {
     return (
@@ -216,12 +211,12 @@ const CompanyDetailPage: React.FC = () => {
 
         {/* Информация о компании */}
         <div className={`${themeClasses.card.default} p-6 mb-6`}>
-          <h3 className="text-lg font-semibold text-text-primary mb-4">
+          <h3 className={`text-lg font-semibold ${themeClasses.text.primary} mb-4`}>
             {t('admin.companies.detail.info', 'Информация о компании')}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <p className="text-sm text-text-secondary mb-1">
+              <p className={`text-sm ${themeClasses.text.secondary} mb-1`}>
                 {t('admin.companies.detail.plan', 'Тариф')}
               </p>
               <Badge variant={getPlanBadgeVariant(company.subscriptionPlan)} size="md">
@@ -229,35 +224,43 @@ const CompanyDetailPage: React.FC = () => {
               </Badge>
             </div>
             <div>
-              <p className="text-sm text-text-secondary mb-1">
+              <p className={`text-sm ${themeClasses.text.secondary} mb-1`}>
                 {t('admin.companies.detail.servicesCount', 'Количество сервисов')}
               </p>
-              <p className="text-sm text-text-primary font-medium">
+              <p className={`text-sm ${themeClasses.text.primary} font-medium`}>
                 {company.servicesCount || company.services?.length || 0}
               </p>
             </div>
             <div>
-              <p className="text-sm text-text-secondary mb-1">
+              <p className={`text-sm ${themeClasses.text.secondary} mb-1`}>
                 {t('admin.companies.detail.usersCount', 'Количество пользователей')}
               </p>
-              <p className="text-sm text-text-primary font-medium">
+              <p className={`text-sm ${themeClasses.text.primary} font-medium`}>
                 {company.userCount || 0}
               </p>
             </div>
             <div>
-              <p className="text-sm text-text-secondary mb-1">
+              <p className={`text-sm ${themeClasses.text.secondary} mb-1`}>
                 {t('admin.companies.detail.createdAt', 'Дата создания')}
               </p>
-              <p className="text-sm text-text-primary">
-                {formatDate(company.createdAt)}
+              <p className={`text-sm ${themeClasses.text.primary}`}>
+                {formatDate(company.createdAt, locale, {
+                  day: 'numeric',
+                  month: 'short',
+                  year: 'numeric',
+                })}
               </p>
             </div>
             <div>
-              <p className="text-sm text-text-secondary mb-1">
+              <p className={`text-sm ${themeClasses.text.secondary} mb-1`}>
                 {t('admin.companies.detail.lastActivity', 'Последняя активность')}
               </p>
-              <p className="text-sm text-text-primary">
-                {formatDate(company.lastActivity || company.updatedAt)}
+              <p className={`text-sm ${themeClasses.text.primary}`}>
+                {formatDate(company.lastActivity || company.updatedAt, locale, {
+                  day: 'numeric',
+                  month: 'short',
+                  year: 'numeric',
+                })}
               </p>
             </div>
           </div>
@@ -265,7 +268,7 @@ const CompanyDetailPage: React.FC = () => {
           {/* Список сервисов */}
           {company.services && company.services.length > 0 && (
             <div className="mt-6">
-              <p className="text-sm text-text-secondary mb-3">
+              <p className={`text-sm ${themeClasses.text.secondary} mb-3`}>
                 {t('admin.companies.detail.services', 'Сервисы компании')}
               </p>
               <div className="flex flex-wrap gap-2">
@@ -285,7 +288,7 @@ const CompanyDetailPage: React.FC = () => {
 
         {/* Таблица пользователей */}
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-text-primary mb-4">
+          <h3 className={`text-lg font-semibold ${themeClasses.text.primary} mb-4`}>
             {t('admin.companies.detail.users', 'Пользователи компании')}
           </h3>
 
@@ -297,7 +300,7 @@ const CompanyDetailPage: React.FC = () => {
                 placeholder={t('admin.users.search', 'Поиск по имени, email или телефону...')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                rightIcon={<Icon name="search" size="sm" className="text-text-secondary" />}
+                rightIcon={<Icon name="search" size="sm" className={themeClasses.text.secondary} />}
               />
             </div>
             <div>
@@ -338,18 +341,18 @@ const CompanyDetailPage: React.FC = () => {
             <div className={`${themeClasses.card.default} overflow-hidden`}>
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-1 dark:bg-dark-2">
+                  <thead className={themeClasses.background.gray2}>
                     <tr>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                      <th className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary}`}>
                         {t('admin.users.table.user', 'Пользователь')}
                       </th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                      <th className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary}`}>
                         {t('admin.users.table.role', 'Роль')}
                       </th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                      <th className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary}`}>
                         {t('admin.users.table.status', 'Статус')}
                       </th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                      <th className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary}`}>
                         {t('admin.users.table.createdAt', 'Дата регистрации')}
                       </th>
                     </tr>
@@ -367,7 +370,7 @@ const CompanyDetailPage: React.FC = () => {
                       </tr>
                     ) : (
                       users.map((user: AdminUser) => (
-                        <tr key={user.id} className="hover:bg-gray-1 dark:hover:bg-dark-2 transition-colors">
+                        <tr key={user.id} className={`${themeClasses.list.itemHover} transition-colors`}>
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
                               <Avatar
@@ -377,9 +380,9 @@ const CompanyDetailPage: React.FC = () => {
                                 status={user.status === 'active' ? 'online' : 'offline'}
                               />
                               <div>
-                                <p className="font-medium text-text-primary">{user.displayName}</p>
-                                <p className="text-sm text-text-secondary">{user.email}</p>
-                                <p className="text-sm text-text-secondary">{user.phone}</p>
+                                <p className={`font-medium ${themeClasses.text.primary}`}>{user.displayName}</p>
+                                <p className={`text-sm ${themeClasses.text.secondary}`}>{user.email}</p>
+                                <p className={`text-sm ${themeClasses.text.secondary}`}>{user.phone}</p>
                               </div>
                             </div>
                           </td>
@@ -394,8 +397,12 @@ const CompanyDetailPage: React.FC = () => {
                             </Badge>
                           </td>
                           <td className="px-6 py-4">
-                            <p className="text-sm text-text-secondary">
-                              {formatDate(user.createdAt)}
+                            <p className={`text-sm ${themeClasses.text.secondary}`}>
+                              {formatDate(user.createdAt, locale, {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric',
+                              })}
                             </p>
                           </td>
                         </tr>
@@ -492,7 +499,7 @@ const CompanyEditModal: React.FC<CompanyEditModalProps> = ({
         />
 
         <div>
-          <label className="block text-sm font-medium text-text-primary mb-2">
+          <label className={`block text-sm font-medium ${themeClasses.text.primary} mb-2`}>
             {t('admin.companies.form.plan', 'Тариф')}
           </label>
           <select

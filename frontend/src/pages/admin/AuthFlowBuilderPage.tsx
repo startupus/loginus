@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AdminPageTemplate } from '../../design-system/layouts/AdminPageTemplate';
 import { Button } from '../../design-system/primitives/Button';
@@ -21,20 +21,42 @@ interface AuthMethod {
  * Drag & Drop конструктор для настройки методов входа
  */
 const AuthFlowBuilderPage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   
-  // Методы авторизации
-  const [authMethods, setAuthMethods] = useState<AuthMethod[]>([
-    { id: 'phone-email', name: 'Телефон или email', icon: 'mail', enabled: true, isPrimary: true, order: 1, type: 'primary' },
-    { id: 'github', name: 'Github', icon: 'github', enabled: true, isPrimary: false, order: 2, type: 'oauth' },
-    { id: 'telegram', name: 'Telegram', icon: 'message-circle', enabled: true, isPrimary: false, order: 3, type: 'oauth' },
-    { id: 'gosuslugi', name: 'Гос услуги', icon: 'shield', enabled: true, isPrimary: false, order: 4, type: 'oauth' },
-    { id: 'tinkoff', name: 'Tinkoff ID', icon: 'credit-card', enabled: true, isPrimary: false, order: 5, type: 'oauth' },
-    { id: 'qr', name: 'QR код', icon: 'qr-code', enabled: true, isPrimary: false, order: 6, type: 'alternative' },
-    { id: 'password', name: 'Пароль', icon: 'lock', enabled: true, isPrimary: false, order: 7, type: 'alternative' },
-    { id: 'yandex', name: 'Yandex ID', icon: 'user', enabled: true, isPrimary: false, order: 8, type: 'oauth' },
-    { id: 'saber', name: 'Saber ID', icon: 'user', enabled: false, isPrimary: false, order: 9, type: 'oauth' },
-  ]);
+  // Базовые методы авторизации (без переводов)
+  const baseAuthMethods = useMemo(() => [
+    { id: 'phone-email', icon: 'mail', enabled: true, isPrimary: true, order: 1, type: 'primary' as const },
+    { id: 'github', icon: 'github', enabled: true, isPrimary: false, order: 2, type: 'oauth' as const },
+    { id: 'telegram', icon: 'message-circle', enabled: true, isPrimary: false, order: 3, type: 'oauth' as const },
+    { id: 'gosuslugi', icon: 'shield', enabled: true, isPrimary: false, order: 4, type: 'oauth' as const },
+    { id: 'tinkoff', icon: 'credit-card', enabled: true, isPrimary: false, order: 5, type: 'oauth' as const },
+    { id: 'qr', icon: 'qr-code', enabled: true, isPrimary: false, order: 6, type: 'alternative' as const },
+    { id: 'password', icon: 'lock', enabled: true, isPrimary: false, order: 7, type: 'alternative' as const },
+    { id: 'yandex', icon: 'user', enabled: true, isPrimary: false, order: 8, type: 'oauth' as const },
+    { id: 'saber', icon: 'user', enabled: false, isPrimary: false, order: 9, type: 'oauth' as const },
+  ], []);
+  
+  // Методы авторизации с переводами (реактивные к смене языка)
+  const initialAuthMethods = useMemo(() => baseAuthMethods.map(method => ({
+    ...method,
+    name: t(`admin.authFlow.methods.${method.id}`, method.id),
+  })), [baseAuthMethods, t, i18n.language]);
+  
+  const [authMethods, setAuthMethods] = useState<AuthMethod[]>(initialAuthMethods);
+  
+  // Обновляем методы при смене языка
+  React.useEffect(() => {
+    setAuthMethods(prevMethods => {
+      return prevMethods.map(prevMethod => {
+        const baseMethod = baseAuthMethods.find(b => b.id === prevMethod.id);
+        if (!baseMethod) return prevMethod;
+        return {
+          ...prevMethod,
+          name: t(`admin.authFlow.methods.${baseMethod.id}`, baseMethod.id),
+        };
+      });
+    });
+  }, [t, i18n.language, baseAuthMethods]);
 
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
 
@@ -109,10 +131,10 @@ const AuthFlowBuilderPage: React.FC = () => {
           <div className="flex items-start gap-3">
             <Icon name="info" size="md" className="text-primary mt-0.5" />
             <div>
-              <p className="text-sm text-text-primary font-medium mb-1">
+              <p className={`text-sm ${themeClasses.text.primary} font-medium mb-1`}>
                 {t('admin.authFlow.instruction.title', 'Настройка алгоритма авторизации')}
               </p>
-              <p className="text-sm text-text-secondary">
+              <p className={`text-sm ${themeClasses.text.secondary}`}>
                 {t('admin.authFlow.instruction.description', 'Перетаскивайте методы для изменения порядка. Используйте переключатели для активации/деактивации методов и установки основных способов входа.')}
               </p>
             </div>
@@ -122,7 +144,7 @@ const AuthFlowBuilderPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Основной метод */}
           <div>
-            <h3 className="text-lg font-semibold text-text-primary mb-4">
+            <h3 className={`text-lg font-semibold ${themeClasses.text.primary} mb-4`}>
               {t('admin.authFlow.primaryMethod', 'Основной метод')}
             </h3>
             <div className="space-y-3">
@@ -139,11 +161,11 @@ const AuthFlowBuilderPage: React.FC = () => {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <Icon name="grip-vertical" size="sm" className="text-text-secondary" />
+                      <Icon name="grip-vertical" size="sm" className={themeClasses.text.secondary} />
                       <Icon name={method.icon as any} size="md" className="text-primary" />
                       <div>
-                        <p className="font-medium text-text-primary">{method.name}</p>
-                        <p className="text-xs text-text-secondary">Порядок: {method.order}</p>
+                        <p className={`font-medium ${themeClasses.text.primary}`}>{method.name}</p>
+                        <p className={`text-xs ${themeClasses.text.secondary}`}>{t('admin.authFlow.order', 'Порядок')}: {method.order}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -166,7 +188,7 @@ const AuthFlowBuilderPage: React.FC = () => {
 
           {/* OAuth методы */}
           <div>
-            <h3 className="text-lg font-semibold text-text-primary mb-4">
+            <h3 className={`text-lg font-semibold ${themeClasses.text.primary} mb-4`}>
               {t('admin.authFlow.oauthMethods', 'OAuth методы')}
             </h3>
             <div className="space-y-3">
@@ -183,22 +205,22 @@ const AuthFlowBuilderPage: React.FC = () => {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <Icon name="grip-vertical" size="sm" className="text-text-secondary" />
+                      <Icon name="grip-vertical" size="sm" className={themeClasses.text.secondary} />
                       <Icon name={method.icon as any} size="md" className="text-primary" />
                       <div>
                         <div className="flex items-center gap-2">
-                          <p className="font-medium text-text-primary">{method.name}</p>
+                          <p className={`font-medium ${themeClasses.text.primary}`}>{method.name}</p>
                           {method.isPrimary && (
-                            <Badge variant="warning" size="sm">Основной</Badge>
+                            <Badge variant="warning" size="sm">{t('admin.authFlow.primary', 'Основной')}</Badge>
                           )}
                         </div>
-                        <p className="text-xs text-text-secondary">Порядок: {method.order}</p>
+                        <p className={`text-xs ${themeClasses.text.secondary}`}>{t('admin.authFlow.order', 'Порядок')}: {method.order}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => togglePrimary(method.id)}
-                        title="Основной на стартовой странице"
+                        title={t('admin.authFlow.primaryOnStartPage', 'Основной на стартовой странице')}
                         className={`p-1 rounded transition-colors ${
                           method.isPrimary ? 'text-warning' : 'text-gray-3'
                         }`}
@@ -224,7 +246,7 @@ const AuthFlowBuilderPage: React.FC = () => {
 
           {/* Альтернативные методы */}
           <div>
-            <h3 className="text-lg font-semibold text-text-primary mb-4">
+            <h3 className={`text-lg font-semibold ${themeClasses.text.primary} mb-4`}>
               {t('admin.authFlow.alternativeMethods', 'Альтернативные методы')}
             </h3>
             <div className="space-y-3">
@@ -241,22 +263,22 @@ const AuthFlowBuilderPage: React.FC = () => {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <Icon name="grip-vertical" size="sm" className="text-text-secondary" />
+                      <Icon name="grip-vertical" size="sm" className={themeClasses.text.secondary} />
                       <Icon name={method.icon as any} size="md" className="text-primary" />
                       <div>
                         <div className="flex items-center gap-2">
-                          <p className="font-medium text-text-primary">{method.name}</p>
+                          <p className={`font-medium ${themeClasses.text.primary}`}>{method.name}</p>
                           {method.isPrimary && (
-                            <Badge variant="warning" size="sm">Основной</Badge>
+                            <Badge variant="warning" size="sm">{t('admin.authFlow.primary', 'Основной')}</Badge>
                           )}
                         </div>
-                        <p className="text-xs text-text-secondary">Порядок: {method.order}</p>
+                        <p className={`text-xs ${themeClasses.text.secondary}`}>{t('admin.authFlow.order', 'Порядок')}: {method.order}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => togglePrimary(method.id)}
-                        title="Основной на стартовой странице"
+                        title={t('admin.authFlow.primaryOnStartPage', 'Основной на стартовой странице')}
                         className={`p-1 rounded transition-colors ${
                           method.isPrimary ? 'text-warning' : 'text-gray-3'
                         }`}
@@ -283,7 +305,7 @@ const AuthFlowBuilderPage: React.FC = () => {
 
         {/* Кнопка сохранения */}
         <div className={`${themeClasses.card.default} p-4 mt-6 flex items-center justify-between`}>
-          <p className="text-sm text-text-secondary">
+          <p className={`text-sm ${themeClasses.text.secondary}`}>
             {t('admin.authFlow.saveHint', 'Не забудьте сохранить изменения')}
           </p>
           <div className="flex gap-3">

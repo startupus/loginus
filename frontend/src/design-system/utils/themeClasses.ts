@@ -450,6 +450,34 @@ export const inputClasses = {
 };
 
 /**
+ * Классы для админ-панели (специальная цветовая схема)
+ */
+export const adminClasses = {
+  // Фон сайдбара админки (темный slate)
+  sidebarBackground: 'bg-slate-900 dark:bg-slate-950',
+  // Фон контента админки
+  contentBackground: 'bg-gray-1 dark:bg-dark',
+  // Граница сайдбара
+  sidebarBorder: 'border-slate-700 dark:border-slate-800',
+  // Текст в сайдбаре (неактивный)
+  sidebarText: 'text-slate-400 dark:text-slate-500',
+  // Текст в сайдбаре (активный)
+  sidebarTextActive: 'text-purple-400 dark:text-purple-300',
+  // Hover текст в сайдбаре
+  sidebarTextHover: 'hover:text-purple-400 dark:hover:text-purple-300',
+  // Hover фон в сайдбаре
+  sidebarHover: 'hover:bg-slate-800 dark:hover:bg-slate-900',
+  // Активный фон в сайдбаре
+  sidebarActive: 'bg-slate-800 dark:bg-slate-900 bg-purple-500/10 dark:bg-purple-500/20',
+  // Граница активного элемента
+  sidebarActiveBorder: 'border-purple-500',
+  // Фон дропдауна в сайдбаре
+  sidebarDropdown: 'bg-slate-800/50 dark:bg-slate-900/50 border-purple-500/50',
+  // Overlay для мобильного сайдбара
+  sidebarOverlay: 'bg-slate-900/80 dark:bg-slate-950/80',
+};
+
+/**
  * Классы для ссылок
  */
 export const linkClasses = {
@@ -489,6 +517,7 @@ export const themeClasses = {
   typographySize: typographySizeClasses,
   utility: utilityClasses,
   logo: logoClasses,
+  admin: adminClasses,
 };
 
 export default themeClasses;

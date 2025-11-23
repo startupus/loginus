@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Icon } from '../../../design-system/primitives/Icon';
 import { Badge } from '../../../design-system/primitives/Badge';
+import { themeClasses } from '../../../design-system/utils/themeClasses';
 
 interface SyncStatusIndicatorProps {
   connected: boolean;
@@ -14,10 +15,10 @@ export const SyncStatusIndicator: React.FC<SyncStatusIndicatorProps> = ({ connec
   const { t } = useTranslation();
 
   return (
-    <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-1 dark:bg-dark-2">
-      <div className={`w-3 h-3 rounded-full ${connected ? 'bg-success' : 'bg-gray-3'}`} />
+    <div className={`flex items-center gap-3 p-3 rounded-lg ${themeClasses.background.gray2}`}>
+      <div className={`w-3 h-3 rounded-full ${connected ? 'bg-success' : themeClasses.background.gray2}`} />
       <div className="flex-1">
-        <p className="text-sm font-medium text-text-primary">
+        <p className={`text-sm font-medium ${themeClasses.text.primary}`}>
           {connected
             ? t('admin.backup.sync.connected', 'Подключено к центральному серверу')
             : t('admin.backup.sync.notConnected', 'Не подключено')}

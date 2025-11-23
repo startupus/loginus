@@ -10,6 +10,7 @@ import { useTheme, useClientSafe } from '../../contexts';
 import { useLanguageStore } from '@/store';
 import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';
 import { LanguageSwitcher } from '../../composites/LanguageSwitcher';
+import { themeClasses } from '../../utils/themeClasses';
 import type { SidebarItem } from '../Sidebar/Sidebar';
 
 export interface AdminSidebarProps {
@@ -115,7 +116,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   return (
     <>
       <div
-        className={`bg-slate-900 dark:bg-slate-950 shadow-[0_2px_8px_rgba(0,0,0,0.2)] fixed top-0 left-0 z-40 flex h-screen w-full max-w-[300px] flex-col justify-between overflow-y-scroll duration-200 xl:translate-x-0 ${
+        className={`${themeClasses.admin.sidebarBackground} shadow-[0_2px_8px_rgba(0,0,0,0.2)] fixed top-0 left-0 z-40 flex h-screen w-full max-w-[300px] flex-col justify-between overflow-y-scroll duration-200 xl:translate-x-0 ${
           isOpen ? '-translate-x-full' : 'translate-x-0'
         } ${className}`}
       >
@@ -135,7 +136,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                 />
               </button>
               <div className="mt-4">
-                <span className="text-xs font-semibold uppercase tracking-wider text-purple-400 dark:text-purple-300">
+                <span className={`text-xs font-semibold uppercase tracking-wider ${themeClasses.admin.sidebarTextActive}`}>
                   {t('admin.sidebar.title')}
                 </span>
               </div>
@@ -143,11 +144,11 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           )}
           
           {/* Поиск - видим только на мобильных устройствах (< xl) */}
-          <div className="px-6 pb-4 xl:hidden border-b border-slate-700 dark:border-slate-800">
+          <div className={`px-6 pb-4 xl:hidden border-b ${themeClasses.admin.sidebarBorder}`}>
             <Input
               type="text"
               placeholder={t('common.search')}
-              rightIcon={<Icon name="search" size="sm" className="text-slate-400 dark:text-slate-500" />}
+              rightIcon={<Icon name="search" size="sm" className={themeClasses.admin.sidebarText} />}
             />
           </div>
           
@@ -175,22 +176,22 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                         }
                       }
                     }}
-                    className={`text-slate-400 dark:text-slate-500 hover:bg-slate-800 dark:hover:bg-slate-900 relative flex w-full items-center border-l-4 border-transparent py-[10px] pr-4 pl-9 text-base font-medium duration-200 transition-all hover:translate-x-1 text-left ${
-                      item.active ? 'bg-slate-800 dark:bg-slate-900 border-l-4 border-purple-500 bg-purple-500/10 dark:bg-purple-500/20 text-purple-400 dark:text-purple-300' : ''
+                    className={`${themeClasses.admin.sidebarText} ${themeClasses.admin.sidebarHover} relative flex w-full items-center border-l-4 border-transparent py-[10px] pr-4 pl-9 text-base font-medium duration-200 transition-all hover:translate-x-1 text-left ${
+                      item.active ? `${themeClasses.admin.sidebarActive} border-l-4 ${themeClasses.admin.sidebarActiveBorder} ${themeClasses.admin.sidebarTextActive}` : ''
                     } ${
-                      item.children && openDropdown === item.path && !item.active ? 'hover:bg-slate-800 dark:hover:bg-slate-900' : ''
+                      item.children && openDropdown === item.path && !item.active ? themeClasses.admin.sidebarHover : ''
                     } ${
-                      item.children && openDropdown === item.path && item.active ? 'bg-slate-800 dark:bg-slate-900 border-l-4 border-purple-500 bg-purple-500/10 dark:bg-purple-500/20' : ''
+                      item.children && openDropdown === item.path && item.active ? `${themeClasses.admin.sidebarActive} border-l-4 ${themeClasses.admin.sidebarActiveBorder}` : ''
                     }`}
                   >
                     {item.icon && (
                       <Icon 
                         name={item.icon} 
                         size="sm" 
-                        className={`mr-3 flex-shrink-0 ${item.active ? 'text-purple-400 dark:text-purple-300' : 'text-slate-400 dark:text-slate-500'}`}
+                        className={`mr-3 flex-shrink-0 ${item.active ? themeClasses.admin.sidebarTextActive : themeClasses.admin.sidebarText}`}
                       />
                     )}
-                    <span className={`flex-1 text-left ${item.active ? 'text-purple-400 dark:text-purple-300' : ''}`}>{item.label}</span>
+                    <span className={`flex-1 text-left ${item.active ? themeClasses.admin.sidebarTextActive : ''}`}>{item.label}</span>
                     {item.children && (
                       <span
                         className={`flex-shrink-0 ml-2 transition-transform duration-200 ${
@@ -200,22 +201,22 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                         <Icon 
                           name="chevron-down" 
                           size="sm" 
-                          className={openDropdown === item.path ? 'text-purple-400 dark:text-purple-300' : 'text-slate-400 dark:text-slate-500'}
+                          className={openDropdown === item.path ? themeClasses.admin.sidebarTextActive : themeClasses.admin.sidebarText}
                         />
                       </span>
                     )}
                   </button>
                   {item.children && openDropdown === item.path && (
-                    <ul className="py-[6px] pr-10 pl-[50px] bg-slate-800/50 dark:bg-slate-900/50 border-l-2 border-purple-500/50 ml-2">
+                    <ul className={`py-[6px] pr-10 pl-[50px] ${themeClasses.admin.sidebarDropdown} border-l-2 ml-2`}>
                       {item.children.map((child, childIndex) => (
                         <li key={child.path || childIndex}>
                           <button
                             onClick={() => onNavigate ? onNavigate(child.path) : navigate(child.path)}
-                            className={`text-slate-400 dark:text-slate-500 hover:bg-slate-800 dark:hover:bg-slate-900 flex w-full items-center border-l-4 border-transparent py-[9px] pl-2 pr-2 text-base font-medium duration-200 transition-all rounded-r-lg text-left ${
-                              child.active ? 'bg-slate-800 dark:bg-slate-900 border-l-4 border-purple-500 bg-purple-500/10 dark:bg-purple-500/20 text-purple-400 dark:text-purple-300' : ''
+                            className={`${themeClasses.admin.sidebarText} ${themeClasses.admin.sidebarHover} flex w-full items-center border-l-4 border-transparent py-[9px] pl-2 pr-2 text-base font-medium duration-200 transition-all rounded-r-lg text-left ${
+                              child.active ? `${themeClasses.admin.sidebarActive} border-l-4 ${themeClasses.admin.sidebarActiveBorder} ${themeClasses.admin.sidebarTextActive}` : ''
                             }`}
                           >
-                            <span className={child.active ? 'text-purple-400 dark:text-purple-300' : ''}>{child.label}</span>
+                            <span className={child.active ? themeClasses.admin.sidebarTextActive : ''}>{child.label}</span>
                           </button>
                         </li>
                       ))}
@@ -227,10 +228,10 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           </nav>
         </div>
 
-        <div className="p-6 space-y-1 border-t border-slate-700 dark:border-slate-800">
+        <div className={`p-6 space-y-1 border-t ${themeClasses.admin.sidebarBorder}`}>
           <button
             onClick={() => navigate(buildPathWithLang('/support', currentLang))}
-            className="text-slate-400 dark:text-slate-500 hover:text-purple-400 dark:hover:text-purple-300 flex w-full items-center py-1.5 text-sm font-medium duration-200"
+            className={`${themeClasses.admin.sidebarText} ${themeClasses.admin.sidebarTextHover} flex w-full items-center py-1.5 text-sm font-medium duration-200`}
           >
             <Icon name="help-circle" size="sm" className="mr-3" />
             <span>{t('sidebar.help')}</span>
@@ -238,26 +239,26 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           
           <button
             onClick={() => navigate(buildPathWithLang('/dashboard', currentLang))}
-            className="text-slate-400 dark:text-slate-500 hover:text-purple-400 dark:hover:text-purple-300 flex w-full items-center py-1.5 text-sm font-medium duration-200"
+            className={`${themeClasses.admin.sidebarText} ${themeClasses.admin.sidebarTextHover} flex w-full items-center py-1.5 text-sm font-medium duration-200`}
           >
             <Icon name="user" size="sm" className="mr-3" />
             <span>{t('admin.sidebar.backToProfile')}</span>
           </button>
           
-          <div className="border-slate-700 dark:border-slate-800 my-3 h-px"></div>
+          <div className={`${themeClasses.admin.sidebarBorder} my-3 h-px`}></div>
           
           <div className="flex items-center justify-between py-2">
             {showLanguageSwitcher && (
               <LanguageSwitcher 
                 variant="compact" 
-                className="text-slate-200 dark:text-slate-300 hover:bg-slate-800 dark:hover:bg-slate-900"
+                className={`text-slate-200 dark:text-slate-300 ${themeClasses.admin.sidebarHover}`}
               />
             )}
 
             {showThemeSwitcher && (
               <button
                 onClick={() => setThemeMode(isDark ? 'light' : 'dark')}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-200 dark:text-slate-300 hover:bg-slate-800 dark:hover:bg-slate-900 transition-all"
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-200 dark:text-slate-300 ${themeClasses.admin.sidebarHover} transition-all`}
                 title={t('common.theme.toggle', {
                   mode: isDark
                     ? t('common.theme.mode.dark', { defaultValue: 'dark' })
@@ -268,7 +269,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                 {isDark ? (
                   <Icon name="sun" size="sm" className="text-yellow-400" />
                 ) : (
-                  <Icon name="moon" size="sm" className="text-purple-400 dark:text-purple-300" />
+                  <Icon name="moon" size="sm" className={themeClasses.admin.sidebarTextActive} />
                 )}
               </button>
             )}
@@ -278,7 +279,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
       <div
         onClick={toggleSidebar}
-        className={`bg-slate-900/80 dark:bg-slate-950/80 fixed top-0 left-0 z-30 h-screen w-full xl:hidden transition-transform duration-200 ${
+        className={`${themeClasses.admin.sidebarOverlay} fixed top-0 left-0 z-30 h-screen w-full xl:hidden transition-transform duration-200 ${
           isOpen ? '-translate-x-full' : 'translate-x-0'
         }`}
       />

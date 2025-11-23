@@ -8,6 +8,8 @@ import { Badge } from '../../../design-system/primitives/Badge';
 import { themeClasses } from '../../../design-system/utils/themeClasses';
 import { backupApi, Backup, BackupHistoryFilters } from '../../../services/api/backup';
 import { RestoreBackupModal } from './RestoreBackupModal';
+import { formatDate } from '../../../utils/intl/formatters';
+import { useCurrentLanguage } from '../../../utils/routing';
 
 /**
  * BackupHistorySection - секция истории бекапов
@@ -15,6 +17,8 @@ import { RestoreBackupModal } from './RestoreBackupModal';
 export const BackupHistorySection: React.FC = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const currentLang = useCurrentLanguage();
+  const locale = currentLang === 'en' ? 'en' : 'ru';
   const [filters, setFilters] = useState<BackupHistoryFilters>({});
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
@@ -46,8 +50,8 @@ export const BackupHistorySection: React.FC = () => {
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
   };
 
-  const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleString('ru-RU', {
+  const formatDateTime = (dateString: string): string => {
+    return formatDate(dateString, locale, {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -181,7 +185,7 @@ export const BackupHistorySection: React.FC = () => {
                 : t('admin.backup.history.selectDate', 'Выбрать дату')}
             </button>
             {showDatePicker && (
-              <div className="absolute z-10 mt-2 p-4 bg-white dark:bg-dark-2 rounded-lg shadow-lg border border-border min-w-[280px]">
+              <div className={`absolute z-10 mt-2 p-4 ${themeClasses.card.default} ${themeClasses.border.default} rounded-lg shadow-lg min-w-[280px]`}>
                 <div className="space-y-3">
                   <Input
                     type="date"
@@ -226,24 +230,24 @@ export const BackupHistorySection: React.FC = () => {
       <div className={`${themeClasses.card.default} overflow-hidden`}>
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-1 dark:bg-dark-2">
+            <thead className={themeClasses.background.gray2}>
               <tr>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                <th className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary}`}>
                   {t('admin.backup.history.date', 'Дата создания')}
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                <th className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary}`}>
                   {t('admin.backup.history.type', 'Тип')}
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                <th className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary}`}>
                   {t('admin.backup.history.size', 'Размер')}
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                <th className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary}`}>
                   {t('admin.backup.history.storage', 'Место хранения')}
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                <th className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary}`}>
                   {t('admin.backup.history.status', 'Статус')}
                 </th>
-                <th className="px-6 py-4 text-right text-sm font-semibold text-text-primary">
+                <th className={`px-6 py-4 text-right text-sm font-semibold ${themeClasses.text.primary}`}>
                   {t('admin.backup.history.actions', 'Действия')}
                 </th>
               </tr>
@@ -253,8 +257,8 @@ export const BackupHistorySection: React.FC = () => {
                 <tr>
                   <td colSpan={6} className="px-6 py-12 text-center">
                     <div className="flex flex-col items-center">
-                      <Icon name="database" size="lg" className="text-text-secondary mb-4" />
-                      <p className="text-text-secondary">
+                      <Icon name="database" size="lg" className={`${themeClasses.text.secondary} mb-4`} />
+                      <p className={themeClasses.text.secondary}>
                         {t('admin.backup.history.empty', 'Бекапы не найдены')}
                       </p>
                     </div>
@@ -262,9 +266,9 @@ export const BackupHistorySection: React.FC = () => {
                 </tr>
               ) : (
                 backups.map((backup) => (
-                  <tr key={backup.id} className="hover:bg-gray-1 dark:hover:bg-dark-2 transition-colors">
+                  <tr key={backup.id} className={`${themeClasses.list.itemHover} transition-colors`}>
                     <td className="px-6 py-4">
-                      <p className="text-sm text-text-primary">{formatDate(backup.createdAt)}</p>
+                      <p className={`text-sm ${themeClasses.text.primary}`}>{formatDateTime(backup.createdAt)}</p>
                     </td>
                     <td className="px-6 py-4">
                       <Badge variant={backup.type === 'auto' ? 'primary' : 'secondary'} size="sm">
@@ -274,10 +278,10 @@ export const BackupHistorySection: React.FC = () => {
                       </Badge>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-sm text-text-primary">{formatBytes(backup.size)}</p>
+                      <p className={`text-sm ${themeClasses.text.primary}`}>{formatBytes(backup.size)}</p>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-sm text-text-primary">{getStorageLabel(backup.storage)}</p>
+                      <p className={`text-sm ${themeClasses.text.primary}`}>{getStorageLabel(backup.storage)}</p>
                     </td>
                     <td className="px-6 py-4">
                       <Badge variant={getStatusBadgeVariant(backup.status)} size="sm">
@@ -288,7 +292,7 @@ export const BackupHistorySection: React.FC = () => {
                           : t('admin.backup.history.error', 'Ошибка')}
                       </Badge>
                       {backup.error && (
-                        <p className="text-xs text-text-secondary mt-1">{backup.error}</p>
+                        <p className={`text-xs ${themeClasses.text.secondary} mt-1`}>{backup.error}</p>
                       )}
                     </td>
                     <td className="px-6 py-4">

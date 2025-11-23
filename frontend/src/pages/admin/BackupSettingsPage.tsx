@@ -59,7 +59,7 @@ const BackupSettingsPage: React.FC = () => {
                 className={`flex items-center gap-2 px-4 py-3 font-medium transition-colors ${
                   activeTab === tab.id
                     ? 'text-primary border-b-2 border-primary'
-                    : 'text-text-secondary hover:text-text-primary'
+                    : `${themeClasses.text.secondary} ${themeClasses.text.hoverPrimary}`
                 }`}
               >
                 <Icon name={tab.icon as any} size="sm" />

@@ -235,7 +235,7 @@ export const BackupSettingsSection: React.FC = () => {
 
           {/* Настройки Яндекс Диск */}
           {backupSettings.storage.type === 'yandex-disk' && (
-            <div className="p-4 rounded-lg bg-gray-1 dark:bg-dark-2">
+            <div className={`p-4 rounded-lg ${themeClasses.background.gray2}`}>
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <p className={`text-sm font-medium ${themeClasses.text.primary}`}>
@@ -262,7 +262,7 @@ export const BackupSettingsSection: React.FC = () => {
 
           {/* Настройки другого хранилища */}
           {(backupSettings.storage.type === 's3' || backupSettings.storage.type === 'custom') && (
-            <div className="p-4 rounded-lg bg-gray-1 dark:bg-dark-2">
+            <div className={`p-4 rounded-lg ${themeClasses.background.gray2}`}>
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <p className={`text-sm font-medium ${themeClasses.text.primary}`}>

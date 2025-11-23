@@ -84,7 +84,7 @@ export const CreateBackupModal: React.FC<CreateBackupModalProps> = ({
         </p>
 
         <div className="space-y-3">
-          <label className="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-gray-1 dark:hover:bg-dark-2 transition-colors">
+          <label className={`flex items-center gap-3 cursor-pointer p-3 rounded-lg ${themeClasses.list.itemHover} transition-colors`}>
             <input
               type="checkbox"
               checked={include.users}
@@ -101,7 +101,7 @@ export const CreateBackupModal: React.FC<CreateBackupModalProps> = ({
             </div>
           </label>
 
-          <label className="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-gray-1 dark:hover:bg-dark-2 transition-colors">
+          <label className={`flex items-center gap-3 cursor-pointer p-3 rounded-lg ${themeClasses.list.itemHover} transition-colors`}>
             <input
               type="checkbox"
               checked={include.settings}
@@ -118,7 +118,7 @@ export const CreateBackupModal: React.FC<CreateBackupModalProps> = ({
             </div>
           </label>
 
-          <label className="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-gray-1 dark:hover:bg-dark-2 transition-colors">
+          <label className={`flex items-center gap-3 cursor-pointer p-3 rounded-lg ${themeClasses.list.itemHover} transition-colors`}>
             <input
               type="checkbox"
               checked={include.logs}

@@ -13,6 +13,35 @@
   "dashboard": {
     "title": "Admin Panel"
   },
+  "widgets": {
+    "overview": {
+      "title": "Overview",
+      "description": "Key system metrics"
+    },
+    "activities": {
+      "title": "Activities",
+      "description": "Recent user activities",
+      "viewAll": "View All"
+    },
+    "churn": {
+      "title": "Churn Rate",
+      "description": "User churn percentage"
+    },
+    "growth": {
+      "title": "User Growth",
+      "description": "Registration growth"
+    },
+    "companies": {
+      "title": "Companies",
+      "description": "Company list"
+    }
+  },
+  "metrics": {
+    "totalRevenue": "Total Revenue",
+    "activeUsers": "Active Users",
+    "customerLifetimeValue": "Customer Lifetime Value",
+    "customerAcquisitionCost": "Customer Acquisition Cost"
+  },
   "users": {
     "title": "User Management",
     "description": "Manage system users",
@@ -127,6 +156,32 @@
         "description": "Failed to load company information"
       }
     }
+  },
+  "authFlow": {
+    "title": "Authorization Flow",
+    "instruction": {
+      "title": "Authorization Flow Configuration",
+      "description": "Drag methods to change order. Use toggles to enable/disable methods and set primary login methods."
+    },
+    "primaryMethod": "Primary Method",
+    "alternativeMethods": "Alternative Methods",
+    "disabledMethods": "Disabled Methods",
+    "order": "Order",
+    "primary": "Primary",
+    "primaryOnStartPage": "Primary on start page",
+    "methods": {
+      "phone-email": "Phone or Email",
+      "github": "Github",
+      "telegram": "Telegram",
+      "gosuslugi": "Government Services",
+      "tinkoff": "Tinkoff ID",
+      "qr": "QR Code",
+      "password": "Password",
+      "yandex": "Yandex ID",
+      "saber": "Saber ID"
+    },
+    "saveHint": "Don't forget to save changes",
+    "add": "Add"
   },
   "menuSettings": {
     "title": "Menu Settings",
@@ -320,6 +375,32 @@
       "accessKeyPlaceholder": "Enter Access Key",
       "secretKey": "Secret Key",
       "secretKeyPlaceholder": "Enter Secret Key"
+    }
+  },
+  "authFlow": {
+    "title": "Authorization Algorithm Setup",
+    "add": "Add",
+    "primaryMethod": "Primary Method",
+    "oauthMethods": "OAuth Methods",
+    "alternativeMethods": "Alternative Methods",
+    "order": "Order",
+    "primary": "Primary",
+    "primaryOnStartPage": "Primary on start page",
+    "saveHint": "Don't forget to save changes",
+    "instruction": {
+      "title": "Authorization Algorithm Setup",
+      "description": "Drag methods to change order. Use toggles to enable/disable methods and set primary login methods."
+    },
+    "methods": {
+      "phone-email": "Phone or email",
+      "github": "Github",
+      "telegram": "Telegram",
+      "gosuslugi": "Gosuslugi",
+      "tinkoff": "Tinkoff ID",
+      "qr": "QR code",
+      "password": "Password",
+      "yandex": "Yandex ID",
+      "saber": "Saber ID"
     }
   }
 }

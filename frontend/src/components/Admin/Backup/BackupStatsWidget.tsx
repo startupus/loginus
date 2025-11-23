@@ -6,12 +6,16 @@ import { WidgetCard } from '../../../design-system/composites/WidgetCard';
 import { Badge } from '../../../design-system/primitives/Badge';
 import { themeClasses } from '../../../design-system/utils/themeClasses';
 import { backupApi, BackupStats, SyncStatus } from '../../../services/api/backup';
+import { formatDate } from '../../../utils/intl/formatters';
+import { useCurrentLanguage } from '../../../utils/routing';
 
 /**
  * BackupStatsWidget - виджет статистики бекапов и синхронизации
  */
 export const BackupStatsWidget: React.FC = () => {
   const { t } = useTranslation();
+  const currentLang = useCurrentLanguage();
+  const locale = currentLang === 'en' ? 'en' : 'ru';
 
   const { data: stats } = useQuery<BackupStats>({
     queryKey: ['backup-stats'],
@@ -31,9 +35,9 @@ export const BackupStatsWidget: React.FC = () => {
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
   };
 
-  const formatDate = (dateString: string | null | undefined): string => {
+  const formatDateTime = (dateString: string | null | undefined): string => {
     if (!dateString) return '-';
-    return new Date(dateString).toLocaleString('ru-RU', {
+    return formatDate(dateString, locale, {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -63,7 +67,7 @@ export const BackupStatsWidget: React.FC = () => {
         </div>
         <div className="space-y-1">
           <p className={`text-lg font-semibold ${themeClasses.text.primary}`}>
-            {syncStatus ? formatDate(syncStatus.date) : '-'}
+            {syncStatus ? formatDateTime(syncStatus.date) : '-'}
           </p>
           {syncStatus && (
             <div className="flex items-center gap-2">
@@ -95,7 +99,7 @@ export const BackupStatsWidget: React.FC = () => {
         </div>
         <div className="space-y-1">
           <p className={`text-lg font-semibold ${themeClasses.text.primary}`}>
-            {statsData.lastBackup ? formatDate(statsData.lastBackup.createdAt) : '-'}
+            {statsData.lastBackup ? formatDateTime(statsData.lastBackup.createdAt) : '-'}
           </p>
           {statsData.lastBackup && (
             <div className="flex items-center gap-2">
@@ -143,7 +147,7 @@ export const BackupStatsWidget: React.FC = () => {
         </div>
         <div className="space-y-1">
           <p className={`text-lg font-semibold ${themeClasses.text.primary}`}>
-            {statsData.nextAutoBackup ? formatDate(statsData.nextAutoBackup) : '-'}
+            {statsData.nextAutoBackup ? formatDateTime(statsData.nextAutoBackup) : '-'}
           </p>
           {statsData.nextAutoBackup && (
             <span className={`text-xs ${themeClasses.text.secondary}`}>

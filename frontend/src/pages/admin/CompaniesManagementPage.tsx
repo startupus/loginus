@@ -14,11 +14,13 @@ import { EmptyState } from '../../design-system/composites/EmptyState';
 import { adminApi, AdminCompany } from '../../services/api/admin';
 import { themeClasses } from '../../design-system/utils/themeClasses';
 import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
+import { formatDate } from '../../utils/intl/formatters';
 
 const CompaniesManagementPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const currentLang = useCurrentLanguage();
+  const locale = currentLang === 'en' ? 'en' : 'ru';
   const queryClient = useQueryClient();
 
   // Состояния фильтров
@@ -112,14 +114,6 @@ const CompaniesManagementPage: React.FC = () => {
     return labels[plan] || plan;
   };
 
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return '-';
-    return new Date(dateString).toLocaleDateString('ru-RU', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
 
   if (isLoading) {
     return (
@@ -169,7 +163,7 @@ const CompaniesManagementPage: React.FC = () => {
               placeholder={t('admin.companies.search', 'Поиск по названию или домену...')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              rightIcon={<Icon name="search" size="sm" className="text-text-secondary" />}
+              rightIcon={<Icon name="search" size="sm" className={themeClasses.text.secondary} />}
             />
           </div>
 
@@ -192,24 +186,24 @@ const CompaniesManagementPage: React.FC = () => {
         <div className={`${themeClasses.card.default} overflow-hidden`}>
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-1 dark:bg-dark-2">
+              <thead className={themeClasses.background.gray2}>
                 <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                  <th className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary}`}>
                     {t('admin.companies.table.name', 'Название')}
                   </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                  <th className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary}`}>
                     {t('admin.companies.table.plan', 'Тариф')}
                   </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                  <th className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary}`}>
                     {t('admin.companies.table.services', 'Сервисы')}
                   </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                  <th className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary}`}>
                     {t('admin.companies.table.users', 'Пользователи')}
                   </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                  <th className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary}`}>
                     {t('admin.companies.table.lastActivity', 'Последняя активность')}
                   </th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-text-primary">
+                  <th className={`px-6 py-4 text-right text-sm font-semibold ${themeClasses.text.primary}`}>
                     {t('admin.companies.table.actions', 'Действия')}
                   </th>
                 </tr>
@@ -227,11 +221,11 @@ const CompaniesManagementPage: React.FC = () => {
                   </tr>
                 ) : (
                   companies.map((company: AdminCompany) => (
-                    <tr key={company.id} className="hover:bg-gray-1 dark:hover:bg-dark-2 transition-colors">
+                    <tr key={company.id} className={`${themeClasses.list.itemHover} transition-colors`}>
                       <td className="px-6 py-4">
                         <div>
-                          <p className="font-medium text-text-primary">{company.name}</p>
-                          <p className="text-sm text-text-secondary">{company.domain}</p>
+                          <p className={`font-medium ${themeClasses.text.primary}`}>{company.name}</p>
+                          <p className={`text-sm ${themeClasses.text.secondary}`}>{company.domain}</p>
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -240,18 +234,22 @@ const CompaniesManagementPage: React.FC = () => {
                         </Badge>
                       </td>
                       <td className="px-6 py-4">
-                        <p className="text-sm text-text-primary font-medium">
+                        <p className={`text-sm ${themeClasses.text.primary} font-medium`}>
                           {company.servicesCount || company.services?.length || 0}
                         </p>
                       </td>
                       <td className="px-6 py-4">
-                        <p className="text-sm text-text-primary font-medium">
+                        <p className={`text-sm ${themeClasses.text.primary} font-medium`}>
                           {company.userCount || 0}
                         </p>
                       </td>
                       <td className="px-6 py-4">
-                        <p className="text-sm text-text-secondary">
-                          {formatDate(company.lastActivity || company.updatedAt)}
+                        <p className={`text-sm ${themeClasses.text.secondary}`}>
+                          {formatDate(company.lastActivity || company.updatedAt, locale, {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                          })}
                         </p>
                       </td>
                       <td className="px-6 py-4">
@@ -397,7 +395,7 @@ const CompanyEditModal: React.FC<CompanyEditModalProps> = ({
         />
 
         <div>
-          <label className="block text-sm font-medium text-text-primary mb-2">
+          <label className={`block text-sm font-medium ${themeClasses.text.primary} mb-2`}>
             {t('admin.companies.form.plan', 'Тариф')}
           </label>
           <select

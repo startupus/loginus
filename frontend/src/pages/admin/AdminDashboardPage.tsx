@@ -6,6 +6,7 @@ import { adminApi } from '../../services/api/admin';
 import { Icon } from '../../design-system/primitives/Icon';
 import { useAdminWidgets } from '../../hooks/useAdminWidgets';
 import { useAdminPermissions } from '../../hooks/useAdminPermissions';
+import { themeClasses } from '../../design-system/utils/themeClasses';
 
 // Lazy loading для тяжелых компонентов
 const MasonryGrid = lazy(() => import('../../design-system/composites/MasonryGrid').then(m => ({ default: m.MasonryGrid })));
@@ -31,9 +32,9 @@ export type AvailableAdminWidget = {
 // Компонент скелетона для Suspense fallback
 const WidgetSkeleton: React.FC = () => (
   <div className="w-full animate-pulse">
-    <div className="bg-background dark:bg-surface rounded-xl p-6 border border-border h-32">
-      <div className="h-4 bg-gray-2 dark:bg-gray-3 rounded w-1/2 mb-4"></div>
-      <div className="h-8 bg-gray-2 dark:bg-gray-3 rounded w-1/3"></div>
+    <div className={`${themeClasses.card.rounded} p-6 ${themeClasses.border.default} h-32`}>
+      <div className={`h-4 ${themeClasses.background.gray2} rounded w-1/2 mb-4`}></div>
+      <div className={`h-8 ${themeClasses.background.gray2} rounded w-1/3`}></div>
     </div>
   </div>
 );
@@ -177,10 +178,10 @@ const AdminDashboardPage: React.FC = () => {
   if (error) {
     return (
       <AdminPageTemplate title={t('admin.dashboard.title', 'Админ-панель')} showSidebar={true}>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
+        <div className={themeClasses.state.error}>
+          <div className={themeClasses.state.loadingSpinner}>
             <Icon name="alert-circle" size="lg" color="rgb(var(--color-error))" className="mx-auto mb-4" />
-            <p className="text-text-secondary">
+            <p className={themeClasses.text.secondary}>
               {t('errors.500Description', 'Что-то пошло не так. Мы уже работаем над исправлением.')}
             </p>
           </div>
@@ -245,10 +246,11 @@ const AdminDashboardPage: React.FC = () => {
                       <OverviewMetricsWidget 
                         key={widgetId}
                         metrics={{
-                          totalRevenue: 20045.87,
-                          activeUsers: stats?.activeUsers || 9528,
-                          customerLifetimeValue: 849.54,
-                          customerAcquisitionCost: 9528,
+                          // Используем данные из API где доступны, иначе дефолтные значения
+                          totalRevenue: undefined, // Пока нет в API, будет использован дефолт из виджета
+                          activeUsers: stats?.activeUsers,
+                          customerLifetimeValue: undefined, // Пока нет в API, будет использован дефолт из виджета
+                          customerAcquisitionCost: undefined, // Пока нет в API, будет использован дефолт из виджета
                         }}
                         {...commonProps}
                       />

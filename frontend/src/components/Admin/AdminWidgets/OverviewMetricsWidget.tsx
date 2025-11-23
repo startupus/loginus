@@ -4,6 +4,8 @@ import { Icon } from '../../../design-system/primitives';
 import { WidgetCard } from '../../../design-system/composites/WidgetCard';
 import { Badge } from '../../../design-system/primitives/Badge';
 import { themeClasses } from '../../../design-system/utils/themeClasses';
+import { formatCurrency, formatNumber } from '../../../utils/intl/formatters';
+import { useCurrentLanguage } from '../../../utils/routing';
 
 export interface OverviewMetricsWidgetProps {
   metrics?: {
@@ -49,44 +51,34 @@ export const OverviewMetricsWidget: React.FC<OverviewMetricsWidgetProps> = ({
   isDragging,
 }) => {
   const { t } = useTranslation();
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('ru-RU', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2,
-    }).format(value);
-  };
-
-  const formatNumber = (value: number) => {
-    return new Intl.NumberFormat('ru-RU').format(value);
-  };
+  const currentLang = useCurrentLanguage();
+  const locale = currentLang === 'en' ? 'en' : 'ru';
 
   const metricsList = [
     {
       label: t('admin.metrics.totalRevenue', 'Total Revenue'),
-      value: formatCurrency(metrics.totalRevenue || 0),
+      value: formatCurrency(metrics.totalRevenue || 0, 'USD', locale),
       change: '+2.5%',
       changePositive: true,
       icon: 'dollar-sign' as const,
     },
     {
       label: t('admin.metrics.activeUsers', 'Active Users'),
-      value: formatNumber(metrics.activeUsers || 0),
+      value: formatNumber(metrics.activeUsers || 0, locale),
       change: '+9.5%',
       changePositive: true,
       icon: 'users' as const,
     },
     {
       label: t('admin.metrics.customerLifetimeValue', 'Customer Lifetime Value'),
-      value: formatCurrency(metrics.customerLifetimeValue || 0),
+      value: formatCurrency(metrics.customerLifetimeValue || 0, 'USD', locale),
       change: '-1.6%',
       changePositive: false,
       icon: 'trending-up' as const,
     },
     {
       label: t('admin.metrics.customerAcquisitionCost', 'Customer Acquisition Cost'),
-      value: formatNumber(metrics.customerAcquisitionCost || 0),
+      value: formatNumber(metrics.customerAcquisitionCost || 0, locale),
       change: '+3.5%',
       changePositive: true,
       icon: 'target' as const,
@@ -111,7 +103,7 @@ export const OverviewMetricsWidget: React.FC<OverviewMetricsWidgetProps> = ({
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {metricsList.map((metric, index) => (
-          <div key={index} className={`p-4 rounded-lg ${themeClasses.background.gray1} dark:${themeClasses.background.gray2}`}>
+          <div key={index} className={`p-4 rounded-lg ${themeClasses.background.gray2}`}>
             <div className="flex items-center justify-between mb-2">
               <span className={`text-sm ${themeClasses.text.secondary}`}>{metric.label}</span>
               <Icon name={metric.icon} size="sm" className={themeClasses.text.secondary} />

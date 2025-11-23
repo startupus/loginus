@@ -13,6 +13,35 @@
   "dashboard": {
     "title": "Админ-панель"
   },
+  "widgets": {
+    "overview": {
+      "title": "Обзор",
+      "description": "Основные метрики системы"
+    },
+    "activities": {
+      "title": "Активности",
+      "description": "Последние активности пользователей",
+      "viewAll": "Показать все"
+    },
+    "churn": {
+      "title": "Отток пользователей",
+      "description": "Процент оттока пользователей"
+    },
+    "growth": {
+      "title": "Рост пользователей",
+      "description": "Рост регистраций"
+    },
+    "companies": {
+      "title": "Компании",
+      "description": "Список компаний"
+    }
+  },
+  "metrics": {
+    "totalRevenue": "Общий доход",
+    "activeUsers": "Активные пользователи",
+    "customerLifetimeValue": "Средняя ценность клиента",
+    "customerAcquisitionCost": "Стоимость привлечения клиента"
+  },
   "users": {
     "title": "Управление пользователями",
     "description": "Управляйте пользователями системы",
@@ -127,6 +156,32 @@
         "description": "Не удалось загрузить информацию о компании"
       }
     }
+  },
+  "authFlow": {
+    "title": "Алгоритм авторизации",
+    "instruction": {
+      "title": "Настройка алгоритма авторизации",
+      "description": "Перетаскивайте методы для изменения порядка. Используйте переключатели для активации/деактивации методов и установки основных способов входа."
+    },
+    "primaryMethod": "Основной метод",
+    "alternativeMethods": "Альтернативные методы",
+    "disabledMethods": "Отключенные методы",
+    "order": "Порядок",
+    "primary": "Основной",
+    "primaryOnStartPage": "Основной на стартовой странице",
+    "methods": {
+      "phone-email": "Телефон или email",
+      "github": "Github",
+      "telegram": "Telegram",
+      "gosuslugi": "Гос услуги",
+      "tinkoff": "Tinkoff ID",
+      "qr": "QR код",
+      "password": "Пароль",
+      "yandex": "Yandex ID",
+      "saber": "Saber ID"
+    },
+    "saveHint": "Не забудьте сохранить изменения",
+    "add": "Добавить"
   },
   "menuSettings": {
     "title": "Настройки меню",
@@ -320,6 +375,32 @@
       "accessKeyPlaceholder": "Введите Access Key",
       "secretKey": "Secret Key",
       "secretKeyPlaceholder": "Введите Secret Key"
+    }
+  },
+  "authFlow": {
+    "title": "Настройка алгоритма авторизации",
+    "add": "Добавить",
+    "primaryMethod": "Основной метод",
+    "oauthMethods": "OAuth методы",
+    "alternativeMethods": "Альтернативные методы",
+    "order": "Порядок",
+    "primary": "Основной",
+    "primaryOnStartPage": "Основной на стартовой странице",
+    "saveHint": "Не забудьте сохранить изменения",
+    "instruction": {
+      "title": "Настройка алгоритма авторизации",
+      "description": "Перетаскивайте методы для изменения порядка. Используйте переключатели для активации/деактивации методов и установки основных способов входа."
+    },
+    "methods": {
+      "phone-email": "Телефон или email",
+      "github": "Github",
+      "telegram": "Telegram",
+      "gosuslugi": "Гос услуги",
+      "tinkoff": "Tinkoff ID",
+      "qr": "QR код",
+      "password": "Пароль",
+      "yandex": "Yandex ID",
+      "saber": "Saber ID"
     }
   }
 }

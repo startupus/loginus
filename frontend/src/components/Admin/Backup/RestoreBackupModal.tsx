@@ -6,6 +6,8 @@ import { Button } from '../../../design-system/primitives/Button';
 import { Icon } from '../../../design-system/primitives/Icon';
 import { themeClasses } from '../../../design-system/utils/themeClasses';
 import { backupApi, Backup } from '../../../services/api/backup';
+import { formatDate } from '../../../utils/intl/formatters';
+import { useCurrentLanguage } from '../../../utils/routing';
 
 interface RestoreBackupModalProps {
   isOpen: boolean;
@@ -23,6 +25,8 @@ export const RestoreBackupModal: React.FC<RestoreBackupModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const currentLang = useCurrentLanguage();
+  const locale = currentLang === 'en' ? 'en' : 'ru';
   const [restoreOptions, setRestoreOptions] = useState({
     restoreUsers: true,
     restoreSettings: true,
@@ -66,8 +70,8 @@ export const RestoreBackupModal: React.FC<RestoreBackupModalProps> = ({
     }
   };
 
-  const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleString('ru-RU', {
+  const formatDateTime = (dateString: string): string => {
+    return formatDate(dateString, locale, {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -132,7 +136,7 @@ export const RestoreBackupModal: React.FC<RestoreBackupModalProps> = ({
               <div className="space-y-1 text-sm">
                 <p className={themeClasses.text.secondary}>
                   <span className={themeClasses.text.primary}>{t('admin.backup.restore.date', 'Дата:')}</span>{' '}
-                  {formatDate(backup.createdAt)}
+                  {formatDateTime(backup.createdAt)}
                 </p>
                 <p className={themeClasses.text.secondary}>
                   <span className={themeClasses.text.primary}>{t('admin.backup.restore.type', 'Тип:')}</span>{' '}
@@ -151,7 +155,7 @@ export const RestoreBackupModal: React.FC<RestoreBackupModalProps> = ({
           </p>
 
           <div className="space-y-3">
-            <label className="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-gray-1 dark:hover:bg-dark-2 transition-colors">
+            <label className={`flex items-center gap-3 cursor-pointer p-3 rounded-lg ${themeClasses.list.itemHover} transition-colors`}>
               <input
                 type="checkbox"
                 checked={restoreOptions.restoreUsers}
@@ -168,7 +172,7 @@ export const RestoreBackupModal: React.FC<RestoreBackupModalProps> = ({
               </div>
             </label>
 
-            <label className="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-gray-1 dark:hover:bg-dark-2 transition-colors">
+            <label className={`flex items-center gap-3 cursor-pointer p-3 rounded-lg ${themeClasses.list.itemHover} transition-colors`}>
               <input
                 type="checkbox"
                 checked={restoreOptions.restoreSettings}
@@ -185,7 +189,7 @@ export const RestoreBackupModal: React.FC<RestoreBackupModalProps> = ({
               </div>
             </label>
 
-            <label className="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-gray-1 dark:hover:bg-dark-2 transition-colors">
+            <label className={`flex items-center gap-3 cursor-pointer p-3 rounded-lg ${themeClasses.list.itemHover} transition-colors`}>
               <input
                 type="checkbox"
                 checked={restoreOptions.restoreLogs}

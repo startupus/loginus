@@ -11,6 +11,8 @@ import { Modal } from '../../design-system/composites/Modal';
 import { adminApi } from '../../services/api/admin';
 import { useAdminPermissions } from '../../hooks/useAdminPermissions';
 import { themeClasses } from '../../design-system/utils/themeClasses';
+import { formatDate } from '../../utils/intl/formatters';
+import { useCurrentLanguage } from '../../utils/routing';
 
 interface User {
   id: string;
@@ -30,6 +32,8 @@ interface User {
 const UsersManagementPage: React.FC = () => {
   const { t } = useTranslation();
   const { isSuperAdmin, canAccessCompany } = useAdminPermissions();
+  const currentLang = useCurrentLanguage();
+  const locale = currentLang === 'en' ? 'en' : 'ru';
   const queryClient = useQueryClient();
 
   // Состояния фильтров
@@ -195,7 +199,7 @@ const UsersManagementPage: React.FC = () => {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <Icon name="alert-circle" size="lg" color="rgb(var(--color-error))" className="mx-auto mb-4" />
-            <p className="text-text-secondary">
+            <p className={themeClasses.text.secondary}>
               {t('errors.500Description', 'Что-то пошло не так. Мы уже работаем над исправлением.')}
             </p>
           </div>
@@ -229,7 +233,7 @@ const UsersManagementPage: React.FC = () => {
               placeholder={t('admin.users.search', 'Поиск по имени, email или телефону...')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              rightIcon={<Icon name="search" size="sm" className="text-text-secondary" />}
+              rightIcon={<Icon name="search" size="sm" className={themeClasses.text.secondary} />}
             />
           </div>
 
@@ -286,10 +290,10 @@ const UsersManagementPage: React.FC = () => {
         <div className={`${themeClasses.card.default} overflow-hidden`}>
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-1 dark:bg-dark-2">
+              <thead className={themeClasses.background.gray2}>
                 <tr>
                   <th 
-                    className="px-6 py-4 text-left text-sm font-semibold text-text-primary cursor-pointer hover:bg-gray-2 dark:hover:bg-dark-3 transition-colors"
+                    className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary} cursor-pointer ${themeClasses.list.itemHover} transition-colors`}
                     onClick={() => handleSort('displayName')}
                   >
                     <div className="flex items-center gap-2">
@@ -300,7 +304,7 @@ const UsersManagementPage: React.FC = () => {
                     </div>
                   </th>
                   <th 
-                    className="px-6 py-4 text-left text-sm font-semibold text-text-primary cursor-pointer hover:bg-gray-2 dark:hover:bg-dark-3 transition-colors"
+                    className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary} cursor-pointer ${themeClasses.list.itemHover} transition-colors`}
                     onClick={() => handleSort('role')}
                   >
                     <div className="flex items-center gap-2">
@@ -311,7 +315,7 @@ const UsersManagementPage: React.FC = () => {
                     </div>
                   </th>
                   <th 
-                    className="px-6 py-4 text-left text-sm font-semibold text-text-primary cursor-pointer hover:bg-gray-2 dark:hover:bg-dark-3 transition-colors"
+                    className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary} cursor-pointer ${themeClasses.list.itemHover} transition-colors`}
                     onClick={() => handleSort('status')}
                   >
                     <div className="flex items-center gap-2">
@@ -322,11 +326,11 @@ const UsersManagementPage: React.FC = () => {
                     </div>
                   </th>
                   {isSuperAdmin && (
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                    <th                     className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary}`}>
                       {t('admin.users.table.company', 'Компания')}
                     </th>
                   )}
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-text-primary relative">
+                  <th className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary} relative`}>
                     <div className="flex items-center gap-2">
                       <button 
                         onClick={() => setShowDatePicker(!showDatePicker)}
@@ -345,7 +349,7 @@ const UsersManagementPage: React.FC = () => {
                       </button>
                     </div>
                     {showDatePicker && (
-                      <div className="absolute z-10 mt-2 p-4 bg-white dark:bg-dark-2 rounded-lg shadow-lg border border-border min-w-[280px]">
+                      <div className={`absolute z-10 mt-2 p-4 ${themeClasses.card.default} ${themeClasses.border.default} rounded-lg shadow-lg min-w-[280px]`}>
                         <div className="space-y-3">
                           <div>
                             <Input
@@ -393,7 +397,7 @@ const UsersManagementPage: React.FC = () => {
                       </div>
                     )}
                   </th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-text-primary">
+                  <th className={`px-6 py-4 text-right text-sm font-semibold ${themeClasses.text.primary}`}>
                     {t('admin.users.table.actions', 'Действия')}
                   </th>
                 </tr>
@@ -403,8 +407,8 @@ const UsersManagementPage: React.FC = () => {
                   <tr>
                     <td colSpan={isSuperAdmin ? 6 : 5} className="px-6 py-12 text-center">
                       <div className="flex flex-col items-center">
-                        <Icon name="users" size="lg" className="text-text-secondary mb-4" />
-                        <p className="text-text-secondary">
+                        <Icon name="users" size="lg" className={`${themeClasses.text.secondary} mb-4`} />
+                        <p className={themeClasses.text.secondary}>
                           {t('admin.users.empty', 'Пользователи не найдены')}
                         </p>
                       </div>
@@ -412,7 +416,7 @@ const UsersManagementPage: React.FC = () => {
                   </tr>
                 ) : (
                   users.map((user: User) => (
-                    <tr key={user.id} className="hover:bg-gray-1 dark:hover:bg-dark-2 transition-colors">
+                    <tr key={user.id} className={`${themeClasses.list.itemHover} transition-colors`}>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="relative inline-flex items-center justify-center overflow-hidden rounded-full w-10 h-10 text-base bg-primary/10 text-primary font-semibold">
@@ -426,9 +430,9 @@ const UsersManagementPage: React.FC = () => {
                             }`} />
                           </div>
                           <div>
-                            <p className="font-medium text-text-primary">{user.displayName}</p>
-                            <p className="text-sm text-text-secondary">{user.email}</p>
-                            <p className="text-sm text-text-secondary">{user.phone}</p>
+                            <p className={`font-medium ${themeClasses.text.primary}`}>{user.displayName}</p>
+                            <p className={`text-sm ${themeClasses.text.secondary}`}>{user.email}</p>
+                            <p className={`text-sm ${themeClasses.text.secondary}`}>{user.phone}</p>
                           </div>
                         </div>
                       </td>
@@ -444,7 +448,7 @@ const UsersManagementPage: React.FC = () => {
                       </td>
                       {isSuperAdmin && (
                         <td className="px-6 py-4">
-                          <p className="text-sm text-text-secondary">
+                          <p className={`text-sm ${themeClasses.text.secondary}`}>
                             {user.companyId
                               ? companies.find((c: any) => c.id === user.companyId)?.name || '-'
                               : '-'}
@@ -452,8 +456,12 @@ const UsersManagementPage: React.FC = () => {
                         </td>
                       )}
                       <td className="px-6 py-4">
-                        <p className="text-sm text-text-secondary">
-                          {new Date(user.createdAt).toLocaleDateString('ru-RU')}
+                        <p className={`text-sm ${themeClasses.text.secondary}`}>
+                          {formatDate(user.createdAt, locale, {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                          })}
                         </p>
                       </td>
                       <td className="px-6 py-4">
@@ -488,9 +496,9 @@ const UsersManagementPage: React.FC = () => {
 
         {/* Пагинация */}
         {meta.totalPages > 1 && (
-          <div className="flex flex-col sm:flex-row items-center justify-between mt-6 px-4 py-3 bg-white dark:bg-dark-2 rounded-lg border border-border gap-4">
+          <div className={`flex flex-col sm:flex-row items-center justify-between mt-6 px-4 py-3 ${themeClasses.card.default} ${themeClasses.border.default} rounded-lg gap-4`}>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-text-secondary">
+              <span className={`text-sm ${themeClasses.text.secondary}`}>
                 {t('admin.users.showing', 'Показано')} {(meta.page - 1) * meta.limit + 1}-{Math.min(meta.page * meta.limit, meta.total)} {t('admin.users.of', 'из')} {meta.total}
               </span>
             </div>
@@ -673,7 +681,7 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-text-primary mb-2">
+            <label className={`block text-sm font-medium ${themeClasses.text.primary} mb-2`}>
               {t('admin.users.form.role', 'Роль')}
             </label>
             <select
@@ -695,7 +703,7 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-text-primary mb-2">
+            <label className={`block text-sm font-medium ${themeClasses.text.primary} mb-2`}>
               {t('admin.users.form.status', 'Статус')}
             </label>
             <select
@@ -713,7 +721,7 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
 
         {isSuperAdmin && (
           <div>
-            <label className="block text-sm font-medium text-text-primary mb-2">
+            <label className={`block text-sm font-medium ${themeClasses.text.primary} mb-2`}>
               {t('admin.users.form.company', 'Компания')}
             </label>
             <select
