@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Modal } from '../../../design-system/composites/Modal';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Modal } from '../../../design-system/composites/Modal';
@@ -25,10 +24,10 @@ export const StorageConfigModal: React.FC<StorageConfigModalProps> = ({
   storageType,
   settings,
 }) => {
-  const [testResult, setTestResult] = useState<{ success: boolean; message: string; isOpen: boolean }>({ success: false, message: '', isOpen: false });
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isTesting, setIsTesting] = useState(false);
+  const [testResult, setTestResult] = useState<{ success: boolean; message: string; isOpen: boolean }>({ success: false, message: '', isOpen: false });
 
   const [formData, setFormData] = useState(() => {
     if (storageType === 'yandex-disk') {
@@ -80,8 +79,6 @@ export const StorageConfigModal: React.FC<StorageConfigModalProps> = ({
       });
     }
   };
-
-  const [testResult, setTestResult] = useState<{ success: boolean; message: string; isOpen: boolean }>({ success: false, message: '', isOpen: false });
 
   const handleTest = async () => {
     setIsTesting(true);

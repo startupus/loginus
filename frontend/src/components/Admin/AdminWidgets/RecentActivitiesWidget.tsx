@@ -165,7 +165,7 @@ export const RecentActivitiesWidget: React.FC<RecentActivitiesWidgetProps> = ({
   return (
     <WidgetCard
       title={widgetTitle}
-      icon={<Icon name="activity" size="lg" className="text-primary" />}
+      icon={<Icon name="activity" size="lg" color="rgb(var(--color-primary))" />}
       widgetId={widgetId}
       draggable={draggable}
       onDragStart={onDragStart}
