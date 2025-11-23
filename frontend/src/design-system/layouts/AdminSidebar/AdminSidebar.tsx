@@ -1,7 +1,6 @@
-import React, { useEffect, useReducer } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { preloadModule } from '@/services/i18n/config';
 import { Icon } from '../../primitives/Icon';
 import { AdminLogo } from '../../primitives/Logo';
 import { Input } from '../../primitives/Input';
@@ -46,38 +45,11 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   showLanguageSwitcher = true,
 }) => {
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const currentLang = useCurrentLanguage();
   const { setThemeMode, isDark } = useTheme();
   const { isOpen, toggleSidebar, openDropdown, toggleDropdown } = useSidebar();
   const { client } = useClientSafe();
-  
-  // Принудительно перерисовываем компонент при смене языка
-  const [, forceUpdate] = useReducer(x => x + 1, 0);
-  
-  // Предзагружаем модуль admin для переводов
-  useEffect(() => {
-    preloadModule('admin').then(() => {
-      // Принудительно перерисовываем после загрузки модуля
-      forceUpdate();
-    }).catch((error) => {
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('[i18n] Failed to preload admin module in AdminSidebar:', error);
-      }
-    });
-  }, []);
-  
-  useEffect(() => {
-    const handleLanguageChanged = () => {
-      forceUpdate();
-    };
-    
-    i18n.on('languageChanged', handleLanguageChanged);
-    
-    return () => {
-      i18n.off('languageChanged', handleLanguageChanged);
-    };
-  }, [i18n]);
   
   // Клиентский брендинг - фирменный логотип
   const customLogo = client?.branding?.logo;

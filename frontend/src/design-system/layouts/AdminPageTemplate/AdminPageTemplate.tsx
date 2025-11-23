@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect, useReducer } from 'react';
+import React, { Suspense, lazy, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { preloadModule } from '@/services/i18n/config';
@@ -57,39 +57,30 @@ const AdminTemplateBody: React.FC<AdminPageTemplateProps> = ({
   const { user, logout } = useAuthStore();
   const currentLang = useCurrentLanguage();
   const { toggleSidebar } = useSidebar();
-  
-  // Принудительно перерисовываем компонент при смене языка
-  // Используем i18n.language как зависимость для перерисовки
-  const [, forceUpdate] = useReducer(x => x + 1, 0);
   const [adminModuleLoaded, setAdminModuleLoaded] = React.useState(false);
   
   // Предзагружаем модуль admin для переводов админ-панели
   useEffect(() => {
     preloadModule('admin').then(() => {
-      // Помечаем модуль как загруженный и принудительно перерисовываем
       setAdminModuleLoaded(true);
-      forceUpdate();
     }).catch((error) => {
       if (process.env.NODE_ENV === 'development') {
         console.warn('[i18n] Failed to preload admin module:', error);
       }
-      // Даже при ошибке помечаем как загруженный, чтобы использовать fallback
-      setAdminModuleLoaded(true);
+      setAdminModuleLoaded(true); // Помечаем как загруженный даже при ошибке
     });
   }, []);
   
+  // Перезагружаем модуль при смене языка
   useEffect(() => {
     const handleLanguageChanged = async () => {
-      // При смене языка перезагружаем модуль admin
       try {
         await preloadModule('admin');
-        setAdminModuleLoaded(true);
       } catch (error) {
         if (process.env.NODE_ENV === 'development') {
           console.warn('[i18n] Failed to reload admin module on language change:', error);
         }
       }
-      forceUpdate();
     };
     
     i18n.on('languageChanged', handleLanguageChanged);
@@ -100,11 +91,9 @@ const AdminTemplateBody: React.FC<AdminPageTemplateProps> = ({
   }, [i18n]);
 
   // Пункты меню для админ-панели
-  // Пересобираем при смене языка (i18n.language) и после загрузки модуля admin
-  // Все переводы без fallback значений для синхронной работы - без задержек перевода
-  const defaultAdminSidebarItems: SidebarItem[] = React.useMemo(() => {
-    // Все переводы должны быть без fallback значений для синхронной работы
-    return [
+  // Пересобираем при смене языка (i18n.language) - useMemo автоматически пересоздаст массив
+  // Все переводы без fallback значений для синхронной работы
+  const defaultAdminSidebarItems: SidebarItem[] = React.useMemo(() => [
     { 
         label: t('admin.sidebar.dashboard'), 
       path: buildPathWithLang('/admin', currentLang), 
@@ -152,8 +141,7 @@ const AdminTemplateBody: React.FC<AdminPageTemplateProps> = ({
         },
       ]
     },
-    ];
-  }, [t, currentLang, location.pathname, i18n.language, adminModuleLoaded]);
+  ], [t, currentLang, location.pathname, i18n.language, adminModuleLoaded]);
 
   const finalSidebarItems = sidebarItems || (showSidebar ? defaultAdminSidebarItems : undefined);
 

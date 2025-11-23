@@ -1,6 +1,5 @@
-import React, { useMemo, useEffect, useReducer } from 'react';
+import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { preloadModule } from '../../../services/i18n/config';
 import { Icon } from '../../../design-system/primitives';
 import { WidgetCard } from '../../../design-system/composites/WidgetCard';
 import { Avatar } from '../../../design-system/primitives/Avatar';
@@ -85,48 +84,13 @@ export const RecentActivitiesWidget: React.FC<RecentActivitiesWidgetProps> = ({
 }) => {
   const { t, i18n } = useTranslation();
   const currentLang = useCurrentLanguage();
-  const [, forceUpdate] = useReducer(x => x + 1, 0);
-
-  // Предзагружаем модуль admin для переводов - как в AdminSidebar
-  // Модуль должен быть уже загружен в AdminPageTemplate, но на всякий случай предзагружаем
-  useEffect(() => {
-    preloadModule('admin').then(() => {
-      // Принудительно перерисовываем после загрузки модуля
-      forceUpdate();
-    }).catch((error) => {
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('[i18n] Failed to preload admin module in RecentActivitiesWidget:', error);
-      }
-    });
-  }, []);
-
-  // Перезагружаем модуль при смене языка - как в OverviewMetricsWidget
-  useEffect(() => {
-    const handleLanguageChanged = async () => {
-      try {
-        await preloadModule('admin');
-        forceUpdate();
-      } catch (error) {
-        if (process.env.NODE_ENV === 'development') {
-          console.warn('[i18n] Failed to reload admin module on language change:', error);
-        }
-      }
-    };
-    
-    i18n.on('languageChanged', handleLanguageChanged);
-    
-    return () => {
-      i18n.off('languageChanged', handleLanguageChanged);
-    };
-  }, [i18n]);
 
   const displayedActivities = activities.slice(0, 4);
 
   // Используем useMemo для реактивности переводов при смене языка
-  // С fallback значениями как в OverviewMetricsWidget для надежности
-  // Пересчитываем при изменении языка
-  const widgetTitle = useMemo(() => t('admin.widgets.activities.title', currentLang === 'ru' ? 'Активности' : 'Activities'), [t, i18n.language, currentLang]);
-  const viewAllLabel = useMemo(() => t('admin.widgets.activities.viewAll', currentLang === 'ru' ? 'Показать все' : 'View All'), [t, i18n.language, currentLang]);
+  // i18n.language достаточно, так как currentLang вычисляется из него
+  const widgetTitle = useMemo(() => t('admin.widgets.activities.title'), [t, i18n.language]);
+  const viewAllLabel = useMemo(() => t('admin.widgets.activities.viewAll'), [t, i18n.language]);
 
   // Функция для перевода действия
   const getActionLabel = (action: string) => {
@@ -144,28 +108,12 @@ export const RecentActivitiesWidget: React.FC<RecentActivitiesWidgetProps> = ({
     };
     
     const translationKey = actionMap[action.toLowerCase()];
-    if (translationKey) {
-      // Без fallback значения - перевод должен быть в файлах локализации
-      return t(translationKey);
-    }
-    // Если действие не найдено в маппинге, возвращаем как есть (должно быть редко)
-    return action;
+    return translationKey ? t(translationKey) : action;
   };
 
   // Функция для форматирования относительного времени
-  const formatActivityTime = (timestamp: string, relativeTime: string) => {
-    try {
-      return formatRelativeTimeWithT(timestamp, t, currentLang, 'admin.widgets.activities');
-    } catch {
-      // Fallback на переведенный relativeTime если есть (без хардкода)
-      const relativeTimeMap: Record<string, string> = {
-        'Just Now': t('admin.widgets.activities.relativeTime.justNow'),
-        '15 minutes ago': t('admin.widgets.activities.relativeTime.minutesAgo', { count: 15 }),
-        '5 months ago': t('admin.widgets.activities.relativeTime.monthsAgo', { count: 5 }),
-        '2 weeks ago': t('admin.widgets.activities.relativeTime.weeksAgo', { count: 2 }),
-      };
-      return relativeTimeMap[relativeTime] || relativeTime;
-    }
+  const formatActivityTime = (timestamp: string) => {
+    return formatRelativeTimeWithT(timestamp, t, currentLang, 'admin.widgets.activities');
   };
 
   return (
@@ -213,7 +161,7 @@ export const RecentActivitiesWidget: React.FC<RecentActivitiesWidgetProps> = ({
                 </span>
               </div>
               <p className={`text-xs mt-1 ${themeClasses.text.secondary}`}>
-                {formatActivityTime(activity.timestamp, activity.relativeTime)}
+                {formatActivityTime(activity.timestamp)}
               </p>
             </div>
           </div>

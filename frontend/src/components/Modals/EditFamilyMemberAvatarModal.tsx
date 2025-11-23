@@ -46,12 +46,7 @@ export const EditFamilyMemberAvatarModal: React.FC<EditFamilyMemberAvatarModalPr
     }
   }, [initialData]);
 
-  // Гарантируем загрузку модулей переводов для модалок перед отображением
-  React.useEffect(() => {
-    void preloadModule('modals').catch(() => undefined);
-  }, []);
-
-  // Перезагружаем модуль при смене языка (исключаем прилипание EN строк)
+  // Гарантируем загрузку модуля переводов 'modals' при монтировании и при смене языка
   React.useEffect(() => {
     void preloadModule('modals').catch(() => undefined);
   }, [i18n.language]);

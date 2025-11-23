@@ -13,6 +13,45 @@
   "dashboard": {
     "title": "Admin Panel"
   },
+  "metrics": {
+    "totalRevenue": "Total Revenue",
+    "activeUsers": "Active Users",
+    "customerLifetimeValue": "Customer Lifetime Value",
+    "customerAcquisitionCost": "Customer Acquisition Cost"
+  },
+  "widgets": {
+    "activities": {
+      "title": "Activities",
+      "viewAll": "View All",
+      "actions": {
+        "createdInvoice": "created invoice",
+        "updatedInvoice": "updated invoice",
+        "deletedInvoice": "deleted invoice",
+        "createdUser": "created user",
+        "updatedUser": "updated user",
+        "deletedUser": "deleted user",
+        "createdCompany": "created company",
+        "updatedCompany": "updated company",
+        "deletedCompany": "deleted company"
+      },
+      "relativeTime": {
+        "justNow": "Just now",
+        "minutesAgo": "{{count}} min. ago",
+        "hoursAgo": "{{count}} hr. ago",
+        "daysAgo": "{{count}} days ago",
+        "weeksAgo": "{{count}} weeks ago",
+        "monthsAgo": "{{count}} months ago",
+        "yearsAgo": "{{count}} years ago"
+      }
+    },
+    "overview": {
+      "title": "Overview",
+      "totalRevenue": "Total Revenue",
+      "activeUsers": "Active Users",
+      "avgCustomerValue": "Average Customer Value",
+      "customerAcquisitionCost": "Customer Acquisition Cost"
+    }
+  },
   "users": {
     "title": "User Management",
     "description": "Manage system users",

@@ -36,12 +36,7 @@ export const EditAvatarModal: React.FC<EditAvatarModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Гарантируем, что модуль переводов 'modals' загружен до первого рендера контента модалки
-  React.useEffect(() => {
-    void preloadModule('modals').catch(() => undefined);
-  }, []);
-
-  // Перезагружаем модуль при смене языка, чтобы исключить кэш EN на RU и наоборот
+  // Гарантируем загрузку модуля переводов 'modals' при монтировании и при смене языка
   React.useEffect(() => {
     void preloadModule('modals').catch(() => undefined);
   }, [i18n.language]);
