@@ -373,7 +373,7 @@ const MenuSettingsPage: React.FC = () => {
       <AdminPageTemplate title={t('menuSettings.title', 'Настройки меню')} showSidebar={true}>
         <div className={themeClasses.state.loading}>
           <div className={themeClasses.state.loadingSpinner}>
-            <Icon name="loader" size="lg" className="animate-spin text-primary mx-auto mb-4" />
+            <Icon name="loader" size="lg" className="animate-spin mx-auto mb-4" color="rgb(var(--color-primary))" />
             <p className={themeClasses.text.secondary}>
               {t('common.loading', 'Загрузка...')}
             </p>
