@@ -1,0 +1,91 @@
+{
+  "data": {
+    "title": "Данные",
+    "subtitle": "Управляйте своими персональными данными, документами и настройками",
+    "profile": {
+      "title": "Профиль",
+      "edit": "Редактировать",
+      "editAvatar": "Обновить аватар"
+    },
+    "contacts": {
+      "title": "Контакты",
+      "description": "Ваши контактные данные для связи",
+      "email": "Email в Loginus",
+      "mainPhone": "Основной телефон",
+      "backupEmail": "Резервный email",
+      "notSet": "Не указан",
+      "external": "Подключенные аккаунты",
+      "externalDesc": "Помогают быстрее входить в Loginus и заполнять данные"
+    },
+    "documents": {
+      "title": "Документы",
+      "description": "Ваши документы всегда под рукой в ID. Мы храним их в безопасности",
+      "viewAll": "Все документы",
+      "addDocument": "Добавить документ",
+      "passportRF": "Паспорт РФ",
+      "foreignPassport": "Загранпаспорт",
+      "birthCertificate": "Свидетельство о рождении",
+      "driverLicense": "Водительское удостоверение",
+      "vehicleRegistration": "Свидетельство о регистрации ТС",
+      "healthInsurance": "Полис ОМС",
+      "voluntaryInsurance": "Полис ДМС",
+      "inn": "ИНН",
+      "snils": "СНИЛС",
+      "diplomasCertificates": "Дипломы и сертификаты",
+      "diplomas": "Дипломы",
+      "certificates": "Сертификаты"
+    },
+    "addresses": {
+      "title": "Адреса",
+      "description": "Для заказов в один клик и чтобы не вводить в Навигаторе",
+      "viewAll": "Все адреса",
+      "addAddress": "Добавить адрес",
+      "home": "Дом",
+      "work": "Работа",
+      "other": "Другое"
+    },
+    "vehicles": {
+      "title": "Транспорт",
+      "description": "Ваш транспорт и документы на него",
+      "viewAll": "Весь транспорт",
+      "add": "Добавить транспорт",
+      "empty": "У вас пока нет добавленного транспорта"
+    },
+    "pets": {
+      "title": "Питомцы",
+      "description": "Поможем хранить документы, выбирать корм или записаться к ветеринару",
+      "add": "Добавить питомца",
+      "empty": "У вас пока нет добавленных питомцев",
+      "viewAll": "Все питомцы"
+    },
+    "externalAccounts": {
+      "title": "Подключенные аккаунты",
+      "description": "Помогают быстрее входить в Loginus и заполнять данные",
+      "github": "GitHub",
+      "telegram": "Telegram",
+      "government": "Госуслуги",
+      "tinkoff": "Tinkoff ID",
+      "yandex": "Яндекс ID",
+      "saber": "Saber ID",
+      "notConnected": "Не подключен",
+      "connect": "Подключить",
+      "disconnect": "Отключить"
+    },
+    "publicData": {
+      "title": "Публичные данные",
+      "profile": "Публичный профиль в поиске Loginus",
+      "reviews": "Ваши отзывы и оценки",
+      "address": "Добавить публичный адрес",
+      "addressDesc": "Для ваших страниц в Loginus"
+    },
+    "dataManagement": {
+      "title": "Управление данными",
+      "inclusion": "Специальные возможности",
+      "access": "Доступы к данным",
+      "notifications": "Уведомления сервисов",
+      "services": "Данные на сервисах",
+      "delete": "Удалить профиль"
+    }
+  }
+}
+

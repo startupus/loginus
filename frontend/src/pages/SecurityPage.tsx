@@ -1,5 +1,6 @@
-import React, { useEffect, useState, lazy, Suspense } from 'react';
+import React, { useEffect, useState, lazy, Suspense, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { preloadModule } from '@/services/i18n/config';
 // Прямые импорты для tree-shaking
 import { PageTemplate } from '@/design-system/layouts/PageTemplate';
 import { DataSection } from '@/design-system/composites/DataSection';
@@ -7,13 +8,18 @@ import { SeparatedList } from '@/design-system/composites/SeparatedList';
 import { SecurityListItem } from '@/design-system/composites/SecurityListItem';
 import { Button } from '@/design-system/primitives/Button';
 import { Icon } from '@/design-system/primitives/Icon';
-import { useThemeClasses, themeClasses } from '@/design-system/utils';
+import { themeClasses } from '@/design-system/utils';
 import { securityApi } from '@/services/api/security';
 import { useModal } from '@/hooks/useModal';
 import type { AuthFactor } from '@/components/Modals';
 
 // Lazy loading для модалок
 const AuthMethodsModal = lazy(() => import('@/components/Modals/AuthMethodsModal').then(m => ({ default: m.AuthMethodsModal })));
+
+// Предзагрузка модуля profile для быстрого отображения переводов
+if (typeof window !== 'undefined') {
+  void preloadModule('profile');
+}
 
 
 interface Device {
@@ -42,16 +48,15 @@ interface Activity {
  * Оптимизация: загрузка устройств не блокирует рендеринг страницы
  */
 const SecurityPage: React.FC = () => {
-  const { t } = useTranslation();
-  const { getGradientStyleFromVars } = useThemeClasses();
+  const { t, i18n: i18nInstance } = useTranslation();
   const [devices, setDevices] = useState<Device[]>([]);
   const [devicesCount, setDevicesCount] = useState<number>(1); // Оптимистичное значение по умолчанию
   const authMethodsModal = useModal();
   // Моковые данные для даты последнего изменения пароля (14 месяцев назад)
   const passwordLastChanged = '14 месяцев назад';
   
-  // Текущий путь аутентификации
-  const [authPath, setAuthPath] = useState<AuthFactor[]>([
+  // Текущий путь аутентификации - вычисляется динамически при каждом рендере для поддержки i18n
+  const authPath = useMemo<AuthFactor[]>(() => [
     {
       id: 'password',
       type: 'password',
@@ -62,7 +67,14 @@ const SecurityPage: React.FC = () => {
       required: true,
       available: true,
     },
-  ]);
+  ], [t, i18nInstance.language]);
+  
+  const [authPathState, setAuthPathState] = useState<AuthFactor[]>(authPath);
+  
+  // Синхронизируем состояние при изменении языка или переводов
+  useEffect(() => {
+    setAuthPathState(authPath);
+  }, [authPath]);
 
   // Список подключенных аккаунтов (TODO: получать из API)
   const [connectedAccounts, setConnectedAccounts] = useState<string[]>([]);
@@ -107,14 +119,7 @@ const SecurityPage: React.FC = () => {
         contentClassName={themeClasses.container.content}
       >
       {/* Промо-блок "Усиленная защита" */}
-      <div 
-        className={themeClasses.promo.container}
-        style={getGradientStyleFromVars(
-          '--color-primary',
-          '--color-info',
-          'to right'
-        )}
-      >
+      <div className={themeClasses.promo.containerPrimary}>
         <div className={themeClasses.promo.content}>
           <div className="flex-1">
             <h2 className={themeClasses.promo.title}>
@@ -159,7 +164,11 @@ const SecurityPage: React.FC = () => {
               icon="key"
               title={t('security.loginMethods.password', 'Обычный пароль')}
               description={t('security.loginMethods.current', 'Текущий способ')}
-              onClick={authMethodsModal.open}
+              onClick={() => {
+                // Обновляем состояние перед открытием модалки для актуальных переводов
+                setAuthPathState(authPath);
+                authMethodsModal.open();
+              }}
             />
 
             {/* Кнопка обновления пароля с информацией о дате */}
@@ -265,10 +274,10 @@ const SecurityPage: React.FC = () => {
           <AuthMethodsModal
             isOpen={authMethodsModal.isOpen}
             onClose={authMethodsModal.close}
-            currentPath={authPath}
+            currentPath={authPathState}
             connectedAccounts={connectedAccounts}
             onSave={(newPath) => {
-              setAuthPath(newPath);
+              setAuthPathState(newPath);
               // TODO: Сохранить путь на сервер
               console.log('New auth path:', newPath);
             }}

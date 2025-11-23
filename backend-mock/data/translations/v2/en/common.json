@@ -22,6 +22,7 @@
     "edit": "Edit",
     "delete": "Delete",
     "loading": "Loading...",
+    "years": "years",
     "theme": {
       "toggle": "Current theme: {{mode}}. Click to switch",
       "mode": {
@@ -41,6 +42,10 @@
       "offline": "offline",
       "away": "away"
     }
+  },
+  "phone": {
+    "countryCode": "+7",
+    "countryFlag": "🇷🇺"
   },
   "footer": {
     "copyright": "Loginus",

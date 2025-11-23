@@ -10,6 +10,7 @@ export type ModuleName =
   | 'dashboard'
   | 'auth'
   | 'profile'
+  | 'data'
   | 'errors'
   | 'landing'
   | 'about'

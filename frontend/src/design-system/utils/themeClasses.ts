@@ -195,6 +195,8 @@ export const decorativeClasses = {
 export const promoClasses = {
   // Контейнер промо-блока с градиентом
   container: 'rounded-2xl p-8 text-white shadow-lg relative overflow-hidden',
+  // Контейнер промо-блока с primary-info градиентом (стандартный)
+  containerPrimary: 'rounded-2xl p-8 text-white shadow-lg relative overflow-hidden bg-gradient-to-r from-primary to-info dark:from-primary/90 dark:to-info/90',
   // Контейнер промо-блока с градиентом warning (для семейной группы)
   containerWarning: 'rounded-2xl p-8 text-white shadow-lg relative overflow-hidden bg-gradient-to-r from-warning to-warning/80 dark:from-warning/90 dark:to-warning/70',
   // Контейнер контента промо-блока

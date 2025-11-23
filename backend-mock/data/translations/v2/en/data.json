@@ -1,0 +1,91 @@
+{
+  "data": {
+    "title": "Data",
+    "subtitle": "Manage your personal data, documents and settings",
+    "profile": {
+      "title": "Profile",
+      "edit": "Edit",
+      "editAvatar": "Update avatar"
+    },
+    "contacts": {
+      "title": "Contacts",
+      "description": "Your contact details for communication",
+      "email": "Email in Loginus",
+      "mainPhone": "Primary phone",
+      "backupEmail": "Backup email",
+      "notSet": "Not specified",
+      "external": "Connected accounts",
+      "externalDesc": "Help to log in to Loginus faster and fill in data"
+    },
+    "documents": {
+      "title": "Documents",
+      "description": "Your documents are always at hand in ID. We keep them safe",
+      "viewAll": "All Documents",
+      "addDocument": "Add Document",
+      "passportRF": "RF Passport",
+      "foreignPassport": "International Passport",
+      "birthCertificate": "Birth Certificate",
+      "driverLicense": "Driver's License",
+      "vehicleRegistration": "Vehicle Registration",
+      "healthInsurance": "Health Insurance",
+      "voluntaryInsurance": "Voluntary Insurance",
+      "inn": "TIN",
+      "snils": "SNILS",
+      "diplomasCertificates": "Diplomas and Certificates",
+      "diplomas": "Diplomas",
+      "certificates": "Certificates"
+    },
+    "addresses": {
+      "title": "Addresses",
+      "description": "For one-click orders and not to enter in Navigator",
+      "viewAll": "All Addresses",
+      "addAddress": "Add Address",
+      "home": "Home",
+      "work": "Work",
+      "other": "Other"
+    },
+    "vehicles": {
+      "title": "Vehicles",
+      "description": "Your vehicles and their documents",
+      "viewAll": "All vehicles",
+      "add": "Add vehicle",
+      "empty": "You have no added vehicles yet"
+    },
+    "pets": {
+      "title": "Pets",
+      "description": "We will help store documents, choose food or make an appointment with a veterinarian",
+      "add": "Add pet",
+      "empty": "You have no added pets yet",
+      "viewAll": "All pets"
+    },
+    "externalAccounts": {
+      "title": "Connected Accounts",
+      "description": "Help to log in to Loginus faster and fill in data",
+      "github": "GitHub",
+      "telegram": "Telegram",
+      "government": "Government Services",
+      "tinkoff": "Tinkoff ID",
+      "yandex": "Yandex ID",
+      "saber": "Saber ID",
+      "notConnected": "Not connected",
+      "connect": "Connect",
+      "disconnect": "Disconnect"
+    },
+    "publicData": {
+      "title": "Public Data",
+      "profile": "Public profile in Loginus search",
+      "reviews": "Your reviews and ratings",
+      "address": "Add public address",
+      "addressDesc": "For your pages in Loginus"
+    },
+    "dataManagement": {
+      "title": "Data Management",
+      "inclusion": "Accessibility",
+      "access": "Data Access",
+      "notifications": "Service Notifications",
+      "services": "Data on Services",
+      "delete": "Delete Profile"
+    }
+  }
+}
+

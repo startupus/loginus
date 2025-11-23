@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCurrentLanguage, buildPathWithLang } from '../../../utils/routing';
 import { Icon } from '../../primitives';
 import { themeClasses } from '../../utils/themeClasses';
@@ -67,14 +68,28 @@ export const DataSection: React.FC<DataSectionProps> = React.memo(({
   className = '',
 }) => {
   const currentLang = useCurrentLanguage() || 'ru';
+  const navigate = useNavigate();
   
-  // Формируем полный URL с языком для открытия в новой вкладке
+  // Определяем, является ли ссылка внешней
+  const isExternalLink = React.useCallback((href: string) => {
+    return href.startsWith('http://') || href.startsWith('https://');
+  }, []);
+  
+  // Формируем полный URL с языком
   const getFullUrl = React.useCallback((href: string) => {
-    if (href.startsWith('http://') || href.startsWith('https://')) {
+    if (isExternalLink(href)) {
       return href;
     }
     return buildPathWithLang(href, currentLang);
-  }, [currentLang]);
+  }, [currentLang, isExternalLink]);
+  
+  // Обработчик клика для внутренних ссылок
+  const handleLinkClick = React.useCallback((e: React.MouseEvent, href: string) => {
+    if (!isExternalLink(href)) {
+      e.preventDefault();
+      navigate(getFullUrl(href));
+    }
+  }, [navigate, getFullUrl, isExternalLink]);
 
   return (
     <section 
@@ -115,20 +130,43 @@ export const DataSection: React.FC<DataSectionProps> = React.memo(({
       </div>
 
       {/* View All Link */}
-      {viewAllLink && (
-        <div className={`mt-6 pt-4 border-t ${themeClasses.border.dark}`}>
-          <a
-            href={getFullUrl(typeof viewAllLink === 'string' ? viewAllLink : viewAllLink.href)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors"
-          >
-            {typeof viewAllLink === 'object' && viewAllLink.icon && <Icon name={viewAllLink.icon} size="sm" />}
-            <span>{typeof viewAllLink === 'string' ? 'Все' : viewAllLink.label}</span>
+      {viewAllLink && (() => {
+        const href = typeof viewAllLink === 'string' ? viewAllLink : viewAllLink.href;
+        const label = typeof viewAllLink === 'string' ? 'Все' : viewAllLink.label;
+        const icon = typeof viewAllLink === 'object' ? viewAllLink.icon : undefined;
+        const fullUrl = getFullUrl(href);
+        const isExternal = isExternalLink(href);
+        
+        const linkContent = (
+          <>
+            {icon && <Icon name={icon} size="sm" />}
+            <span>{label}</span>
             <Icon name="chevron-right" size="sm" />
-          </a>
-        </div>
-      )}
+          </>
+        );
+        
+        return (
+          <div className="mt-6 pt-4 border-t border-border">
+            {isExternal ? (
+              <a
+                href={fullUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors"
+              >
+                {linkContent}
+              </a>
+            ) : (
+              <Link
+                to={fullUrl}
+                className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors"
+              >
+                {linkContent}
+              </Link>
+            )}
+          </div>
+        );
+      })()}
     </section>
   );
 }, (prevProps, nextProps) => {

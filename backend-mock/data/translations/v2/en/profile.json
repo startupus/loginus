@@ -1,12 +1,18 @@
 {
   "security": {
     "title": "Security",
+    "enhancedProtection": {
+      "title": "Enhanced Protection",
+      "description": "Your account is protected by a password and has recovery options. Add a second factor for login and get maximum protection",
+      "subtitle": "More secure with two-factor authentication",
+      "action": "Protect to the maximum"
+    },
     "password": {
       "title": "Password",
       "description": "Update your password regularly to protect your account",
       "change": "Update Password",
       "status": "Password is secure",
-      "lastChanged": "Changed {{date}}"
+      "lastChanged": "Changed {{time}}"
     },
     "biometry": {
       "title": "Enable secure login with Face ID or Touch ID",
@@ -15,6 +21,7 @@
     },
     "loginMethods": {
       "title": "Login Method",
+      "description": "How you log in to Loginus services",
       "current": "Current method",
       "password": "Standard password",
       "otp": "One-time password",
@@ -22,12 +29,14 @@
     },
     "access": {
       "title": "Access to your data",
+      "description": "Sites and applications that you have granted access to your account data",
       "external": "Add external accounts",
       "manage": "Manage access",
       "apps": "App passwords"
     },
     "control": {
       "title": "Access Control",
+      "description": "How your profile is used",
       "logoutAll": "Log out everywhere"
     },
     "devices": {

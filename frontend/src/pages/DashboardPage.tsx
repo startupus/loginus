@@ -97,6 +97,8 @@ if (typeof window !== 'undefined') {
   });
   void preloadModule('dashboard');
   void preloadModule('profile');
+  void preloadModule('data');
+  void preloadModule('modals');
 }
 
 /**
@@ -104,7 +106,7 @@ if (typeof window !== 'undefined') {
  * Адаптивный дизайн для мобильных и десктопных устройств
  */
 const DashboardPage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { updateUser } = useAuthStore();
   const queryClient = useQueryClient();
   
@@ -118,6 +120,49 @@ const DashboardPage: React.FC = () => {
   
   const [selectedDocumentType, setSelectedDocumentType] = useState<DocumentType | undefined>();
   const [selectedAddressType, setSelectedAddressType] = useState<AddressType | undefined>();
+  
+  // Предзагрузка и перезагрузка модулей переводов при смене языка
+  useEffect(() => {
+    const loadModules = async () => {
+      try {
+        await Promise.all([
+          preloadModule('dashboard'),
+          preloadModule('profile'),
+          preloadModule('data'),
+          preloadModule('modals'),
+        ]);
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('[DashboardPage] Failed to load modules:', error);
+        }
+      }
+    };
+
+    loadModules();
+
+    // Перезагружаем модули при смене языка
+    const handleLanguageChanged = async () => {
+      try {
+        await Promise.all([
+          preloadModule('dashboard'),
+          preloadModule('profile'),
+          preloadModule('data'),
+          preloadModule('modals'),
+        ]);
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('[DashboardPage] Failed to reload modules on language change:', error);
+        }
+      }
+    };
+
+    i18n.on('languageChanged', handleLanguageChanged);
+
+    return () => {
+      i18n.off('languageChanged', handleLanguageChanged);
+    };
+  }, [i18n]);
+  
   // Логирование времени рендеринга компонента (только в dev)
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {

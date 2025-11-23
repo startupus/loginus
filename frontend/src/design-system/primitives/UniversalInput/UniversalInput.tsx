@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Input } from '../Input';
 import { detectInputType, normalizePhone } from '../../../utils/validation';
 import { formatPhone } from '../../../utils/formatting';
@@ -66,6 +67,7 @@ export const UniversalInput: React.FC<UniversalInputProps> = ({
   disabled = false,
   label,
 }) => {
+  const { t } = useTranslation();
   const [focused, setFocused] = useState(false);
   const [hasValue, setHasValue] = useState(false);
   
@@ -245,8 +247,8 @@ export const UniversalInput: React.FC<UniversalInputProps> = ({
           // 3. Это действительно телефон (isPhone) или есть значение, но только если нет букв
           (isPhone || (hasValue && !/[a-zA-Zа-яА-ЯёЁ]/.test(value))) && !(value && value.includes('@')) ? (
             <span className={`flex items-center gap-1 ${hasPhoneDigits ? themeClasses.text.primary : themeClasses.text.secondary}`}>
-              <span className="text-base">🇷🇺</span>
-              <span className="text-sm font-medium">+7</span>
+              <span className="text-base">{t('common.phone.countryFlag', '🇷🇺')}</span>
+              <span className="text-sm font-medium">{t('common.phone.countryCode', '+7')}</span>
             </span>
           ) : undefined
         }

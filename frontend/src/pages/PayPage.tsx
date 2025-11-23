@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 // Прямые импорты для tree-shaking
@@ -12,6 +12,7 @@ import { paymentApi } from '@/services/api/payment';
 import { themeClasses } from '@/design-system/utils/themeClasses';
 import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';
 import { Link } from 'react-router-dom';
+import { preloadModule } from '@/services/i18n/config';
 
 /**
  * Интерфейс платежа из истории
@@ -138,9 +139,46 @@ const PaymentHistoryItemComponent: React.FC<PaymentHistoryItemComponentProps> = 
   );
 };
 
+// Предзагрузка модуля переводов для страницы оплаты
+if (typeof window !== 'undefined') {
+  void preloadModule('payment');
+}
+
 const PayPage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const currentLang = useCurrentLanguage();
+
+  // Предзагрузка и перезагрузка модуля переводов при смене языка
+  useEffect(() => {
+    const loadPaymentModule = async () => {
+      try {
+        await preloadModule('payment');
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('[PayPage] Failed to load payment module:', error);
+        }
+      }
+    };
+
+    loadPaymentModule();
+
+    // Перезагружаем модуль при смене языка
+    const handleLanguageChanged = async () => {
+      try {
+        await preloadModule('payment');
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('[PayPage] Failed to reload payment module on language change:', error);
+        }
+      }
+    };
+
+    i18n.on('languageChanged', handleLanguageChanged);
+
+    return () => {
+      i18n.off('languageChanged', handleLanguageChanged);
+    };
+  }, [i18n]);
 
   // Загрузка данных о способах оплаты
   const { data: methodsData, isLoading: isLoadingMethods, error: methodsError } = useQuery({

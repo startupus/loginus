@@ -40,8 +40,8 @@ export const PetsSection: React.FC<PetsSectionProps> = ({
   return (
     <DataSection
       id="pets"
-      title={t('data.pets.title', 'Pets')}
-      description={t('data.pets.description', 'We will help store documents, choose food or make an appointment with a veterinarian')}
+      title={t('personalData.pets.title')}
+      description={t('personalData.pets.description')}
       action={
         pets.length > 0 ? (
           <button
@@ -49,7 +49,7 @@ export const PetsSection: React.FC<PetsSectionProps> = ({
             className={`text-sm ${themeClasses.text.secondary} hover:text-primary transition-colors duration-200 flex items-center gap-1`}
           >
             <span>
-              {t('data.pets.viewAll', 'All pets')}
+              {t('personalData.pets.viewAll')}
             </span>
             <Icon name="arrow-right" size="sm" />
           </button>
@@ -84,9 +84,9 @@ export const PetsSection: React.FC<PetsSectionProps> = ({
                     {pet.name}
                   </div>
                   <div className={`text-xs ${themeClasses.text.secondary} mt-1`}>
-                    {pet.type}
+                    {t(`modals.pet.types.${pet.type}`, pet.type)}
                     {pet.breed && ` · ${pet.breed}`}
-                    {pet.birthYear && ` · ${new Date().getFullYear() - pet.birthYear} ${t('common.years', 'лет')}`}
+                    {pet.birthYear && ` · ${new Date().getFullYear() - pet.birthYear} ${t('common.years')}`}
                   </div>
                 </div>
                 
@@ -98,7 +98,7 @@ export const PetsSection: React.FC<PetsSectionProps> = ({
         ) : (
           <div className="text-center py-8">
             <p className={`text-sm ${themeClasses.text.secondary} mb-4`}>
-              {t('data.pets.empty', 'You have no added pets yet')}
+              {t('personalData.pets.empty')}
             </p>
           </div>
         )}
@@ -106,7 +106,7 @@ export const PetsSection: React.FC<PetsSectionProps> = ({
         {/* Кнопка добавления */}
         {onAddPet && (
           <AddButton
-            label={t('data.pets.add', 'Add pet')}
+            label={t('personalData.pets.add')}
             onClick={onAddPet}
             variant="horizontal"
             size="md"

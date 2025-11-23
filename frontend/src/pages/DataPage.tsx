@@ -20,6 +20,7 @@ import {
 } from '@/components/Dashboard';
 import { appQueryClient } from '@/providers/RootProvider';
 import { themeClasses } from '@/design-system/utils/themeClasses';
+import { preloadModule } from '@/services/i18n/config';
 
 // Lazy loading для модалок - загружаются только при открытии (оптимизация первой загрузки)
 const AddDocumentModal = lazy(() => import('@/components/Modals/AddDocumentModal').then(m => ({ default: m.AddDocumentModal })));
@@ -98,6 +99,8 @@ if (typeof window !== 'undefined') {
     queryKey: personalDataQueryKey,
     queryFn: fetchPersonalData,
   });
+  void preloadModule('data');
+  void preloadModule('profile');
 }
 
 /**
@@ -105,9 +108,49 @@ if (typeof window !== 'undefined') {
  * Стиль и структура соответствуют DashboardPage для единообразия
  */
 const DataPage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { updateUser } = useAuthStore();
   const queryClient = useQueryClient();
+
+  // Предзагрузка и перезагрузка модулей переводов при смене языка
+  useEffect(() => {
+    const loadModules = async () => {
+      try {
+        await Promise.all([
+          preloadModule('data'),
+          preloadModule('profile'),
+          preloadModule('modals'),
+        ]);
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('[DataPage] Failed to load modules:', error);
+        }
+      }
+    };
+
+    loadModules();
+
+    // Перезагружаем модули при смене языка
+    const handleLanguageChanged = async () => {
+      try {
+        await Promise.all([
+          preloadModule('data'),
+          preloadModule('profile'),
+          preloadModule('modals'),
+        ]);
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('[DataPage] Failed to reload modules on language change:', error);
+        }
+      }
+    };
+
+    i18n.on('languageChanged', handleLanguageChanged);
+
+    return () => {
+      i18n.off('languageChanged', handleLanguageChanged);
+    };
+  }, [i18n]);
   
   // Модалки
   const documentModal = useModal();
