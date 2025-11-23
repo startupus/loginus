@@ -140,7 +140,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           }
                         } else {
                           // Обычный переход
-                          onNavigate ? onNavigate(item.path) : navigate(item.path);
+                        onNavigate ? onNavigate(item.path) : navigate(item.path);
                         }
                       }
                     }}

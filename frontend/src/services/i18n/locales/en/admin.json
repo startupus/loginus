@@ -3,6 +3,7 @@
     "dashboard": "Dashboard",
     "users": "Users",
     "companies": "Companies",
+    "settings": "Settings",
     "authFlow": "Authorization Algorithm",
     "backup": "Backups and Synchronization",
     "menuSettings": "Menu Settings"

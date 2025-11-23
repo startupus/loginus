@@ -2,10 +2,10 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Icon } from '../../primitives/Icon';
-import { Logo } from '../../primitives/Logo';
+import { AdminLogo } from '../../primitives/Logo';
 import { Input } from '../../primitives/Input';
 import { useSidebar } from '../../hooks/useSidebar';
-import { useTheme } from '../../contexts';
+import { useTheme, useClientSafe } from '../../contexts';
 import { useLanguageStore } from '@/store';
 import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';
 import { changeLanguage } from '@/services/i18n/config';
@@ -49,6 +49,24 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   const { language, setLanguage } = useLanguageStore();
   const { setThemeMode, isDark } = useTheme();
   const { isOpen, toggleSidebar, openDropdown, toggleDropdown } = useSidebar();
+  const { client } = useClientSafe();
+  
+  // Клиентский брендинг - фирменный логотип
+  const customLogo = client?.branding?.logo;
+  const logoText = client?.name || 'Loginus';
+  
+  // Автоматическое открытие дропдауна, если один из дочерних пунктов активен
+  useEffect(() => {
+    const activeParentItem = items.find(item => 
+      item.children && item.children.some(child => child.active)
+    );
+    if (activeParentItem && activeParentItem.path && openDropdown !== activeParentItem.path) {
+      // Используем setTimeout чтобы избежать конфликта с инициализацией
+      setTimeout(() => {
+        toggleDropdown(activeParentItem.path);
+      }, 0);
+    }
+  }, [items, openDropdown, toggleDropdown]);
   
   // Блокировка скролла body когда сайдбар открыт на мобильных
   useEffect(() => {
@@ -76,12 +94,18 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       >
         <div>
           {showLogo && (
-            <div className="px-10 pt-10 pb-6 border-b border-slate-700 dark:border-slate-800">
+            <div className="px-10 pt-10 pb-6">
               <button 
                 onClick={() => navigate(buildPathWithLang('/admin', currentLang))}
                 className="cursor-pointer"
               >
-                <Logo size="md" showText={true} />
+                <AdminLogo 
+                  size="md" 
+                  showText={true} 
+                  customLogo={customLogo}
+                  customLogoAlt={logoText}
+                  text={logoText}
+                />
               </button>
               <div className="mt-4">
                 <span className="text-xs font-semibold uppercase tracking-wider text-purple-400 dark:text-purple-300">
@@ -107,9 +131,8 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                   <button
                     onClick={() => {
                       if (item.children) {
-                        if (item.path) {
-                          onNavigate ? onNavigate(item.path) : navigate(item.path);
-                        }
+                        // Для пунктов с children только открываем/закрываем дропдаун
+                        // Переход происходит только при клике на дочерний пункт
                         toggleDropdown(item.path);
                       } else {
                         // Обработка кастомных типов

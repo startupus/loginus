@@ -42,6 +42,12 @@ export interface LogoProps {
    * Alt текст для кастомного логотипа
    */
   customLogoAlt?: string;
+  
+  /**
+   * Вариант логотипа для темного фона (всегда светлый)
+   * Используется в AdminSidebar, где фон всегда темный
+   */
+  variant?: 'auto' | 'light' | 'dark';
 }
 
 /**
@@ -57,6 +63,7 @@ export const Logo: React.FC<LogoProps> = ({
   className = '',
   customLogo,
   customLogoAlt,
+  variant = 'auto',
 }) => {
   const sizeClasses = {
     sm: {
@@ -93,7 +100,7 @@ export const Logo: React.FC<LogoProps> = ({
         className={`${classes.image} object-contain`}
       />
       {showText && (
-        <span className={`${classes.text} font-bold ${themeClasses.text.primary}`}>
+        <span className={`${classes.text} font-bold ${variant === 'light' ? 'text-white' : themeClasses.text.primary}`}>
           {text}
         </span>
       )}
@@ -101,20 +108,44 @@ export const Logo: React.FC<LogoProps> = ({
   ) : (
     <div className={`flex items-center gap-3 ${className}`}>
       <div className="relative">
-        {/* Знак: почти черный фон в светлой теме, белый фон в темной теме - уникальный элемент */}
+        {/* Знак: адаптируется под вариант */}
+        {/* variant='light' - всегда светлый для темного фона (AdminSidebar) */}
+        {/* variant='dark' - всегда темный для светлого фона */}
+        {/* variant='auto' - автоматически по теме */}
         <div 
-          className={`${classes.icon} rounded-xl flex items-center justify-center shadow-lg ring-1 ring-black/5 !bg-gray-900 text-white dark:!bg-white dark:!text-gray-900`}
+          className={`${classes.icon} rounded-xl flex items-center justify-center shadow-lg ring-1 ring-black/5 ${
+            variant === 'light' 
+              ? '!bg-gray-900 !text-white' 
+              : variant === 'dark'
+              ? '!bg-white !text-gray-900'
+              : '!bg-gray-900 text-white dark:!bg-white dark:!text-gray-900'
+          }`}
         >
-          <span className={`${classes.iconText} font-extrabold leading-none tracking-tight`}>iD</span>
+          <span className={`${classes.iconText} font-extrabold leading-none tracking-tight ${
+            variant === 'light' ? '!text-white' : ''
+          }`}>iD</span>
         </div>
-        {/* Зеленая точка - обводка адаптируется под тему: белая в светлой теме, темная в темной теме */}
-        {/* Используем тот же подход, что и в Avatar: border-white dark:border-dark-2 */}
+        {/* Зеленая точка - обводка адаптируется под вариант */}
+        {/* Для variant='light' (темный фон) используем темную обводку */}
+        {/* Для variant='dark' (светлый фон) используем светлую обводку */}
         <div 
-          className={`absolute -bottom-1 -right-1 ${classes.dot} bg-success rounded-full border-2 border-white dark:border-dark-2 shadow-sm z-10`}
+          className={`absolute -bottom-1 -right-1 ${classes.dot} bg-success rounded-full border-2 ${
+            variant === 'light'
+              ? 'border-gray-900'
+              : variant === 'dark'
+              ? 'border-white'
+              : 'border-white dark:border-dark-2'
+          } shadow-sm z-10`}
         ></div>
       </div>
       {showText && (
-        <span className={`${classes.text} font-bold ${themeClasses.text.primary}`}>
+        <span className={`${classes.text} font-bold ${
+          variant === 'light' 
+            ? '!text-white' 
+            : variant === 'dark'
+            ? '!text-gray-900'
+            : themeClasses.text.primary
+        }`}>
           {text}
         </span>
       )}
