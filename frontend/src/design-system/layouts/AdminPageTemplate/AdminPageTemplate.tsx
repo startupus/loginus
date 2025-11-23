@@ -101,31 +101,31 @@ const AdminTemplateBody: React.FC<AdminPageTemplateProps> = ({
 
   // Пункты меню для админ-панели
   // Пересобираем при смене языка (i18n.language) и после загрузки модуля admin
-  // Используем готовые переводы с fallback значениями
+  // Все переводы без fallback значений для синхронной работы - без задержек перевода
   const defaultAdminSidebarItems: SidebarItem[] = React.useMemo(() => {
-    // Убеждаемся, что переводы загружены, используя fallback значения
+    // Все переводы должны быть без fallback значений для синхронной работы
     return [
     { 
-        label: t('admin.sidebar.dashboard', 'Дашборд'), 
+        label: t('admin.sidebar.dashboard'), 
       path: buildPathWithLang('/admin', currentLang), 
       icon: 'chartBar', 
       active: location.pathname === buildPathWithLang('/admin', currentLang) || 
               (location.pathname === buildPathWithLang('/admin/', currentLang))
     },
     { 
-        label: t('admin.sidebar.users', 'Пользователи'), 
+        label: t('admin.sidebar.users'), 
       path: buildPathWithLang('/admin/users', currentLang), 
       icon: 'users', 
       active: location.pathname.includes('/admin/users')
     },
     { 
-        label: t('admin.sidebar.companies', 'Компании'), 
+        label: t('admin.sidebar.companies'), 
       path: buildPathWithLang('/admin/companies', currentLang), 
       icon: 'briefcase', 
       active: location.pathname.includes('/admin/companies')
     },
     { 
-        label: t('admin.sidebar.settings', 'Настройки'), 
+        label: t('admin.sidebar.settings'), 
       path: buildPathWithLang('/admin/settings', currentLang), 
       icon: 'settings', 
       active: location.pathname.includes('/admin/auth-flow') || 
@@ -133,19 +133,19 @@ const AdminTemplateBody: React.FC<AdminPageTemplateProps> = ({
               location.pathname.includes('/admin/menu-settings'),
       children: [
         { 
-            label: t('admin.sidebar.authFlow', 'Алгоритм авторизации'), 
+            label: t('admin.sidebar.authFlow'), 
           path: buildPathWithLang('/admin/auth-flow', currentLang), 
           icon: 'shield', 
           active: location.pathname.includes('/admin/auth-flow')
         },
         { 
-            label: t('admin.sidebar.backup', 'Бекапы и синхронизация'), 
+            label: t('admin.sidebar.backup'), 
           path: buildPathWithLang('/admin/backup', currentLang), 
           icon: 'server', 
           active: location.pathname.includes('/admin/backup')
         },
         { 
-            label: t('admin.sidebar.menuSettings', 'Настройки меню'), 
+            label: t('admin.sidebar.menuSettings'), 
           path: buildPathWithLang('/admin/menu-settings', currentLang), 
           icon: 'menu', 
           active: location.pathname.includes('/admin/menu-settings')

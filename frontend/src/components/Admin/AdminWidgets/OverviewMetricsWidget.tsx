@@ -125,7 +125,7 @@ export const OverviewMetricsWidget: React.FC<OverviewMetricsWidgetProps> = ({
   return (
     <WidgetCard
       title={widgetTitle}
-      icon={<Icon name="bar-chart" size="lg" color="rgb(var(--color-primary))" />}
+      icon={<Icon name="chartBar" size="lg" color="rgb(var(--color-primary))" />}
       widgetId={widgetId}
       draggable={draggable}
       onDragStart={onDragStart}

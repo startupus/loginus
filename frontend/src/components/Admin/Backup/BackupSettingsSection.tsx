@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '../../../design-system/primitives/Button';
 import { Input } from '../../../design-system/primitives/Input';
-import { Icon } from '../../../design-system/primitives/Icon';
+import { LoadingState } from '../../../design-system/composites/LoadingState';
 import { themeClasses } from '../../../design-system/utils/themeClasses';
 import { backupApi, BackupSettings } from '../../../services/api/backup';
 import { StorageConfigModal } from './StorageConfigModal';
@@ -29,11 +29,7 @@ export const BackupSettingsSection: React.FC = () => {
   });
 
   if (isLoading || !backupSettings) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <Icon name="loader" size="lg" className="animate-spin text-primary" />
-      </div>
-    );
+    return <LoadingState text={t('common.loading')} />;
   }
 
   const handleToggle = (path: string, value: any) => {
@@ -64,7 +60,7 @@ export const BackupSettingsSection: React.FC = () => {
       {/* Автоматические бекапы */}
       <div className={`${themeClasses.card.default} p-6`}>
         <h3 className={`text-lg font-semibold ${themeClasses.text.primary} mb-4`}>
-          {t('admin.backup.backup.autoBackup', 'Автоматические бекапы')}
+          {t('admin.backup.backup.autoBackup')}
         </h3>
 
         <div className="space-y-4">
@@ -72,10 +68,10 @@ export const BackupSettingsSection: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <label className={`block text-sm font-medium ${themeClasses.text.primary} mb-1`}>
-                {t('admin.backup.backup.enableAuto', 'Включить автоматические бекапы')}
+                {t('admin.backup.backup.enableAuto')}
               </label>
               <p className={`text-xs ${themeClasses.text.secondary}`}>
-                {t('admin.backup.backup.enableAutoDesc', 'Автоматическое создание бекапов по расписанию')}
+                {t('admin.backup.backup.enableAutoDesc')}
               </p>
             </div>
             <button
@@ -95,22 +91,22 @@ export const BackupSettingsSection: React.FC = () => {
             <>
               <div>
                 <label className={`block text-sm font-medium ${themeClasses.text.primary} mb-2`}>
-                  {t('admin.backup.backup.schedule', 'Расписание создания')}
+                  {t('admin.backup.backup.schedule')}
                 </label>
                 <select
                   value={backupSettings.autoBackup.schedule}
                   onChange={(e) => handleToggle('autoBackup.schedule', e.target.value)}
                   className={`${themeClasses.input.default} w-full`}
                 >
-                  <option value="daily">{t('admin.backup.backup.scheduleDaily', 'Ежедневно')}</option>
-                  <option value="weekly">{t('admin.backup.backup.scheduleWeekly', 'Еженедельно')}</option>
-                  <option value="monthly">{t('admin.backup.backup.scheduleMonthly', 'Ежемесячно')}</option>
+                  <option value="daily">{t('admin.backup.backup.scheduleDaily')}</option>
+                  <option value="weekly">{t('admin.backup.backup.scheduleWeekly')}</option>
+                  <option value="monthly">{t('admin.backup.backup.scheduleMonthly')}</option>
                 </select>
               </div>
 
               <div>
                 <label className={`block text-sm font-medium ${themeClasses.text.primary} mb-2`}>
-                  {t('admin.backup.backup.time', 'Время создания')}
+                  {t('admin.backup.backup.time')}
                 </label>
                 <Input
                   type="time"
@@ -122,7 +118,7 @@ export const BackupSettingsSection: React.FC = () => {
               {/* Что включать в бекап */}
               <div>
                 <label className={`block text-sm font-medium ${themeClasses.text.primary} mb-2`}>
-                  {t('admin.backup.backup.include', 'Что включать в бекап')}
+                  {t('admin.backup.backup.include')}
                 </label>
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 cursor-pointer">
@@ -133,7 +129,7 @@ export const BackupSettingsSection: React.FC = () => {
                       className="w-4 h-4 text-primary rounded"
                     />
                     <span className={themeClasses.text.primary}>
-                      {t('admin.backup.backup.includeUsers', 'Данные пользователей')}
+                      {t('admin.backup.backup.includeUsers')}
                     </span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
@@ -144,7 +140,7 @@ export const BackupSettingsSection: React.FC = () => {
                       className="w-4 h-4 text-primary rounded"
                     />
                     <span className={themeClasses.text.primary}>
-                      {t('admin.backup.backup.includeSettings', 'Настройки системы')}
+                      {t('admin.backup.backup.includeSettings')}
                     </span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
@@ -155,7 +151,7 @@ export const BackupSettingsSection: React.FC = () => {
                       className="w-4 h-4 text-primary rounded"
                     />
                     <span className={themeClasses.text.primary}>
-                      {t('admin.backup.backup.includeLogs', 'Логи')}
+                      {t('admin.backup.backup.includeLogs')}
                     </span>
                   </label>
                 </div>
@@ -168,14 +164,14 @@ export const BackupSettingsSection: React.FC = () => {
       {/* Место хранения */}
       <div className={`${themeClasses.card.default} p-6`}>
         <h3 className={`text-lg font-semibold ${themeClasses.text.primary} mb-4`}>
-          {t('admin.backup.backup.storage', 'Место хранения')}
+          {t('admin.backup.backup.storage')}
         </h3>
 
         <div className="space-y-4">
           {/* Тип хранилища */}
           <div>
             <label className={`block text-sm font-medium ${themeClasses.text.primary} mb-2`}>
-              {t('admin.backup.backup.storageType', 'Тип хранилища')}
+              {t('admin.backup.backup.storageType')}
             </label>
             <div className="space-y-2">
               <label className="flex items-center gap-2 cursor-pointer">
@@ -184,11 +180,11 @@ export const BackupSettingsSection: React.FC = () => {
                   name="storageType"
                   value="local"
                   checked={backupSettings.storage.type === 'local'}
-                  onChange={(e) => handleStorageTypeChange('local')}
+                  onChange={() => handleStorageTypeChange('local')}
                   className="w-4 h-4 text-primary"
                 />
                 <span className={themeClasses.text.primary}>
-                  {t('admin.backup.backup.storageLocal', 'Локальное хранилище (бэкенд Loginus)')}
+                  {t('admin.backup.backup.storageLocal')}
                 </span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
@@ -197,11 +193,11 @@ export const BackupSettingsSection: React.FC = () => {
                   name="storageType"
                   value="yandex-disk"
                   checked={backupSettings.storage.type === 'yandex-disk'}
-                  onChange={(e) => handleStorageTypeChange('yandex-disk')}
+                  onChange={() => handleStorageTypeChange('yandex-disk')}
                   className="w-4 h-4 text-primary"
                 />
                 <span className={themeClasses.text.primary}>
-                  {t('admin.backup.backup.storageYandex', 'Яндекс Диск')}
+                  {t('admin.backup.backup.storageYandex')}
                 </span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
@@ -210,11 +206,11 @@ export const BackupSettingsSection: React.FC = () => {
                   name="storageType"
                   value="s3"
                   checked={backupSettings.storage.type === 's3'}
-                  onChange={(e) => handleStorageTypeChange('s3')}
+                  onChange={() => handleStorageTypeChange('s3')}
                   className="w-4 h-4 text-primary"
                 />
                 <span className={themeClasses.text.primary}>
-                  {t('admin.backup.backup.storageS3', 'S3 совместимое хранилище')}
+                  {t('admin.backup.backup.storageS3')}
                 </span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
@@ -223,11 +219,11 @@ export const BackupSettingsSection: React.FC = () => {
                   name="storageType"
                   value="custom"
                   checked={backupSettings.storage.type === 'custom'}
-                  onChange={(e) => handleStorageTypeChange('custom')}
+                  onChange={() => handleStorageTypeChange('custom')}
                   className="w-4 h-4 text-primary"
                 />
                 <span className={themeClasses.text.primary}>
-                  {t('admin.backup.backup.storageCustom', 'Другое облачное хранилище')}
+                  {t('admin.backup.backup.storageCustom')}
                 </span>
               </label>
             </div>
@@ -239,12 +235,12 @@ export const BackupSettingsSection: React.FC = () => {
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <p className={`text-sm font-medium ${themeClasses.text.primary}`}>
-                    {t('admin.backup.backup.yandexDisk', 'Яндекс Диск')}
+                    {t('admin.backup.backup.yandexDisk')}
                   </p>
                   <p className={`text-xs ${themeClasses.text.secondary}`}>
                     {backupSettings.storage.yandexDisk.connected
-                      ? t('admin.backup.backup.connected', 'Подключено')
-                      : t('admin.backup.backup.notConnected', 'Не подключено')}
+                      ? t('admin.backup.backup.connected')
+                      : t('admin.backup.backup.notConnected')}
                   </p>
                 </div>
                 <Button
@@ -253,8 +249,8 @@ export const BackupSettingsSection: React.FC = () => {
                   onClick={() => setIsStorageModalOpen(true)}
                 >
                   {backupSettings.storage.yandexDisk.connected
-                    ? t('admin.backup.backup.configure', 'Настроить')
-                    : t('admin.backup.backup.connect', 'Подключить')}
+                    ? t('admin.backup.backup.configure')
+                    : t('admin.backup.backup.connect')}
                 </Button>
               </div>
             </div>
@@ -267,11 +263,11 @@ export const BackupSettingsSection: React.FC = () => {
                 <div>
                   <p className={`text-sm font-medium ${themeClasses.text.primary}`}>
                     {backupSettings.storage.type === 's3'
-                      ? t('admin.backup.backup.s3Storage', 'S3 хранилище')
-                      : t('admin.backup.backup.customStorage', 'Кастомное хранилище')}
+                      ? t('admin.backup.backup.s3Storage')
+                      : t('admin.backup.backup.customStorage')}
                   </p>
                   <p className={`text-xs ${themeClasses.text.secondary}`}>
-                    {t('admin.backup.backup.configureStorage', 'Настройте параметры подключения')}
+                    {t('admin.backup.backup.configureStorage')}
                   </p>
                 </div>
                 <Button
@@ -279,7 +275,7 @@ export const BackupSettingsSection: React.FC = () => {
                   size="sm"
                   onClick={() => setIsStorageModalOpen(true)}
                 >
-                  {t('admin.backup.backup.configure', 'Настроить')}
+                  {t('admin.backup.backup.configure')}
                 </Button>
               </div>
             </div>

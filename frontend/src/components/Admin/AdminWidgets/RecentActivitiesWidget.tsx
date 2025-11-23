@@ -87,9 +87,11 @@ export const RecentActivitiesWidget: React.FC<RecentActivitiesWidgetProps> = ({
   const currentLang = useCurrentLanguage();
   const [, forceUpdate] = useReducer(x => x + 1, 0);
 
-  // Предзагружаем модуль admin для переводов
+  // Предзагружаем модуль admin для переводов - как в AdminSidebar
+  // Модуль должен быть уже загружен в AdminPageTemplate, но на всякий случай предзагружаем
   useEffect(() => {
     preloadModule('admin').then(() => {
+      // Принудительно перерисовываем после загрузки модуля
       forceUpdate();
     }).catch((error) => {
       if (process.env.NODE_ENV === 'development') {
@@ -98,7 +100,7 @@ export const RecentActivitiesWidget: React.FC<RecentActivitiesWidgetProps> = ({
     });
   }, []);
 
-  // Перезагружаем модуль при смене языка
+  // Перезагружаем модуль при смене языка - как в OverviewMetricsWidget
   useEffect(() => {
     const handleLanguageChanged = async () => {
       try {
@@ -121,6 +123,8 @@ export const RecentActivitiesWidget: React.FC<RecentActivitiesWidgetProps> = ({
   const displayedActivities = activities.slice(0, 4);
 
   // Используем useMemo для реактивности переводов при смене языка
+  // С fallback значениями как в OverviewMetricsWidget для надежности
+  // Пересчитываем при изменении языка
   const widgetTitle = useMemo(() => t('admin.widgets.activities.title', currentLang === 'ru' ? 'Активности' : 'Activities'), [t, i18n.language, currentLang]);
   const viewAllLabel = useMemo(() => t('admin.widgets.activities.viewAll', currentLang === 'ru' ? 'Показать все' : 'View All'), [t, i18n.language, currentLang]);
 
@@ -141,8 +145,10 @@ export const RecentActivitiesWidget: React.FC<RecentActivitiesWidgetProps> = ({
     
     const translationKey = actionMap[action.toLowerCase()];
     if (translationKey) {
-      return t(translationKey, action);
+      // Без fallback значения - перевод должен быть в файлах локализации
+      return t(translationKey);
     }
+    // Если действие не найдено в маппинге, возвращаем как есть (должно быть редко)
     return action;
   };
 
@@ -151,12 +157,12 @@ export const RecentActivitiesWidget: React.FC<RecentActivitiesWidgetProps> = ({
     try {
       return formatRelativeTimeWithT(timestamp, t, currentLang, 'admin.widgets.activities');
     } catch {
-      // Fallback на переведенный relativeTime если есть
+      // Fallback на переведенный relativeTime если есть (без хардкода)
       const relativeTimeMap: Record<string, string> = {
-        'Just Now': t('admin.widgets.activities.relativeTime.justNow', 'Только что'),
-        '15 minutes ago': t('admin.widgets.activities.relativeTime.minutesAgo', '15 мин. назад', { count: 15 }),
-        '5 months ago': t('admin.widgets.activities.relativeTime.monthsAgo', '5 мес. назад', { count: 5 }),
-        '2 weeks ago': t('admin.widgets.activities.relativeTime.weeksAgo', '2 нед. назад', { count: 2 }),
+        'Just Now': t('admin.widgets.activities.relativeTime.justNow'),
+        '15 minutes ago': t('admin.widgets.activities.relativeTime.minutesAgo', { count: 15 }),
+        '5 months ago': t('admin.widgets.activities.relativeTime.monthsAgo', { count: 5 }),
+        '2 weeks ago': t('admin.widgets.activities.relativeTime.weeksAgo', { count: 2 }),
       };
       return relativeTimeMap[relativeTime] || relativeTime;
     }

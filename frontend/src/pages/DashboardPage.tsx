@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { preloadModule } from '../services/i18n/config';
 import { PageTemplate } from '../design-system/layouts/PageTemplate';
 import { profileApi } from '../services/api/profile';
-import { Icon } from '../design-system/primitives/Icon';
+import { LoadingState, ErrorState, EmptyState } from '../design-system/composites';
 import { useAuthStore } from '../store';
 import { useWidgetPreferences } from '../hooks/useWidgetPreferences';
 import { useModal } from '../hooks/useModal';
@@ -193,15 +193,15 @@ const DashboardPage: React.FC = () => {
 
   if (error) {
     return (
-      <PageTemplate title={t('dashboard.title', 'Профиль')} showSidebar={true}>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <Icon name="alert-circle" size="lg" color="rgb(var(--color-error))" className="mx-auto mb-4" />
-            <p className="text-text-secondary">
-              {t('errors.500Description', 'Что-то пошло не так. Мы уже работаем над исправлением.')}
-            </p>
-          </div>
-        </div>
+      <PageTemplate title={t('dashboard.title')} showSidebar={true}>
+        <ErrorState
+          title={t('errors.500Title')}
+          description={t('errors.500Description')}
+          action={{
+            label: t('common.retry'),
+            onClick: () => queryClient.invalidateQueries({ queryKey: dashboardQueryKey }),
+          }}
+        />
       </PageTemplate>
     );
   }
@@ -213,43 +213,43 @@ const DashboardPage: React.FC = () => {
   const availableWidgets: AvailableWidget[] = [
     {
       id: 'courses',
-      title: t('dashboard.courses.title', 'Мои курсы обучения'),
-      description: t('dashboard.courses.description', 'Отслеживайте прогресс по вашим курсам'),
+      title: t('dashboard.courses.title'),
+      description: t('dashboard.courses.description'),
       icon: 'book',
       enabled: enabledWidgets.has('courses'),
     },
     {
       id: 'events',
-      title: t('dashboard.events.title', 'События'),
-      description: t('dashboard.events.description', 'Последние события и уведомления'),
+      title: t('dashboard.events.title'),
+      description: t('dashboard.events.description'),
       icon: 'bell',
       enabled: enabledWidgets.has('events'),
     },
     {
       id: 'roadmap',
-      title: t('dashboard.roadmap.title', 'Моя дорожная карта'),
-      description: t('dashboard.roadmap.description', 'Ближайшие шаги в обучении'),
+      title: t('dashboard.roadmap.title'),
+      description: t('dashboard.roadmap.description'),
       icon: 'flag',
       enabled: enabledWidgets.has('roadmap'),
     },
     {
       id: 'mail',
-      title: t('dashboard.mail.title', 'Почта'),
-      description: t('dashboard.mail.description', 'Непрочитанные письма'),
+      title: t('dashboard.mail.title'),
+      description: t('dashboard.mail.description'),
       icon: 'mail',
       enabled: enabledWidgets.has('mail'),
     },
     {
       id: 'plus',
-      title: t('dashboard.plus.title', 'Яндекс Плюс'),
-      description: t('dashboard.plus.description', 'Статус подписки и баллы'),
+      title: t('dashboard.plus.title'),
+      description: t('dashboard.plus.description'),
       icon: 'star',
       enabled: enabledWidgets.has('plus'),
     },
     {
       id: 'pay',
-      title: t('dashboard.pay.title', 'Яндекс Пэй'),
-      description: t('dashboard.pay.description', 'Баланс и лимиты'),
+      title: t('dashboard.pay.title'),
+      description: t('dashboard.pay.description'),
       icon: 'wallet',
       enabled: enabledWidgets.has('pay'),
     },
@@ -336,54 +336,31 @@ const DashboardPage: React.FC = () => {
     queryClient.invalidateQueries({ queryKey: ['dashboard'] });
   };
 
-  // Оптимизация: показываем skeleton только при первой загрузке без данных
+  // Оптимизация: показываем loading state только при первой загрузке без данных
   if (showSkeleton) {
     return (
-      <PageTemplate title={t('dashboard.title', 'Профиль')} showSidebar={true}>
-        <div className="space-y-4 sm:space-y-6">
-          {/* Skeleton для ProfileCard */}
-          <div className="w-full animate-pulse">
-            <div className="bg-background dark:bg-surface rounded-xl p-6 border border-border">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-gray-2 dark:bg-gray-3"></div>
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-gray-2 dark:bg-gray-3 rounded w-1/3"></div>
-                  <div className="h-3 bg-gray-2 dark:bg-gray-3 rounded w-1/2"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          {/* Skeleton для виджетов */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="w-full animate-pulse">
-                <div className="bg-background dark:bg-surface rounded-xl p-6 border border-border h-32">
-                  <div className="h-4 bg-gray-2 dark:bg-gray-3 rounded w-1/2 mb-4"></div>
-                  <div className="h-8 bg-gray-2 dark:bg-gray-3 rounded w-1/3"></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+      <PageTemplate title={t('dashboard.title')} showSidebar={true}>
+        <LoadingState text={t('common.loading')} />
       </PageTemplate>
     );
   }
 
-  // Если нет данных после загрузки - показываем сообщение
+  // Если нет данных после загрузки - показываем empty state
   if (!dashboard || !user) {
     return (
-      <PageTemplate title={t('dashboard.title', 'Профиль')} showSidebar={true}>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <p className="text-text-secondary">{t('common.noData', 'Нет данных')}</p>
-        </div>
+      <PageTemplate title={t('dashboard.title')} showSidebar={true}>
+        <EmptyState
+          icon="inbox"
+          title={t('common.noData')}
+          description={t('common.error')}
+        />
       </PageTemplate>
     );
   }
 
   return (
     <PageTemplate 
-      title={t('dashboard.title', 'Профиль')} 
+      title={t('dashboard.title')} 
       showSidebar={true}
       showHeaderNav={false}
       userData={{
@@ -402,7 +379,7 @@ const DashboardPage: React.FC = () => {
       {/* Индикатор обновления данных (не блокирует контент) */}
       {isFetching && !isLoading && (
         <div className="fixed top-20 right-4 z-50 bg-primary/10 border border-primary/20 rounded-lg px-3 py-2 text-xs text-primary animate-pulse">
-          {t('common.updating', 'Обновление...')}
+          {t('common.loading')}
         </div>
       )}
       <div className="space-y-4 sm:space-y-6">

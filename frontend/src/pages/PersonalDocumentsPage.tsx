@@ -7,6 +7,7 @@ import { Button } from '../design-system/primitives/Button';
 import { Icon } from '../design-system/primitives/Icon';
 import { DataSection } from '../design-system/composites/DataSection';
 import { LoadingState } from '../design-system/composites/LoadingState';
+import { themeClasses } from '../design-system/utils/themeClasses';
 import { personalApi } from '../services/api/personal';
 
 /**
@@ -21,8 +22,8 @@ const PersonalDocumentsPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <PageTemplate title={t('personalData.documents.title', 'Документы')} showSidebar={true}>
-        <LoadingState text={t('common.loading', 'Загрузка...')} />
+      <PageTemplate title={t('personalData.documents.title')} showSidebar={true}>
+        <LoadingState text={t('common.loading')} />
       </PageTemplate>
     );
   }
@@ -30,18 +31,18 @@ const PersonalDocumentsPage: React.FC = () => {
   const documents = data?.data?.documents || [];
 
   return (
-    <PageTemplate title={t('personalData.documents.title', 'Документы')} showSidebar={true}>
+    <PageTemplate title={t('personalData.documents.title')} showSidebar={true}>
       <div className="space-y-6">
         <DataSection
           id="documents"
-          title={t('personalData.documents.title', 'Документы')}
-          description={t('personalData.documents.description', 'В ID ваши документы всегда под рукой. А мы бережно их храним')}
+          title={t('personalData.documents.title')}
+          description={t('personalData.documents.description')}
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {documents.map((doc: any) => (
               <div
                 key={doc.type}
-                className="p-6 rounded-lg border border-border bg-background dark:bg-surface hover:shadow-md transition-shadow"
+                className={`p-6 rounded-lg ${themeClasses.border.default} ${themeClasses.background.surface} hover:shadow-md transition-shadow`}
               >
                 <div className="flex flex-col items-center gap-4">
                   <Icon name={doc.icon || 'document'} size="xl" className="text-primary" />
@@ -51,7 +52,7 @@ const PersonalDocumentsPage: React.FC = () => {
                     </h3>
                     {doc.added ? (
                       <p className="text-sm text-text-secondary">
-                        {t('common.edit', 'Редактировать')}
+                        {t('common.edit')}
                       </p>
                     ) : (
                       <Button
@@ -59,7 +60,7 @@ const PersonalDocumentsPage: React.FC = () => {
                         size="sm"
                         className="mt-2"
                       >
-                        {t('personalData.documents.addDocument', 'Добавить документ')}
+                        {t('personalData.documents.addDocument')}
                       </Button>
                     )}
                   </div>

@@ -2,7 +2,7 @@ import React, { Suspense, lazy, useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { PageTemplate } from '../design-system/layouts/PageTemplate';
-import { ErrorState } from '../design-system/composites/ErrorState';
+import { ErrorState, LoadingState } from '../design-system/composites';
 import { profileApi } from '../services/api/profile';
 import { workApi } from '../services/api/work';
 import { useAuthStore } from '../store';
@@ -10,20 +10,6 @@ import { useAuthStore } from '../store';
 const WorkGroups = lazy(() => import('../components/Dashboard/WorkGroups').then(m => ({ default: m.WorkGroups })));
 const InviteMemberModal = lazy(() => import('../components/Work/InviteMemberModal').then(m => ({ default: m.InviteMemberModal })));
 const GroupEvents = lazy(() => import('../components/Work/GroupEvents').then(m => ({ default: m.GroupEvents })));
-
-const SectionSkeleton: React.FC = () => (
-  <div className="w-full animate-pulse mb-6">
-    <div className="bg-background dark:bg-surface rounded-xl p-6 sm:p-8 border border-border">
-      <div className="h-6 bg-gray-2 dark:bg-gray-3 rounded w-1/3 mb-4"></div>
-      <div className="h-4 bg-gray-2 dark:bg-gray-3 rounded w-2/3 mb-6"></div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="h-32 bg-gray-2 dark:bg-gray-3 rounded-lg"></div>
-        ))}
-      </div>
-    </div>
-  </div>
-);
 
 /**
  * WorkPage - страница рабочих групп и команд
@@ -66,31 +52,30 @@ const WorkPage: React.FC = () => {
 
   const handleInvite = async (email: string, role?: 'admin' | 'member') => {
     if (!selectedGroup?.id) {
-      throw new Error('Группа не выбрана');
+      // Техническая ошибка - не показывается пользователю напрямую
+      throw new Error('Group not selected');
     }
     await workApi.inviteMember(selectedGroup.id, { email, role });
   };
 
-  // Показываем skeleton только при первой загрузке без данных
+  // Показываем loading state только при первой загрузке без данных
   const showSkeleton = isLoading && !data;
   
   if (showSkeleton) {
     return (
-      <PageTemplate title={t('sidebar.work', 'Работа')} showSidebar={true}>
-        <div className="space-y-6">
-          <SectionSkeleton />
-        </div>
+      <PageTemplate title={t('sidebar.work')} showSidebar={true}>
+        <LoadingState text={t('common.loading')} />
       </PageTemplate>
     );
   }
 
   if (error) {
     return (
-      <PageTemplate title={t('sidebar.work', 'Работа')} showSidebar={true}>
+      <PageTemplate title={t('sidebar.work')} showSidebar={true}>
         <ErrorState
-          title={t('common.error', 'Произошла ошибка при загрузке данных')}
+          title={t('common.error')}
           action={{
-            label: t('common.retry', 'Повторить'),
+            label: t('common.retry'),
             onClick: () => queryClient.invalidateQueries({ queryKey: ['work-groups'] })
           }}
         />
@@ -102,10 +87,10 @@ const WorkPage: React.FC = () => {
   const groupEvents = data?.groupEvents || [];
 
   return (
-    <PageTemplate title={t('sidebar.work', 'Работа')} showSidebar={true}>
+    <PageTemplate title={t('sidebar.work')} showSidebar={true}>
       <div className="space-y-6">
         {/* Секция с группами */}
-        <Suspense fallback={<SectionSkeleton />}>
+        <Suspense fallback={<LoadingState text={t('common.loading')} />}>
           <WorkGroups
             groups={workGroups}
             onGroupClick={(group) => {
@@ -121,7 +106,7 @@ const WorkPage: React.FC = () => {
         </Suspense>
 
         {/* Секция с событиями и уведомлениями */}
-        <Suspense fallback={<SectionSkeleton />}>
+        <Suspense fallback={<LoadingState text={t('common.loading')} />}>
           <GroupEvents events={groupEvents} />
         </Suspense>
       </div>
