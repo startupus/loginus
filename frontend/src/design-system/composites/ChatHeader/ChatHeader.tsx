@@ -34,7 +34,8 @@ export interface ChatHeaderProps {
   className?: string;
   
   /**
-   * Отступ слева для текстовой части (для мобильных с кнопкой назад)
+   * Отступ слева для всего контейнера (для мобильных с кнопкой назад)
+   * Применяется к контейнеру с логотипом и текстом, чтобы избежать наложения на кнопку "назад"
    */
   textLeftPadding?: string;
 }
@@ -54,9 +55,14 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
   // Проверяем, является ли это чатом поддержки Loginus ID
   const isLoginusIdSupport = service === 'Loginus ID' || name.includes('Loginus ID');
 
+  // Вычисляем отступ для всего контейнера на основе textLeftPadding
+  // Если textLeftPadding задан, применяем его к контейнеру, чтобы сдвинуть и логотип, и текст
+  // Заменяем все вхождения ml- на pl- (включая префиксы типа lg:, sm:)
+  const containerPadding = textLeftPadding ? textLeftPadding.replace(/([a-z]+:)?ml-/g, (match, prefix) => prefix ? `${prefix}pl-` : 'pl-') : '';
+
   return (
     <div className={`${themeClasses.background.default} ${themeClasses.border.bottom} p-3 sm:p-4 ${className}`}>
-      <div className="flex items-center gap-2 sm:gap-3">
+      <div className={`flex items-center gap-2 sm:gap-3 ${containerPadding}`}>
         <div className="flex-shrink-0 relative">
           {isLoginusIdSupport ? (
             <LoginusIdLogo size="md" showStatus={isOnline} status={isOnline ? 'online' : 'offline'} />
@@ -71,7 +77,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
           />
           )}
         </div>
-        <div className={`flex-1 min-w-0 pl-2 sm:pl-0 ${textLeftPadding} flex items-center justify-between gap-2`}>
+        <div className={`flex-1 min-w-0 pl-2 sm:pl-0 flex items-center justify-between gap-2`}>
           <h3 className={`text-sm sm:text-base font-semibold ${themeClasses.text.primary} truncate`}>
             {name}
           </h3>

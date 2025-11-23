@@ -473,7 +473,7 @@ const SupportPage: React.FC = () => {
               name={activeChat?.name || t('support.chat.title', 'Поддержка Loginus ID')}
               service={activeChat?.service || 'Поддержка'}
               isOnline={activeChat?.isOnline ?? false}
-                textLeftPadding="lg:ml-0 ml-10 sm:ml-12"
+                textLeftPadding="lg:ml-0 ml-12 sm:ml-16"
             />
             </div>
 
