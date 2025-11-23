@@ -7,6 +7,7 @@ import { Icon } from '../../../design-system/primitives/Icon';
 import { Badge } from '../../../design-system/primitives/Badge';
 import { themeClasses } from '../../../design-system/utils/themeClasses';
 import { backupApi, SyncSettings } from '../../../services/api/backup';
+import { SyncStatusIndicator } from './SyncStatusIndicator';
 
 /**
  * SyncSettingsSection - секция настроек синхронизации
@@ -33,6 +34,16 @@ export const SyncSettingsSection: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sync-status'] });
       queryClient.invalidateQueries({ queryKey: ['backup-stats'] });
+    },
+  });
+
+  const testConnectionMutation = useMutation({
+    mutationFn: () => backupApi.testSyncConnection(
+      syncSettings?.centralServer.url || '',
+      syncSettings?.centralServer.apiKey || ''
+    ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sync-settings'] });
     },
   });
 
@@ -69,6 +80,10 @@ export const SyncSettingsSection: React.FC = () => {
     } finally {
       setIsRunningSync(false);
     }
+  };
+
+  const handleTestConnection = async () => {
+    await testConnectionMutation.mutateAsync();
   };
 
   const handleEnrichmentSourceToggle = (source: string) => {
@@ -145,6 +160,82 @@ export const SyncSettingsSection: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Подключение к центральному серверу */}
+      {syncSettings.enabled && (
+        <div className={`${themeClasses.card.default} p-6`}>
+          <h3 className={`text-lg font-semibold ${themeClasses.text.primary} mb-4`}>
+            {t('admin.backup.sync.centralServer', 'Подключение к центральному серверу')}
+          </h3>
+
+          <div className="space-y-4">
+            {/* URL центрального сервера */}
+            <div>
+              <label className={`block text-sm font-medium ${themeClasses.text.primary} mb-2`}>
+                {t('admin.backup.sync.serverUrl', 'URL центрального сервера')}
+              </label>
+              <Input
+                type="text"
+                value={syncSettings.centralServer.url}
+                onChange={(e) => handleInputChange('centralServer.url', e.target.value)}
+                placeholder="https://central.loginus.com"
+              />
+            </div>
+
+            {/* API ключ */}
+            <div>
+              <label className={`block text-sm font-medium ${themeClasses.text.primary} mb-2`}>
+                {t('admin.backup.sync.apiKey', 'API ключ')}
+              </label>
+              <Input
+                type="password"
+                value={syncSettings.centralServer.apiKey}
+                onChange={(e) => handleInputChange('centralServer.apiKey', e.target.value)}
+                placeholder="••••••••••••••••"
+              />
+            </div>
+
+            {/* Статус подключения и кнопка проверки */}
+            <div className="flex items-center gap-4">
+              <Button
+                variant="secondary"
+                onClick={handleTestConnection}
+                disabled={testConnectionMutation.isPending}
+              >
+                {testConnectionMutation.isPending && (
+                  <Icon name="loader" size="sm" className="animate-spin mr-2" />
+                )}
+                {!testConnectionMutation.isPending && (
+                  <Icon name="refresh-cw" size="sm" className="mr-2" />
+                )}
+                {testConnectionMutation.isPending 
+                  ? t('admin.backup.sync.testing', 'Проверка...')
+                  : t('admin.backup.sync.testConnection', 'Проверить подключение')
+                }
+              </Button>
+              
+              {syncSettings.centralServer.url && syncSettings.centralServer.apiKey && (
+                <SyncStatusIndicator connected={syncSettings.centralServer.connected} />
+              )}
+            </div>
+
+            {/* Тип синхронизации */}
+            <div>
+              <label className={`block text-sm font-medium ${themeClasses.text.primary} mb-2`}>
+                {t('admin.backup.sync.type', 'Тип синхронизации')}
+              </label>
+              <select
+                value={syncSettings.type}
+                onChange={(e) => handleToggle('type', e.target.value)}
+                className={`${themeClasses.input.default} w-full`}
+              >
+                <option value="one-way">{t('admin.backup.sync.typeOneWay', 'Односторонняя (только загрузка)')}</option>
+                <option value="two-way">{t('admin.backup.sync.typeTwoWay', 'Двусторонняя (загрузка и отправка)')}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Обогащение данных */}
       {syncSettings.enabled && (
