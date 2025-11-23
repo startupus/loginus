@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { Icon, Badge } from '../../design-system/primitives';
 import { WidgetCard } from '../../design-system/composites/WidgetCard';
 import { themeClasses } from '../../design-system/utils/themeClasses';
+import { useCurrentLanguage } from '../../utils/routing';
+import { formatRelativeTimeWithT } from '../../utils/intl/formatters';
 
 export interface Event {
   id: string;
@@ -12,6 +14,8 @@ export interface Event {
   date: string;
   icon?: string;
   color?: string;
+  titleKey?: string;
+  descriptionKey?: string;
 }
 
 export interface EventsWidgetProps {
@@ -48,24 +52,19 @@ export const EventsWidget: React.FC<EventsWidgetProps> = ({
   isDragging,
 }) => {
   const { t } = useTranslation();
+  const currentLang = useCurrentLanguage();
 
   const displayedEvents = events.slice(0, 5);
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    
-    if (days === 0) {
-      return t('common.today', 'Сегодня');
-    } else if (days === 1) {
-      return t('common.yesterday', 'Вчера');
-    } else if (days < 7) {
-      return t('common.daysAgo', `${days} дн. назад`, { count: days });
-    } else {
-      return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+  const getEventTitle = (event: Event) => {
+    const key =
+      (event as any).titleKey ||
+      (event.type ? `dashboard.events.items.${event.type}` : undefined);
+
+    if (key) {
+      return t(key, { defaultValue: event.title });
     }
+    return event.title;
   };
 
   return (
@@ -73,7 +72,7 @@ export const EventsWidget: React.FC<EventsWidgetProps> = ({
       title={
         <div className="flex items-center gap-2">
           <span className="text-xl font-semibold text-text-primary sm:text-[22px] md:text-xl lg:text-[22px] xl:text-xl 2xl:text-[22px]">
-            {t('dashboard.events.title', 'События')}
+            {t('dashboard.events.title', { defaultValue: 'Events' })}
           </span>
           {displayedEvents.length > 0 && (
             <Badge variant="primary" size="sm">
@@ -103,13 +102,13 @@ export const EventsWidget: React.FC<EventsWidgetProps> = ({
             >
               {/* Дата */}
               <div className="flex-shrink-0 w-12 text-xs text-text-secondary text-center pt-0.5">
-                {formatDate(event.date)}
+                {formatRelativeTimeWithT(event.date, t, currentLang)}
               </div>
               
               {/* Контент */}
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-medium text-text-primary group-hover:text-primary transition-colors line-clamp-2">
-                  {event.title}
+                  {getEventTitle(event)}
                 </p>
               </div>
             </div>
@@ -121,7 +120,7 @@ export const EventsWidget: React.FC<EventsWidgetProps> = ({
             <Icon name="bell" size="lg" className="text-text-secondary" />
           </div>
           <p className="text-sm text-text-secondary">
-            {t('dashboard.events.empty', 'Нет новых событий')}
+            {t('dashboard.events.empty', { defaultValue: 'No new events' })}
           </p>
         </div>
       )}

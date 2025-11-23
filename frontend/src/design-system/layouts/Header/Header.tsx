@@ -11,6 +11,7 @@ import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';
 import { useAuthStore } from '@/store';
 import { useTheme } from '../../contexts/ThemeContext';
 import { themeClasses } from '../../utils/themeClasses';
+import { LanguageSwitcher } from '../../composites/LanguageSwitcher';
 
 export interface HeaderProps {
   title?: string;
@@ -86,13 +87,18 @@ export const Header: React.FC<HeaderProps> = ({
               <div className="relative w-[200px] sm:w-[300px] m-0 p-0 hidden xl:block">
                 <Input
                   type="text"
-                  placeholder={t('common.search', 'Поиск...')}
+                  placeholder={t('common.search', { defaultValue: 'Search...' })}
                   rightIcon={<Icon name="search" size="sm" className={themeClasses.text.secondary} />}
                 />
               </div>
             )}
             
             {actions}
+            
+            {/* Переключатель языка - видим на десктопе */}
+            <div className="hidden xl:block">
+              <LanguageSwitcher variant="compact" />
+            </div>
             
             {/* Колокольчик с событиями - скрыт на мобильных, показан на десктопе */}
             {userData && (
@@ -101,7 +107,7 @@ export const Header: React.FC<HeaderProps> = ({
                   // TODO: открыть панель уведомлений
                 }}
                 className="relative p-2 rounded-lg hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors duration-200 group hidden xl:block"
-                aria-label={t('header.notifications', 'Уведомления')}
+                aria-label={t('header.notifications', { defaultValue: 'Notifications' })}
               >
                 <Icon name="bell" size="md" className={`${themeClasses.text.secondary} group-hover:text-primary transition-colors`} />
                 {/* Индикатор непрочитанных */}
@@ -133,7 +139,7 @@ export const Header: React.FC<HeaderProps> = ({
                   ref={avatarButtonRef}
                   onClick={() => setIsProfilePopupOpen(true)}
                   className="hidden"
-                  aria-label={t('profile.menu', 'Меню профиля')}
+                  aria-label={t('profile.menu', { defaultValue: 'Profile menu' })}
                 />
               </>
             )}

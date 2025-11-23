@@ -5,8 +5,10 @@
     "daysAgo": "{{count}} days ago",
     "noData": "No data",
     "close": "Close",
+    "search": "Search...",
     "enable": "Enable",
     "disable": "Disable",
+    "connected": "Connected",
     "scrollLeft": "Scroll left",
     "scrollRight": "Scroll right",
     "back": "Back",
@@ -20,10 +22,26 @@
     "create": "Create",
     "edit": "Edit",
     "delete": "Delete",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "theme": {
+      "toggle": "Current theme: {{mode}}. Click to switch",
+      "mode": {
+        "light": "light",
+        "dark": "dark",
+        "system": "system"
+      }
+    }
   },
   "header": {
     "notifications": "Notifications"
+  },
+  "avatar": {
+    "status": {
+      "label": "Status: {{status}}",
+      "online": "online",
+      "offline": "offline",
+      "away": "away"
+    }
   },
   "footer": {
     "copyright": "Loginus",

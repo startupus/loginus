@@ -4,6 +4,7 @@ import { Button, Avatar } from '../../design-system/primitives';
 import { Modal } from '../../design-system/composites';
 import { getInitials } from '../../utils/stringUtils';
 import { PREDEFINED_AVATARS, AVATAR_BACKGROUND_COLORS } from '../../utils/avatars';
+import { preloadModule } from '../../services/i18n/config';
 
 export interface EditAvatarModalProps {
   isOpen: boolean;
@@ -26,7 +27,7 @@ export const EditAvatarModal: React.FC<EditAvatarModalProps> = ({
   onSuccess,
   initialData,
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [selectedAvatar, setSelectedAvatar] = useState<string | null>(initialData?.avatar || null);
   const [selectedBackground, setSelectedBackground] = useState<string>(initialData?.backgroundColor || AVATAR_BACKGROUND_COLORS[0].value);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -34,6 +35,16 @@ export const EditAvatarModal: React.FC<EditAvatarModalProps> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Гарантируем, что модуль переводов 'modals' загружен до первого рендера контента модалки
+  React.useEffect(() => {
+    void preloadModule('modals').catch(() => undefined);
+  }, []);
+
+  // Перезагружаем модуль при смене языка, чтобы исключить кэш EN на RU и наоборот
+  React.useEffect(() => {
+    void preloadModule('modals').catch(() => undefined);
+  }, [i18n.language]);
 
   // Обновляем состояние при изменении initialData
   React.useEffect(() => {
@@ -49,13 +60,13 @@ export const EditAvatarModal: React.FC<EditAvatarModalProps> = ({
     if (file) {
       // Проверяем тип файла
       if (!file.type.startsWith('image/')) {
-        setErrors({ avatar: t('modals.avatar.invalidImage', 'Выберите изображение') });
+        setErrors({ avatar: t('avatar.invalidImage', 'Выберите изображение') });
         return;
       }
 
       // Проверяем размер файла (макс 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        setErrors({ avatar: t('modals.avatar.imageTooLarge', 'Размер файла не должен превышать 5MB') });
+        setErrors({ avatar: t('avatar.imageTooLarge', 'Размер файла не должен превышать 5MB') });
         return;
       }
 
@@ -106,7 +117,7 @@ export const EditAvatarModal: React.FC<EditAvatarModalProps> = ({
       onSuccess?.();
       handleClose();
     } catch (error: any) {
-      setErrors({ submit: error.message || t('modals.avatar.error', 'Ошибка при сохранении аватара') });
+      setErrors({ submit: error.message || t('avatar.error', 'Ошибка при сохранении аватара') });
     } finally {
       setIsLoading(false);
     }
@@ -134,7 +145,7 @@ export const EditAvatarModal: React.FC<EditAvatarModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title={t('modals.avatar.title', 'Новый аватар')}
+      title={t('avatar.title', { defaultValue: 'New avatar' })}
       size="lg"
     >
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -157,9 +168,9 @@ export const EditAvatarModal: React.FC<EditAvatarModalProps> = ({
         {/* Выбор цвета фона */}
         <div>
           <label className="block text-sm font-medium text-text-primary mb-3">
-            {t('modals.avatar.backgroundColor', 'Фон аватара')}
+            {t('avatar.backgroundColor', { defaultValue: 'Avatar background' })}
           </label>
-          <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t('modals.avatar.backgroundColor', 'Фон аватара')}>
+          <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t('avatar.backgroundColor', { defaultValue: 'Avatar background' })}>
             {AVATAR_BACKGROUND_COLORS.map((color) => (
               <button
                 key={color.value}
@@ -182,7 +193,7 @@ export const EditAvatarModal: React.FC<EditAvatarModalProps> = ({
         {/* Выбор изображения аватара */}
         <div>
           <label className="block text-sm font-medium text-text-primary mb-3">
-            {t('modals.avatar.image', 'Изображение аватара')}
+            {t('avatar.image', { defaultValue: 'Avatar image' })}
           </label>
           
           {/* Кнопка загрузки фото */}
@@ -217,12 +228,12 @@ export const EditAvatarModal: React.FC<EditAvatarModalProps> = ({
                   clipRule="evenodd"
                 />
               </svg>
-              {t('modals.avatar.addPhoto', 'Добавить фото')}
+              {t('avatar.addPhoto', { defaultValue: 'Add photo' })}
             </Button>
           </div>
 
           {/* Готовые аватары */}
-          <div className="grid grid-cols-6 sm:grid-cols-8 gap-2" role="radiogroup" aria-label={t('modals.avatar.image', 'Изображение аватара')}>
+          <div className="grid grid-cols-6 sm:grid-cols-8 gap-2" role="radiogroup" aria-label={t('avatar.image', { defaultValue: 'Avatar image' })}>
             {PREDEFINED_AVATARS.map((avatar) => (
               <button
                 key={avatar.url}
@@ -268,7 +279,7 @@ export const EditAvatarModal: React.FC<EditAvatarModalProps> = ({
             disabled={isLoading}
             className="flex-1"
           >
-            {t('common.cancel', 'Отмена')}
+            {t('common.cancel', { defaultValue: 'Cancel' })}
           </Button>
           <Button
             type="submit"
@@ -276,9 +287,9 @@ export const EditAvatarModal: React.FC<EditAvatarModalProps> = ({
             disabled={isLoading}
             className="flex-1"
           >
-            {isLoading 
-              ? t('modals.avatar.saving', 'Сохранение...') 
-              : t('modals.avatar.save', 'Сохранить')
+            {isLoading
+              ? t('avatar.saving', { defaultValue: 'Saving...' })
+              : t('avatar.save', { defaultValue: 'Save' })
             }
           </Button>
         </div>

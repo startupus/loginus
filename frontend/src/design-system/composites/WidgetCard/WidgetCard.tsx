@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Icon } from '../../primitives';
 import { themeClasses } from '../../utils/themeClasses';
 
@@ -99,6 +100,7 @@ export const WidgetCard: React.FC<WidgetCardProps> = ({
   isDragging = false,
   className = '',
 }) => {
+  const { t } = useTranslation();
   // Базовые классы - приведены к стандарту дизайн-системы (как ProfileCard и DataSection)
   // Используем rounded-xl вместо rounded-lg для единообразия
   // Убраны тени для единообразия с ProfileCard и DataSection
@@ -195,7 +197,7 @@ export const WidgetCard: React.FC<WidgetCardProps> = ({
           {draggable && (
             <button
               className={`p-1.5 rounded-lg ${themeClasses.background.gray2} ${themeClasses.active.navItemInactive} cursor-grab active:cursor-grabbing transition-colors`}
-              aria-label="Перетащить виджет"
+              aria-label={t('dashboard.widgets.drag', { defaultValue: 'Drag widget' })}
               onMouseDown={(e) => {
                 // Предотвращаем клик при начале перетаскивания
                 e.stopPropagation();
@@ -213,7 +215,7 @@ export const WidgetCard: React.FC<WidgetCardProps> = ({
                 onRemove(widgetId);
               }}
               className={`p-1.5 rounded-lg ${themeClasses.background.gray2} hover:bg-error/10 dark:hover:bg-error/20 transition-colors`}
-              aria-label="Удалить виджет"
+              aria-label={t('dashboard.widgets.remove', { defaultValue: 'Remove widget' })}
             >
               <Icon name="trash" size="sm" color="rgb(var(--color-error))" />
             </button>

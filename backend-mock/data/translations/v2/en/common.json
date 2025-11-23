@@ -5,6 +5,7 @@
     "daysAgo": "{{count}} days ago",
     "noData": "No data",
     "close": "Close",
+    "search": "Search...",
     "enable": "Enable",
     "disable": "Disable",
     "scrollLeft": "Scroll left",
@@ -12,10 +13,34 @@
     "back": "Back",
     "error": "An error occurred while loading data",
     "login": "Login",
-    "save": "Save"
+    "save": "Save",
+    "cancel": "Cancel",
+    "reset": "Reset",
+    "remove": "Remove",
+    "retry": "Retry",
+    "create": "Create",
+    "edit": "Edit",
+    "delete": "Delete",
+    "loading": "Loading...",
+    "theme": {
+      "toggle": "Current theme: {{mode}}. Click to switch",
+      "mode": {
+        "light": "light",
+        "dark": "dark",
+        "system": "system"
+      }
+    }
   },
   "header": {
     "notifications": "Notifications"
+  },
+  "avatar": {
+    "status": {
+      "label": "Status: {{status}}",
+      "online": "online",
+      "offline": "offline",
+      "away": "away"
+    }
   },
   "footer": {
     "copyright": "Loginus",
@@ -38,6 +63,20 @@
     "loginusIdSite": "Loginus ID for Website",
     "langSwitcher": "Language switcher",
     "brandPreset": "Toggle brand preset"
+  },
+  "iframe": {
+    "title": "Embedded Content",
+    "error": {
+      "title": "Error",
+      "noContent": "URL or code not specified for display"
+    }
+  },
+  "embedded": {
+    "title": "Embedded Application",
+    "error": {
+      "title": "Error",
+      "noUrl": "Application URL not specified"
+    }
   }
 }
 

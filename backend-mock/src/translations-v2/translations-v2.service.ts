@@ -37,9 +37,13 @@ const AVAILABLE_MODULES = [
   'errors',
   'landing',
   'about',
+  'features',
+  'help',
   'work',
   'modals',
   'support',
+  'payment',
+  'admin',
 ] as const;
 
 type ModuleName = typeof AVAILABLE_MODULES[number];

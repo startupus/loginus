@@ -69,14 +69,14 @@ export const AddressesGrid: React.FC<AddressesGridProps> = ({
   return (
     <DataSection
       id="addresses"
-      title={t('personalData.addresses.title', 'Адреса')}
-      description={t('personalData.addresses.description', 'Для заказа в один клик и чтобы не вводить в Навигаторе')}
+      title={t('personalData.addresses.title')}
+      description={t('personalData.addresses.description')}
       action={
         <button
           onClick={handleViewAll}
           className="text-sm text-text-secondary hover:text-primary transition-colors duration-200 flex items-center gap-1"
         >
-          <span>{t('personalData.addresses.viewAll', 'Все адреса')}</span>
+          <span>{t('personalData.addresses.viewAll')}</span>
           <Icon name="arrow-right" size="sm" />
         </button>
       }
@@ -86,7 +86,7 @@ export const AddressesGrid: React.FC<AddressesGridProps> = ({
         {canScrollLeft && (
           <ScrollButton
             direction="left"
-            ariaLabel={t('common.scrollLeft', 'Прокрутить влево')}
+            ariaLabel={t('common.scrollLeft')}
             onClick={() => scroll('left')}
             variant="accent"
           />
@@ -143,7 +143,7 @@ export const AddressesGrid: React.FC<AddressesGridProps> = ({
           {onAddAddress && (
             <div className="flex-shrink-0">
               <AddButton
-                label={t('personalData.addresses.addAddress', 'Добавить адрес')}
+                label={t('personalData.addresses.addAddress')}
                 onClick={() => onAddAddress('other')}
                 variant="vertical"
                 size="md"
@@ -159,7 +159,7 @@ export const AddressesGrid: React.FC<AddressesGridProps> = ({
         {canScrollRight && (
           <ScrollButton
             direction="right"
-            ariaLabel={t('common.scrollRight', 'Прокрутить вправо')}
+            ariaLabel={t('common.scrollRight')}
             onClick={() => scroll('right')}
             variant="accent"
           />

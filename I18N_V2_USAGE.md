@@ -203,12 +203,46 @@ import './services/i18n/config-integrated';
 2. Проверьте логи в консоли
 3. Очистите кэш: `translationCache.clear()`
 
+## 🎨 Форматирование чисел и дат
+
+Для поддержки мультиязычности используйте утилиты из `utils/intl/formatters.ts`:
+
+```typescript
+import { formatNumber, formatCurrency, formatDate, formatRelativeTimeWithT } from '@/utils/intl/formatters';
+import { useCurrentLanguage } from '@/utils/routing';
+import { useTranslation } from 'react-i18next';
+
+function MyComponent() {
+  const { t } = useTranslation();
+  const currentLang = useCurrentLanguage();
+  
+  // Форматирование чисел
+  const formattedNumber = formatNumber(1234567, currentLang); // "1,234,567" или "1 234 567"
+  
+  // Форматирование валюты
+  const formattedCurrency = formatCurrency(1000, 'RUB', currentLang); // "1 000 ₽" или "RUB 1,000"
+  
+  // Форматирование даты
+  const formattedDate = formatDate(new Date(), currentLang); // "23 янв" или "Jan 23"
+  
+  // Относительное время (требует функцию перевода)
+  const relativeTime = formatRelativeTimeWithT(new Date(), t, currentLang); // "Сегодня" или "Today"
+}
+```
+
+**Важно:** Не используйте хардкодные локали типа `'ru-RU'` или `'en-US'`. Всегда используйте форматтеры с текущим языком.
+
+## 📋 Эталонный метод для страниц
+
+См. [Dashboard/README.md](frontend/src/components/Dashboard/README.md) для чеклиста и эталонного метода тиражирования на другие страницы.
+
 ## 📚 Дополнительная документация
 
 - [README.md](frontend/src/services/i18n/v2/README.md) - Полная документация системы
 - [INTEGRATION.md](frontend/src/services/i18n/v2/INTEGRATION.md) - Инструкция по интеграции
 - [API_TEST.md](backend-mock/src/translations-v2/API_TEST.md) - Тестирование API
 - [I18N_V2_IMPLEMENTATION.md](I18N_V2_IMPLEMENTATION.md) - Описание реализации
+- [Dashboard/README.md](frontend/src/components/Dashboard/README.md) - Эталонный метод для страниц
 
 ## ✅ Чеклист для начала работы
 

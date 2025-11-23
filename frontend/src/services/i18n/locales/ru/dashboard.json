@@ -10,7 +10,7 @@
     "family": {
       "title": "Семья",
       "description": "Управление членами семьи",
-      "add": "Добавить",
+      "add": "Добавить участника",
       "member": "Член семьи",
       "owner": "Владелец",
       "manage": "Управление"
@@ -54,19 +54,47 @@
       "viewAll": "Смотреть все",
       "progress": "Прогресс",
       "empty": "У вас пока нет активных курсов",
-      "browse": "Найти курсы"
+      "browse": "Найти курсы",
+      "items": {
+        "programmingBasics": "Основы программирования",
+        "interfaceDesign": "Дизайн интерфейсов",
+        "englishLanguage": "Английский язык",
+        "marketing": "Маркетинг",
+        "projectManagement": "Управление проектами"
+      }
     },
     "events": {
       "title": "События",
       "description": "Последние события и уведомления",
-      "empty": "Нет новых событий"
+      "empty": "Нет новых событий",
+      "items": {
+        "coursePaid": "Оплачен курс",
+        "achievement": "Получено достижение",
+        "milestone": "Достигнута новая веха",
+        "reward": "Получена награда",
+        "other": "Новое событие"
+      },
+      "descriptions": {
+        "coursePaid": "Оплата курса успешно обработана",
+        "achievement": "У вашего близкого новая награда",
+        "milestone": "Достигнут прогресс в курсе",
+        "reward": "Начислены дополнительные баллы",
+        "other": "Проверьте детали в ленте активности"
+      }
     },
     "roadmap": {
       "title": "Моя дорожная карта",
       "description": "Ближайшие шаги в обучении",
       "viewFull": "Полная версия",
       "empty": "Все шаги выполнены!",
-      "emptyDescription": "Отличная работа!"
+      "emptyDescription": "Отличная работа!",
+      "items": {
+        "reactHooks": "Введение в React Hooks",
+        "responsiveDesign": "Адаптивная вёрстка",
+        "presentPerfect": "Практика Present Perfect",
+        "competitorAnalysis": "Анализ конкурентов",
+        "riskManagement": "Управление рисками"
+      }
     },
     "profile": {
       "balance": "Баланс",
@@ -77,7 +105,9 @@
     "widgets": {
       "title": "Добавить виджет",
       "add": "Добавить виджет",
-      "description": "Выберите виджеты для отображения на главной странице"
+      "description": "Выберите виджеты для отображения на главной странице",
+      "drag": "Перетащить виджет",
+      "remove": "Удалить виджет"
     },
     "subscriptions": {
       "title": "Подписки",
@@ -87,11 +117,33 @@
       "activeUntil": "Активна до {{date}}",
       "subscribe": "Оформить подписку",
       "includes": "Что входит в подписку:",
+      "badge": {
+        "annual": "На 17% дешевле",
+        "premium": "Эксклюзив"
+      },
       "plan": {
         "monthly": "Месячный",
         "annual": "Годовой",
         "premium": "Премиум",
         "free": "Бесплатно"
+      },
+      "pricing": {
+        "monthly": {
+          "price": "3 000 ₽/месяц",
+          "perMonth": "(3 000 ₽/мес)"
+        },
+        "annual": {
+          "price": "35 000 ₽/год",
+          "perMonth": "(2 917 ₽/мес)"
+        },
+        "premium": {
+          "price": "От 150 000 ₽/год",
+          "perMonth": "(от 12 500 ₽/мес)"
+        },
+        "free": {
+          "price": "Бесплатно",
+          "perMonth": ""
+        }
       },
       "features": {
         "monthly": {

@@ -177,7 +177,12 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
                 <button
                   onClick={handleThemeToggle}
                   className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${themeClasses.text.primary} ${themeClasses.active.navItemInactive} transition-all`}
-                  title={`Текущая тема: ${themeMode}. Кликните для переключения`}
+                  title={t('common.theme.toggle', {
+                    mode: isDark
+                      ? t('common.theme.mode.dark', { defaultValue: 'dark' })
+                      : t('common.theme.mode.light', { defaultValue: 'light' }),
+                    defaultValue: `Current theme: ${themeMode}. Click to switch`,
+                  })}
                 >
                   {isDark ? (
                     <Icon name="sun" size="sm" className="text-warning" />

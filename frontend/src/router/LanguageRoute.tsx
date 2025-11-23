@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLanguageStore } from '@/store';
-import { changeLanguage } from '@/services/i18n/config';
+import { changeLanguage } from '@/services/i18n';
 
 interface LanguageRouteProps {
   children: React.ReactNode;
@@ -24,21 +24,41 @@ export const LanguageRoute: React.FC<LanguageRouteProps> = ({ children }) => {
     const validLanguages = ['ru', 'en'];
     const urlLang = lang?.toLowerCase();
 
-    // Если язык в URL валидный и отличается от текущего
-    if (urlLang && validLanguages.includes(urlLang) && urlLang !== language) {
-      setLanguage(urlLang as 'ru' | 'en');
-      changeLanguage(urlLang).catch((error) => {
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Failed to change language:', error);
+    // Синхронизируем document.documentElement.lang с текущим языком
+    const syncDocumentLang = (lang: string) => {
+      if (typeof document !== 'undefined') {
+        document.documentElement.lang = lang;
+      }
+    };
+
+    // Если язык в URL валидный и отличается от текущего в store или i18n
+    if (urlLang && validLanguages.includes(urlLang)) {
+      const needsUpdate = urlLang !== language || urlLang !== i18n.language;
+      
+      if (needsUpdate) {
+        setLanguage(urlLang as 'ru' | 'en');
+        syncDocumentLang(urlLang);
+        // Переключаем язык только если он действительно отличается от текущего в i18n
+        if (urlLang !== i18n.language) {
+          changeLanguage(urlLang).catch((error) => {
+            if (process.env.NODE_ENV === 'development') {
+              console.error('Failed to change language:', error);
+            }
+          });
         }
-      });
+      } else {
+        // Язык уже синхронизирован, просто обновляем document.documentElement.lang
+        syncDocumentLang(urlLang);
+      }
     }
     // Если язык в URL невалидный или отсутствует
     else if (!urlLang || !validLanguages.includes(urlLang)) {
       // Редиректим на текущий язык из store или 'ru' по умолчанию
       const currentLang = language || 'ru';
       const pathWithoutLang = location.pathname.replace(/^\/[^/]+/, '') || '/';
-      const newPath = `/${currentLang}${pathWithoutLang === '/' ? '' : pathWithoutLang}`;
+      const search = location.search;
+      const hash = location.hash;
+      const newPath = `/${currentLang}${pathWithoutLang === '/' ? '' : pathWithoutLang}${search}${hash}`;
       
       // Избегаем бесконечного редиректа
       if (location.pathname !== newPath) {
@@ -47,13 +67,17 @@ export const LanguageRoute: React.FC<LanguageRouteProps> = ({ children }) => {
     }
     // Синхронизируем i18n с текущим языком из store (на случай, если они разошлись)
     else if (i18n.language !== language) {
+      syncDocumentLang(language);
       changeLanguage(language).catch((error) => {
         if (process.env.NODE_ENV === 'development') {
           console.error('Failed to change language:', error);
         }
       });
+    } else {
+      // Синхронизируем document.documentElement.lang даже если язык не менялся
+      syncDocumentLang(language);
     }
-  }, [lang, language, setLanguage, i18n, navigate, location.pathname]);
+  }, [lang, language, setLanguage, i18n, navigate, location.pathname, location.search, location.hash]);
 
   return <>{children}</>;
 };

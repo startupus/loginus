@@ -39,7 +39,7 @@ export const VehiclesSection: React.FC<VehiclesSectionProps> = ({
   return (
     <DataSection
       id="auto"
-      title={t('personalData.vehicles.title', 'Автомобили')}
+      title={t('data.vehicles.title', 'Vehicles')}
       action={
         vehicles.length > 0 ? (
           <button
@@ -47,7 +47,7 @@ export const VehiclesSection: React.FC<VehiclesSectionProps> = ({
             className="text-sm text-text-secondary hover:text-primary transition-colors duration-200 flex items-center gap-1"
           >
             <span>
-              {t('personalData.vehicles.viewAll', 'Все автомобили')}
+              {t('data.vehicles.viewAll', 'All vehicles')}
               {vehicles.length > 0 && ` ${vehicles.length}`}
             </span>
             <Icon name="arrow-right" size="sm" />
@@ -95,7 +95,7 @@ export const VehiclesSection: React.FC<VehiclesSectionProps> = ({
         ) : (
           <div className="text-center py-8">
             <p className="text-sm text-text-secondary mb-4">
-              {t('personalData.vehicles.empty', 'У вас пока нет добавленных автомобилей')}
+              {t('data.vehicles.empty', 'You have no added vehicles yet')}
             </p>
           </div>
         )}
@@ -103,7 +103,7 @@ export const VehiclesSection: React.FC<VehiclesSectionProps> = ({
         {/* Кнопка добавления */}
         {onAddVehicle && (
           <AddButton
-            label={t('personalData.vehicles.add', 'Добавить автомобиль')}
+            label={t('data.vehicles.add', 'Add vehicle')}
             onClick={onAddVehicle}
             variant="horizontal"
             size="md"

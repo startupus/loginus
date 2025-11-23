@@ -58,7 +58,7 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user, logout } = useAuthStore();
   const currentLang = useCurrentLanguage();
   const { toggleSidebar } = useSidebar();
@@ -75,7 +75,32 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
     gcTime: 30 * 60 * 1000, // 30 минут
   });
 
-  // Функция для преобразования MenuItemConfig в SidebarItem
+  // Ключи переводов для пунктов меню, приходящих из API с systemId
+  const sidebarTranslationKeys: Record<string, string> = {
+    profile: 'sidebar.profile',
+    data: 'sidebar.data',
+    'data-documents': 'sidebar.documents',
+    'data-addresses': 'sidebar.addresses',
+    security: 'sidebar.security',
+    family: 'sidebar.family',
+    work: 'sidebar.work',
+    payments: 'sidebar.payments',
+    support: 'sidebar.support',
+  };
+
+  const resolveMenuItemLabel = (item: MenuItemConfig): string => {
+    const fallbackLabel = item.label || item.id;
+    if (!item.systemId) {
+      return fallbackLabel;
+    }
+
+    const translationKey =
+      sidebarTranslationKeys[item.systemId] || `sidebar.${item.systemId}`;
+
+    return t(translationKey, { defaultValue: fallbackLabel });
+  };
+
+  // Функция для преобразования MenuItemConfig в SidebarItem с локализацией
   const convertMenuItemToSidebarItem = (item: MenuItemConfig): SidebarItem => {
     let path = item.path || '';
     
@@ -101,7 +126,7 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
     }
 
     const sidebarItem: SidebarItem = {
-      label: item.label || item.id,
+      label: resolveMenuItemLabel(item),
       path,
       icon: item.icon,
       type: item.type,
@@ -125,66 +150,70 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
   };
 
   // Дефолтные пункты меню (fallback)
-  const defaultSidebarItems: SidebarItem[] = [
+  // Пересобираем при смене языка (i18n.language)
+  const defaultSidebarItems: SidebarItem[] = React.useMemo(() => [
     { 
-      label: t('sidebar.profile', 'Профиль'), 
+      label: t('sidebar.profile'), 
       path: buildPathWithLang('/dashboard', currentLang), 
       icon: 'home', 
       active: location.pathname.includes('/dashboard') || location.pathname === `/${currentLang}` 
     },
     { 
-      label: t('sidebar.data', 'Данные'), 
+      label: t('sidebar.data'), 
       path: buildPathWithLang('/data', currentLang), 
       icon: 'document', 
       active: location.pathname.includes('/data'),
       children: [
         {
-          label: t('sidebar.documents', 'Документы'),
+          label: t('sidebar.documents'),
           path: buildPathWithLang('/data/documents', currentLang),
         },
         {
-          label: t('sidebar.addresses', 'Адреса'),
+          label: t('sidebar.addresses'),
           path: buildPathWithLang('/data/addresses', currentLang),
         },
       ]
     },
     { 
-      label: t('sidebar.security', 'Безопасность'), 
+      label: t('sidebar.security'), 
       path: buildPathWithLang('/security', currentLang), 
       icon: 'shield', 
       active: location.pathname.includes('/security') 
     },
     { 
-      label: t('sidebar.family', 'Семья'), 
+      label: t('sidebar.family'), 
       path: buildPathWithLang('/family', currentLang), 
       icon: 'users', 
       active: location.pathname.includes('/family') 
     },
     { 
-      label: t('sidebar.work', 'Работа'), 
+      label: t('sidebar.work'), 
       path: buildPathWithLang('/work', currentLang), 
       icon: 'briefcase', 
       active: location.pathname.includes('/work') 
     },
     { 
-      label: t('sidebar.payments', 'Платежи'),
+      label: t('sidebar.payments'),
       path: buildPathWithLang('/pay', currentLang), 
       icon: 'credit-card', 
       active: location.pathname.includes('/pay') 
     },
     { 
-      label: t('sidebar.support', 'Поддержка'), 
+      label: t('sidebar.support'), 
       path: buildPathWithLang('/support', currentLang), 
       icon: 'help-circle', 
       active: location.pathname.includes('/support') 
     },
-  ];
+  ], [t, currentLang, location.pathname, i18n.language]);
 
   // Используем меню из API, если оно загружено, иначе дефолтное
-  const menuItemsFromApi = userMenuData?.data?.data || [];
-  const configuredSidebarItems = menuItemsFromApi.length > 0
-    ? menuItemsFromApi.map(convertMenuItemToSidebarItem)
-    : defaultSidebarItems;
+  // Пересобираем при смене языка
+  const configuredSidebarItems = React.useMemo(() => {
+    const menuItemsFromApi = userMenuData?.data?.data || [];
+    return menuItemsFromApi.length > 0
+      ? menuItemsFromApi.map(convertMenuItemToSidebarItem)
+      : defaultSidebarItems;
+  }, [userMenuData, defaultSidebarItems, currentLang, i18n.language]);
 
   const finalSidebarItems = sidebarItems || (shouldShowSidebar ? configuredSidebarItems : undefined);
 

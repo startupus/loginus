@@ -10,7 +10,7 @@
     "family": {
       "title": "Family",
       "description": "Manage family members",
-      "add": "Add",
+      "add": "Add member",
       "member": "Family Member",
       "owner": "Owner",
       "manage": "Manage"
@@ -54,19 +54,47 @@
       "viewAll": "View All",
       "progress": "Progress",
       "empty": "You don't have any active courses yet",
-      "browse": "Browse Courses"
+      "browse": "Browse Courses",
+      "items": {
+        "programmingBasics": "Programming Basics",
+        "interfaceDesign": "Interface Design",
+        "englishLanguage": "English Language",
+        "marketing": "Marketing",
+        "projectManagement": "Project Management"
+      }
     },
     "events": {
       "title": "Events",
       "description": "Latest events and notifications",
-      "empty": "No new events"
+      "empty": "No new events",
+      "items": {
+        "coursePaid": "Course payment completed",
+        "achievement": "New achievement unlocked",
+        "milestone": "Learning milestone reached",
+        "reward": "Reward received",
+        "other": "New activity"
+      },
+      "descriptions": {
+        "coursePaid": "A course payment was processed successfully",
+        "achievement": "Your family member earned a new achievement",
+        "milestone": "Progress milestone achieved in a course",
+        "reward": "Additional points have been credited",
+        "other": "Check details in your activity feed"
+      }
     },
     "roadmap": {
       "title": "My Roadmap",
       "description": "Upcoming learning steps",
       "viewFull": "Full Version",
       "empty": "All steps completed!",
-      "emptyDescription": "Great job!"
+      "emptyDescription": "Great job!",
+      "items": {
+        "reactHooks": "Introduction to React Hooks",
+        "responsiveDesign": "Responsive Layout Basics",
+        "presentPerfect": "Present Perfect Practice",
+        "competitorAnalysis": "Competitor Analysis",
+        "riskManagement": "Risk Management"
+      }
     },
     "profile": {
       "balance": "Balance",
@@ -77,7 +105,9 @@
     "widgets": {
       "title": "Add Widget",
       "add": "Add Widget",
-      "description": "Select widgets to display on the main page"
+      "description": "Select widgets to display on the main page",
+      "drag": "Drag widget",
+      "remove": "Remove widget"
     },
     "subscriptions": {
       "title": "Subscriptions",
@@ -87,11 +117,33 @@
       "activeUntil": "Active until {{date}}",
       "subscribe": "Subscribe",
       "includes": "Included in subscription:",
+      "badge": {
+        "annual": "17% cheaper",
+        "premium": "Exclusive"
+      },
       "plan": {
         "monthly": "Monthly",
         "annual": "Annual",
         "premium": "Premium",
         "free": "Free"
+      },
+      "pricing": {
+        "monthly": {
+          "price": "3,000 ₽/month",
+          "perMonth": "(3,000 ₽/mo)"
+        },
+        "annual": {
+          "price": "35,000 ₽/year",
+          "perMonth": "(2,917 ₽/mo)"
+        },
+        "premium": {
+          "price": "From 150,000 ₽/year",
+          "perMonth": "(from 12,500 ₽/mo)"
+        },
+        "free": {
+          "price": "Free",
+          "perMonth": ""
+        }
       },
       "features": {
         "monthly": {

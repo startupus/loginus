@@ -13,10 +13,13 @@ export type ModuleName =
   | 'errors'
   | 'landing'
   | 'about'
+  | 'features'
+  | 'help'
   | 'work'
   | 'modals'
   | 'support'
-  | 'payment';
+  | 'payment'
+  | 'admin';
 
 /**
  * Доступные локали

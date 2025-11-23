@@ -56,7 +56,7 @@ export const ContactsSection: React.FC<ContactsSectionProps> = ({
   return (
     <DataSection
       id="contacts"
-      title={t('personalData.contacts.title', 'Контакты')}
+      title={t('data.contacts.title', 'Contacts')}
     >
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {contacts.map((contact, index) => {
@@ -94,7 +94,7 @@ export const ContactsSection: React.FC<ContactsSectionProps> = ({
                   </div>
                 ) : (
                   <div className="text-xs text-text-secondary/60 mt-1">
-                    {t('personalData.contacts.notSet', 'Не указано')}
+                    {t('data.contacts.notSet', 'Not specified')}
                   </div>
                 )}
               </div>

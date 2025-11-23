@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { Avatar, Button, Icon } from '../../design-system/primitives';
 import { getInitials } from '../../utils/stringUtils';
 import { ProfileCardMenu } from './ProfileCardMenu';
+import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
+import { formatCurrency, formatNumber } from '../../utils/intl/formatters';
 
 export interface ProfileCardProps {
   user: {
@@ -32,6 +34,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
   onPhone,
 }) => {
   const { t } = useTranslation();
+  const currentLang = useCurrentLanguage();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const editButtonRef = useRef<HTMLButtonElement>(null);
   
@@ -63,7 +66,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
                 size="sm"
                 iconOnly
                 onClick={() => setIsMenuOpen(true)}
-                aria-label={t('profile.edit', 'Редактировать')}
+                aria-label={t('profile.edit', { defaultValue: 'Edit' })}
               >
                 <Icon name="edit" size="sm" />
               </Button>
@@ -75,7 +78,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
               <div className="flex items-center gap-2">
                 <Icon name="wallet" size="sm" className="text-primary" />
                 <span className="text-base font-semibold text-text-primary">
-                  {user.balance !== undefined ? `${user.balance.toLocaleString('ru-RU')} ₽` : '—'}
+                  {user.balance !== undefined ? formatCurrency(user.balance, 'RUB', currentLang) : '—'}
                 </span>
               </div>
 
@@ -83,7 +86,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
               <div className="flex items-center gap-2">
                 <span className="text-lg">🥕</span>
                 <span className="text-base font-semibold text-text-primary">
-                  {user.gamePoints !== undefined ? user.gamePoints.toLocaleString('ru-RU') : '—'}
+                  {user.gamePoints !== undefined ? formatNumber(user.gamePoints, currentLang) : '—'}
                 </span>
               </div>
             </div>
@@ -101,10 +104,10 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
               )}
             </div>
             <Link 
-              to="/promo/profiles" 
+              to={buildPathWithLang('/promo/profiles', currentLang)} 
               className="text-xs text-text-secondary hover:text-primary transition-colors duration-200"
             >
-              {t('dashboard.mergeAccounts', 'Объединить аккаунты')}
+              {t('dashboard.mergeAccounts', { defaultValue: 'Merge accounts' })}
             </Link>
           </div>
         </div>

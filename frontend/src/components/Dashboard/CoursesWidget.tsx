@@ -12,6 +12,7 @@ export interface Course {
   progress: number;
   icon?: string;
   color?: string;
+  titleKey?: string;
 }
 
 export interface CoursesWidgetProps {
@@ -53,6 +54,23 @@ export const CoursesWidget: React.FC<CoursesWidgetProps> = ({
 
   const displayedCourses = courses.slice(0, 3);
 
+  const getCourseTitle = (course: Course) => {
+    const keyByProp =
+      (course as any).titleKey ||
+      ({
+        '1': 'dashboard.courses.items.programmingBasics',
+        '2': 'dashboard.courses.items.interfaceDesign',
+        '3': 'dashboard.courses.items.englishLanguage',
+        '4': 'dashboard.courses.items.marketing',
+        '5': 'dashboard.courses.items.projectManagement',
+      } as Record<string, string | undefined>)[course.id];
+
+    if (keyByProp) {
+      return t(keyByProp, { defaultValue: course.title });
+    }
+    return course.title;
+  };
+
   const handleViewAll = () => {
     // TODO: перейти на страницу всех курсов
     navigate(buildPathWithLang('/courses', currentLang));
@@ -60,7 +78,7 @@ export const CoursesWidget: React.FC<CoursesWidgetProps> = ({
 
   return (
     <WidgetCard
-      title={t('dashboard.courses.title', 'Мои курсы обучения')}
+      title={t('dashboard.courses.title', { defaultValue: 'My learning courses' })}
       widgetId={widgetId}
       draggable={draggable}
       onDragStart={onDragStart}
@@ -76,10 +94,10 @@ export const CoursesWidget: React.FC<CoursesWidgetProps> = ({
         <button
           onClick={handleViewAll}
           className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-gray-1 dark:hover:bg-gray-2 transition-colors duration-200 group"
-          aria-label={t('dashboard.courses.viewAll', 'Смотреть все')}
+          aria-label={t('dashboard.courses.viewAll', { defaultValue: 'View all courses' })}
         >
           <span className="text-sm text-text-secondary group-hover:text-primary transition-colors duration-200">
-            {t('dashboard.courses.viewAll', 'Все данные')}
+            {t('dashboard.courses.viewAll', { defaultValue: 'View All' })}
           </span>
           <Icon name="arrow-right" size="sm" className="text-text-secondary group-hover:text-primary group-hover:translate-x-1 transition-all duration-200" />
         </button>
@@ -110,12 +128,12 @@ export const CoursesWidget: React.FC<CoursesWidgetProps> = ({
               {/* Название и прогресс */}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-text-primary truncate group-hover:text-primary transition-colors">
-                  {course.title}
+                  {getCourseTitle(course)}
                 </p>
                 <div className="mt-1.5">
                   <div className="flex items-center justify-between gap-2 mb-1">
                     <span className="text-xs text-text-secondary">
-                      {t('dashboard.courses.progress', 'Прогресс')}: {course.progress}%
+                      {t('dashboard.courses.progress', { defaultValue: 'Progress' })}: {course.progress}%
                     </span>
                   </div>
                   <div className="w-full h-1.5 bg-gray-2 dark:bg-gray-3 rounded-full overflow-hidden">
@@ -142,10 +160,10 @@ export const CoursesWidget: React.FC<CoursesWidgetProps> = ({
             <Icon name="book" size="lg" className="text-text-secondary" />
           </div>
           <p className="text-sm text-text-secondary mb-2">
-            {t('dashboard.courses.empty', 'У вас пока нет активных курсов')}
+            {t('dashboard.courses.empty', { defaultValue: "You don't have any active courses yet" })}
           </p>
           <button className="text-sm text-primary hover:text-primary/80 transition-colors">
-            {t('dashboard.courses.browse', 'Найти курсы')}
+            {t('dashboard.courses.browse', { defaultValue: 'Browse courses' })}
           </button>
         </div>
       )}

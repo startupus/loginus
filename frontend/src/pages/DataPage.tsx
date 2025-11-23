@@ -317,18 +317,18 @@ const DataPage: React.FC = () => {
             contacts={[
               {
                 type: 'email',
-                label: t('personalData.contacts.email', 'Email в Loginus'),
+                label: t('data.contacts.email', 'Email in Loginus'),
                 value: user.email || '',
               },
               {
                 type: 'phone',
-                label: t('personalData.contacts.phone', 'Основной телефон'),
+                label: t('data.contacts.mainPhone', 'Primary phone'),
                 value: user.phone || '',
                 href: '/security/phones',
               },
               {
                 type: 'backup-email',
-                label: t('personalData.contacts.backupEmail', 'Запасная почта'),
+                label: t('data.contacts.backupEmail', 'Backup email'),
                 value: '', // TODO: добавить поле backupEmail в user
               },
             ]}
@@ -356,20 +356,20 @@ const DataPage: React.FC = () => {
             items={[
               {
                 id: 'public-profile',
-                label: t('personalData.publicData.publicProfile', 'Публичный профиль в поиске Loginus'),
+                label: t('data.publicData.profile', 'Public profile in Loginus search'),
                 href: '/personal/public-profile',
                 icon: 'globe',
               },
               {
                 id: 'reviews',
-                label: t('personalData.publicData.reviews', 'Ваши отзывы и оценки'),
+                label: t('data.publicData.reviews', 'Your reviews and ratings'),
                 href: '/reviews',
                 icon: 'star',
               },
               {
                 id: 'public-address',
-                label: t('personalData.publicData.publicAddress', 'Добавить публичный адрес'),
-                description: t('personalData.publicData.publicAddressDesc', 'Для ваших страниц в Loginus'),
+                label: t('data.publicData.address', 'Add public address'),
+                description: t('data.publicData.addressDesc', 'For your pages in Loginus'),
                 onClick: () => {
                   // TODO: открыть модалку добавления публичного адреса
                   console.log('Add public address');
@@ -386,31 +386,31 @@ const DataPage: React.FC = () => {
             items={[
               {
                 id: 'inclusion',
-                label: t('personalData.dataManagement.inclusion', 'Специальные возможности'),
+                label: t('data.dataManagement.inclusion', 'Accessibility'),
                 href: '/personal/inclusion',
                 icon: 'settings',
               },
               {
                 id: 'data-access',
-                label: t('personalData.dataManagement.dataAccess', 'Доступы к данным'),
+                label: t('data.dataManagement.access', 'Data Access'),
                 href: '/personal/data-access',
                 icon: 'key',
               },
               {
                 id: 'notifications',
-                label: t('personalData.dataManagement.notifications', 'Уведомления сервисов'),
+                label: t('data.dataManagement.notifications', 'Service Notifications'),
                 href: '/personal/communication-preferences',
                 icon: 'bell',
               },
               {
                 id: 'data-on-services',
-                label: t('personalData.dataManagement.dataOnServices', 'Данные на сервисах'),
+                label: t('data.dataManagement.services', 'Data on Services'),
                 href: '/personal/data',
                 icon: 'cloud',
               },
               {
                 id: 'delete-profile',
-                label: t('personalData.dataManagement.deleteProfile', 'Удалить профиль'),
+                label: t('data.dataManagement.delete', 'Delete Profile'),
                 onClick: deleteProfileModal.open,
                 icon: 'trash',
                 variant: 'danger',

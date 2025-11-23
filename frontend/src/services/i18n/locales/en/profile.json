@@ -274,43 +274,45 @@
       "description": "Latest events in your groups"
     }
   },
-  "menu": "Profile menu",
-  "manageAccount": "Manage account",
-  "mail": "Mail",
-  "mailCounter": {
-    "none": "no unread messages",
-    "one": "unread message",
-    "some": "unread messages",
-    "many": "unread messages"
-  },
-  "plus": "Klubus",
-  "plusDescription": "Subscription active",
-  "plusInactive": "Not connected",
-  "plusPoints": {
-    "none": "no points",
-    "one": "point",
-    "some": "points",
-    "many": "points"
-  },
-  "personalData": "Personal data",
-  "personalDataDescription": "Full name, date of birth, gender",
-  "phone": "Phone",
-  "skin": "Appearance",
-  "skinLight": "Always light",
-  "skinDark": "Always dark",
-  "skinSystem": "As in system",
-  "settings": "Settings",
-  "support": "Help",
-  "switchAccount": "Switch account",
-  "edit": "Edit",
-  "editAvatar": "Update avatar",
-  "editAvatarDescription": "Upload or create",
-  "selectOrganization": "Select organization",
-  "mailUnreadCount": {
-    "none": "no unread messages",
-    "one": "{{count}} unread message",
-    "some": "{{count}} unread messages",
-    "many": "{{count}} unread messages"
+  "profile": {
+    "menu": "Profile menu",
+    "manageAccount": "Manage account",
+    "mail": "Mail",
+    "mailCounter": {
+      "none": "no unread messages",
+      "one": "unread message",
+      "some": "unread messages",
+      "many": "unread messages"
+    },
+    "plus": "Klubus",
+    "plusDescription": "Subscription active",
+    "plusInactive": "Not connected",
+    "plusPoints": {
+      "none": "no points",
+      "one": "point",
+      "some": "points",
+      "many": "points"
+    },
+    "personalData": "Personal data",
+    "personalDataDescription": "Full name, date of birth, gender",
+    "phone": "Phone",
+    "skin": "Appearance",
+    "skinLight": "Always light",
+    "skinDark": "Always dark",
+    "skinSystem": "As in system",
+    "settings": "Settings",
+    "support": "Help",
+    "switchAccount": "Switch account",
+    "edit": "Edit",
+    "editAvatar": "Update avatar",
+    "editAvatarDescription": "Upload or create",
+    "selectOrganization": "Select organization",
+    "mailUnreadCount": {
+      "none": "no unread messages",
+      "one": "{{count}} unread message",
+      "some": "{{count}} unread messages",
+      "many": "{{count}} unread messages"
+    }
   }
 }
 

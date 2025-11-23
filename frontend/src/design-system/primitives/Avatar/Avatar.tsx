@@ -219,10 +219,14 @@ export const Avatar: React.FC<AvatarProps & { children?: never }> = ({
         <AvatarContent />
         <span 
           className={`absolute ${statusPositions[size]} ${statusSizes[size]} ${statusColors[status]} ${statusBorder} rounded-full z-10`}
-          aria-label={t('avatar.status', 'Статус: {{status}}', { 
-            status: status === 'online' ? t('avatar.status.online', 'онлайн') : 
-                    status === 'offline' ? t('avatar.status.offline', 'офлайн') : 
-                    t('avatar.status.away', 'отошёл') 
+          aria-label={t('avatar.status.label', {
+            status: t(`avatar.status.${status}`, {
+              defaultValue:
+                status === 'online' ? 'online' : status === 'offline' ? 'offline' : 'away',
+            }),
+            defaultValue: `Status: ${
+              status === 'online' ? 'online' : status === 'offline' ? 'offline' : 'away'
+            }`,
           })}
         />
       </span>

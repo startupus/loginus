@@ -5,6 +5,7 @@ import { Icon } from '../../design-system/primitives';
 import { WidgetCard } from '../../design-system/composites/WidgetCard';
 import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
 import { themeClasses } from '../../design-system/utils/themeClasses';
+import { formatDate } from '../../utils/intl/formatters';
 
 export interface RoadmapStep {
   id: string;
@@ -14,6 +15,8 @@ export interface RoadmapStep {
   completed: boolean;
   icon?: string;
   priority?: 'high' | 'medium' | 'low';
+  titleKey?: string;
+  courseTitleKey?: string;
 }
 
 export interface RoadmapWidgetProps {
@@ -55,6 +58,38 @@ export const RoadmapWidget: React.FC<RoadmapWidgetProps> = ({
 
   const displayedSteps = steps.filter(s => !s.completed).slice(0, 5);
 
+  const stepTitleMap: Record<string, string> = {
+    '1': 'dashboard.roadmap.items.reactHooks',
+    '2': 'dashboard.roadmap.items.responsiveDesign',
+    '3': 'dashboard.roadmap.items.presentPerfect',
+    '4': 'dashboard.roadmap.items.competitorAnalysis',
+    '5': 'dashboard.roadmap.items.riskManagement',
+  };
+
+  const courseTitleMap: Record<string, string> = {
+    '1': 'dashboard.courses.items.programmingBasics',
+    '2': 'dashboard.courses.items.interfaceDesign',
+    '3': 'dashboard.courses.items.englishLanguage',
+    '4': 'dashboard.courses.items.marketing',
+    '5': 'dashboard.courses.items.projectManagement',
+  };
+
+  const getStepTitle = (step: RoadmapStep) => {
+    const key = (step as any).titleKey || stepTitleMap[step.id];
+    if (key) {
+      return t(key, { defaultValue: step.title });
+    }
+    return step.title;
+  };
+
+  const getCourseTitle = (step: RoadmapStep) => {
+    const key = (step as any).courseTitleKey || courseTitleMap[step.id];
+    if (key) {
+      return t(key, { defaultValue: step.courseTitle });
+    }
+    return step.courseTitle;
+  };
+
   const handleViewFull = () => {
     // TODO: перейти на страницу полной дорожной карты
     navigate(buildPathWithLang('/roadmap', currentLang));
@@ -75,7 +110,7 @@ export const RoadmapWidget: React.FC<RoadmapWidgetProps> = ({
 
   return (
     <WidgetCard
-      title={t('dashboard.roadmap.title', 'Моя дорожная карта')}
+      title={t('dashboard.roadmap.title', { defaultValue: 'My roadmap' })}
       widgetId={widgetId}
       draggable={draggable}
       onDragStart={onDragStart}
@@ -91,10 +126,10 @@ export const RoadmapWidget: React.FC<RoadmapWidgetProps> = ({
         <button
           onClick={handleViewFull}
           className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-gray-1 dark:hover:bg-gray-2 transition-colors duration-200 group"
-          aria-label={t('dashboard.roadmap.viewFull', 'Полная версия')}
+          aria-label={t('dashboard.roadmap.viewFull', { defaultValue: 'Open full roadmap' })}
         >
           <span className="text-sm text-text-secondary group-hover:text-primary transition-colors duration-200">
-            {t('dashboard.roadmap.viewFull', 'Все данные')}
+            {t('dashboard.roadmap.viewFull', { defaultValue: 'Full Version' })}
           </span>
           <Icon name="arrow-right" size="sm" className="text-text-secondary group-hover:text-primary group-hover:translate-x-1 transition-all duration-200" />
         </button>
@@ -119,11 +154,11 @@ export const RoadmapWidget: React.FC<RoadmapWidgetProps> = ({
               {/* Контент */}
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-medium text-text-primary group-hover:text-primary transition-colors line-clamp-1">
-                  {step.title}
+                  {getStepTitle(step)}
                 </p>
                 {step.courseTitle && (
                   <p className="text-[10px] text-text-secondary mt-0.5 line-clamp-1">
-                    {step.courseTitle}
+                    {getCourseTitle(step)}
                   </p>
                 )}
               </div>
@@ -131,7 +166,7 @@ export const RoadmapWidget: React.FC<RoadmapWidgetProps> = ({
               {/* Дата */}
               {step.date && (
                 <div className="flex-shrink-0 text-[10px] text-text-secondary">
-                  {new Date(step.date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}
+                  {formatDate(step.date, currentLang, { day: 'numeric', month: 'short' })}
                 </div>
               )}
               
@@ -150,10 +185,10 @@ export const RoadmapWidget: React.FC<RoadmapWidgetProps> = ({
             <Icon name="flag" size="lg" className="text-text-secondary" />
           </div>
           <p className="text-sm text-text-secondary mb-2">
-            {t('dashboard.roadmap.empty', 'Все шаги выполнены!')}
+            {t('dashboard.roadmap.empty', { defaultValue: 'All steps completed!' })}
           </p>
           <p className="text-xs text-text-secondary">
-            {t('dashboard.roadmap.emptyDescription', 'Отличная работа!')}
+            {t('dashboard.roadmap.emptyDescription', { defaultValue: 'Great job!' })}
           </p>
         </div>
       )}

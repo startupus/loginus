@@ -25,35 +25,40 @@
         "title": "Основы программирования",
         "progress": 75,
         "icon": "code",
-        "color": "#3B82F6"
+        "color": "#3B82F6",
+        "titleKey": "dashboard.courses.items.programmingBasics"
       },
       {
         "id": "2",
         "title": "Дизайн интерфейсов",
         "progress": 45,
         "icon": "palette",
-        "color": "#8B5CF6"
+        "color": "#8B5CF6",
+        "titleKey": "dashboard.courses.items.interfaceDesign"
       },
       {
         "id": "3",
         "title": "Английский язык",
         "progress": 90,
         "icon": "globe",
-        "color": "#10B981"
+        "color": "#10B981",
+        "titleKey": "dashboard.courses.items.englishLanguage"
       },
       {
         "id": "4",
         "title": "Маркетинг",
         "progress": 30,
         "icon": "chartBar",
-        "color": "#F59E0B"
+        "color": "#F59E0B",
+        "titleKey": "dashboard.courses.items.marketing"
       },
       {
         "id": "5",
         "title": "Управление проектами",
         "progress": 60,
         "icon": "briefcase",
-        "color": "#EF4444"
+        "color": "#EF4444",
+        "titleKey": "dashboard.courses.items.projectManagement"
       }
     ],
     "events": [
@@ -62,28 +67,36 @@
         "type": "course_paid",
         "title": "Оплачен курс 'Основы программирования'",
         "description": "Курс успешно оплачен и активирован",
-        "date": "2025-01-19T10:00:00Z"
+        "date": "2025-01-19T10:00:00Z",
+        "titleKey": "dashboard.events.items.coursePaid",
+        "descriptionKey": "dashboard.events.descriptions.coursePaid"
       },
       {
         "id": "2",
         "type": "achievement",
         "title": "Ребенок получил достижение 'Первые шаги'",
         "description": "Артемий Л. выполнил первое задание",
-        "date": "2025-01-18T15:30:00Z"
+        "date": "2025-01-18T15:30:00Z",
+        "titleKey": "dashboard.events.items.achievement",
+        "descriptionKey": "dashboard.events.descriptions.achievement"
       },
       {
         "id": "3",
         "type": "milestone",
         "title": "Достигнута новая веха в обучении",
         "description": "Завершено 50% курса 'Английский язык'",
-        "date": "2025-01-17T09:15:00Z"
+        "date": "2025-01-17T09:15:00Z",
+        "titleKey": "dashboard.events.items.milestone",
+        "descriptionKey": "dashboard.events.descriptions.milestone"
       },
       {
         "id": "4",
         "type": "reward",
         "title": "Получена награда за активность",
         "description": "Начислено 100 игровых баллов",
-        "date": "2025-01-16T14:20:00Z"
+        "date": "2025-01-16T14:20:00Z",
+        "titleKey": "dashboard.events.items.reward",
+        "descriptionKey": "dashboard.events.descriptions.reward"
       }
     ],
     "roadmap": [
@@ -94,7 +107,9 @@
         "date": "2025-01-22T10:00:00Z",
         "completed": false,
         "priority": "high",
-        "icon": "code"
+        "icon": "code",
+        "titleKey": "dashboard.roadmap.items.reactHooks",
+        "courseTitleKey": "dashboard.courses.items.programmingBasics"
       },
       {
         "id": "2",
@@ -103,7 +118,9 @@
         "date": "2025-01-23T14:00:00Z",
         "completed": false,
         "priority": "medium",
-        "icon": "palette"
+        "icon": "palette",
+        "titleKey": "dashboard.roadmap.items.responsiveDesign",
+        "courseTitleKey": "dashboard.courses.items.interfaceDesign"
       },
       {
         "id": "3",
@@ -112,7 +129,9 @@
         "date": "2025-01-24T09:00:00Z",
         "completed": false,
         "priority": "low",
-        "icon": "globe"
+        "icon": "globe",
+        "titleKey": "dashboard.roadmap.items.presentPerfect",
+        "courseTitleKey": "dashboard.courses.items.englishLanguage"
       },
       {
         "id": "4",
@@ -121,7 +140,9 @@
         "date": "2025-01-25T11:00:00Z",
         "completed": false,
         "priority": "medium",
-        "icon": "chartBar"
+        "icon": "chartBar",
+        "titleKey": "dashboard.roadmap.items.competitorAnalysis",
+        "courseTitleKey": "dashboard.courses.items.marketing"
       },
       {
         "id": "5",
@@ -130,7 +151,9 @@
         "date": "2025-01-26T15:00:00Z",
         "completed": false,
         "priority": "high",
-        "icon": "briefcase"
+        "icon": "briefcase",
+        "titleKey": "dashboard.roadmap.items.riskManagement",
+        "courseTitleKey": "dashboard.courses.items.projectManagement"
       }
     ],
     "documents": [

@@ -251,8 +251,11 @@ export const SyncSettingsSection: React.FC = () => {
                 <label className={`block text-sm font-medium ${themeClasses.text.primary} mb-1`}>
                   {t('admin.backup.sync.enableEnrichment', 'Включить обогащение данных')}
                 </label>
-                <p className={`text-xs ${themeClasses.text.secondary}`}>
+                <p className={`text-xs ${themeClasses.text.secondary} mb-1`}>
                   {t('admin.backup.sync.enrichmentDesc', 'Обогащение данных пользователей из внешних источников')}
+                </p>
+                <p className={`text-xs ${themeClasses.text.secondary} italic`}>
+                  {t('admin.backup.sync.enrichmentPrivacy', 'Обогащенная информация будет доступна только администраторам системы. Пользователи будут видеть только данные, которые сами ввели про себя.')}
                 </p>
               </div>
               <button

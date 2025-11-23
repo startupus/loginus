@@ -45,8 +45,8 @@ export const DocumentsGrid: React.FC<DocumentsGridProps> = ({
   // Разделяем дипломы и сертификаты на отдельные элементы и помещаем в начало списка
   const separatedDocuments = [
     ...(diplomasCertificates ? [
-      { ...diplomasCertificates, type: 'diplomas', label: 'Дипломы', icon: 'award' },
-      { ...diplomasCertificates, type: 'certificates', label: 'Сертификаты', icon: 'award' },
+      { ...diplomasCertificates, type: 'diplomas', label: t('personalData.documents.diplomas'), icon: 'award' },
+      { ...diplomasCertificates, type: 'certificates', label: t('personalData.documents.certificates'), icon: 'award' },
     ] : []),
     ...regularDocuments,
   ];
@@ -81,14 +81,14 @@ export const DocumentsGrid: React.FC<DocumentsGridProps> = ({
   return (
     <DataSection
       id="documents"
-      title={t('personalData.documents.title', 'Документы')}
-      description={t('personalData.documents.description', 'В ID ваши документы всегда под рукой. А мы бережно их храним')}
+      title={t('personalData.documents.title')}
+      description={t('personalData.documents.description')}
       action={
         <button
           onClick={handleViewAll}
           className="text-sm text-text-secondary hover:text-primary transition-colors duration-200 flex items-center gap-1"
         >
-          <span>{t('personalData.documents.viewAll', 'Все документы')}</span>
+          <span>{t('personalData.documents.viewAll')}</span>
           <Icon name="arrow-right" size="sm" />
         </button>
       }
@@ -98,7 +98,7 @@ export const DocumentsGrid: React.FC<DocumentsGridProps> = ({
         {canScrollLeft && (
           <ScrollButton
             direction="left"
-            ariaLabel={t('common.scrollLeft', 'Прокрутить влево')}
+              ariaLabel={t('common.scrollLeft')}
             onClick={() => scroll('left')}
           />
         )}
@@ -148,7 +148,7 @@ export const DocumentsGrid: React.FC<DocumentsGridProps> = ({
         {canScrollRight && (
           <ScrollButton
             direction="right"
-            ariaLabel={t('common.scrollRight', 'Прокрутить вправо')}
+              ariaLabel={t('common.scrollRight')}
             onClick={() => scroll('right')}
           />
         )}

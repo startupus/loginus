@@ -10,7 +10,7 @@ import { useTheme } from '../../contexts';
 import { useLanguageStore } from '@/store';
 import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';
 import { themeClasses } from '../../utils/themeClasses';
-import { changeLanguage } from '@/services/i18n/config';
+import { LanguageSwitcher } from '../../composites/LanguageSwitcher';
 
 export interface SidebarItem {
   label: string;
@@ -65,7 +65,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const navigate = useNavigate();
   const { t } = useTranslation();
   const currentLang = useCurrentLanguage();
-  const { language, setLanguage } = useLanguageStore();
   const { setThemeMode, isDark } = useTheme();
   const { isOpen, toggleSidebar, openDropdown, toggleDropdown } = useSidebar();
   
@@ -111,7 +110,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="px-6 pb-4 xl:hidden">
             <Input
               type="text"
-              placeholder={t('common.search', 'Поиск...')}
+              placeholder={t('common.search', { defaultValue: 'Search...' })}
               rightIcon={<Icon name="search" size="sm" className={themeClasses.text.secondary} />}
             />
           </div>
@@ -207,7 +206,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className={`${themeClasses.text.secondary} dark:text-dark-6 hover:text-primary flex w-full items-center py-1.5 text-sm font-medium duration-200`}
           >
             <Icon name="help-circle" size="sm" className="mr-3" />
-            <span>{t('sidebar.help', 'Справка')}</span>
+            <span>{t('sidebar.help')}</span>
           </button>
           
           <button
@@ -215,32 +214,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className={`${themeClasses.text.secondary} dark:text-dark-6 hover:text-primary flex w-full items-center py-1.5 text-sm font-medium duration-200`}
           >
             <Icon name="globe" size="sm" className="mr-3" />
-            <span>{t('sidebar.loginusIdSite', 'Loginus ID для сайта')}</span>
+            <span>{t('sidebar.loginusIdSite')}</span>
           </button>
           
           <div className={`${themeClasses.background.gray2} my-3 h-px`}></div>
           
           <div className="flex items-center justify-between py-2">
             {showLanguageSwitcher && (
-              <button
-                onClick={async () => {
-                  const newLang = language === 'ru' ? 'en' : 'ru';
-                  setLanguage(newLang);
-                  await changeLanguage(newLang);
-                  const newPath = buildPathWithLang(window.location.pathname.replace(/^\/(ru|en)/, ''), newLang);
-                  navigate(newPath);
-                }}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${themeClasses.text.primary} hover:bg-gray-2 dark:hover:bg-dark-3 transition-all`}
-              >
-                {language === 'ru' ? '🇷🇺 RU' : '🇬🇧 EN'}
-              </button>
+              <LanguageSwitcher variant="compact" />
             )}
 
             {showThemeSwitcher && (
               <button
                 onClick={() => setThemeMode(isDark ? 'light' : 'dark')}
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${themeClasses.text.primary} hover:bg-gray-2 dark:hover:bg-dark-3 transition-all`}
-                title={`Текущая тема: ${isDark ? 'dark' : 'light'}. Кликните для переключения`}
+                title={t('common.theme.toggle', {
+                  mode: isDark
+                    ? t('common.theme.mode.dark', { defaultValue: 'dark' })
+                    : t('common.theme.mode.light', { defaultValue: 'light' }),
+                  defaultValue: `Current theme: ${isDark ? 'dark' : 'light'}. Click to switch`,
+                })}
               >
                 {isDark ? (
                   <Icon name="sun" size="sm" className="text-warning" />

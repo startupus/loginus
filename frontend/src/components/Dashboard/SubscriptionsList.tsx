@@ -56,12 +56,31 @@ export const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
   const handleCloseModal = () => {
     setSelectedSubscription(null);
   };
+
+  const getPriceLabel = (subscription: Subscription) =>
+    t(`dashboard.subscriptions.pricing.${subscription.type}.price`, {
+      defaultValue: subscription.price,
+    });
+
+  const getPricePerMonthLabel = (subscription: Subscription) =>
+    subscription.pricePerMonth
+      ? t(`dashboard.subscriptions.pricing.${subscription.type}.perMonth`, {
+          defaultValue: subscription.pricePerMonth,
+        })
+      : undefined;
+
+  const getBadgeLabel = (subscription: Subscription) =>
+    subscription.badge
+      ? t(`dashboard.subscriptions.badge.${subscription.type}`, {
+          defaultValue: subscription.badge,
+        })
+      : undefined;
   
   return (
     <>
     <DataSection
       id="subscriptions"
-      title={t('dashboard.subscriptions.title', 'Подписки')}
+      title={t('dashboard.subscriptions.title', { defaultValue: 'Subscriptions' })}
     >
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {subscriptions.map((subscription, index) => (
@@ -90,7 +109,7 @@ export const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
               )}
               {subscription.badge && !subscription.active && (
                 <Badge variant="warning" size="sm" rounded="full">
-                  !
+                  {getBadgeLabel(subscription)}
                 </Badge>
               )}
             </div>
@@ -98,11 +117,11 @@ export const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
             {/* Цена */}
             <div className="mb-3">
               <div className="text-xl font-bold text-primary">
-                {subscription.price.split('/')[0]}
+                {getPriceLabel(subscription)}
               </div>
-              {subscription.pricePerMonth && (
+              {getPricePerMonthLabel(subscription) && (
                 <div className="text-xs text-text-secondary mt-1">
-                  {subscription.pricePerMonth}
+                  {getPricePerMonthLabel(subscription)}
                 </div>
               )}
             </div>
@@ -111,14 +130,17 @@ export const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
             {subscription.active && subscription.expiresAt && (
               <div className="mb-3">
                 <p className="text-xs text-text-secondary">
-                  {t('dashboard.subscriptions.activeUntil', { date: subscription.expiresAt, defaultValue: `Активна до ${subscription.expiresAt}` })}
+                  {t('dashboard.subscriptions.activeUntil', {
+                    date: subscription.expiresAt,
+                    defaultValue: `Active until ${subscription.expiresAt}`,
+                  })}
                 </p>
               </div>
             )}
             
             {/* Ссылка подробнее */}
             <div className="flex items-center gap-1 text-xs text-primary group-hover:gap-2 transition-all">
-              <span>{t('dashboard.subscriptions.details', 'Подробнее')}</span>
+              <span>{t('dashboard.subscriptions.details', { defaultValue: 'Details' })}</span>
               <Icon 
                 name="chevron-right" 
                 size="sm" 
@@ -144,17 +166,20 @@ export const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
               <div>
                 <div className="flex items-baseline gap-2 mb-1">
                   <span className="text-3xl font-bold text-primary">
-                    {selectedSubscription.price}
+                    {getPriceLabel(selectedSubscription)}
                   </span>
-                  {selectedSubscription.pricePerMonth && (
+                  {getPricePerMonthLabel(selectedSubscription) && (
                     <span className="text-sm text-text-secondary">
-                      {selectedSubscription.pricePerMonth}
+                      {getPricePerMonthLabel(selectedSubscription)}
                     </span>
                   )}
                 </div>
                 {selectedSubscription.active && selectedSubscription.expiresAt && (
                   <p className="text-sm text-text-secondary">
-                    {t('dashboard.subscriptions.activeUntil', { date: selectedSubscription.expiresAt, defaultValue: `Активна до ${selectedSubscription.expiresAt}` })}
+                    {t('dashboard.subscriptions.activeUntil', {
+                      date: selectedSubscription.expiresAt,
+                      defaultValue: `Active until ${selectedSubscription.expiresAt}`,
+                    })}
                   </p>
                 )}
               </div>
@@ -162,12 +187,12 @@ export const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                 {selectedSubscription.active && (
                   <Badge variant="success" size="md">
                     <Icon name="check-circle" size="sm" className="mr-1" />
-                    {t('dashboard.subscriptions.active', 'Активна')}
+                    {t('dashboard.subscriptions.active', { defaultValue: 'Active' })}
                   </Badge>
                 )}
                 {selectedSubscription.badge && (
                   <Badge variant="warning" size="md">
-                    {selectedSubscription.badge}
+                    {getBadgeLabel(selectedSubscription)}
                   </Badge>
                 )}
               </div>
@@ -177,7 +202,7 @@ export const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
             {getSubscriptionFeatures(selectedSubscription.type, t, selectedSubscription.features).length > 0 && (
               <div>
                 <h4 className="text-lg font-semibold text-text-primary mb-3">
-                  {t('dashboard.subscriptions.includes', 'Что входит в подписку:')}
+                  {t('dashboard.subscriptions.includes', { defaultValue: 'Included in subscription:' })}
                 </h4>
                 <div className="space-y-3">
                   {getSubscriptionFeatures(selectedSubscription.type, t, selectedSubscription.features).map((feature, idx) => (
@@ -211,7 +236,7 @@ export const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                   }}
                 >
                   <Icon name="zap" size="sm" className="mr-2" />
-                  {t('dashboard.subscriptions.subscribe', 'Оформить подписку')}
+                  {t('dashboard.subscriptions.subscribe', { defaultValue: 'Subscribe' })}
                 </Button>
               )}
               <Button 
@@ -220,7 +245,7 @@ export const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                 className="flex-1"
                 onClick={handleCloseModal}
               >
-                {t('common.close', 'Закрыть')}
+                {t('common.close', { defaultValue: 'Close' })}
               </Button>
             </div>
           </div>

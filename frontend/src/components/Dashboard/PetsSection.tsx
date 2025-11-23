@@ -40,8 +40,8 @@ export const PetsSection: React.FC<PetsSectionProps> = ({
   return (
     <DataSection
       id="pets"
-      title={t('personalData.pets.title', 'Питомцы')}
-      description={t('personalData.pets.description', 'Поможем хранить документы, подобрать корм или записать к ветеринару')}
+      title={t('data.pets.title', 'Pets')}
+      description={t('data.pets.description', 'We will help store documents, choose food or make an appointment with a veterinarian')}
       action={
         pets.length > 0 ? (
           <button
@@ -49,7 +49,7 @@ export const PetsSection: React.FC<PetsSectionProps> = ({
             className="text-sm text-text-secondary hover:text-primary transition-colors duration-200 flex items-center gap-1"
           >
             <span>
-              {t('personalData.pets.viewAll', 'Все питомцы')}
+              {t('data.pets.viewAll', 'All pets')}
             </span>
             <Icon name="arrow-right" size="sm" />
           </button>
@@ -98,7 +98,7 @@ export const PetsSection: React.FC<PetsSectionProps> = ({
         ) : (
           <div className="text-center py-8">
             <p className="text-sm text-text-secondary mb-4">
-              {t('personalData.pets.empty', 'У вас пока нет добавленных питомцев')}
+              {t('data.pets.empty', 'You have no added pets yet')}
             </p>
           </div>
         )}
@@ -106,7 +106,7 @@ export const PetsSection: React.FC<PetsSectionProps> = ({
         {/* Кнопка добавления */}
         {onAddPet && (
           <AddButton
-            label={t('personalData.pets.add', 'Добавить питомца')}
+            label={t('data.pets.add', 'Add pet')}
             onClick={onAddPet}
             variant="horizontal"
             size="md"

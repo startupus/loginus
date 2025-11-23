@@ -18,7 +18,7 @@ export const API_V2_BASE_URL =
  */
 export const I18N_MODE: 'static' | 'dynamic' | 'hybrid' =
   (import.meta.env.VITE_I18N_MODE as 'static' | 'dynamic' | 'hybrid') ||
-  'dynamic'; // По умолчанию используем динамический режим
+  'hybrid'; // По умолчанию используем гибридный режим (API → кэш → статические файлы)
 
 /**
  * Версия API для переводов
@@ -49,10 +49,13 @@ export const AVAILABLE_MODULES: readonly ModuleName[] = [
   'errors',
   'landing',
   'about',
+  'features',
+  'help',
   'work',
   'modals',
   'support',
   'payment',
+  'admin',
 ] as const;
 
 /**
@@ -61,6 +64,7 @@ export const AVAILABLE_MODULES: readonly ModuleName[] = [
 export const CRITICAL_MODULES: readonly ModuleName[] = [
   'common',
   'profile',
+  'dashboard',
 ] as const;
 
 /**
@@ -92,12 +96,15 @@ export const KEY_TO_MODULE_MAP: Record<string, ModuleName> = {
   personal: 'profile',
   landing: 'landing',
   about: 'about',
+  features: 'features',
+  help: 'help',
   work: 'work',
   errors: 'errors',
   modals: 'modals',
   support: 'support',
   payment: 'payment',
   pay: 'payment',
+  admin: 'admin',
 };
 
 /**

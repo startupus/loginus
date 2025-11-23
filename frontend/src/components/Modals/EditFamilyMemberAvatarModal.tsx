@@ -4,6 +4,7 @@ import { Modal } from '../../design-system/composites';
 import { Button, Avatar, Icon } from '../../design-system/primitives';
 import { getInitials } from '../../utils/stringUtils';
 import { PREDEFINED_AVATARS } from '../../utils/avatars';
+import { preloadModule } from '../../services/i18n/config';
 
 /**
  * Интерфейс пропсов модального окна
@@ -34,7 +35,7 @@ export const EditFamilyMemberAvatarModal: React.FC<EditFamilyMemberAvatarModalPr
   onSuccess,
   initialData,
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [selectedAvatar, setSelectedAvatar] = useState<string | null>(initialData?.avatar || null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -44,6 +45,16 @@ export const EditFamilyMemberAvatarModal: React.FC<EditFamilyMemberAvatarModalPr
       setSelectedAvatar(initialData.avatar || null);
     }
   }, [initialData]);
+
+  // Гарантируем загрузку модулей переводов для модалок перед отображением
+  React.useEffect(() => {
+    void preloadModule('modals').catch(() => undefined);
+  }, []);
+
+  // Перезагружаем модуль при смене языка (исключаем прилипание EN строк)
+  React.useEffect(() => {
+    void preloadModule('modals').catch(() => undefined);
+  }, [i18n.language]);
 
   const handleAvatarSelect = useCallback((avatarUrl: string) => {
     setSelectedAvatar(avatarUrl);
@@ -88,7 +99,7 @@ export const EditFamilyMemberAvatarModal: React.FC<EditFamilyMemberAvatarModalPr
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title={t('modals.familyMember.avatarTitle', 'Выбрать аватар')}
+      title={t('familyMember.avatarTitle', { defaultValue: 'Select avatar' })}
       size="lg"
     >
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -109,11 +120,11 @@ export const EditFamilyMemberAvatarModal: React.FC<EditFamilyMemberAvatarModalPr
         {/* Выбор аватара */}
         <div>
           <label className="block text-sm font-medium text-text-primary mb-3">
-            {t('modals.familyMember.selectAvatar', 'Выберите аватар')}
+            {t('familyMember.selectAvatar', { defaultValue: 'Select an avatar' })}
           </label>
           
           {/* Галерея готовых аватаров */}
-          <div className="grid grid-cols-6 sm:grid-cols-8 gap-2" role="radiogroup" aria-label={t('modals.familyMember.selectAvatar', 'Выберите аватар')}>
+          <div className="grid grid-cols-6 sm:grid-cols-8 gap-2" role="radiogroup" aria-label={t('familyMember.selectAvatar', { defaultValue: 'Select an avatar' })}>
             {PREDEFINED_AVATARS.map((avatar) => (
               <button
                 key={avatar.url}
@@ -152,7 +163,7 @@ export const EditFamilyMemberAvatarModal: React.FC<EditFamilyMemberAvatarModalPr
             disabled={isLoading}
             className="flex-1"
           >
-            {t('common.cancel', 'Отмена')}
+            {t('common.cancel', { defaultValue: 'Cancel' })}
           </Button>
           <Button
             type="submit"
@@ -160,9 +171,9 @@ export const EditFamilyMemberAvatarModal: React.FC<EditFamilyMemberAvatarModalPr
             disabled={isLoading || !selectedAvatar}
             className="flex-1"
           >
-            {isLoading 
-              ? t('modals.familyMember.saving', 'Сохранение...') 
-              : t('modals.familyMember.save', 'Сохранить')
+            {isLoading
+              ? t('familyMember.saving', { defaultValue: 'Saving...' })
+              : t('familyMember.save', { defaultValue: 'Save' })
             }
           </Button>
         </div>

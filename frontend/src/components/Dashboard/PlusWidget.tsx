@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { Button, Icon, Badge } from '../../design-system/primitives';
 import { WidgetCard } from '../../design-system/composites/WidgetCard';
 import { themeClasses } from '../../design-system/utils/themeClasses';
+import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
+import { formatNumber } from '../../utils/intl/formatters';
 
 export interface PlusWidgetProps {
   active: boolean;
@@ -42,6 +44,7 @@ export const PlusWidget: React.FC<PlusWidgetProps> = ({
   isDragging,
 }) => {
   const { t } = useTranslation();
+  const currentLang = useCurrentLanguage();
   
   return (
     <WidgetCard
@@ -59,7 +62,7 @@ export const PlusWidget: React.FC<PlusWidgetProps> = ({
       insertPosition={insertPosition}
       isDragging={isDragging}
       actions={
-        <Link to="/plus">
+        <Link to={buildPathWithLang('/plus', currentLang)}>
           <Button variant="ghost" size="sm">
             <Icon name="arrow-right" size="sm" />
           </Button>
@@ -92,7 +95,7 @@ export const PlusWidget: React.FC<PlusWidgetProps> = ({
                   {t('dashboard.plus.points', 'Баллы')}
                 </p>
                 <p className="text-xl font-bold text-text-primary transition-transform duration-200 group-hover:scale-105">
-                  {points.toLocaleString('ru-RU')}
+                  {formatNumber(points, currentLang)}
                 </p>
               </div>
             </div>

@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button, Icon } from '../../design-system/primitives';
 import { WidgetCard } from '../../design-system/composites/WidgetCard';
+import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
+import { formatNumber } from '../../utils/intl/formatters';
 
 export interface MailWidgetProps {
   unreadCount: number;
@@ -37,6 +39,7 @@ export const MailWidget: React.FC<MailWidgetProps> = ({
   isDragging,
 }) => {
   const { t } = useTranslation();
+  const currentLang = useCurrentLanguage();
   
   const getUnreadText = () => {
     if (unreadCount === 0) {
@@ -66,7 +69,7 @@ export const MailWidget: React.FC<MailWidgetProps> = ({
       insertPosition={insertPosition}
       isDragging={isDragging}
       actions={
-        <Link to="/mail">
+        <Link to={buildPathWithLang('/mail', currentLang)}>
           <Button variant="ghost" size="sm">
             <Icon name="arrow-right" size="sm" />
           </Button>
@@ -76,7 +79,7 @@ export const MailWidget: React.FC<MailWidgetProps> = ({
       <div className="flex items-center justify-between">
         <div className="transition-transform duration-300 group-hover:scale-105">
           <p className="text-3xl font-bold text-text-primary mb-1 transition-colors duration-200 group-hover:text-primary">
-            {unreadCount > 0 ? unreadCount.toLocaleString('ru-RU') : '0'}
+            {formatNumber(unreadCount, currentLang)}
           </p>
           <p className="text-sm text-text-secondary">
             {getUnreadText()}

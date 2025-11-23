@@ -173,6 +173,12 @@
     "error": "Error saving avatar",
     "invalidImage": "Please select an image",
     "imageTooLarge": "File size must not exceed 5MB"
+  },
+  "familyMember": {
+    "avatarTitle": "Select avatar",
+    "selectAvatar": "Select an avatar",
+    "save": "Save",
+    "saving": "Saving..."
   }
 }
 

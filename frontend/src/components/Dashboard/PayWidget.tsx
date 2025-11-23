@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { Icon } from '../../design-system/primitives';
 import { WidgetCard } from '../../design-system/composites/WidgetCard';
 import { themeClasses } from '../../design-system/utils/themeClasses';
+import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
+import { formatCurrency, formatNumber } from '../../utils/intl/formatters';
 
 export interface PayWidgetProps {
   balance: number;
@@ -40,6 +42,7 @@ export const PayWidget: React.FC<PayWidgetProps> = ({
 }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const currentLang = useCurrentLanguage();
   
   return (
     <WidgetCard
@@ -60,7 +63,7 @@ export const PayWidget: React.FC<PayWidgetProps> = ({
       <div className="space-y-4">
         <div 
           className="flex items-center justify-between p-4 rounded-lg bg-primary/5 dark:bg-primary/10 cursor-pointer hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors"
-          onClick={() => navigate('/pay')}
+          onClick={() => navigate(buildPathWithLang('/pay', currentLang))}
         >
           <div className="flex items-center gap-3">
             <Icon name="device" size="lg" className="text-primary" />
@@ -87,7 +90,7 @@ export const PayWidget: React.FC<PayWidgetProps> = ({
               {t('dashboard.pay.spendUpTo', 'Тратьте до')}
             </p>
             <p className="text-xl font-bold text-text-primary">
-              {limit.toLocaleString('ru-RU')} ₽
+              {formatCurrency(limit, 'RUB', currentLang)}
             </p>
           </div>
           <button 

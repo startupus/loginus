@@ -41,7 +41,7 @@ export const DataManagementSection: React.FC<DataManagementSectionProps> = ({
   return (
     <DataSection
       id="data-management"
-      title={t('personalData.dataManagement.title', 'Управление данными')}
+      title={t('data.dataManagement.title', 'Data Management')}
     >
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {items.map((item) => {

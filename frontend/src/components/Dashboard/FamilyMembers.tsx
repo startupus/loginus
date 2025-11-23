@@ -93,13 +93,13 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
   return (
     <DataSection
       id="family"
-      title={t('dashboard.family.title', 'Семья')}
+      title={t('dashboard.family.title', { defaultValue: 'Family' })}
       action={
         <button
           onClick={handleViewAll}
           className="text-sm text-text-secondary hover:text-primary transition-colors duration-200 flex items-center gap-1"
         >
-          <span>{t('dashboard.family.manage', 'Управление')}</span>
+          <span>{t('dashboard.family.manage', { defaultValue: 'Manage' })}</span>
           <Icon name="arrow-right" size="sm" />
         </button>
       }
@@ -111,10 +111,12 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
             <Icon name="users" size="lg" />
           </div>
           <h3 className={`text-lg font-medium ${themeClasses.text.primary} mb-2`}>
-            {t('dashboard.family.empty.title', 'Нет участников')}
+              {t('dashboard.family.empty.title', { defaultValue: 'No members yet' })}
           </h3>
           <p className={`${themeClasses.text.secondary} max-w-md mb-4`}>
-            {t('dashboard.family.empty.description', 'Пригласите близких в семейную группу, чтобы делиться подписками и сервисами')}
+              {t('dashboard.family.empty.description', {
+                defaultValue: 'Invite your family to share subscriptions and services.',
+              })}
           </p>
           <Button 
             variant="primary" 
@@ -122,7 +124,7 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
             leftIcon={<Icon name="user-plus" size="sm" />}
             onClick={onAddMember}
           >
-            {t('dashboard.family.add', 'Добавить участника')}
+              {t('dashboard.family.add', { defaultValue: 'Add member' })}
           </Button>
         </div>
       ) : (
@@ -131,7 +133,7 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
           {canScrollLeft && (
             <ScrollButton
               direction="left"
-              ariaLabel={t('common.scrollLeft', 'Прокрутить влево')}
+              ariaLabel={t('common.scrollLeft', { defaultValue: 'Scroll left' })}
               onClick={() => scroll('left')}
               variant="accent"
             />
@@ -189,7 +191,7 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
                   <button
                     onClick={(e) => handleEditAvatar(e, member)}
                     className="absolute top-2 right-2 w-8 h-8 rounded-full bg-primary hover:bg-primary-hover text-white flex items-center justify-center shadow-lg transition-all duration-200 animate-fade-in z-10"
-                    aria-label={t('dashboard.family.editAvatar', 'Изменить аватар')}
+                    aria-label={t('dashboard.family.editAvatar', { defaultValue: 'Edit avatar' })}
                   >
                     <Icon name="edit" size="xs" />
                   </button>
@@ -201,7 +203,7 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
             {onAddMember && (
               <div className="flex-shrink-0">
                 <AddButton
-                  label={t('dashboard.family.add', 'Добавить')}
+                  label={t('dashboard.family.add', { defaultValue: 'Add member' })}
                   onClick={onAddMember}
                   variant="vertical"
                   size="md"
@@ -217,7 +219,7 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
           {canScrollRight && (
             <ScrollButton
               direction="right"
-              ariaLabel={t('common.scrollRight', 'Прокрутить вправо')}
+              ariaLabel={t('common.scrollRight', { defaultValue: 'Scroll right' })}
               onClick={() => scroll('right')}
               variant="accent"
             />

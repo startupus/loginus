@@ -50,7 +50,7 @@ export const ExternalAccountsSection: React.FC<ExternalAccountsSectionProps> = (
     },
     {
       id: 'gosuslugi',
-      name: 'Гос услуги',
+      name: 'Government Services',
       icon: (
         <svg viewBox="0 0 90 90" fill="none" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" className="w-5 h-5">
           <defs>
@@ -123,8 +123,8 @@ export const ExternalAccountsSection: React.FC<ExternalAccountsSectionProps> = (
   return (
     <DataSection
       id="external-accounts"
-      title={t('personalData.externalAccounts.title', 'Связанные аккаунты')}
-      description={t('personalData.externalAccounts.description', 'Помогут быстрее входить в Loginus и заполнить данные')}
+      title={t('data.externalAccounts.title', 'Connected Accounts')}
+      description={t('data.externalAccounts.description', 'Help to log in to Loginus faster and fill in data')}
     >
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {providersWithStatus.map((provider) => {
@@ -151,7 +151,9 @@ export const ExternalAccountsSection: React.FC<ExternalAccountsSectionProps> = (
               {/* Информация */}
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium text-text-primary">
-                  {t(`auth.socialAuth.${provider.id}`, provider.name)}
+                  {provider.id === 'gosuslugi' 
+                    ? t('data.externalAccounts.government', provider.name)
+                    : t(`data.externalAccounts.${provider.id}`, provider.name)}
                 </div>
                 {provider.connected ? (
                   provider.email ? (
@@ -160,12 +162,12 @@ export const ExternalAccountsSection: React.FC<ExternalAccountsSectionProps> = (
                     </div>
                   ) : (
                     <div className="text-xs text-success mt-1">
-                      {t('personalData.externalAccounts.connected', 'Подключено')}
+                      {t('common.connected', 'Connected')}
                     </div>
                   )
                 ) : (
                   <div className="text-xs text-text-secondary/60 mt-1">
-                    {t('personalData.externalAccounts.notConnected', 'Не подключено')}
+                    {t('data.externalAccounts.notConnected', 'Not connected')}
                   </div>
                 )}
               </div>

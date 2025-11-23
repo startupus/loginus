@@ -45,7 +45,7 @@ export const PublicDataSection: React.FC<PublicDataSectionProps> = ({
   return (
     <DataSection
       id="public-data"
-      title={t('personalData.publicData.title', 'Публичные данные')}
+      title={t('data.publicData.title', 'Public Data')}
     >
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {items.map((item) => {
