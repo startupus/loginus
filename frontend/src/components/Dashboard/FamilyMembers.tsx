@@ -97,7 +97,7 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
       action={
         <button
           onClick={handleViewAll}
-          className="text-sm text-text-secondary hover:text-primary transition-colors duration-200 flex items-center gap-1"
+          className={`text-sm ${themeClasses.text.secondary} hover:text-primary transition-colors duration-200 flex items-center gap-1`}
         >
           <span>{t('dashboard.family.manage', { defaultValue: 'Manage' })}</span>
           <Icon name="arrow-right" size="sm" />
@@ -180,7 +180,7 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
                   
                   {/* Имя */}
                   <div className="flex flex-col items-center gap-1.5 w-full min-w-0 flex-1 justify-center">
-                    <p className="text-xs font-medium text-center text-text-primary group-hover:text-primary transition-colors duration-200 line-clamp-1 break-words w-full">
+                    <p className={`text-xs font-medium text-center ${themeClasses.text.primary} group-hover:text-primary transition-colors duration-200 line-clamp-1 break-words w-full`}>
                       {member.name}
                     </p>
                   </div>

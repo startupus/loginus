@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { preloadModule } from '../../services/i18n/config';
 import {
   DndContext,
   closestCenter,
@@ -22,13 +23,17 @@ import { AdminPageTemplate } from '../../design-system/layouts/AdminPageTemplate
 import { Button } from '../../design-system/primitives/Button';
 import { Icon } from '../../design-system/primitives/Icon';
 import { Input } from '../../design-system/primitives/Input';
+import { Switch } from '../../design-system/composites/Switch';
 import { Checkbox } from '../../design-system/primitives/Checkbox';
 import { Modal } from '../../design-system/composites/Modal';
 import { ErrorMessage } from '../../design-system/composites/ErrorMessage';
-import { menuSettingsApi, MenuItemConfig, MenuSettings } from '../../services/api/menu-settings';
+import { LoadingState } from '../../design-system/composites/LoadingState';
+import { EmptyState } from '../../design-system/composites/EmptyState';
+import { menuSettingsApi, MenuItemConfig } from '../../services/api/menu-settings';
 import { themeClasses } from '../../design-system/utils/themeClasses';
-import { useTheme } from '../../design-system/contexts';
 import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
+import { IconPicker } from '../../components/IconPicker/IconPicker';
+import { Tabs } from '../../design-system/composites/Tabs';
 
 // Компонент для сортируемого элемента меню
 interface MenuItemProps {
@@ -40,6 +45,7 @@ interface MenuItemProps {
 
 const MenuItem: React.FC<MenuItemProps> = ({ item, onToggle, onEdit, onDelete }) => {
   const { t } = useTranslation();
+  const currentLang = useCurrentLanguage();
   const {
     attributes,
     listeners,
@@ -52,7 +58,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ item, onToggle, onEdit, onDelete })
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
+    opacity: isDragging ? 0.5 : item.enabled ? 1 : 0.6,
   };
 
   const isDefault = item.type === 'default';
@@ -62,15 +68,19 @@ const MenuItem: React.FC<MenuItemProps> = ({ item, onToggle, onEdit, onDelete })
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-4 p-4 rounded-lg border ${
-        isDragging ? 'border-primary shadow-lg' : themeClasses.border.default
-      } ${themeClasses.background.surface}`}
+      className={`${themeClasses.utility.flexItemsCenter} ${themeClasses.spacing.gap4} ${themeClasses.spacing.p4} ${themeClasses.utility.roundedLg} ${themeClasses.border.default} ${
+        isDragging ? `${themeClasses.border.primary} ${themeClasses.card.shadow}` : ''
+      } ${
+        item.enabled
+          ? themeClasses.background.surface
+          : themeClasses.background.iconContainer
+      } ${themeClasses.utility.transitionAll}`}
     >
       {/* Иконка для перетаскивания - доступна для всех пунктов */}
       <div
         {...attributes}
         {...listeners}
-        className={`cursor-grab active:cursor-grabbing ${themeClasses.text.secondary} hover:opacity-80 touch-none select-none`}
+        className={`cursor-grab active:cursor-grabbing ${themeClasses.text.secondary} ${themeClasses.utility.opacity80} touch-none select-none`}
         style={{ touchAction: 'none', userSelect: 'none' }}
         onMouseDown={(e) => e.stopPropagation()}
       >
@@ -79,33 +89,30 @@ const MenuItem: React.FC<MenuItemProps> = ({ item, onToggle, onEdit, onDelete })
 
       {/* Иконка пункта меню */}
       {item.icon && (
-        <Icon name={item.icon} size="sm" className={themeClasses.text.secondary} />
+        <Icon 
+          name={item.icon} 
+          size="sm" 
+          className={item.enabled ? themeClasses.text.secondary : themeClasses.utility.opacity50}
+        />
       )}
 
       {/* Название и тип */}
-      <div className="flex-1">
-        <div className={`font-medium ${themeClasses.text.primary}`}>{item.label || item.id}</div>
-        <div className={`text-sm ${themeClasses.text.secondary}`}>
-          {item.type === 'default' && t('menuSettings.type.default', 'Системный пункт')}
-          {item.type === 'external' && t('menuSettings.type.external', 'Внешняя ссылка')}
-          {item.type === 'iframe' && t('menuSettings.type.iframe', 'Iframe')}
-          {item.type === 'embedded' && t('menuSettings.type.embedded', 'Встроенное приложение')}
+      <div className={themeClasses.utility.flex1}>
+        <div className={`font-medium ${item.enabled ? themeClasses.text.primary : themeClasses.utility.opacity60}`}>
+          {item.label || item.id}
+        </div>
+        <div className={`${themeClasses.typographySize.bodySmall} ${item.enabled ? themeClasses.text.secondary : themeClasses.utility.opacity50}`}>
+          {item.type === 'default' && t('admin.menuSettings.type.default')}
+          {item.type === 'external' && t('admin.menuSettings.type.external')}
+          {item.type === 'iframe' && t('admin.menuSettings.type.iframe')}
+          {item.type === 'embedded' && t('admin.menuSettings.type.embedded')}
           {item.path && ` • ${item.path}`}
         </div>
       </div>
 
-      {/* Тумблер включения/выключения */}
-      <div onClick={(e) => e.stopPropagation()}>
-        <Checkbox
-          checked={item.enabled}
-          onChange={() => onToggle(item.id)}
-          label=""
-        />
-      </div>
-
       {/* Кнопки действий */}
-      <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-        {!isDefault && (
+      <div className={`${themeClasses.utility.flexItemsCenter} ${themeClasses.spacing.gap2}`} onClick={(e) => e.stopPropagation()}>
+        {/* Кнопка редактирования - доступна для всех пунктов, включая системные (только иконка) */}
           <Button
             variant="ghost"
             size="sm"
@@ -113,11 +120,12 @@ const MenuItem: React.FC<MenuItemProps> = ({ item, onToggle, onEdit, onDelete })
               e.stopPropagation();
               onEdit(item);
             }}
-            leftIcon={<Icon name="edit" size="sm" />}
+          iconOnly
+          aria-label={t('common.edit')}
           >
-            {t('common.edit', 'Редактировать')}
+          <Icon name="edit" size="sm" />
           </Button>
-        )}
+        {/* Кнопка удаления - только для несистемных пунктов (системные нельзя удалить, можно только отключить) */}
         {canDelete && (
           <Button
             variant="ghost"
@@ -126,29 +134,73 @@ const MenuItem: React.FC<MenuItemProps> = ({ item, onToggle, onEdit, onDelete })
               e.stopPropagation();
               onDelete(item.id);
             }}
-            leftIcon={<Icon name="trash" size="sm" />}
-            className={`${themeClasses.text.error} hover:opacity-80`}
+            iconOnly
+            className={`${themeClasses.text.error} ${themeClasses.utility.opacity80}`}
+            aria-label={t('common.delete')}
           >
-            {t('common.delete', 'Удалить')}
+            <Icon name="trash" size="sm" />
           </Button>
         )}
+      </div>
+
+      {/* Тумблер включения/выключения - всегда справа, последний элемент */}
+      <div className="ml-auto" onClick={(e) => e.stopPropagation()}>
+        <Switch
+          checked={item.enabled}
+          onChange={() => onToggle(item.id)}
+        />
       </div>
     </div>
   );
 };
 
 const MenuSettingsPage: React.FC = () => {
-  const { t } = useTranslation();
-  const { isDark } = useTheme();
+  const { t, i18n } = useTranslation();
   const currentLang = useCurrentLanguage();
   const queryClient = useQueryClient();
+  const [adminModuleLoaded, setAdminModuleLoaded] = useState(false);
+
+  // Предзагрузка и перезагрузка модуля admin при смене языка
+  useEffect(() => {
+    const loadModules = async () => {
+      try {
+        await preloadModule('admin');
+        setAdminModuleLoaded(true);
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('[MenuSettingsPage] Failed to load admin module:', error);
+        }
+        // Помечаем как загруженный даже при ошибке, чтобы не блокировать рендер
+        setAdminModuleLoaded(true);
+      }
+    };
+
+    loadModules();
+
+    // Перезагружаем модуль при смене языка
+    const handleLanguageChanged = async () => {
+      try {
+        await preloadModule('admin');
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('[MenuSettingsPage] Failed to reload admin module on language change:', error);
+        }
+      }
+    };
+
+    i18n.on('languageChanged', handleLanguageChanged);
+
+    return () => {
+      i18n.off('languageChanged', handleLanguageChanged);
+    };
+  }, [i18n]);
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<MenuItemConfig | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<MenuItemConfig | null>(null);
-  const [newItem, setNewItem] = useState<Partial<MenuItemConfig>>({
+  const [newItem, setNewItem] = useState<Partial<MenuItemConfig & { labelRu?: string; labelEn?: string }>>({
     type: 'external',
     enabled: true,
     order: 0,
@@ -172,19 +224,13 @@ const MenuSettingsPage: React.FC = () => {
     queryFn: () => menuSettingsApi.getMenuSettings(),
   });
 
-  // Мутация для обновления настроек
-  const updateMutation = useMutation({
-    mutationFn: (settings: MenuSettings) => menuSettingsApi.updateMenuSettings(settings),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['menu-settings'] });
-      queryClient.invalidateQueries({ queryKey: ['user-menu'] });
-    },
-  });
+  // Примечание: все операции (добавление, редактирование, удаление, переключение) 
+  // работают с мок-данными локально через queryClient.setQueryData без запросов на сервер
 
   const settings = settingsData?.data?.data;
   const items = settings?.items || [];
 
-  // Обработка drag & drop
+  // Обработка drag & drop (локальное обновление без запроса на сервер)
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
@@ -203,20 +249,43 @@ const MenuSettingsPage: React.FC = () => {
         order: index + 1,
       }));
 
-      updateMutation.mutate({ items: updatedItems }, {
-        onError: (error) => {
-          console.error('Ошибка при обновлении порядка:', error);
-        },
+      // Обновляем локальное состояние через React Query без запроса на сервер
+      queryClient.setQueryData(['menu-settings'], (oldData: any) => {
+        if (!oldData) return oldData;
+        
+        return {
+          ...oldData,
+          data: {
+            ...oldData.data,
+            data: {
+              items: updatedItems,
+            },
+          },
+        };
       });
     }
   };
 
-  // Переключение включения/выключения пункта
+  // Переключение включения/выключения пункта (локальное обновление без запроса на сервер)
   const handleToggle = (id: string) => {
     const updatedItems = items.map((item) =>
       item.id === id ? { ...item, enabled: !item.enabled } : item
     );
-    updateMutation.mutate({ items: updatedItems });
+    
+    // Обновляем локальное состояние через React Query без запроса на сервер
+    queryClient.setQueryData(['menu-settings'], (oldData: any) => {
+      if (!oldData) return oldData;
+      
+      return {
+        ...oldData,
+        data: {
+          ...oldData.data,
+          data: {
+            items: updatedItems,
+          },
+        },
+      };
+    });
   };
 
   // Открытие модального окна подтверждения удаления
@@ -230,7 +299,7 @@ const MenuSettingsPage: React.FC = () => {
     setIsDeleteModalOpen(true);
   };
 
-  // Подтверждение удаления пункта
+  // Подтверждение удаления пункта (локальное обновление без запроса на сервер)
   const handleConfirmDelete = () => {
     if (!itemToDelete) return;
     
@@ -240,19 +309,36 @@ const MenuSettingsPage: React.FC = () => {
       ...item,
       order: index + 1,
     }));
-    updateMutation.mutate({ items: reorderedItems });
+    
+    // Обновляем локальное состояние через React Query без запроса на сервер
+    queryClient.setQueryData(['menu-settings'], (oldData: any) => {
+      if (!oldData) return oldData;
+      
+      return {
+        ...oldData,
+        data: {
+          ...oldData.data,
+          data: {
+            items: reorderedItems,
+          },
+        },
+      };
+    });
+    
     setIsDeleteModalOpen(false);
     setItemToDelete(null);
   };
 
-  // Открытие модального окна для редактирования (только для кастомных пунктов)
+  // Открытие модального окна для редактирования (теперь доступно для всех пунктов, включая системные)
   const handleEdit = (item: MenuItemConfig) => {
-    // Базовые пункты нельзя редактировать
-    if (item.type === 'default') {
-      return;
-    }
     setEditingItem(item);
-    setNewItem({ ...item });
+    // Извлекаем переводы из label или используем label как fallback
+    const itemWithTranslations = {
+      ...item,
+      labelRu: (item as any).labelRu || item.label || '',
+      labelEn: (item as any).labelEn || item.label || '',
+    };
+    setNewItem(itemWithTranslations);
     setIsAddModalOpen(true);
   };
 
@@ -265,6 +351,8 @@ const MenuSettingsPage: React.FC = () => {
       order: items.length + 1,
       id: `custom-${Date.now()}`,
       label: '',
+      labelRu: '',
+      labelEn: '',
       icon: '',
       path: undefined,
       externalUrl: '',
@@ -281,51 +369,68 @@ const MenuSettingsPage: React.FC = () => {
     setErrorMessage(null);
     
     // Валидация обязательных полей в зависимости от типа
-    if (!newItem.label || !newItem.label.trim()) {
-      setErrorMessage(t('menuSettings.errors.requiredFields', 'Заполните все обязательные поля'));
+    // Проверяем наличие хотя бы одного перевода
+    const labelRu = (newItem as any).labelRu || '';
+    const labelEn = (newItem as any).labelEn || '';
+    const label = newItem.label || '';
+    
+    // Используем labelRu как основной label, если он есть, иначе labelEn, иначе label
+    const finalLabel = labelRu.trim() || labelEn.trim() || label.trim();
+    
+    if (!finalLabel) {
+      setErrorMessage(t('admin.menuSettings.errors.requiredFields'));
       return;
     }
 
     if (!newItem.id) {
-      setErrorMessage(t('menuSettings.errors.requiredFields', 'Заполните все обязательные поля'));
+      setErrorMessage(t('admin.menuSettings.errors.requiredFields'));
       return;
     }
 
-    // Валидация для разных типов пунктов
+    // Валидация для разных типов пунктов (для системных пунктов валидация более мягкая)
+    const isSystemItem = editingItem && editingItem.type === 'default';
+    
+    if (!isSystemItem) {
+      // Для несистемных пунктов применяем полную валидацию
     if (newItem.type === 'external') {
       if (!newItem.externalUrl || !newItem.externalUrl.trim()) {
-        setErrorMessage(t('menuSettings.errors.requiredFields', 'Заполните все обязательные поля'));
+          setErrorMessage(t('admin.menuSettings.errors.requiredFields'));
         return;
       }
     } else if (newItem.type === 'iframe') {
       if (!newItem.path || !newItem.path.trim()) {
-        setErrorMessage(t('menuSettings.errors.requiredFields', 'Заполните все обязательные поля'));
+          setErrorMessage(t('admin.menuSettings.errors.requiredFields'));
         return;
       }
       if (!newItem.iframeUrl && !newItem.iframeCode) {
-        setErrorMessage(t('menuSettings.errors.iframeRequired', 'Заполните URL iframe или HTML код'));
+          setErrorMessage(t('admin.menuSettings.errors.iframeRequired'));
         return;
       }
     } else if (newItem.type === 'embedded') {
       if (!newItem.embeddedAppUrl || !newItem.embeddedAppUrl.trim()) {
-        setErrorMessage(t('menuSettings.errors.requiredFields', 'Заполните все обязательные поля'));
+          setErrorMessage(t('admin.menuSettings.errors.requiredFields'));
         return;
       }
       if (!newItem.path || !newItem.path.trim()) {
-        setErrorMessage(t('menuSettings.errors.requiredFields', 'Заполните все обязательные поля'));
+          setErrorMessage(t('admin.menuSettings.errors.requiredFields'));
         return;
+        }
       }
     }
 
     // Формируем полный объект пункта меню
-    const menuItem: MenuItemConfig = {
-      id: newItem.id,
-      type: newItem.type || 'external',
+    // Для системных пунктов сохраняем оригинальные id и type
+    const menuItem: MenuItemConfig & { labelRu?: string; labelEn?: string } = {
+      id: isSystemItem ? editingItem.id : (newItem.id || `custom-${Date.now()}`),
+      type: isSystemItem ? editingItem.type : (newItem.type || 'external'),
       enabled: newItem.enabled !== undefined ? newItem.enabled : true,
       order: editingItem ? editingItem.order : items.length + 1,
-      label: newItem.label.trim(),
+      label: finalLabel, // Основной label для обратной совместимости
+      labelRu: labelRu.trim() || undefined,
+      labelEn: labelEn.trim() || undefined,
       icon: newItem.icon || undefined,
       path: newItem.path || undefined,
+      systemId: isSystemItem ? editingItem.systemId : undefined,
       externalUrl: newItem.externalUrl || undefined,
       openInNewTab: newItem.openInNewTab || false,
       iframeUrl: newItem.iframeUrl || undefined,
@@ -350,69 +455,73 @@ const MenuSettingsPage: React.FC = () => {
       }));
     }
 
-    updateMutation.mutate({ items: updatedItems }, {
-      onSuccess: () => {
-        setIsAddModalOpen(false);
-        setEditingItem(null);
-        setErrorMessage(null);
-        setNewItem({
-          type: 'external',
-          enabled: true,
-          order: 0,
-        });
-      },
-      onError: (error) => {
-        setErrorMessage(t('menuSettings.errors.saveError', 'Ошибка при сохранении. Попробуйте еще раз.'));
-        console.error('Ошибка сохранения настроек меню:', error);
-      },
+    // Обновляем локальное состояние через React Query без запроса на сервер (мок-данные)
+    queryClient.setQueryData(['menu-settings'], (oldData: any) => {
+      if (!oldData) return oldData;
+      
+      return {
+        ...oldData,
+        data: {
+          ...oldData.data,
+          data: {
+            items: updatedItems,
+          },
+        },
+      };
+    });
+
+    // Обновляем UI состояние
+    setIsAddModalOpen(false);
+    setEditingItem(null);
+    setErrorMessage(null);
+    setNewItem({
+      type: 'external',
+      enabled: true,
+      order: 0,
     });
   };
 
-  if (isLoading) {
+  // Показываем loading если данные еще загружаются или модуль admin еще не загружен
+  if (isLoading || !adminModuleLoaded) {
     return (
-      <AdminPageTemplate title={t('menuSettings.title', 'Настройки меню')} showSidebar={true}>
-        <div className={themeClasses.state.loading}>
-          <div className={themeClasses.state.loadingSpinner}>
-            <Icon name="loader" size="lg" className="animate-spin mx-auto mb-4" color="rgb(var(--color-primary))" />
-            <p className={themeClasses.text.secondary}>
-              {t('common.loading', 'Загрузка...')}
-            </p>
-          </div>
-        </div>
+      <AdminPageTemplate title={t('admin.menuSettings.title')} showSidebar={true}>
+        <LoadingState text={t('common.loading')} />
       </AdminPageTemplate>
     );
   }
 
   return (
     <AdminPageTemplate
-      title={t('menuSettings.title', 'Настройки меню')}
+      title={t('admin.menuSettings.title')}
       showSidebar={true}
-      headerActions={
-        <Button
-          variant="primary"
-          leftIcon={<Icon name="plus" size="sm" />}
-          onClick={handleAdd}
-        >
-          {t('menuSettings.addItem', 'Добавить пункт')}
-        </Button>
-      }
     >
-      <div className="space-y-6">
-        {/* Описание */}
-        <div className={`p-4 rounded-lg ${themeClasses.card.default} ${themeClasses.border.default}`}>
-          <p className={`text-sm ${themeClasses.text.secondary}`}>
-            {t('menuSettings.description', 'Настройте порядок и видимость пунктов меню для страницы дашборда. Перетаскивайте пункты для изменения порядка, используйте переключатели для включения/выключения.')}
-          </p>
+      <div className={themeClasses.spacing.spaceY6}>
+        {/* Описание с кнопкой */}
+        <div className={`${themeClasses.spacing.p4} ${themeClasses.utility.roundedLg} ${themeClasses.card.default} ${themeClasses.border.default}`}>
+          <div className={`${themeClasses.utility.flexColSmRow} sm:items-center sm:justify-between ${themeClasses.spacing.gap4}`}>
+            <p className={`text-sm flex-1 ${themeClasses.text.secondary}`}>
+              {t('admin.menuSettings.description')}
+            </p>
+            <div className="flex-shrink-0">
+              <Button
+                variant="primary"
+                leftIcon={<Icon name="plus" size="sm" />}
+                onClick={handleAdd}
+                className="w-full sm:w-auto"
+              >
+                {t('admin.menuSettings.addItem')}
+              </Button>
+            </div>
+          </div>
         </div>
 
         {/* Список пунктов меню */}
         {items.length === 0 ? (
-          <div className={themeClasses.state.empty}>
-            <Icon name="menu" size="xl" className={`${themeClasses.text.secondary} mx-auto mb-3`} />
-            <p className={themeClasses.text.secondary}>
-              {t('menuSettings.noItems', 'Нет пунктов меню')}
-            </p>
-          </div>
+          <EmptyState
+            icon="menu"
+            title={t('admin.menuSettings.noItems')}
+            iconSize="xl"
+          />
         ) : (
           <DndContext
             sensors={sensors}
@@ -423,7 +532,7 @@ const MenuSettingsPage: React.FC = () => {
               items={items.map((item) => item.id)}
               strategy={verticalListSortingStrategy}
             >
-              <div className="space-y-3">
+              <div className={themeClasses.spacing.spaceY3}>
                 {items.map((item) => (
                   <MenuItem
                     key={item.id}
@@ -450,24 +559,105 @@ const MenuSettingsPage: React.FC = () => {
             type: 'external',
             enabled: true,
             order: 0,
+            labelRu: '',
+            labelEn: '',
           });
         }}
-        title={editingItem ? t('menuSettings.editItem', 'Редактировать пункт') : t('menuSettings.addItem', 'Добавить пункт')}
+        title={editingItem ? t('admin.menuSettings.editItem') : t('admin.menuSettings.addItem')}
+        footer={
+          <>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setIsAddModalOpen(false);
+                setEditingItem(null);
+                setNewItem({
+                  type: 'external',
+                  enabled: true,
+                  order: 0,
+                  labelRu: '',
+                  labelEn: '',
+                });
+              }}
+            >
+              {t('common.cancel')}
+            </Button>
+            <Button variant="primary" onClick={handleSave}>
+              {t('common.save')}
+            </Button>
+          </>
+        }
       >
-        <div className="space-y-4">
+        <div className={themeClasses.spacing.spaceY4}>
           {errorMessage && (
             <ErrorMessage error={errorMessage} />
           )}
-          <Input
-            label={t('menuSettings.form.label', 'Название')}
-            value={newItem.label || ''}
-            onChange={(e) => setNewItem({ ...newItem, label: e.target.value })}
-            required
-          />
-
+          
+          {/* Поле названия с вкладками для разных языков */}
           <div>
             <label className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>
-              {t('menuSettings.form.type', 'Тип пункта')}
+              {t('admin.menuSettings.form.label')}
+            </label>
+            <Tabs
+              tabs={[
+                {
+                  id: 'ru',
+                  label: '🇷🇺 RU',
+                  content: (
+                    <Input
+                      value={(newItem as any).labelRu || ''}
+                      onChange={(e) => {
+                        const labelRu = e.target.value;
+                        const labelEn = (newItem as any).labelEn || '';
+                        // Используем labelRu как основной label, если он есть, иначе labelEn
+                        setNewItem({ ...newItem, labelRu, label: labelRu || labelEn });
+                      }}
+                      placeholder={t('admin.menuSettings.form.labelPlaceholder', 'Введите название на русском')}
+                      required
+                      className="!border-0 focus:!border-0 active:!border-0"
+                    />
+                  ),
+                },
+                {
+                  id: 'en',
+                  label: '🇬🇧 EN',
+                  content: (
+                    <Input
+                      value={(newItem as any).labelEn || ''}
+                      onChange={(e) => {
+                        const labelEn = e.target.value;
+                        const labelRu = (newItem as any).labelRu || '';
+                        // Используем labelRu как основной label, если он есть, иначе labelEn
+                        setNewItem({ ...newItem, labelEn, label: labelRu || labelEn });
+                      }}
+                      placeholder={t('admin.menuSettings.form.labelPlaceholderEn', 'Enter name in English')}
+                      required
+                      className="!border-0 focus:!border-0 active:!border-0"
+                    />
+                  ),
+                },
+              ]}
+              defaultTab={currentLang || 'ru'}
+            />
+          </div>
+
+          {/* Для системных пунктов тип и id нельзя менять */}
+          {editingItem && editingItem.type === 'default' ? (
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>
+                {t('admin.menuSettings.form.type')}
+              </label>
+              <div className={`px-4 py-2 rounded-lg border ${themeClasses.border.default} ${themeClasses.background.gray2} ${themeClasses.text.secondary}`}>
+                {t('admin.menuSettings.type.default')}
+              </div>
+              <p className={`text-xs mt-1 ${themeClasses.text.secondary}`}>
+                {t('admin.menuSettings.form.typeReadonly')}
+              </p>
+            </div>
+          ) : (
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>
+                {t('admin.menuSettings.form.type')}
             </label>
             <select
               value={newItem.type || 'external'}
@@ -486,16 +676,17 @@ const MenuSettingsPage: React.FC = () => {
               }}
               className={themeClasses.input.default}
             >
-              <option value="external">{t('menuSettings.type.external', 'Внешняя ссылка')}</option>
-              <option value="iframe">{t('menuSettings.type.iframe', 'Iframe')}</option>
-              <option value="embedded">{t('menuSettings.type.embedded', 'Встроенное приложение')}</option>
+                <option value="external">{t('admin.menuSettings.type.external')}</option>
+                <option value="iframe">{t('admin.menuSettings.type.iframe')}</option>
+                <option value="embedded">{t('admin.menuSettings.type.embedded')}</option>
             </select>
           </div>
+          )}
 
           {newItem.type === 'external' && (
             <>
               <Input
-                label={t('menuSettings.form.externalUrl', 'URL')}
+                label={t('admin.menuSettings.form.externalUrl')}
                 value={newItem.externalUrl || ''}
                 onChange={(e) => setNewItem({ ...newItem, externalUrl: e.target.value })}
                 placeholder="https://example.com"
@@ -504,7 +695,7 @@ const MenuSettingsPage: React.FC = () => {
               <Checkbox
                 checked={newItem.openInNewTab || false}
                 onChange={(checked) => setNewItem({ ...newItem, openInNewTab: checked })}
-                label={t('menuSettings.form.openInNewTab', 'Открывать в новой вкладке')}
+                label={t('admin.menuSettings.form.openInNewTab')}
               />
             </>
           )}
@@ -512,14 +703,14 @@ const MenuSettingsPage: React.FC = () => {
           {newItem.type === 'iframe' && (
             <>
               <Input
-                label={t('menuSettings.form.iframeUrl', 'URL iframe')}
+                label={t('admin.menuSettings.form.iframeUrl')}
                 value={newItem.iframeUrl || ''}
                 onChange={(e) => setNewItem({ ...newItem, iframeUrl: e.target.value })}
                 placeholder="https://example.com"
               />
               <div>
                 <label className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>
-                  {t('menuSettings.form.iframeCode', 'HTML код')}
+                  {t('admin.menuSettings.form.iframeCode')}
                 </label>
                 <textarea
                   value={newItem.iframeCode || ''}
@@ -533,7 +724,7 @@ const MenuSettingsPage: React.FC = () => {
                 />
               </div>
               <Input
-                label={t('menuSettings.form.path', 'Путь')}
+                label={t('admin.menuSettings.form.path')}
                 value={newItem.path || ''}
                 onChange={(e) => setNewItem({ ...newItem, path: e.target.value })}
                 placeholder="/iframe/custom"
@@ -545,14 +736,14 @@ const MenuSettingsPage: React.FC = () => {
           {newItem.type === 'embedded' && (
             <>
               <Input
-                label={t('menuSettings.form.embeddedAppUrl', 'URL приложения')}
+                label={t('admin.menuSettings.form.embeddedAppUrl')}
                 value={newItem.embeddedAppUrl || ''}
                 onChange={(e) => setNewItem({ ...newItem, embeddedAppUrl: e.target.value })}
                 placeholder="https://app.example.com"
                 required
               />
               <Input
-                label={t('menuSettings.form.path', 'Путь')}
+                label={t('admin.menuSettings.form.path')}
                 value={newItem.path || ''}
                 onChange={(e) => setNewItem({ ...newItem, path: e.target.value })}
                 placeholder="/embedded/app"
@@ -561,32 +752,11 @@ const MenuSettingsPage: React.FC = () => {
             </>
           )}
 
-          <Input
-            label={t('menuSettings.form.icon', 'Иконка')}
+          <IconPicker
+            label={t('admin.menuSettings.form.icon')}
             value={newItem.icon || ''}
-            onChange={(e) => setNewItem({ ...newItem, icon: e.target.value })}
-            placeholder="home"
+            onChange={(iconName) => setNewItem({ ...newItem, icon: iconName })}
           />
-
-          <div className="flex justify-end gap-3 pt-4">
-            <Button
-              variant="ghost"
-              onClick={() => {
-                setIsAddModalOpen(false);
-                setEditingItem(null);
-                setNewItem({
-                  type: 'external',
-                  enabled: true,
-                  order: 0,
-                });
-              }}
-            >
-              {t('common.cancel', 'Отмена')}
-            </Button>
-            <Button variant="primary" onClick={handleSave}>
-              {t('common.save', 'Сохранить')}
-            </Button>
-          </div>
         </div>
       </Modal>
 
@@ -597,20 +767,9 @@ const MenuSettingsPage: React.FC = () => {
           setIsDeleteModalOpen(false);
           setItemToDelete(null);
         }}
-        title={t('menuSettings.confirmDeleteTitle', 'Подтверждение удаления')}
-      >
-        <div className="space-y-4">
-          <p className={themeClasses.text.primary}>
-            {t('menuSettings.confirmDelete', 'Вы уверены, что хотите удалить этот пункт меню?')}
-          </p>
-          {itemToDelete && (
-            <div className={`p-3 rounded-lg ${themeClasses.background.gray2}`}>
-              <p className={`text-sm ${themeClasses.text.secondary}`}>
-                {t('menuSettings.deleteItemName', 'Пункт')}: <span className={`font-medium ${themeClasses.text.primary}`}>{itemToDelete.label}</span>
-              </p>
-            </div>
-          )}
-          <div className="flex justify-end gap-3 pt-4">
+        title={t('admin.menuSettings.confirmDeleteTitle')}
+        footer={
+          <>
             <Button
               variant="ghost"
               onClick={() => {
@@ -618,15 +777,28 @@ const MenuSettingsPage: React.FC = () => {
                 setItemToDelete(null);
               }}
             >
-              {t('common.cancel', 'Отмена')}
+              {t('common.cancel')}
             </Button>
             <Button
               variant="error"
               onClick={handleConfirmDelete}
             >
-              {t('common.delete', 'Удалить')}
+              {t('common.delete')}
             </Button>
+          </>
+        }
+      >
+        <div className={themeClasses.spacing.spaceY4}>
+          <p className={themeClasses.text.primary}>
+            {t('admin.menuSettings.confirmDelete')}
+          </p>
+          {itemToDelete && (
+            <div className={`${themeClasses.spacing.p4} ${themeClasses.utility.roundedLg} ${themeClasses.background.gray2}`}>
+              <p className={`${themeClasses.typographySize.bodySmall} ${themeClasses.text.secondary}`}>
+                {t('admin.menuSettings.deleteItemName')}: <span className={`font-medium ${themeClasses.text.primary}`}>{itemToDelete.label}</span>
+              </p>
           </div>
+          )}
         </div>
       </Modal>
     </AdminPageTemplate>

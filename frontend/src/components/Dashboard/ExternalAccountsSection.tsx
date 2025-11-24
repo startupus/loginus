@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { DataSection } from '../../design-system/composites';
 import { themeClasses } from '../../design-system/utils/themeClasses';
+import { isHorizontalLogo } from '../../utils/authMethodIcons';
 
 export interface ExternalAccount {
   id: string;
@@ -72,7 +73,7 @@ export const ExternalAccountsSection: React.FC<ExternalAccountsSectionProps> = (
       id: 'tinkoff',
       name: 'Tinkoff id',
       icon: (
-        <svg width="59" height="32" viewBox="0 0 59 32" fill="none" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" className="w-5 h-5">
+        <svg viewBox="0 0 59 32" fill="none" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
           <path d="M43.0569 0H15.9431C7.13797 0 0 7.16344 0 16C0 24.8366 7.13797 32 15.9431 32H43.0569C51.862 32 59 24.8366 59 16C59 7.16344 51.862 0 43.0569 0Z" fill="#303030"/>
           <path d="M9.24921 8.22632H26.4249V16.8951C26.4249 19.1176 25.2424 21.1716 23.3259 22.2829L17.837 25.4633L12.3481 22.2829C10.4292 21.1716 9.24921 19.1176 9.24921 16.8951V8.22632Z" fill="#FFDD2D"/>
           <path fillRule="evenodd" clipRule="evenodd" d="M13.9615 12.7896V15.4847C14.3298 15.0674 14.9961 14.7858 15.7602 14.7858H16.5894V17.9209C16.5894 18.7556 16.364 19.4847 16.0283 19.887H19.6383C19.3051 19.4847 19.0796 18.7556 19.0796 17.9234V14.7883H19.9088C20.6729 14.7883 21.3418 15.0699 21.7076 15.4872V12.7921H13.959L13.9615 12.7896Z" fill="#333333"/>
@@ -134,30 +135,39 @@ export const ExternalAccountsSection: React.FC<ExternalAccountsSectionProps> = (
               className={`w-full flex items-center gap-4 p-3 rounded-lg text-left transition-colors duration-200 ${themeClasses.border.default} ${
                 provider.connected
                   ? 'border-success/30 dark:border-success/30 bg-success/5 dark:bg-success/10 hover:bg-success/10 dark:hover:bg-success/20 hover:border-success/50 dark:hover:border-success/50'
-                  : 'hover:bg-gray-1/50 dark:hover:bg-dark-3/50 hover:border-primary/30 dark:hover:border-primary/30'
+                  : `${themeClasses.background.cardHoverSemiTransparent} hover:border-primary/30 dark:hover:border-primary/30`
               }`}
             >
               {/* Иконка провайдера */}
-              <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
+              <div className={`rounded-lg flex items-center justify-center flex-shrink-0 ${
                 provider.connected
                   ? 'bg-success/20 dark:bg-success/20'
-                  : 'bg-gray-1 dark:bg-dark-3'
+                  : themeClasses.background.gray2
+              } ${
+                // Горизонтальные логотипы требуют большего размера
+                isHorizontalLogo(provider.id)
+                  ? 'w-16 h-8 p-1'
+                  : 'w-10 h-10'
               }`}>
-                <div className="text-text-secondary">
+                <div className={`${themeClasses.text.secondary} ${
+                  isHorizontalLogo(provider.id)
+                    ? 'w-full h-full'
+                    : ''
+                }`}>
                   {provider.icon}
                 </div>
               </div>
               
               {/* Информация */}
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-text-primary">
+                <div className={`text-sm font-medium ${themeClasses.text.primary}`}>
                   {provider.id === 'gosuslugi' 
                     ? t('data.externalAccounts.government', provider.name)
                     : t(`data.externalAccounts.${provider.id}`, provider.name)}
                 </div>
                 {provider.connected ? (
                   provider.email ? (
-                    <div className="text-xs text-text-secondary mt-1 truncate">
+                    <div className={`text-xs ${themeClasses.text.secondary} mt-1 truncate`}>
                       {provider.email}
                     </div>
                   ) : (
@@ -166,7 +176,7 @@ export const ExternalAccountsSection: React.FC<ExternalAccountsSectionProps> = (
                     </div>
                   )
                 ) : (
-                  <div className="text-xs text-text-secondary/60 mt-1">
+                  <div className={`text-xs ${themeClasses.text.secondary} opacity-60 mt-1`}>
                     {t('data.externalAccounts.notConnected', 'Not connected')}
                   </div>
                 )}
@@ -181,12 +191,12 @@ export const ExternalAccountsSection: React.FC<ExternalAccountsSectionProps> = (
                 className={`flex-shrink-0 w-12 h-6 rounded-full transition-colors duration-200 ${
                   provider.connected
                     ? 'bg-primary'
-                    : 'bg-gray-3 dark:bg-gray-2'
+                    : themeClasses.background.gray2
                 }`}
                 aria-label={provider.connected ? t('common.disable', 'Отключить') : t('common.enable', 'Включить')}
               >
                 <span
-                  className={`block w-5 h-5 rounded-full bg-white transition-transform duration-200 ${
+                  className={`block w-5 h-5 rounded-full ${themeClasses.background.surface} transition-transform duration-200 ${
                     provider.connected ? 'translate-x-6' : 'translate-x-0.5'
                   }`}
                 />

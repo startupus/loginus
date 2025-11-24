@@ -31,15 +31,25 @@
     },
     "storage": {
       "type": "local",
+      "local": {
+        "enabled": true
+      },
       "yandexDisk": {
         "token": "",
         "path": "/backups",
-        "connected": false
+        "connected": false,
+        "enabled": false
+      },
+      "s3": {
+        "endpoint": "",
+        "credentials": {},
+        "enabled": false
       },
       "custom": {
         "type": "",
         "endpoint": "",
-        "credentials": {}
+        "credentials": {},
+        "enabled": false
       }
     }
   }

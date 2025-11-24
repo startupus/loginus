@@ -118,7 +118,7 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({
         <button
           type="button"
           onClick={() => scroll('left')}
-          className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full ${themeClasses.background.surfaceElevated} shadow-lg ${themeClasses.border.default} flex items-center justify-center hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors`}
+          className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full ${themeClasses.background.surfaceElevated} shadow-lg ${themeClasses.border.default} ${themeClasses.utility.flexItemsCenter} ${themeClasses.background.hoverGray} ${themeClasses.utility.transitionAll}`}
           aria-label={t('support.carousel.scrollLeft', 'Прокрутить влево')}
         >
           <FiChevronLeft size={16} />
@@ -148,7 +148,7 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({
               className={`flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl transition-all ${
                 isActive
                   ? 'bg-primary text-white shadow-lg'
-                  : `${themeClasses.background.surfaceElevated} hover:bg-gray-1 dark:hover:bg-dark-3 ${themeClasses.border.default}`
+                  : `${themeClasses.background.surfaceElevated} ${themeClasses.background.hoverGray} ${themeClasses.border.default}`
               }`}
             >
               {/* Иконка папки или аватар сервиса */}
@@ -189,7 +189,7 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({
         <button
           type="button"
           onClick={() => scroll('right')}
-          className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full ${themeClasses.background.surfaceElevated} shadow-lg ${themeClasses.border.default} flex items-center justify-center hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors`}
+          className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full ${themeClasses.background.surfaceElevated} shadow-lg ${themeClasses.border.default} ${themeClasses.utility.flexItemsCenter} ${themeClasses.background.hoverGray} ${themeClasses.utility.transitionAll}`}
           aria-label={t('support.carousel.scrollRight', 'Прокрутить вправо')}
         >
           <FiChevronRight size={16} />

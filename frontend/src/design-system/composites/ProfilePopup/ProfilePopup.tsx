@@ -228,8 +228,14 @@ export const ProfilePopup: React.FC<ProfilePopupProps> = ({
           
           <ServiceLink
             icon="user"
-            name={t('profile.personalData', 'Личные данные')}
-            status={t('profile.personalDataDescription', 'ФИО, день рождения, пол')}
+            name={(() => {
+              const translation = t('profile.personalData', 'Личные данные');
+              return typeof translation === 'string' ? translation : 'Личные данные';
+            })()}
+            status={(() => {
+              const translation = t('profile.personalDataDescription', 'ФИО, день рождения, пол');
+              return typeof translation === 'string' ? translation : 'ФИО, день рождения, пол';
+            })()}
             href="/personal?dialog=personal-data"
             onClick={() => {
               onClose();
@@ -262,7 +268,7 @@ export const ProfilePopup: React.FC<ProfilePopupProps> = ({
           <Link
             to="/settings"
             onClick={onClose}
-            className="flex items-center gap-2 p-3 rounded-lg hover:bg-gray-1 dark:hover:bg-gray-2 transition-colors text-text-secondary"
+            className={`${themeClasses.utility.flexItemsCenter} ${themeClasses.spacing.gap2} ${themeClasses.spacing.p3} ${themeClasses.utility.roundedLg} ${themeClasses.background.hoverGray} ${themeClasses.utility.transitionAll} ${themeClasses.text.secondary}`}
           >
             <Icon name="settings" size="sm" />
             <span>{t('profile.settings', 'Настройки')}</span>
@@ -271,7 +277,7 @@ export const ProfilePopup: React.FC<ProfilePopupProps> = ({
           <Link
             to="/support"
             onClick={onClose}
-            className="flex items-center gap-2 p-3 rounded-lg hover:bg-gray-1 dark:hover:bg-gray-2 transition-colors text-text-secondary"
+            className={`${themeClasses.utility.flexItemsCenter} ${themeClasses.spacing.gap2} ${themeClasses.spacing.p3} ${themeClasses.utility.roundedLg} ${themeClasses.background.hoverGray} ${themeClasses.utility.transitionAll} ${themeClasses.text.secondary}`}
           >
             <Icon name="info" size="sm" />
             <span>{t('profile.support', 'Справка')}</span>

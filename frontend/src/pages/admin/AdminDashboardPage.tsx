@@ -78,41 +78,40 @@ const AdminDashboardPage: React.FC = () => {
   });
 
   // Доступные виджеты админки с реактивностью к смене языка
-  const currentLang = useCurrentLanguage();
   const availableWidgets: AvailableAdminWidget[] = useMemo(() => [
     {
       id: 'overview',
-      title: t('admin.widgets.overview.title', currentLang === 'ru' ? 'Обзор' : 'Overview'),
-      description: t('admin.widgets.overview.description', currentLang === 'ru' ? 'Основные метрики системы' : 'Key system metrics'),
+      title: t('admin.widgets.overview.title'),
+      description: t('admin.widgets.overview.description'),
       icon: 'chartBar',
       enabled: enabledWidgets.has('overview'),
     },
     {
       id: 'activities',
-      title: t('admin.widgets.activities.title', currentLang === 'ru' ? 'Активности' : 'Activities'),
-      description: t('admin.widgets.activities.description', currentLang === 'ru' ? 'Последние активности пользователей' : 'Recent user activities'),
+      title: t('admin.widgets.activities.title'),
+      description: t('admin.widgets.activities.description'),
       icon: 'activity',
       enabled: enabledWidgets.has('activities'),
     },
     {
       id: 'churn',
-      title: t('admin.widgets.churn.title', currentLang === 'ru' ? 'Отток пользователей' : 'Churn Rate'),
-      description: t('admin.widgets.churn.description', currentLang === 'ru' ? 'Процент оттока пользователей' : 'User churn percentage'),
+      title: t('admin.widgets.churn.title'),
+      description: t('admin.widgets.churn.description'),
       icon: 'trending-down',
       enabled: enabledWidgets.has('churn'),
       requiredRole: 'super_admin',
     },
     {
       id: 'growth',
-      title: t('admin.widgets.growth.title', currentLang === 'ru' ? 'Рост пользователей' : 'User Growth'),
-      description: t('admin.widgets.growth.description', currentLang === 'ru' ? 'Рост регистраций' : 'Registration growth'),
+      title: t('admin.widgets.growth.title'),
+      description: t('admin.widgets.growth.description'),
       icon: 'trending-up',
       enabled: enabledWidgets.has('growth'),
     },
     {
       id: 'companies',
-      title: t('admin.widgets.companies.title', currentLang === 'ru' ? 'Компании' : 'Companies'),
-      description: t('admin.widgets.companies.description', currentLang === 'ru' ? 'Список компаний' : 'Company list'),
+      title: t('admin.widgets.companies.title'),
+      description: t('admin.widgets.companies.description'),
       icon: 'building',
       enabled: enabledWidgets.has('companies'),
       requiredRole: 'super_admin',
@@ -123,7 +122,7 @@ const AdminDashboardPage: React.FC = () => {
       return false;
     }
     return true;
-  }), [t, i18n.language, currentLang, enabledWidgets, isSuperAdmin]);
+  }), [t, i18n.language, enabledWidgets, isSuperAdmin]);
 
   // Drag & Drop handlers
   const handleDragStart = (_e: React.DragEvent, widgetId: string) => {
@@ -179,12 +178,12 @@ const AdminDashboardPage: React.FC = () => {
 
   if (error) {
     return (
-      <AdminPageTemplate title={t('admin.dashboard.title', currentLang === 'ru' ? 'Админ-панель' : 'Admin Panel')} showSidebar={true}>
+      <AdminPageTemplate title={t('admin.dashboard.title')} showSidebar={true}>
         <div className={themeClasses.state.error}>
           <div className={themeClasses.state.loadingSpinner}>
             <Icon name="alert-circle" size="lg" color="rgb(var(--color-error))" className="mx-auto mb-4" />
             <p className={themeClasses.text.secondary}>
-              {t('errors.500Description', 'Что-то пошло не так. Мы уже работаем над исправлением.')}
+              {t('errors.500Description')}
             </p>
           </div>
         </div>
@@ -197,7 +196,7 @@ const AdminDashboardPage: React.FC = () => {
   // Показываем skeleton при загрузке
   if (isLoading) {
     return (
-      <AdminPageTemplate title={t('admin.dashboard.title', currentLang === 'ru' ? 'Админ-панель' : 'Admin Panel')} showSidebar={true}>
+      <AdminPageTemplate title={t('admin.dashboard.title')} showSidebar={true}>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
           {[1, 2, 3].map((i) => (
             <WidgetSkeleton key={i} />
@@ -209,7 +208,7 @@ const AdminDashboardPage: React.FC = () => {
 
   return (
     <AdminPageTemplate 
-      title={t('admin.dashboard.title', currentLang === 'ru' ? 'Админ-панель' : 'Admin Panel')} 
+      title={t('admin.dashboard.title')} 
       showSidebar={true}
     >
       <div className="space-y-4 sm:space-y-6">

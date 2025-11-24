@@ -93,13 +93,13 @@ export const CoursesWidget: React.FC<CoursesWidgetProps> = ({
       actions={
         <button
           onClick={handleViewAll}
-          className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-gray-1 dark:hover:bg-gray-2 transition-colors duration-200 group"
+          className={`flex items-center gap-2 px-2 py-2 rounded-lg ${themeClasses.background.hoverGray} transition-colors duration-200 group`}
           aria-label={t('dashboard.courses.viewAll', { defaultValue: 'View all courses' })}
         >
-          <span className="text-sm text-text-secondary group-hover:text-primary transition-colors duration-200">
+          <span className={`text-sm ${themeClasses.text.secondary} group-hover:text-primary transition-colors duration-200`}>
             {t('dashboard.courses.viewAll', { defaultValue: 'View All' })}
           </span>
-          <Icon name="arrow-right" size="sm" className="text-text-secondary group-hover:text-primary group-hover:translate-x-1 transition-all duration-200" />
+          <Icon name="arrow-right" size="sm" className={`${themeClasses.text.secondary} group-hover:text-primary group-hover:translate-x-1 transition-all duration-200`} />
         </button>
       }
     >
@@ -127,16 +127,16 @@ export const CoursesWidget: React.FC<CoursesWidgetProps> = ({
               
               {/* Название и прогресс */}
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-text-primary truncate group-hover:text-primary transition-colors">
+                <p className={`text-sm font-medium ${themeClasses.text.primary} truncate group-hover:text-primary transition-colors`}>
                   {getCourseTitle(course)}
                 </p>
                 <div className="mt-1.5">
                   <div className="flex items-center justify-between gap-2 mb-1">
-                    <span className="text-xs text-text-secondary">
+                    <span className={`text-xs ${themeClasses.text.secondary}`}>
                       {t('dashboard.courses.progress', { defaultValue: 'Progress' })}: {course.progress}%
                     </span>
                   </div>
-                  <div className="w-full h-1.5 bg-gray-2 dark:bg-gray-3 rounded-full overflow-hidden">
+                  <div className={`w-full h-1.5 ${themeClasses.background.gray2} rounded-full overflow-hidden`}>
                     <div 
                       className="h-full bg-primary rounded-full transition-all duration-300"
                       style={{ width: `${course.progress}%` }}
@@ -149,7 +149,7 @@ export const CoursesWidget: React.FC<CoursesWidgetProps> = ({
               <Icon 
                 name="arrow-right" 
                 size="xs" 
-                className="text-text-secondary opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-200 flex-shrink-0"
+                className={`${themeClasses.text.secondary} opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-200 flex-shrink-0`}
               />
             </button>
           ))}
@@ -157,9 +157,9 @@ export const CoursesWidget: React.FC<CoursesWidgetProps> = ({
       ) : (
         <div className="text-center py-8">
           <div className={`w-16 h-16 mx-auto mb-4 rounded-full ${themeClasses.card.gridItemIcon} flex items-center justify-center`}>
-            <Icon name="book" size="lg" className="text-text-secondary" />
+            <Icon name="book" size="lg" className={themeClasses.text.secondary} />
           </div>
-          <p className="text-sm text-text-secondary mb-2">
+          <p className={`text-sm ${themeClasses.text.secondary} mb-2`}>
             {t('dashboard.courses.empty', { defaultValue: "You don't have any active courses yet" })}
           </p>
           <button className="text-sm text-primary hover:text-primary/80 transition-colors">

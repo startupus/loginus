@@ -91,6 +91,10 @@ export const adminApi = {
     role?: string;
     status?: string;
     search?: string;
+    dateFrom?: string;
+    dateTo?: string;
+    sortBy?: string;
+    sortOrder?: string;
   }) => apiClient.get<AdminUsersResponse>('/admin/users', { params }),
 
   /**

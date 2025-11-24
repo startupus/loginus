@@ -112,7 +112,7 @@ export const AddButton: React.FC<AddButtonProps> = ({
         onClick={onClick}
         className={`${baseClasses} flex-row ${currentSize.padding} ${currentSize.gap} ${className}`.trim()}
       >
-        <div className={`${currentSize.iconSize} rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center flex-shrink-0 transition-all duration-200 group-hover:bg-primary/20 dark:group-hover:bg-primary/30 group-hover:scale-110`}>
+        <div className={`${currentSize.iconSize} rounded-full ${themeClasses.background.primarySemiTransparent} ${themeClasses.utility.flexItemsCenter} ${themeClasses.utility.flexShrink0} ${themeClasses.utility.transitionAll} duration-200 ${themeClasses.background.primarySemiTransparentHover} group-hover:scale-110`}>
           <Icon name="plus" size={currentSize.icon} className="text-primary" />
         </div>
         <div className="flex flex-col items-start min-w-0">
@@ -134,7 +134,7 @@ export const AddButton: React.FC<AddButtonProps> = ({
         onClick={onClick}
         className={`${baseClasses} flex-col ${currentSize.padding} ${currentSize.gap} ${className}`.trim()}
       >
-        <div className={`${iconSizeForVertical} rounded-full bg-gray-1 dark:bg-dark-3 flex items-center justify-center transition-all duration-200 group-hover:bg-primary/10`}>
+        <div className={`${iconSizeForVertical} rounded-full ${themeClasses.background.iconContainer} ${themeClasses.utility.flexItemsCenter} ${themeClasses.utility.transitionAll} duration-200 ${themeClasses.background.primarySemiTransparentHover}`}>
           <Icon 
             name="plus" 
             size={iconSizeForVerticalIcon} 

@@ -166,7 +166,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
           >
             <button
               onClick={handleEdit}
-              className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-dark-3 transition-colors"
+              className={`w-full text-left ${themeClasses.spacing.px3} ${themeClasses.spacing.py2} ${themeClasses.typographySize.bodySmall} ${themeClasses.background.hoverGray} ${themeClasses.utility.transitionAll}`}
             >
               {t('support.chat.edit', 'Изменить')}
             </button>

@@ -23,7 +23,6 @@ const CompanyDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const currentLang = useCurrentLanguage();
   const locale = currentLang === 'en' ? 'en' : 'ru';
-  const currentLang = useCurrentLanguage();
   const queryClient = useQueryClient();
 
   // Состояния фильтров для пользователей
@@ -117,20 +116,20 @@ const CompanyDetailPage: React.FC = () => {
 
   const getRoleLabel = (role: string) => {
     const labels: Record<string, string> = {
-      super_admin: t('admin.users.roles.super_admin', 'Супер-админ'),
-      super_admin_staff: t('admin.users.roles.super_admin_staff', 'Персонал супер-админа'),
-      company_admin: t('admin.users.roles.company_admin', 'Админ компании'),
-      company_admin_staff: t('admin.users.roles.company_admin_staff', 'Персонал админа'),
-      user: t('admin.users.roles.user', 'Пользователь'),
+      super_admin: t('admin.users.roles.super_admin'),
+      super_admin_staff: t('admin.users.roles.super_admin_staff'),
+      company_admin: t('admin.users.roles.company_admin'),
+      company_admin_staff: t('admin.users.roles.company_admin_staff'),
+      user: t('admin.users.roles.user'),
     };
     return labels[role] || role;
   };
 
   const getStatusLabel = (status: string) => {
     const labels: Record<string, string> = {
-      active: t('admin.users.status.active', 'Активен'),
-      inactive: t('admin.users.status.inactive', 'Неактивен'),
-      blocked: t('admin.users.status.blocked', 'Заблокирован'),
+      active: t('admin.users.status.active'),
+      inactive: t('admin.users.status.inactive'),
+      blocked: t('admin.users.status.blocked'),
     };
     return labels[status] || status;
   };
@@ -150,9 +149,9 @@ const CompanyDetailPage: React.FC = () => {
 
   const getPlanLabel = (plan: string) => {
     const labels: Record<string, string> = {
-      basic: t('admin.companies.plans.basic', 'Базовый'),
-      premium: t('admin.companies.plans.premium', 'Премиум'),
-      enterprise: t('admin.companies.plans.enterprise', 'Корпоративный'),
+      basic: t('admin.companies.plans.basic'),
+      premium: t('admin.companies.plans.premium'),
+      enterprise: t('admin.companies.plans.enterprise'),
     };
     return labels[plan] || plan;
   };
@@ -160,20 +159,20 @@ const CompanyDetailPage: React.FC = () => {
 
   if (isLoadingCompany) {
     return (
-      <AdminPageTemplate title={t('admin.companies.detail.title', 'Компания')} showSidebar={true}>
-        <LoadingState text={t('admin.companies.detail.loading', 'Загрузка информации о компании...')} />
+      <AdminPageTemplate title={t('admin.companies.detail.title')} showSidebar={true}>
+        <LoadingState text={t('admin.companies.detail.loading')} />
       </AdminPageTemplate>
     );
   }
 
   if (companyError || !company) {
     return (
-      <AdminPageTemplate title={t('admin.companies.detail.title', 'Компания')} showSidebar={true}>
+      <AdminPageTemplate title={t('admin.companies.detail.title')} showSidebar={true}>
         <ErrorState
-          title={t('admin.companies.detail.error.title', 'Ошибка загрузки компании')}
-          description={t('admin.companies.detail.error.description', 'Не удалось загрузить информацию о компании')}
+          title={t('admin.companies.detail.error.title')}
+          description={t('admin.companies.detail.error.description')}
           action={{
-            label: t('admin.companies.detail.back', 'Назад к списку'),
+            label: t('admin.companies.detail.back'),
             onClick: handleBack,
           }}
         />
@@ -183,7 +182,7 @@ const CompanyDetailPage: React.FC = () => {
 
   return (
     <AdminPageTemplate 
-      title={t('admin.companies.detail.title', 'Компания: {name}', { name: company.name })} 
+      title={t('admin.companies.detail.title', { name: company.name })} 
       showSidebar={true}
       headerActions={
         <Button
@@ -192,7 +191,7 @@ const CompanyDetailPage: React.FC = () => {
           onClick={handleEditCompany}
           className="hidden sm:flex"
         >
-          {t('admin.companies.edit', 'Редактировать')}
+          {t('admin.companies.edit')}
         </Button>
       }
     >
@@ -205,19 +204,19 @@ const CompanyDetailPage: React.FC = () => {
             onClick={handleBack}
             leftIcon={<Icon name="arrow-left" size="sm" />}
           >
-            {t('admin.companies.detail.back', 'Назад к списку')}
+            {t('admin.companies.detail.back')}
           </Button>
         </div>
 
         {/* Информация о компании */}
         <div className={`${themeClasses.card.default} p-6 mb-6`}>
           <h3 className={`text-lg font-semibold ${themeClasses.text.primary} mb-4`}>
-            {t('admin.companies.detail.info', 'Информация о компании')}
+            {t('admin.companies.detail.info')}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <p className={`text-sm ${themeClasses.text.secondary} mb-1`}>
-                {t('admin.companies.detail.plan', 'Тариф')}
+                {t('admin.companies.detail.plan')}
               </p>
               <Badge variant={getPlanBadgeVariant(company.subscriptionPlan)} size="md">
                 {getPlanLabel(company.subscriptionPlan)}
@@ -225,7 +224,7 @@ const CompanyDetailPage: React.FC = () => {
             </div>
             <div>
               <p className={`text-sm ${themeClasses.text.secondary} mb-1`}>
-                {t('admin.companies.detail.servicesCount', 'Количество сервисов')}
+                {t('admin.companies.detail.servicesCount')}
               </p>
               <p className={`text-sm ${themeClasses.text.primary} font-medium`}>
                 {company.servicesCount || company.services?.length || 0}
@@ -233,7 +232,7 @@ const CompanyDetailPage: React.FC = () => {
             </div>
             <div>
               <p className={`text-sm ${themeClasses.text.secondary} mb-1`}>
-                {t('admin.companies.detail.usersCount', 'Количество пользователей')}
+                {t('admin.companies.detail.usersCount')}
               </p>
               <p className={`text-sm ${themeClasses.text.primary} font-medium`}>
                 {company.userCount || 0}
@@ -241,7 +240,7 @@ const CompanyDetailPage: React.FC = () => {
             </div>
             <div>
               <p className={`text-sm ${themeClasses.text.secondary} mb-1`}>
-                {t('admin.companies.detail.createdAt', 'Дата создания')}
+                {t('admin.companies.detail.createdAt')}
               </p>
               <p className={`text-sm ${themeClasses.text.primary}`}>
                 {formatDate(company.createdAt, locale, {
@@ -253,7 +252,7 @@ const CompanyDetailPage: React.FC = () => {
             </div>
             <div>
               <p className={`text-sm ${themeClasses.text.secondary} mb-1`}>
-                {t('admin.companies.detail.lastActivity', 'Последняя активность')}
+                {t('admin.companies.detail.lastActivity')}
               </p>
               <p className={`text-sm ${themeClasses.text.primary}`}>
                 {formatDate(company.lastActivity || company.updatedAt, locale, {
@@ -269,7 +268,7 @@ const CompanyDetailPage: React.FC = () => {
           {company.services && company.services.length > 0 && (
             <div className="mt-6">
               <p className={`text-sm ${themeClasses.text.secondary} mb-3`}>
-                {t('admin.companies.detail.services', 'Сервисы компании')}
+                {t('admin.companies.detail.services')}
               </p>
               <div className="flex flex-wrap gap-2">
                 {company.services.map((service) => (
@@ -289,7 +288,7 @@ const CompanyDetailPage: React.FC = () => {
         {/* Таблица пользователей */}
         <div className="mb-6">
           <h3 className={`text-lg font-semibold ${themeClasses.text.primary} mb-4`}>
-            {t('admin.companies.detail.users', 'Пользователи компании')}
+            {t('admin.companies.detail.users')}
           </h3>
 
           {/* Фильтры пользователей */}
@@ -297,7 +296,7 @@ const CompanyDetailPage: React.FC = () => {
             <div>
               <Input
                 type="text"
-                placeholder={t('admin.users.search', 'Поиск по имени, email или телефону...')}
+                placeholder={t('admin.users.search')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 rightIcon={<Icon name="search" size="sm" className={themeClasses.text.secondary} />}
@@ -309,10 +308,10 @@ const CompanyDetailPage: React.FC = () => {
                 onChange={(e) => setRoleFilter(e.target.value)}
                 className={`${themeClasses.input.default} w-full`}
               >
-                <option value="all">{t('admin.users.filters.allRoles', 'Все роли')}</option>
-                <option value="company_admin">{t('admin.users.roles.company_admin', 'Админ компании')}</option>
-                <option value="company_admin_staff">{t('admin.users.roles.company_admin_staff', 'Персонал админа')}</option>
-                <option value="user">{t('admin.users.roles.user', 'Пользователь')}</option>
+                <option value="all">{t('admin.users.filters.allRoles')}</option>
+                <option value="company_admin">{t('admin.users.roles.company_admin')}</option>
+                <option value="company_admin_staff">{t('admin.users.roles.company_admin_staff')}</option>
+                <option value="user">{t('admin.users.roles.user')}</option>
               </select>
             </div>
             <div>
@@ -321,21 +320,21 @@ const CompanyDetailPage: React.FC = () => {
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className={`${themeClasses.input.default} w-full`}
               >
-                <option value="all">{t('admin.users.filters.allStatuses', 'Все статусы')}</option>
-                <option value="active">{t('admin.users.status.active', 'Активен')}</option>
-                <option value="inactive">{t('admin.users.status.inactive', 'Неактивен')}</option>
-                <option value="blocked">{t('admin.users.status.blocked', 'Заблокирован')}</option>
+                <option value="all">{t('admin.users.filters.allStatuses')}</option>
+                <option value="active">{t('admin.users.status.active')}</option>
+                <option value="inactive">{t('admin.users.status.inactive')}</option>
+                <option value="blocked">{t('admin.users.status.blocked')}</option>
               </select>
             </div>
           </div>
 
           {/* Таблица */}
           {isLoadingUsers ? (
-            <LoadingState text={t('admin.companies.detail.usersLoading', 'Загрузка пользователей...')} />
+            <LoadingState text={t('admin.companies.detail.usersLoading')} />
           ) : usersError ? (
             <ErrorState
-              title={t('admin.companies.detail.usersError.title', 'Ошибка загрузки пользователей')}
-              description={t('admin.companies.detail.usersError.description', 'Не удалось загрузить список пользователей')}
+              title={t('admin.companies.detail.usersError.title')}
+              description={t('admin.companies.detail.usersError.description')}
             />
           ) : (
             <div className={`${themeClasses.card.default} overflow-hidden`}>
@@ -344,16 +343,16 @@ const CompanyDetailPage: React.FC = () => {
                   <thead className={themeClasses.background.gray2}>
                     <tr>
                       <th className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary}`}>
-                        {t('admin.users.table.user', 'Пользователь')}
+                        {t('admin.users.table.user')}
                       </th>
                       <th className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary}`}>
-                        {t('admin.users.table.role', 'Роль')}
+                        {t('admin.users.table.role')}
                       </th>
                       <th className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary}`}>
-                        {t('admin.users.table.status', 'Статус')}
+                        {t('admin.users.table.status')}
                       </th>
                       <th className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary}`}>
-                        {t('admin.users.table.createdAt', 'Дата регистрации')}
+                        {t('admin.users.table.createdAt')}
                       </th>
                     </tr>
                   </thead>
@@ -363,8 +362,8 @@ const CompanyDetailPage: React.FC = () => {
                         <td colSpan={4} className="px-6 py-12">
                           <EmptyState
                             icon="users"
-                            title={t('admin.companies.detail.usersEmpty.title', 'Пользователи не найдены')}
-                            description={t('admin.companies.detail.usersEmpty.description', 'Попробуйте изменить параметры поиска или фильтры')}
+                            title={t('admin.companies.detail.usersEmpty.title')}
+                            description={t('admin.companies.detail.usersEmpty.description')}
                           />
                         </td>
                       </tr>
@@ -478,12 +477,12 @@ const CompanyEditModal: React.FC<CompanyEditModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={t('admin.companies.editCompany', 'Редактировать компанию')}
+      title={t('admin.companies.editCompany')}
       size="lg"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
-          label={t('admin.companies.form.name', 'Название компании')}
+          label={t('admin.companies.form.name')}
           type="text"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -491,7 +490,7 @@ const CompanyEditModal: React.FC<CompanyEditModalProps> = ({
         />
 
         <Input
-          label={t('admin.companies.form.domain', 'Домен')}
+          label={t('admin.companies.form.domain')}
           type="text"
           value={formData.domain}
           onChange={(e) => setFormData({ ...formData, domain: e.target.value })}
@@ -500,7 +499,7 @@ const CompanyEditModal: React.FC<CompanyEditModalProps> = ({
 
         <div>
           <label className={`block text-sm font-medium ${themeClasses.text.primary} mb-2`}>
-            {t('admin.companies.form.plan', 'Тариф')}
+            {t('admin.companies.form.plan')}
           </label>
           <select
             value={formData.subscriptionPlan}
@@ -508,22 +507,22 @@ const CompanyEditModal: React.FC<CompanyEditModalProps> = ({
             className={`${themeClasses.input.default} w-full`}
             required
           >
-            <option value="basic">{t('admin.companies.plans.basic', 'Базовый')}</option>
-            <option value="premium">{t('admin.companies.plans.premium', 'Премиум')}</option>
-            <option value="enterprise">{t('admin.companies.plans.enterprise', 'Корпоративный')}</option>
+            <option value="basic">{t('admin.companies.plans.basic')}</option>
+            <option value="premium">{t('admin.companies.plans.premium')}</option>
+            <option value="enterprise">{t('admin.companies.plans.enterprise')}</option>
           </select>
         </div>
 
         <div className="flex justify-end gap-3 pt-4 border-t border-border">
           <Button variant="outline" onClick={onClose} type="button">
-            {t('common.cancel', 'Отмена')}
+            {t('common.cancel')}
           </Button>
           <Button
             variant="primary"
             type="submit"
             loading={updateMutation.isPending}
           >
-            {t('common.save', 'Сохранить')}
+            {t('common.save')}
           </Button>
         </div>
       </form>

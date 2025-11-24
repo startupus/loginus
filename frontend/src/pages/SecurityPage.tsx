@@ -9,6 +9,7 @@ import { SecurityListItem } from '@/design-system/composites/SecurityListItem';
 import { Button } from '@/design-system/primitives/Button';
 import { Icon } from '@/design-system/primitives/Icon';
 import { themeClasses } from '@/design-system/utils';
+import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';
 import { securityApi } from '@/services/api/security';
 import { useModal } from '@/hooks/useModal';
 import type { AuthFactor } from '@/components/Modals';
@@ -49,6 +50,7 @@ interface Activity {
  */
 const SecurityPage: React.FC = () => {
   const { t, i18n: i18nInstance } = useTranslation();
+  const currentLang = useCurrentLanguage();
   const [devices, setDevices] = useState<Device[]>([]);
   const [devicesCount, setDevicesCount] = useState<number>(1); // Оптимистичное значение по умолчанию
   const authMethodsModal = useModal();
@@ -186,7 +188,7 @@ const SecurityPage: React.FC = () => {
             <SecurityListItem
               icon="refresh-cw"
               title={t('security.loginMethods.recovery', 'Способы восстановления')}
-              href="/security/recovery-methods"
+              href={buildPathWithLang('/security/recovery-methods', currentLang)}
             />
           </SeparatedList>
         </div>
@@ -205,7 +207,7 @@ const SecurityPage: React.FC = () => {
               icon="activity"
               title={t('security.activity.title', 'События')}
               description={t('security.activity.description', 'Вся активность в аккаунте за 180 дней')}
-              href="/security/activity"
+              href={buildPathWithLang('/security/activity', currentLang)}
             />
 
             {/* Ссылка на устройства с счетчиком */}
@@ -214,7 +216,7 @@ const SecurityPage: React.FC = () => {
               title={t('security.devices.title', 'Ваши устройства')}
               description={t('security.devices.description', 'На которых вы вошли в Loginus')}
               badge={devicesCount}
-              href="/security/devices"
+              href={buildPathWithLang('/security/devices', currentLang)}
             />
           </SeparatedList>
         </div>
@@ -247,21 +249,21 @@ const SecurityPage: React.FC = () => {
             <SecurityListItem
               icon="link"
               title={t('security.access.external', 'Добавить внешние аккаунты')}
-              href="/security/external-accounts"
+              href={buildPathWithLang('/security/external-accounts', currentLang)}
             />
 
             {/* Управлять доступами */}
             <SecurityListItem
               icon="key"
               title={t('security.access.manage', 'Управлять доступами')}
-              href="/personal/data-access"
+              href={buildPathWithLang('/personal/data-access', currentLang)}
             />
 
             {/* Пароли приложений */}
             <SecurityListItem
               icon="grid"
               title={t('security.access.apps', 'Пароли приложений')}
-              href="/security/app-passwords"
+              href={buildPathWithLang('/security/app-passwords', currentLang)}
             />
           </SeparatedList>
         </div>

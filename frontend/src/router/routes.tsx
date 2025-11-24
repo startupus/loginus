@@ -49,6 +49,7 @@ const CompanyDetailPage = lazy(() => import('@/pages/admin/CompanyDetailPage'));
 const AuthFlowBuilderPage = lazy(() => import('@/pages/admin/AuthFlowBuilderPage'));
 const BackupSettingsPage = lazy(() => import('@/pages/admin/BackupSettingsPage'));
 const MenuSettingsPage = lazy(() => import('@/pages/admin/MenuSettingsPage'));
+const PaymentMethodsPage = lazy(() => import('@/pages/admin/PaymentMethodsPage'));
 
 // Custom Pages
 const IframePage = lazy(() => import('@/pages/IframePage'));
@@ -90,6 +91,7 @@ export {
   AuthFlowBuilderPage,
   BackupSettingsPage,
   MenuSettingsPage,
+  PaymentMethodsPage,
   IframePage,
   EmbeddedAppPage,
   ErrorPage,

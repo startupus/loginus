@@ -38,6 +38,7 @@ export interface ProfileMenuProps {
 export const ProfileMenu: React.FC<ProfileMenuProps> = ({ 
   userData, 
   organizations = [],
+  onLogout,
   onSwitchAccount,
 }) => {
   const { t, i18n } = useTranslation();
@@ -91,10 +92,37 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
     };
   }, [isSkinMenuOpen]);
 
-  // Получаем инициалы из имени, если имя валидное
-  const initials = userData.name && userData.name.trim() !== '' 
-    ? getInitials(userData.name) 
-    : '';
+  // Получаем инициалы и имя для градиента
+  // Если name - это номер телефона (не содержит букв), пробуем получить инициалы из login или email
+  const getInitialsFromName = (name: string): { initials: string; nameForGradient: string } => {
+    const initialsFromName = getInitials(name);
+    if (initialsFromName) {
+      return { initials: initialsFromName, nameForGradient: name };
+    }
+    
+    // Если name не содержит букв (это номер телефона), пробуем login
+    if (userData.login) {
+      const initialsFromLogin = getInitials(userData.login);
+      if (initialsFromLogin) {
+        return { initials: initialsFromLogin, nameForGradient: userData.login };
+      }
+    }
+    
+    // Если и login не подходит, пробуем email
+    if (userData.email) {
+      const emailName = userData.email.split('@')[0]; // Берем часть до @
+      const initialsFromEmail = getInitials(emailName);
+      if (initialsFromEmail) {
+        return { initials: initialsFromEmail, nameForGradient: emailName };
+      }
+    }
+    
+    return { initials: '', nameForGradient: name };
+  };
+  
+  const { initials, nameForGradient } = userData.name && userData.name.trim() !== '' 
+    ? getInitialsFromName(userData.name)
+    : { initials: '', nameForGradient: userData.name || '' };
 
   // Определяем, есть ли валидный src для аватара
   const avatarSrc = userData.avatar && userData.avatar !== null && userData.avatar.trim() !== '' 
@@ -124,7 +152,7 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
           <Avatar
             src={avatarSrc}
             initials={initials}
-            name={userData.name}
+            name={nameForGradient}
             size="lg"
             rounded
             showStatus
@@ -141,7 +169,7 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
                 <Avatar
                   src={avatarSrc}
                   initials={initials}
-                  name={userData.name}
+                  name={nameForGradient}
                   size="md"
                   rounded
                 />
@@ -243,10 +271,24 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
                 <Icon name="user" size="sm" className={`${themeClasses.text.secondary} dark:text-dark-6`} />
                 <div className="flex-1 min-w-0">
                   <div className={`text-sm ${themeClasses.text.primary}`}>
-                    {t('profile.personalData', 'Личные данные')}
+                    {(() => {
+                      const translation = t('profile.personalData', 'Личные данные');
+                      // Проверяем, что перевод - строка, а не объект
+                      if (typeof translation !== 'string') {
+                        return 'Личные данные';
+                      }
+                      return translation;
+                    })()}
                   </div>
                   <div className={`text-xs ${themeClasses.text.secondary}`}>
-                    {t('profile.personalDataDescription', 'ФИО, день рождения, пол')}
+                    {(() => {
+                      const translation = t('profile.personalDataDescription', 'ФИО, день рождения, пол');
+                      // Проверяем, что перевод - строка, а не объект
+                      if (typeof translation !== 'string') {
+                        return 'ФИО, день рождения, пол';
+                      }
+                      return translation;
+                    })()}
                   </div>
                 </div>
               </a>

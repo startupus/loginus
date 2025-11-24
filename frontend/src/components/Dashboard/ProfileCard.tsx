@@ -6,6 +6,7 @@ import { getInitials } from '../../utils/stringUtils';
 import { ProfileCardMenu } from './ProfileCardMenu';
 import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
 import { formatCurrency, formatNumber } from '../../utils/intl/formatters';
+import { themeClasses } from '../../design-system/utils/themeClasses';
 
 export interface ProfileCardProps {
   user: {
@@ -39,7 +40,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
   const editButtonRef = useRef<HTMLButtonElement>(null);
   
   return (
-    <div className="bg-white dark:bg-dark-2 rounded-xl p-4 sm:p-6 mb-6">
+    <div className={`${themeClasses.card.shadow} rounded-xl p-4 sm:p-6 mb-6`}>
       <div className="flex flex-col sm:flex-row items-start gap-4">
         <div className="transition-transform duration-300 hover:scale-110">
         <Avatar
@@ -57,7 +58,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
           {/* ФИО, баланс, баллы в одну строчку */}
           <div className="flex items-center justify-between gap-4 mb-2 flex-wrap">
             <div className="flex items-center gap-3">
-              <h2 className="text-xl sm:text-2xl font-bold text-text-primary">
+              <h2 className={`text-xl sm:text-2xl font-bold ${themeClasses.text.primary}`}>
                 {user.name}
               </h2>
               <Button
@@ -77,7 +78,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
               {/* Баланс */}
               <div className="flex items-center gap-2">
                 <Icon name="wallet" size="sm" className="text-primary" />
-                <span className="text-base font-semibold text-text-primary">
+                <span className={`text-base font-semibold ${themeClasses.text.primary}`}>
                   {user.balance !== undefined ? formatCurrency(user.balance, 'RUB', currentLang) : '—'}
                 </span>
               </div>
@@ -85,7 +86,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
               {/* Игровые баллы (морковки) */}
               <div className="flex items-center gap-2">
                 <span className="text-lg">🥕</span>
-                <span className="text-base font-semibold text-text-primary">
+                <span className={`text-base font-semibold ${themeClasses.text.primary}`}>
                   {user.gamePoints !== undefined ? formatNumber(user.gamePoints, currentLang) : '—'}
                 </span>
               </div>
@@ -94,18 +95,18 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
           
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <div className="space-y-1">
-              <p className="text-sm text-text-secondary">
+              <p className={`text-sm ${themeClasses.text.secondary}`}>
                 {user.phone}
               </p>
               {user.email && (
-                <p className="text-sm text-text-secondary">
+                <p className={`text-sm ${themeClasses.text.secondary}`}>
                   {user.email}
                 </p>
               )}
             </div>
             <Link 
               to={buildPathWithLang('/promo/profiles', currentLang)} 
-              className="text-xs text-text-secondary hover:text-primary transition-colors duration-200"
+              className={`text-xs ${themeClasses.text.secondary} hover:text-primary transition-colors duration-200`}
             >
               {t('dashboard.mergeAccounts', { defaultValue: 'Merge accounts' })}
             </Link>

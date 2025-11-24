@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Avatar } from '../../design-system/primitives';
 import { Modal } from '../../design-system/composites';
+import { themeClasses } from '../../design-system/utils/themeClasses';
 import { getInitials } from '../../utils/stringUtils';
 import { PREDEFINED_AVATARS, AVATAR_BACKGROUND_COLORS } from '../../utils/avatars';
 import { preloadModule } from '../../services/i18n/config';
@@ -162,7 +163,7 @@ export const EditAvatarModal: React.FC<EditAvatarModalProps> = ({
 
         {/* Выбор цвета фона */}
         <div>
-          <label className="block text-sm font-medium text-text-primary mb-3">
+          <label className={`block text-sm font-medium ${themeClasses.text.primary} mb-3`}>
             {t('avatar.backgroundColor', { defaultValue: 'Avatar background' })}
           </label>
           <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t('avatar.backgroundColor', { defaultValue: 'Avatar background' })}>
@@ -187,7 +188,7 @@ export const EditAvatarModal: React.FC<EditAvatarModalProps> = ({
 
         {/* Выбор изображения аватара */}
         <div>
-          <label className="block text-sm font-medium text-text-primary mb-3">
+          <label className={`block text-sm font-medium ${themeClasses.text.primary} mb-3`}>
             {t('avatar.image', { defaultValue: 'Avatar image' })}
           </label>
           

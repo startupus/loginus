@@ -7,6 +7,8 @@ export interface MenuItemConfig {
   order: number;
   systemId?: string;
   label?: string;
+  labelRu?: string; // Название на русском языке
+  labelEn?: string; // Название на английском языке
   icon?: string;
   path?: string;
   children?: MenuItemConfig[];

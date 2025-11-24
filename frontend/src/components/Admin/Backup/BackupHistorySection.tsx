@@ -92,9 +92,9 @@ export const BackupHistorySection: React.FC = () => {
       const result = await downloadMutation.mutateAsync(id);
       // В реальном приложении здесь был бы скачивание файла
       // В моке просто показываем сообщение
-      setDownloadMessage({ text: t('admin.backup.history.downloadStarted', 'Скачивание начато'), isOpen: true });
+      setDownloadMessage({ text: t('admin.backup.history.downloadStarted'), isOpen: true });
     } catch (error) {
-      setDownloadMessage({ text: t('admin.backup.history.downloadError', 'Ошибка при скачивании'), isOpen: true });
+      setDownloadMessage({ text: t('admin.backup.history.downloadError'), isOpen: true });
     }
   };
 
@@ -124,9 +124,9 @@ export const BackupHistorySection: React.FC = () => {
 
   const getStorageLabel = (storage: Backup['storage']) => {
     const labels: Record<Backup['storage'], string> = {
-      local: t('admin.backup.history.storageLocal', 'Локально'),
-      'yandex-disk': t('admin.backup.history.storageYandex', 'Яндекс Диск'),
-      s3: t('admin.backup.history.storageS3', 'S3'),
+      local: t('admin.backup.history.storageLocal'),
+      'yandex-disk': t('admin.backup.history.storageYandex'),
+      s3: t('admin.backup.history.storageS3'),
     };
     return labels[storage] || storage;
   };
@@ -147,40 +147,40 @@ export const BackupHistorySection: React.FC = () => {
           {/* Фильтр по типу */}
           <div>
             <label className={`block text-sm font-medium ${themeClasses.text.primary} mb-2`}>
-              {t('admin.backup.history.filterType', 'Тип')}
+              {t('admin.backup.history.filterType')}
             </label>
             <select
               value={filters.type || 'all'}
               onChange={(e) => handleFilterChange('type', e.target.value)}
               className={`${themeClasses.input.default} w-full`}
             >
-              <option value="all">{t('admin.backup.history.allTypes', 'Все типы')}</option>
-              <option value="auto">{t('admin.backup.history.auto', 'Автоматический')}</option>
-              <option value="manual">{t('admin.backup.history.manual', 'Ручной')}</option>
+              <option value="all">{t('admin.backup.history.allTypes')}</option>
+              <option value="auto">{t('admin.backup.history.auto')}</option>
+              <option value="manual">{t('admin.backup.history.manual')}</option>
             </select>
           </div>
 
           {/* Фильтр по статусу */}
           <div>
             <label className={`block text-sm font-medium ${themeClasses.text.primary} mb-2`}>
-              {t('admin.backup.history.filterStatus', 'Статус')}
+              {t('admin.backup.history.filterStatus')}
             </label>
             <select
               value={filters.status || 'all'}
               onChange={(e) => handleFilterChange('status', e.target.value)}
               className={`${themeClasses.input.default} w-full`}
             >
-              <option value="all">{t('admin.backup.history.allStatuses', 'Все статусы')}</option>
-              <option value="success">{t('admin.backup.history.success', 'Успешно')}</option>
-              <option value="in-progress">{t('admin.backup.history.inProgress', 'В процессе')}</option>
-              <option value="error">{t('admin.backup.history.error', 'Ошибка')}</option>
+              <option value="all">{t('admin.backup.history.allStatuses')}</option>
+              <option value="success">{t('admin.backup.history.success')}</option>
+              <option value="in-progress">{t('admin.backup.history.inProgress')}</option>
+              <option value="error">{t('admin.backup.history.error')}</option>
             </select>
           </div>
 
           {/* Фильтр по дате */}
           <div className="lg:col-span-2 relative">
             <label className={`block text-sm font-medium ${themeClasses.text.primary} mb-2`}>
-              {t('admin.backup.history.filterDate', 'Дата создания')}
+              {t('admin.backup.history.filterDate')}
             </label>
             <button
               onClick={() => setShowDatePicker(!showDatePicker)}
@@ -189,21 +189,21 @@ export const BackupHistorySection: React.FC = () => {
               <Icon name="calendar" size="sm" />
               {filters.dateFrom || filters.dateTo
                 ? `${filters.dateFrom || '...'} - ${filters.dateTo || '...'}`
-                : t('admin.backup.history.selectDate', 'Выбрать дату')}
+                : t('admin.backup.history.selectDate')}
             </button>
             {showDatePicker && (
               <div className={`absolute z-10 mt-2 p-4 ${themeClasses.card.default} ${themeClasses.border.default} rounded-lg shadow-lg min-w-[280px]`}>
                 <div className="space-y-3">
                   <Input
                     type="date"
-                    label={t('admin.backup.history.dateFrom', 'С')}
+                    label={t('admin.backup.history.dateFrom')}
                     value={dateFrom}
                     onChange={(e) => setDateFrom(e.target.value)}
                     size="sm"
                   />
                   <Input
                     type="date"
-                    label={t('admin.backup.history.dateTo', 'По')}
+                    label={t('admin.backup.history.dateTo')}
                     value={dateTo}
                     onChange={(e) => setDateTo(e.target.value)}
                     size="sm"
@@ -215,7 +215,7 @@ export const BackupHistorySection: React.FC = () => {
                       onClick={handleDateFilterReset}
                       className="flex-1"
                     >
-                      {t('common.reset', 'Сбросить')}
+                      {t('common.reset')}
                     </Button>
                     <Button
                       size="sm"
@@ -223,7 +223,7 @@ export const BackupHistorySection: React.FC = () => {
                       onClick={handleDateFilterApply}
                       className="flex-1"
                     >
-                      {t('common.apply', 'Применить')}
+                      {t('common.apply')}
                     </Button>
                   </div>
                 </div>
@@ -240,22 +240,22 @@ export const BackupHistorySection: React.FC = () => {
             <thead className={themeClasses.background.gray2}>
               <tr>
                 <th className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary}`}>
-                  {t('admin.backup.history.date', 'Дата создания')}
+                  {t('admin.backup.history.date')}
                 </th>
                 <th className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary}`}>
-                  {t('admin.backup.history.type', 'Тип')}
+                  {t('admin.backup.history.type')}
                 </th>
                 <th className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary}`}>
-                  {t('admin.backup.history.size', 'Размер')}
+                  {t('admin.backup.history.size')}
                 </th>
                 <th className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary}`}>
-                  {t('admin.backup.history.storage', 'Место хранения')}
+                  {t('admin.backup.history.storage')}
                 </th>
                 <th className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary}`}>
-                  {t('admin.backup.history.status', 'Статус')}
+                  {t('admin.backup.history.status')}
                 </th>
                 <th className={`px-6 py-4 text-right text-sm font-semibold ${themeClasses.text.primary}`}>
-                  {t('admin.backup.history.actions', 'Действия')}
+                  {t('admin.backup.history.actions')}
                 </th>
               </tr>
             </thead>
@@ -266,7 +266,7 @@ export const BackupHistorySection: React.FC = () => {
                     <div className="flex flex-col items-center">
                       <Icon name="database" size="lg" className={`${themeClasses.text.secondary} mb-4`} />
                       <p className={themeClasses.text.secondary}>
-                        {t('admin.backup.history.empty', 'Бекапы не найдены')}
+                        {t('admin.backup.history.empty')}
                       </p>
                     </div>
                   </td>
@@ -280,8 +280,8 @@ export const BackupHistorySection: React.FC = () => {
                     <td className="px-6 py-4">
                       <Badge variant={backup.type === 'auto' ? 'primary' : 'secondary'} size="sm">
                         {backup.type === 'auto'
-                          ? t('admin.backup.history.auto', 'Автоматический')
-                          : t('admin.backup.history.manual', 'Ручной')}
+                          ? t('admin.backup.history.auto')
+                          : t('admin.backup.history.manual')}
                       </Badge>
                     </td>
                     <td className="px-6 py-4">
@@ -293,10 +293,10 @@ export const BackupHistorySection: React.FC = () => {
                     <td className="px-6 py-4">
                       <Badge variant={getStatusBadgeVariant(backup.status)} size="sm">
                         {backup.status === 'success'
-                          ? t('admin.backup.history.success', 'Успешно')
+                          ? t('admin.backup.history.success')
                           : backup.status === 'in-progress'
-                          ? t('admin.backup.history.inProgress', 'В процессе')
-                          : t('admin.backup.history.error', 'Ошибка')}
+                          ? t('admin.backup.history.inProgress')
+                          : t('admin.backup.history.error')}
                       </Badge>
                       {backup.error && (
                         <p className={`text-xs ${themeClasses.text.secondary} mt-1`}>{backup.error}</p>
@@ -308,7 +308,7 @@ export const BackupHistorySection: React.FC = () => {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDownload(backup.id)}
-                          title={t('admin.backup.history.download', 'Скачать')}
+                          title={t('admin.backup.history.download')}
                           disabled={backup.status !== 'success'}
                         >
                           <Icon name="download" size="sm" />
@@ -317,7 +317,7 @@ export const BackupHistorySection: React.FC = () => {
                           variant="ghost"
                           size="sm"
                           onClick={() => setRestoreBackupId(backup.id)}
-                          title={t('admin.backup.history.restore', 'Восстановить')}
+                          title={t('admin.backup.history.restore')}
                           disabled={backup.status !== 'success'}
                         >
                           <Icon name="rotate-ccw" size="sm" />
@@ -326,9 +326,9 @@ export const BackupHistorySection: React.FC = () => {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDeleteClick(backup.id)}
-                          title={t('admin.backup.history.delete', 'Удалить')}
+                          title={t('admin.backup.history.delete')}
                         >
-                          <Icon name="trash-2" size="sm" className="text-danger" />
+                          <Icon name="trash-2" size="sm" className={themeClasses.text.error} />
                         </Button>
                       </div>
                     </td>
@@ -353,21 +353,21 @@ export const BackupHistorySection: React.FC = () => {
       <Modal
         isOpen={deleteConfirmModal.isOpen}
         onClose={() => setDeleteConfirmModal({ id: '', isOpen: false })}
-        title={t('admin.backup.history.deleteConfirmTitle', 'Подтверждение удаления')}
+        title={t('admin.backup.history.deleteConfirmTitle')}
         size="sm"
         footer={
           <div className="flex gap-3 justify-end">
             <Button variant="outline" onClick={() => setDeleteConfirmModal({ id: '', isOpen: false })}>
-              {t('common.cancel', 'Отменить')}
+              {t('common.cancel')}
             </Button>
             <Button variant="error" onClick={handleDeleteConfirm}>
-              {t('common.delete', 'Удалить')}
+              {t('common.delete')}
             </Button>
           </div>
         }
       >
         <p className={themeClasses.text.primary}>
-          {t('admin.backup.history.deleteConfirm', 'Вы уверены, что хотите удалить этот бекап?')}
+          {t('admin.backup.history.deleteConfirm')}
         </p>
       </Modal>
 
@@ -375,12 +375,12 @@ export const BackupHistorySection: React.FC = () => {
       <Modal
         isOpen={downloadMessage.isOpen}
         onClose={() => setDownloadMessage({ text: '', isOpen: false })}
-        title={t('admin.backup.history.downloadTitle', 'Скачивание')}
+        title={t('admin.backup.history.downloadTitle')}
         size="sm"
         footer={
           <div className="flex justify-end">
             <Button variant="primary" onClick={() => setDownloadMessage({ text: '', isOpen: false })}>
-              {t('common.close', 'Закрыть')}
+              {t('common.close')}
             </Button>
           </div>
         }

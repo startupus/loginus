@@ -35,20 +35,20 @@ export const Tabs: React.FC<TabsProps> = ({ tabs, defaultTab, onChange }) => {
   const activeTabContent = tabs.find(tab => tab.id === activeTab)?.content;
 
   return (
-    <div className="w-full">
+    <div className={themeClasses.tabs.container}>
       {/* Tab Headers */}
-      <div className={`border-b ${themeClasses.border.default}`}>
-        <nav className="-mb-px flex space-x-8">
+      <div className={`${themeClasses.tabs.headersContainer} ${themeClasses.border.default}`}>
+        <nav className={themeClasses.tabs.nav}>
           {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => handleTabChange(tab.id)}
               className={`
-                whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium transition-colors
+                ${themeClasses.tabs.button}
                 ${
                   activeTab === tab.id
-                    ? 'border-primary text-primary'
-                    : `border-transparent ${themeClasses.text.secondary} hover:${themeClasses.border.default} hover:${themeClasses.text.primary}`
+                    ? themeClasses.tabs.buttonActive
+                    : themeClasses.tabs.buttonInactive
                 }
               `}
             >
@@ -59,7 +59,7 @@ export const Tabs: React.FC<TabsProps> = ({ tabs, defaultTab, onChange }) => {
       </div>
 
       {/* Tab Content */}
-      <div className="py-6">{activeTabContent}</div>
+      <div className={themeClasses.tabs.content}>{activeTabContent}</div>
     </div>
   );
 };

@@ -33,15 +33,25 @@ export interface BackupSettings {
     };
     storage: {
       type: 'local' | 'yandex-disk' | 's3' | 'custom';
+      local: {
+        enabled: boolean;
+      };
       yandexDisk: {
         token: string;
         path: string;
         connected: boolean;
+        enabled: boolean;
+      };
+      s3: {
+        endpoint: string;
+        credentials: Record<string, any>;
+        enabled: boolean;
       };
       custom: {
         type: string;
         endpoint: string;
         credentials: Record<string, any>;
+        enabled: boolean;
       };
     };
   };

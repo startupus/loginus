@@ -31,7 +31,7 @@ export interface EmptyStateProps {
  * Мапп вариантов на классы icon circle
  */
 const variantToIconCircleClass = {
-  default: themeClasses.iconCircle.default,
+  default: themeClasses.iconCircle.gray,
   info: themeClasses.iconCircle.info,
   success: themeClasses.iconCircle.success,
   warning: themeClasses.iconCircle.warning,

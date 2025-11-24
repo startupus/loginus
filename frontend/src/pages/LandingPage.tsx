@@ -85,18 +85,18 @@ const LandingPage: React.FC = () => {
             <div className="w-full px-4 lg:w-6/12">
               <div className="max-w-[570px]">
                 {/* Badge */}
-                <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2">
+                <div className={`mb-6 inline-flex items-center gap-2 rounded-full ${themeClasses.background.primarySemiTransparent} px-4 py-2`}>
                   <span className="text-sm font-semibold text-primary">{t('landing.hero.badge', 'Новое')}</span>
-                  <span className="text-sm text-text-secondary">{t('landing.hero.badgeText', 'Двухфакторная аутентификация')}</span>
+                  <span className={`text-sm ${themeClasses.text.secondary}`}>{t('landing.hero.badgeText', 'Двухфакторная аутентификация')}</span>
                 </div>
                 
-                <h1 className="mb-6 text-5xl font-bold leading-tight text-text-primary sm:text-6xl lg:text-[64px]">
+                <h1 className={`mb-6 text-5xl font-bold leading-tight ${themeClasses.text.primary} sm:text-6xl lg:text-[64px]`}>
                   {t('landing.hero.title', 'Единый аккаунт')}
                   <br />
                   <span className="text-primary">{t('landing.hero.titleHighlight', 'Loginus ID')}</span>
                 </h1>
                 
-                <p className="mb-10 text-lg leading-relaxed text-text-secondary">
+                <p className={`mb-10 text-lg leading-relaxed ${themeClasses.text.secondary}`}>
                   {t('landing.hero.description', 'Быстрая и безопасная авторизация для всех ваших сервисов. Управляйте данными, платежами и семейным доступом в одном месте.')}
                 </p>
                 
@@ -121,7 +121,7 @@ const LandingPage: React.FC = () => {
                   
                   <a
                     href={buildPathWithLang('/about', currentLang)}
-                    className="inline-flex items-center gap-2 px-8 py-4 text-base font-medium text-text-secondary hover:text-primary transition-colors"
+                    className={`inline-flex items-center gap-2 px-8 py-4 text-base font-medium ${themeClasses.text.secondary} hover:text-primary transition-colors`}
                   >
                     {t('landing.hero.ctaLearnMore', 'Узнать больше')}
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -136,19 +136,19 @@ const LandingPage: React.FC = () => {
                     <svg className="w-5 h-5 text-success" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
-                    <span className="text-sm font-medium text-text-secondary">{t('landing.hero.trustSafe', 'Безопасно')}</span>
+                    <span className={`text-sm font-medium ${themeClasses.text.secondary}`}>{t('landing.hero.trustSafe', 'Безопасно')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <svg className="w-5 h-5 text-success" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
-                    <span className="text-sm font-medium text-text-secondary">{t('landing.hero.trustFast', 'Быстро')}</span>
+                    <span className={`text-sm font-medium ${themeClasses.text.secondary}`}>{t('landing.hero.trustFast', 'Быстро')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <svg className="w-5 h-5 text-success" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
-                    <span className="text-sm font-medium text-text-secondary">{t('landing.hero.trustConvenient', 'Удобно')}</span>
+                    <span className={`text-sm font-medium ${themeClasses.text.secondary}`}>{t('landing.hero.trustConvenient', 'Удобно')}</span>
                   </div>
                 </div>
               </div>
@@ -208,10 +208,10 @@ const LandingPage: React.FC = () => {
       <section id="features" className="py-20 lg:py-28">
         <div className="container mx-auto">
           <div className="mb-16 text-center">
-            <h2 className="mb-4 text-4xl font-bold text-text-primary lg:text-5xl">
+            <h2 className={`mb-4 text-4xl font-bold ${themeClasses.text.primary} lg:text-5xl`}>
               {t('landing.features.title', 'Возможности Loginus ID')}
             </h2>
-            <p className="mx-auto max-w-[600px] text-lg text-text-secondary">
+            <p className={`mx-auto max-w-[600px] text-lg ${themeClasses.text.secondary}`}>
               {t('landing.features.subtitle', 'Единый аккаунт для управления всеми вашими данными и сервисами')}
             </p>
           </div>
@@ -258,10 +258,10 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* FAQ Section */}
-      <section id="faq" className="bg-gray-1 py-20 dark:bg-dark-2 lg:py-28">
+      <section id="faq" className={`${themeClasses.background.gray} py-20 lg:py-28`}>
         <div className="container mx-auto">
           <div className="mb-16 text-center">
-            <h2 className="mb-4 text-4xl font-bold text-text-primary lg:text-5xl">
+            <h2 className={`mb-4 text-4xl font-bold ${themeClasses.text.primary} lg:text-5xl`}>
               {t('landing.faq.title', 'Часто задаваемые вопросы')}
             </h2>
           </div>
@@ -295,11 +295,11 @@ const LandingPage: React.FC = () => {
           <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
             <div className="flex items-center gap-3">
               <div 
-                className="w-8 h-8 rounded-lg flex items-center justify-center ring-1 ring-black/5 !bg-gray-900 text-white dark:!bg-white dark:!text-gray-900"
+                className={`w-8 h-8 rounded-lg flex items-center justify-center ring-1 ring-black/5 ${themeClasses.logo.inverted}`}
               >
                 <span className="text-sm font-extrabold leading-none">iD</span>
               </div>
-              <p className="text-sm text-text-secondary">
+              <p className={`text-sm ${themeClasses.text.secondary}`}>
                 {(() => {
                   const projectStartYear = 2025;
                   const currentYear = new Date().getFullYear();
@@ -312,13 +312,13 @@ const LandingPage: React.FC = () => {
               </p>
             </div>
             <div className="flex gap-8">
-              <a href="/about" className="text-sm font-medium text-text-secondary hover:text-primary transition-colors">
+              <a href={buildPathWithLang('/about', currentLang)} className={`text-sm font-medium ${themeClasses.text.secondary} hover:text-primary transition-colors`}>
                 {t('landing.footer.about', 'О проекте')}
               </a>
-              <a href="/privacy" className="text-sm font-medium text-text-secondary hover:text-primary transition-colors">
+              <a href={buildPathWithLang('/privacy', currentLang)} className={`text-sm font-medium ${themeClasses.text.secondary} hover:text-primary transition-colors`}>
                 {t('landing.footer.privacy', 'Конфиденциальность')}
               </a>
-              <a href="/terms" className="text-sm font-medium text-text-secondary hover:text-primary transition-colors">
+              <a href={buildPathWithLang('/terms', currentLang)} className={`text-sm font-medium ${themeClasses.text.secondary} hover:text-primary transition-colors`}>
                 {t('landing.footer.terms', 'Условия')}
               </a>
             </div>

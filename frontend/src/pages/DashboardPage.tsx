@@ -5,6 +5,7 @@ import { preloadModule } from '../services/i18n/config';
 import { PageTemplate } from '../design-system/layouts/PageTemplate';
 import { profileApi } from '../services/api/profile';
 import { LoadingState, ErrorState, EmptyState } from '../design-system/composites';
+import { themeClasses } from '../design-system/utils/themeClasses';
 import { useAuthStore } from '../store';
 import { useWidgetPreferences } from '../hooks/useWidgetPreferences';
 import { useModal } from '../hooks/useModal';
@@ -47,24 +48,24 @@ const PlusWidget = lazy(() => import('../components/Dashboard/PlusWidget').then(
 const PayWidget = lazy(() => import('../components/Dashboard/PayWidget').then(m => ({ default: m.PayWidget })));
 const SubscriptionsList = lazy(() => import('../components/Dashboard/SubscriptionsList').then(m => ({ default: m.SubscriptionsList })));
 
-// Компонент скелетона для Suspense fallback
+// Компонент скелетона для Suspense fallback - используем themeClasses для единообразия
 const WidgetSkeleton: React.FC = () => (
   <div className="w-full animate-pulse">
-    <div className="bg-background dark:bg-surface rounded-xl p-6 border border-border h-32">
-      <div className="h-4 bg-gray-2 dark:bg-gray-3 rounded w-1/2 mb-4"></div>
-      <div className="h-8 bg-gray-2 dark:bg-gray-3 rounded w-1/3"></div>
+    <div className={`${themeClasses.card.default} rounded-xl p-6 ${themeClasses.border.default} h-32`}>
+      <div className={`h-4 ${themeClasses.background.gray2} rounded w-1/2 mb-4`}></div>
+      <div className={`h-8 ${themeClasses.background.gray2} rounded w-1/3`}></div>
     </div>
   </div>
 );
 
 const SectionSkeleton: React.FC = () => (
   <div className="w-full animate-pulse">
-    <div className="bg-background dark:bg-surface rounded-xl p-6 border border-border">
-      <div className="h-4 bg-gray-2 dark:bg-gray-3 rounded w-1/4 mb-4"></div>
+    <div className={`${themeClasses.card.default} rounded-xl p-6 ${themeClasses.border.default}`}>
+      <div className={`h-4 ${themeClasses.background.gray2} rounded w-1/4 mb-4`}></div>
       <div className="space-y-3">
-        <div className="h-3 bg-gray-2 dark:bg-gray-3 rounded w-full"></div>
-        <div className="h-3 bg-gray-2 dark:bg-gray-3 rounded w-5/6"></div>
-        <div className="h-3 bg-gray-2 dark:bg-gray-3 rounded w-4/6"></div>
+        <div className={`h-3 ${themeClasses.background.gray2} rounded w-full`}></div>
+        <div className={`h-3 ${themeClasses.background.gray2} rounded w-5/6`}></div>
+        <div className={`h-3 ${themeClasses.background.gray2} rounded w-4/6`}></div>
       </div>
     </div>
   </div>

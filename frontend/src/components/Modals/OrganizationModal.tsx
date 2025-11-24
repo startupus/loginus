@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Icon, Button, Input } from '../../design-system/primitives';
 import { Modal } from '../../design-system/composites';
+import { themeClasses } from '../../design-system/utils/themeClasses';
 
 export interface Organization {
   id: string;
@@ -73,7 +74,7 @@ export const OrganizationModal: React.FC<OrganizationModalProps> = ({
         {/* Список организаций */}
         <div className="max-h-[400px] overflow-y-auto space-y-2">
           {filteredOrganizations.length === 0 ? (
-            <div className="text-center py-8 text-text-secondary">
+            <div className={`text-center py-8 ${themeClasses.text.secondary}`}>
               <p className="mb-2">{t('modals.organization.noOrganizations', 'У вас пока нет организаций')}</p>
               {onCreate && (
                 <Button
@@ -96,19 +97,19 @@ export const OrganizationModal: React.FC<OrganizationModalProps> = ({
                 onClick={() => setSelectedOrgId(org.id)}
                 className={`w-full p-4 rounded-lg border transition-all duration-200 text-left ${
                   selectedOrgId === org.id
-                    ? 'bg-primary/10 border-primary dark:bg-primary/20'
-                    : 'bg-gray-1 dark:bg-gray-2 border-border hover:border-primary/30'
+                    ? `${themeClasses.background.primarySemiTransparent} border-primary`
+                    : `${themeClasses.background.gray2} border-border hover:border-primary/30`
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
-                    <h3 className="font-semibold text-text-primary mb-1">{org.name}</h3>
+                    <h3 className={`font-semibold ${themeClasses.text.primary} mb-1`}>{org.name}</h3>
                     {org.description && (
-                      <p className="text-sm text-text-secondary mb-1">{org.description}</p>
+                      <p className={`text-sm ${themeClasses.text.secondary} mb-1`}>{org.description}</p>
                     )}
                     {org.memberCount !== undefined && (
-                      <p className="text-xs text-text-secondary">
-                        {org.memberCount} {org.memberCount === 1 ? 'участник' : 'участников'}
+                      <p className={`text-xs ${themeClasses.text.secondary}`}>
+                        {t('modals.organization.memberCount', { count: org.memberCount, defaultValue: `${org.memberCount} ${org.memberCount === 1 ? 'member' : 'members'}` })}
                       </p>
                     )}
                   </div>

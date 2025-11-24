@@ -8,6 +8,7 @@
     "authFlow": "Алгоритм авторизации",
     "backup": "Бекапы и синхронизация",
     "menuSettings": "Настройки меню",
+    "paymentMethods": "Способы оплаты",
     "backToProfile": "Вернуться в профиль"
   },
   "dashboard": {
@@ -197,12 +198,17 @@
       "telegram": "Telegram",
       "gosuslugi": "Гос услуги",
       "tinkoff": "Tinkoff ID",
+      "yandex": "Yandex ID",
+      "saber": "Saber ID",
+      "vk": "VK ID",
+      "google": "Google",
+      "apple": "Apple ID",
+      "microsoft": "Microsoft",
       "qr": "QR код",
       "password": "Пароль",
-      "yandex": "Yandex ID",
-      "saber": "Saber ID"
+      "biometric": "Биометрия",
+      "sms": "SMS код"
     },
-    "saveHint": "Не забудьте сохранить изменения",
     "add": "Добавить"
   },
   "menuSettings": {
@@ -220,7 +226,10 @@
     },
     "form": {
       "label": "Название",
+      "labelPlaceholder": "Введите название на русском",
+      "labelPlaceholderEn": "Enter name in English",
       "type": "Тип пункта",
+      "typeReadonly": "Тип системного пункта нельзя изменить",
       "externalUrl": "URL",
       "openInNewTab": "Открывать в новой вкладке",
       "iframeUrl": "URL iframe",
@@ -235,7 +244,8 @@
       "saveError": "Ошибка при сохранении. Попробуйте еще раз."
     },
     "confirmDeleteTitle": "Подтверждение удаления",
-    "deleteItemName": "Пункт"
+    "deleteItemName": "Пункт",
+    "openSettings": "Открыть настройки"
   },
   "backup": {
     "title": "Настройки бекапов и синхронизации",
@@ -410,13 +420,22 @@
   "authFlow": {
     "title": "Настройка алгоритма авторизации",
     "add": "Добавить",
+    "login": "Авторизация",
+    "registration": "Регистрация",
+    "noMethods": "Нет методов",
+    "addMethod": {
+      "title": "Добавить метод авторизации",
+      "selectMethod": "Выберите метод",
+      "enabled": "Включен",
+      "isPrimary": "Основной на стартовой странице",
+      "noAvailable": "Все доступные методы уже добавлены"
+    },
     "primaryMethod": "Основной метод",
     "oauthMethods": "OAuth методы",
     "alternativeMethods": "Альтернативные методы",
     "order": "Порядок",
     "primary": "Основной",
     "primaryOnStartPage": "Основной на стартовой странице",
-    "saveHint": "Не забудьте сохранить изменения",
     "instruction": {
       "title": "Настройка алгоритма авторизации",
       "description": "Перетаскивайте методы для изменения порядка. Используйте переключатели для активации/деактивации методов и установки основных способов входа."
@@ -430,7 +449,42 @@
       "qr": "QR код",
       "password": "Пароль",
       "yandex": "Yandex ID",
-      "saber": "Saber ID"
+      "saber": "Saber ID",
+      "vk": "VK ID",
+      "google": "Google",
+      "apple": "Apple ID",
+      "microsoft": "Microsoft",
+      "biometric": "Биометрия",
+      "sms": "SMS код"
+    }
+  },
+  "paymentMethods": {
+    "title": "Способы оплаты",
+    "description": "Управляйте способами оплаты. Перетаскивайте для изменения порядка, используйте переключатели для включения/выключения.",
+    "addMethod": "Добавить способ оплаты",
+    "editMethod": "Редактировать способ оплаты",
+    "noMethods": "Нет способов оплаты",
+    "confirmDeleteTitle": "Подтверждение удаления",
+    "confirmDelete": "Вы уверены, что хотите удалить этот способ оплаты?",
+    "deleteMethodName": "Способ оплаты",
+    "type": {
+      "card": "Карта",
+      "bankAccount": "Банковский счет"
+    },
+    "card": "Карта",
+    "bankAccount": "Банковский счет",
+    "form": {
+      "type": "Тип способа оплаты",
+      "bankName": "Название банка",
+      "lastFour": "Последние 4 цифры",
+      "expiryDate": "Срок действия (MM/YY)",
+      "accountNumber": "Номер счета"
+    },
+    "errors": {
+      "bankNameRequired": "Укажите название банка",
+      "lastFourRequired": "Укажите последние 4 цифры карты",
+      "lastFourInvalid": "Последние 4 цифры должны состоять из 4 цифр",
+      "accountNumberRequired": "Укажите номер счета"
     }
   }
 }

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Input } from '../../design-system/primitives';
 import { Modal } from '../../design-system/composites';
+import { themeClasses } from '../../design-system/utils/themeClasses';
 import { personalApi } from '../../services/api/personal';
 import { validateRequired, validateBirthDate } from '../../utils/formValidation';
 
@@ -119,7 +120,7 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({
 
         {/* Тип */}
         <div>
-          <label className="block text-sm font-medium text-text-primary mb-2">
+          <label className={`block text-sm font-medium ${themeClasses.text.primary} mb-2`}>
             {t('modals.pet.type', 'Тип')}
           </label>
           <div className="flex gap-2">
@@ -131,7 +132,7 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({
                 className={`flex-1 px-4 py-2 rounded-lg border transition-all duration-200 ${
                   type === petType
                     ? 'bg-primary/10 border-primary text-primary dark:bg-primary/20'
-                    : 'bg-gray-1 dark:bg-gray-2 border-border text-text-secondary hover:border-primary/30'
+                    : `${themeClasses.background.gray2} border-border ${themeClasses.text.secondary} hover:border-primary/30`
                 }`}
               >
                 {t(`modals.pet.types.${petType}`, petType)}
@@ -165,7 +166,7 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({
 
         {/* Пол */}
         <div>
-          <label className="block text-sm font-medium text-text-primary mb-2">
+          <label className={`block text-sm font-medium ${themeClasses.text.primary} mb-2`}>
             {t('modals.pet.gender', 'Пол')}
           </label>
           <div className="flex gap-2">
@@ -177,7 +178,7 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({
                 className={`flex-1 px-4 py-2 rounded-lg border transition-all duration-200 ${
                   gender === petGender
                     ? 'bg-primary/10 border-primary text-primary dark:bg-primary/20'
-                    : 'bg-gray-1 dark:bg-gray-2 border-border text-text-secondary hover:border-primary/30'
+                    : `${themeClasses.background.gray2} border-border ${themeClasses.text.secondary} hover:border-primary/30`
                 }`}
               >
                 {t(`modals.pet.genders.${petGender}`, petGender)}
@@ -188,7 +189,7 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({
 
         {/* Загрузка фото */}
         <div>
-          <label className="block text-sm font-medium text-text-primary mb-2">
+          <label className={`block text-sm font-medium ${themeClasses.text.primary} mb-2`}>
             {t('modals.pet.uploadPhoto', 'Загрузить фото питомца')}
           </label>
           <div className="flex items-center gap-3">
@@ -201,7 +202,7 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({
             />
             <label
               htmlFor="pet-photo"
-              className="flex-1 px-4 py-2 rounded-lg border border-border bg-gray-1 dark:bg-gray-2 text-text-primary cursor-pointer hover:border-primary transition-colors text-center"
+              className={`flex-1 px-4 py-2 rounded-lg border border-border ${themeClasses.background.gray2} ${themeClasses.text.primary} cursor-pointer hover:border-primary transition-colors text-center`}
             >
               {file ? file.name : t('modals.pet.uploadButton', 'Выбрать файл')}
             </label>

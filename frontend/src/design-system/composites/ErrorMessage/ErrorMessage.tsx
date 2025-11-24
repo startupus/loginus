@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Icon } from '../../primitives/Icon';
 import { Button } from '../../primitives/Button';
+import { themeClasses } from '../../utils/themeClasses';
 
 export interface ErrorMessageProps {
   /**
@@ -36,7 +37,7 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
 
   return (
     <div
-      className="flex items-start gap-3 p-4 rounded-lg bg-error/10 border border-error/20"
+      className={`${themeClasses.utility.flexItemsStart} ${themeClasses.spacing.gap3} ${themeClasses.spacing.p4} ${themeClasses.utility.roundedLg} ${themeClasses.background.errorSemiTransparent} ${themeClasses.border.errorSemiTransparent}`}
       role="alert"
     >
       <Icon

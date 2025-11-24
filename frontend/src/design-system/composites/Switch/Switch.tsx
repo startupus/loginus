@@ -1,4 +1,5 @@
 import React from 'react';
+import { themeClasses } from '../../utils/themeClasses';
 
 export interface SwitchProps {
   /**
@@ -66,18 +67,18 @@ export const Switch: React.FC<SwitchProps> = ({
         />
         <div
           className={`${track} ${
-            checked ? 'bg-primary' : 'bg-secondary'
+            checked ? 'bg-primary' : themeClasses.background.gray2
           } rounded-full transition-colors ${
             disabled ? 'opacity-50 cursor-not-allowed' : ''
           }`}
         >
           <div
-            className={`${thumb} ${translate} bg-white rounded-full shadow-md transform transition-transform absolute top-0.5`}
+            className={`${thumb} ${translate} ${themeClasses.background.surface} rounded-full shadow-md transform transition-transform absolute top-0.5`}
           />
         </div>
       </div>
       {label && (
-        <span className={`text-sm font-medium text-text-primary ${disabled ? 'opacity-50' : ''}`}>
+        <span className={`text-sm font-medium ${themeClasses.text.primary} ${disabled ? 'opacity-50' : ''}`}>
           {label}
         </span>
       )}

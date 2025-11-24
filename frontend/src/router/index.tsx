@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { Suspense } from 'react';
-import { LandingPage, AboutPage, FeaturesPage, AuthPage, VerifyCodePage, RegisterPage, OnboardingPage, DashboardPage, PersonalDocumentsPage, PersonalAddressesPage, FamilyPage, WorkPage, SecurityPage, DataPage, PayPage, SupportPage, HelpPage, AuthorizationHelpPage, RegistrationHelpPage, SecurityHelpPage, RecoveryHelpPage, KeyHelpPage, FamilyHelpPage, DataHelpPage, PaymentsHelpPage, AdminDashboardPage, UsersManagementPage, CompaniesManagementPage, CompanyDetailPage, AuthFlowBuilderPage, BackupSettingsPage, MenuSettingsPage, IframePage, EmbeddedAppPage, ErrorPage } from './routes';
+import { LandingPage, AboutPage, FeaturesPage, AuthPage, VerifyCodePage, RegisterPage, OnboardingPage, DashboardPage, PersonalDocumentsPage, PersonalAddressesPage, FamilyPage, WorkPage, SecurityPage, DataPage, PayPage, SupportPage, HelpPage, AuthorizationHelpPage, RegistrationHelpPage, SecurityHelpPage, RecoveryHelpPage, KeyHelpPage, FamilyHelpPage, DataHelpPage, PaymentsHelpPage, AdminDashboardPage, UsersManagementPage, CompaniesManagementPage, CompanyDetailPage, AuthFlowBuilderPage, BackupSettingsPage, MenuSettingsPage, PaymentMethodsPage, IframePage, EmbeddedAppPage, ErrorPage } from './routes';
 import { LanguageRoute } from './LanguageRoute';
 import { AdminRoute } from './AdminRoute';
 import { themeClasses } from '../design-system/utils/themeClasses';
@@ -392,6 +392,19 @@ const router = createBrowserRouter([
         <AdminRoute>
           <Suspense fallback={<LoadingFallback />}>
             <MenuSettingsPage />
+          </Suspense>
+        </AdminRoute>
+      </LanguageRoute>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/:lang/admin/payment-methods',
+    element: (
+      <LanguageRoute>
+        <AdminRoute>
+          <Suspense fallback={<LoadingFallback />}>
+            <PaymentMethodsPage />
           </Suspense>
         </AdminRoute>
       </LanguageRoute>

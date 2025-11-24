@@ -69,31 +69,31 @@ export const ContactsSection: React.FC<ContactsSectionProps> = ({
               disabled={!isClickable}
               className={`w-full flex items-center gap-4 p-3 rounded-lg text-left transition-colors duration-200 ${themeClasses.border.default} ${
                 isClickable
-                  ? 'hover:bg-gray-1/50 dark:hover:bg-dark-3/50 hover:border-primary/30 dark:hover:border-primary/30 cursor-pointer'
+                  ? `${themeClasses.background.cardHoverSemiTransparent} hover:border-primary/30 dark:hover:border-primary/30 cursor-pointer`
                   : 'cursor-default opacity-60'
               }`}
             >
               {/* Иконка */}
-              <div className="w-10 h-10 rounded-lg bg-gray-1 dark:bg-dark-3 flex items-center justify-center flex-shrink-0">
-                <Icon name={getIcon(contact.type)} size="sm" className="text-text-secondary" />
+              <div className={`w-10 h-10 rounded-lg ${themeClasses.background.iconContainer} flex items-center justify-center flex-shrink-0`}>
+                <Icon name={getIcon(contact.type)} size="sm" className={themeClasses.text.secondary} />
               </div>
               
               {/* Информация */}
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-text-primary">
+                <div className={`text-sm font-medium ${themeClasses.text.primary}`}>
                   {contact.label}
                   {contact.count !== undefined && contact.count > 0 && (
-                    <span className="ml-2 text-text-secondary">
+                    <span className={`ml-2 ${themeClasses.text.secondary}`}>
                       {contact.count}
                     </span>
                   )}
                 </div>
                 {contact.value ? (
-                  <div className="text-xs text-text-secondary mt-1 truncate">
+                  <div className={`text-xs ${themeClasses.text.secondary} mt-1 truncate`}>
                     {contact.value}
                   </div>
                 ) : (
-                  <div className="text-xs text-text-secondary/60 mt-1">
+                  <div className={`text-xs ${themeClasses.text.secondary} opacity-60 mt-1`}>
                     {t('data.contacts.notSet', 'Not specified')}
                   </div>
                 )}
@@ -101,7 +101,7 @@ export const ContactsSection: React.FC<ContactsSectionProps> = ({
               
               {/* Стрелка для кликабельных элементов */}
               {isClickable && (
-                <Icon name="chevron-right" size="sm" className="text-text-secondary flex-shrink-0" />
+                <Icon name="chevron-right" size="sm" className={`${themeClasses.text.secondary} flex-shrink-0`} />
               )}
             </button>
           );

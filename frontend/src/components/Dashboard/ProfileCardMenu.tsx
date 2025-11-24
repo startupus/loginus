@@ -203,8 +203,14 @@ export const ProfileCardMenu: React.FC<ProfileCardMenuProps> = ({
       key: 'Personal',
       testId: 'profile-card-menu-option-Personal',
       icon: 'user',
-      title: t('profile.personalData', 'Личные данные'),
-      description: t('profile.personalDataDescription', 'ФИО, день рождения, пол'),
+      title: (() => {
+        const translation = t('profile.personalData', 'Личные данные');
+        return typeof translation === 'string' ? translation : 'Личные данные';
+      })(),
+      description: (() => {
+        const translation = t('profile.personalDataDescription', 'ФИО, день рождения, пол');
+        return typeof translation === 'string' ? translation : 'ФИО, день рождения, пол';
+      })(),
       onClick: handlePersonalData,
     },
     {

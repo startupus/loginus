@@ -89,8 +89,9 @@ export async function loadModule(
     }
   }
 
-  // Level 3: Используем статические файлы (текущая система)
-  if (useStatic && useStaticFallback()) {
+  // Level 3: Используем статические файлы (только если режим не dynamic)
+  // В dynamic режиме все данные должны идти только через API
+  if (useStatic && useStaticFallback() && !isDynamicMode()) {
     try {
       const data = await import(
         /* @vite-ignore */ `../locales/${locale}/${module}.json`
@@ -110,8 +111,9 @@ export async function loadModule(
     }
   }
 
-  // Level 4: Fallback на русский язык
-  if (locale !== 'ru') {
+  // Level 4: Fallback на русский язык (только если режим не dynamic)
+  // В dynamic режиме все данные должны идти только через API
+  if (locale !== 'ru' && !isDynamicMode()) {
     try {
       if (process.env.NODE_ENV === 'development') {
         console.log(`[i18n-v2] Falling back to ru for module ${module}`);

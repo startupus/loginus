@@ -96,6 +96,12 @@ export const textClasses = {
   whiteOpacity: 'text-white/80',
   // Текст ошибки
   error: 'text-error',
+  // Текст предупреждения
+  warning: 'text-warning',
+  // Текст успеха
+  success: 'text-success',
+  // Текст информации
+  info: 'text-info',
   // Hover состояния
   hoverPrimary: 'hover:text-text-primary',
 };
@@ -110,12 +116,44 @@ export const backgroundClasses = {
   gray: 'bg-gray-1 dark:bg-dark',
   // Серый фон 2
   gray2: 'bg-gray-2 dark:bg-dark-3',
+  // Серый фон 3 (для статусов)
+  gray3: 'bg-gray-3 dark:bg-dark-4',
   // Поверхность
   surface: 'bg-background dark:bg-surface',
   // Поверхность с возвышением
   surfaceElevated: 'bg-surface-elevated dark:bg-dark-2',
   // Третичный фон (для информационных блоков)
   tertiary: 'bg-gray-1/50 dark:bg-dark-3/50',
+  // Полупрозрачный фон для карточек (grid items)
+  cardSemiTransparent: 'bg-gray-1/50 dark:bg-dark-3/50',
+  // Фон для иконок в контейнерах
+  iconContainer: 'bg-gray-1 dark:bg-dark-3',
+  // Hover фон для карточек
+  cardHover: 'hover:bg-gray-1 dark:hover:bg-dark-3',
+  // Hover фон полупрозрачный
+  cardHoverSemiTransparent: 'hover:bg-gray-1/50 dark:hover:bg-dark-3/50',
+  // Success фон
+  success: 'bg-success',
+  // Error фон
+  error: 'bg-error',
+  // Primary фон полупрозрачный
+  primarySemiTransparent: 'bg-primary/5 dark:bg-primary/10',
+  // Primary фон полупрозрачный (hover)
+  primarySemiTransparentHover: 'hover:bg-primary/10 dark:hover:bg-primary/20',
+  // Primary фон для редактирования
+  primaryEditing: 'bg-primary/15 dark:bg-primary/25',
+  // Success фон полупрозрачный
+  successSemiTransparent: 'bg-success/5 dark:bg-success/10',
+  // Success фон полупрозрачный (hover)
+  successSemiTransparentHover: 'hover:bg-success/10 dark:hover:bg-success/20',
+  // Error фон полупрозрачный
+  errorSemiTransparent: 'bg-error/5 dark:bg-error/10',
+  // Error фон полупрозрачный (hover)
+  errorSemiTransparentHover: 'hover:bg-error/10 dark:hover:bg-error/20',
+  // Hover фон для кнопок и элементов
+  hoverGray: 'hover:bg-gray-1 dark:hover:bg-gray-2',
+  // Hover фон для кнопок и элементов (темнее)
+  hoverGrayDark: 'hover:bg-gray-2 dark:hover:bg-gray-3',
 };
 
 /**
@@ -125,6 +163,12 @@ export const backgroundClasses = {
 export const borderClasses = {
   // Базовая граница (автоматически использует более мягкий цвет в темной теме через CSS переменную)
   default: 'border border-border',
+  // Граница с primary цветом (для активных состояний, drag & drop)
+  primary: 'border border-primary',
+  // Граница с primary цветом полупрозрачная (для карточек, уведомлений)
+  primarySemiTransparent: 'border border-primary/20 dark:border-primary/30',
+  // Граница с error цветом полупрозрачная (для ошибок)
+  errorSemiTransparent: 'border border-error/20',
   // Граница с темным вариантом (еще более мягкая с прозрачностью)
   // Используем border-border для обеих тем, так как CSS переменная уже настроена правильно
   dark: 'border border-border',
@@ -148,6 +192,12 @@ export const borderClasses = {
 export const iconCircleClasses = {
   // Иконка в кружке с цветом primary
   primary: 'w-12 h-12 bg-primary/10 dark:bg-primary/20 text-primary rounded-full flex items-center justify-center',
+  // Иконка в кружке с цветом primary (квадратная)
+  primarySquare: 'w-12 h-12 bg-primary/10 dark:bg-primary/20 text-primary rounded-lg flex items-center justify-center',
+  // Иконка в кружке с цветом primary (большая круглая)
+  primaryLarge: 'w-16 h-16 bg-primary/10 dark:bg-primary/20 text-primary rounded-full flex items-center justify-center',
+  // Иконка в кружке с цветом primary (маленькая)
+  primarySmall: 'w-7 h-7 bg-primary/10 dark:bg-primary/20 text-primary rounded-lg flex items-center justify-center',
   // Иконка в кружке с цветом success
   success: 'w-12 h-12 bg-success/10 text-success rounded-full flex items-center justify-center',
   // Иконка в кружке с цветом error
@@ -296,10 +346,31 @@ export const activeClasses = {
 };
 
 /**
+ * Классы для вкладок (Tabs)
+ */
+export const tabsClasses = {
+  // Контейнер вкладок
+  container: 'w-full',
+  // Контейнер заголовков вкладок
+  headersContainer: 'border-b',
+  // Навигация вкладок
+  nav: 'flex items-center space-x-8 -mb-px',
+  // Кнопка вкладки (базовые стили)
+  button: 'whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium transition-colors',
+  // Активная вкладка
+  buttonActive: 'border-primary text-primary',
+  // Неактивная вкладка
+  buttonInactive: 'border-transparent text-text-secondary hover:border-border hover:text-text-primary',
+  // Контейнер контента вкладки
+  content: 'py-6',
+};
+
+/**
  * Классы для spacing (отступы)
  */
 export const spacingClasses = {
   // Margin bottom
+  mb2: 'mb-2',
   mb3: 'mb-3',
   mb4: 'mb-4',
   mb6: 'mb-6',
@@ -310,25 +381,42 @@ export const spacingClasses = {
   mt2: 'mt-2',
   mt4: 'mt-4',
   mt12: 'mt-12',
+  // Margin bottom
+  mb1: 'mb-1',
   // Margin left
   ml6: 'ml-6',
   mlAuto: 'ml-auto',
   // Padding
   p1: 'p-1',
+  pt4: 'pt-4',
   pt8: 'pt-8',
   px2: 'px-2',
   px3: 'px-3',
   py2: 'py-2',
+  py4: 'py-4',
   pl4: 'pl-4',
   // Gap
   gap2: 'gap-2',
   gap3: 'gap-3',
   gap4: 'gap-4',
+  gap6: 'gap-6',
   gap8: 'gap-8',
   // Space between children
   spaceY1: 'space-y-1',
   spaceY2: 'space-y-2',
   spaceY3: 'space-y-3',
+  spaceY4: 'space-y-4',
+  spaceY6: 'space-y-6',
+  spaceY8: 'space-y-8',
+  // Padding top
+  pt4: 'pt-4',
+  pt6: 'pt-6',
+  // Padding
+  p4: 'p-4',
+  p6: 'p-6',
+  // Padding bottom
+  pb24: 'pb-24',
+  pb6: 'pb-6',
 };
 
 /**
@@ -363,6 +451,16 @@ export const listClassesExtended = {
 };
 
 /**
+ * Классы для overlay (overlay для модалок и панелей)
+ */
+export const overlayClasses = {
+  // Overlay для модалок (полупрозрачный темный фон, как в TailGrids)
+  modal: 'bg-text-primary/90',
+  // Overlay для панелей
+  panel: 'bg-text-primary/90',
+};
+
+/**
  * Классы для utility (утилитарные классы)
  */
 export const utilityClasses = {
@@ -371,7 +469,10 @@ export const utilityClasses = {
   flex1: 'flex-1',
   flexCol: 'flex flex-col',
   flexColSmRow: 'flex flex-col sm:flex-row',
+  flexItemsCenter: 'flex items-center',
+  flexItemsStart: 'flex items-start',
   justifyBetween: 'justify-between',
+  justifyEnd: 'justify-end',
   minW0: 'min-w-0',
   flexShrink0: 'flex-shrink-0',
   // Overflow
@@ -386,6 +487,7 @@ export const utilityClasses = {
   hiddenLgBlock: 'hidden lg:block',
   // Width
   wFull: 'w-full',
+  wFullSmAuto: 'w-full sm:w-auto',
   w64: 'w-64',
   w0_5: 'w-0.5',
   w1: 'w-1',
@@ -412,6 +514,9 @@ export const utilityClasses = {
   groupHoverTranslateXRight: 'group-hover:translate-x-1',
   // Opacity
   opacity30: 'opacity-30',
+  opacity50: 'opacity-50',
+  opacity60: 'opacity-60',
+  opacity80: 'opacity-80',
   // Position для header
   fixed: 'fixed',
   z50: 'z-50',
@@ -437,6 +542,8 @@ export const utilityClasses = {
 export const logoClasses = {
   // Логотип в footer (инвертированный)
   footer: 'w-8 h-8 rounded-lg flex items-center justify-center ring-1 ring-black/5 bg-gray-900 text-white dark:bg-white dark:text-gray-900',
+  // Логотип инвертированный (общий)
+  inverted: 'w-8 h-8 rounded-lg flex items-center justify-center ring-1 ring-black/5 !bg-gray-900 text-white dark:!bg-white dark:!text-gray-900',
 };
 
 /**
@@ -515,11 +622,13 @@ export const themeClasses = {
   typography: typographyClasses,
   table: tableClasses,
   active: activeClasses,
+  tabs: tabsClasses,
   spacing: spacingClasses,
   typographySize: typographySizeClasses,
   utility: utilityClasses,
   logo: logoClasses,
   admin: adminClasses,
+  overlay: overlayClasses,
 };
 
 export default themeClasses;

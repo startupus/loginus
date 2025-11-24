@@ -119,7 +119,8 @@ const AdminTemplateBody: React.FC<AdminPageTemplateProps> = ({
       icon: 'settings', 
       active: location.pathname.includes('/admin/auth-flow') || 
               location.pathname.includes('/admin/backup') || 
-              location.pathname.includes('/admin/menu-settings'),
+              location.pathname.includes('/admin/menu-settings') ||
+              location.pathname.includes('/admin/payment-methods'),
       children: [
         { 
             label: t('admin.sidebar.authFlow'), 
@@ -138,6 +139,12 @@ const AdminTemplateBody: React.FC<AdminPageTemplateProps> = ({
           path: buildPathWithLang('/admin/menu-settings', currentLang), 
           icon: 'menu', 
           active: location.pathname.includes('/admin/menu-settings')
+        },
+        { 
+            label: t('admin.sidebar.paymentMethods'), 
+          path: buildPathWithLang('/admin/payment-methods', currentLang), 
+          icon: 'credit-card', 
+          active: location.pathname.includes('/admin/payment-methods')
         },
       ]
     },

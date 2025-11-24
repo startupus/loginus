@@ -109,7 +109,7 @@ export const WidgetCard: React.FC<WidgetCardProps> = ({
   // Варианты фона - используем стандартизированные классы (как ProfileCard и DataSection)
   const variantClasses = {
     default: themeClasses.card.default,  // Единый стандарт с ProfileCard и DataSection
-    primary: 'bg-primary/5 dark:bg-primary/20',
+    primary: themeClasses.background.primarySemiTransparent,
     feature: 'bg-gradient-to-br from-primary/5 to-secondary/5 dark:from-primary/20 dark:to-secondary/20',
     compact: themeClasses.card.default,  // Единый стандарт с ProfileCard и DataSection
   };
@@ -214,7 +214,7 @@ export const WidgetCard: React.FC<WidgetCardProps> = ({
                 e.stopPropagation();
                 onRemove(widgetId);
               }}
-              className={`p-1.5 rounded-lg ${themeClasses.background.gray2} hover:bg-error/10 dark:hover:bg-error/20 transition-colors`}
+              className={`p-1.5 rounded-lg ${themeClasses.background.gray2} ${themeClasses.background.errorSemiTransparentHover} ${themeClasses.utility.transitionAll}`}
               aria-label={t('dashboard.widgets.remove', { defaultValue: 'Remove widget' })}
             >
               <Icon name="trash" size="sm" color="rgb(var(--color-error))" />

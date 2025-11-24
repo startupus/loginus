@@ -11,6 +11,8 @@ import { Spinner } from '@/design-system/primitives/Spinner';
 import { ChatMessage, ChatHistory, ChatHeader, ProductCarousel, ErrorState, EmptyState } from '@/design-system/composites';
 import type { ProductFolder } from '@/design-system/composites';
 import { themeClasses } from '@/design-system/utils/themeClasses';
+import { useCurrentLanguage } from '@/utils/routing';
+import { formatDate } from '@/utils/intl/formatters';
 import { getInitials } from '@/utils/stringUtils';
 import { supportApi } from '@/services/api/support';
 import { getServiceIcon } from '@/utils/serviceIcons';
@@ -25,6 +27,7 @@ const QUERY_CONFIG = {
 
 const SupportPage: React.FC = () => {
   const { t } = useTranslation();
+  const currentLang = useCurrentLanguage();
   const queryClient = useQueryClient();
   const [selectedService, setSelectedService] = useState<string>('id');
   const [activeChatId, setActiveChatId] = useState<string | undefined>(undefined);
@@ -88,7 +91,7 @@ const SupportPage: React.FC = () => {
                 service: 'Loginus ID',
                 isOnline: true,
                 lastMessage: t('support.chat.welcome', 'Здравствуйте! Я помогу вам разобраться с вопросами по Loginus ID.'),
-                date: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                date: formatDate(new Date(), currentLang, { hour: '2-digit', minute: '2-digit' }),
                 isActive: true,
               },
             ],
@@ -490,7 +493,7 @@ const SupportPage: React.FC = () => {
                   <ChatMessage
                     sender="bot"
                     message={t('support.chat.welcome', 'Здравствуйте! Я помогу вам разобраться с вопросами по Loginus ID.')}
-                    timestamp={new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                    timestamp={formatDate(new Date(), currentLang, { hour: '2-digit', minute: '2-digit' })}
                     senderName="Поддержка"
                     initials="П"
                   />
@@ -560,13 +563,13 @@ const SupportPage: React.FC = () => {
             {editingMessageId && (() => {
               const editingMessage = messages.find(msg => msg.id === editingMessageId);
               return editingMessage ? (
-                <div className="bg-primary/15 dark:bg-primary/25 border-b border-primary/30 px-3 sm:px-4 py-2.5 flex items-center justify-between gap-2">
+                <div className={`${themeClasses.background.primaryEditing} border-b border-primary/30 px-3 sm:px-4 py-2.5 flex items-center justify-between gap-2`}>
                   <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-                    <div className="flex-shrink-0 text-primary dark:text-primary-light">
+                    <div className={`flex-shrink-0 ${themeClasses.text.primary}`}>
                       {React.createElement(getServiceIcon('edit'), { size: 18 })}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className={`text-xs sm:text-sm font-medium text-primary dark:text-primary-light mb-0.5`}>
+                      <p className={`text-xs sm:text-sm font-medium ${themeClasses.text.primary} mb-0.5`}>
                         {t('support.chat.editing', 'Редактирование')}
                       </p>
                       <p className={`text-sm sm:text-base ${themeClasses.text.primary} truncate`}>

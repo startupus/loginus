@@ -62,19 +62,19 @@ export const PayWidget: React.FC<PayWidgetProps> = ({
     >
       <div className="space-y-4">
         <div 
-          className="flex items-center justify-between p-4 rounded-lg bg-primary/5 dark:bg-primary/10 cursor-pointer hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors"
+          className={`flex items-center justify-between p-4 rounded-lg ${themeClasses.background.primarySemiTransparent} cursor-pointer ${themeClasses.background.primarySemiTransparentHover} transition-colors`}
           onClick={() => navigate(buildPathWithLang('/pay', currentLang))}
         >
           <div className="flex items-center gap-3">
             <Icon name="device" size="lg" className="text-primary" />
             <div>
-              <p className="text-sm text-text-secondary">
+              <p className={`text-sm ${themeClasses.text.secondary}`}>
                 {t('dashboard.pay.openCard', 'Открыть карту Пэй')}
               </p>
             </div>
           </div>
           <button 
-            className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors"
+            className={`flex items-center justify-center w-8 h-8 rounded-lg ${themeClasses.background.primarySemiTransparentHover} transition-colors`}
             onClick={(e) => {
               e.stopPropagation();
               // TODO: открыть модалку добавления карты
@@ -86,15 +86,15 @@ export const PayWidget: React.FC<PayWidgetProps> = ({
         
         <div className={`flex items-center justify-between p-4 rounded-lg ${themeClasses.card.gridItem}`}>
           <div>
-            <p className="text-sm text-text-secondary mb-1">
+            <p className={`text-sm ${themeClasses.text.secondary} mb-1`}>
               {t('dashboard.pay.spendUpTo', 'Тратьте до')}
             </p>
-            <p className="text-xl font-bold text-text-primary">
+            <p className={`text-xl font-bold ${themeClasses.text.primary}`}>
               {formatCurrency(limit, 'RUB', currentLang)}
             </p>
           </div>
           <button 
-            className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-gray-2 dark:hover:bg-gray-3 transition-colors"
+            className={`flex items-center justify-center w-8 h-8 rounded-lg ${themeClasses.background.hoverGrayDark} transition-colors`}
             onClick={(e) => {
               e.stopPropagation();
               // TODO: открыть модалку увеличения лимита

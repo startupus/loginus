@@ -54,7 +54,7 @@ export const ServiceLink: React.FC<ServiceLinkProps> = ({
   onClick,
 }) => {
     const content = (
-    <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-1 dark:hover:bg-dark-2 transition-colors cursor-pointer">
+    <div className={`${themeClasses.utility.flexItemsCenter} ${themeClasses.spacing.gap3} ${themeClasses.spacing.p3} ${themeClasses.utility.roundedLg} ${themeClasses.background.hoverGray} ${themeClasses.utility.transitionAll} cursor-pointer`}>
       <Icon name={icon} size="lg" className="text-primary flex-shrink-0" />
       
       <div className="flex-1 min-w-0">

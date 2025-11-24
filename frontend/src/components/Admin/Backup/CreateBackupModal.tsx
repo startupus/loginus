@@ -65,7 +65,7 @@ export const CreateBackupModal: React.FC<CreateBackupModalProps> = ({
           >
             {isCreating ? (
               <>
-                <Icon name="loader" size="sm" className="animate-spin mr-2" />
+                <Icon name="refresh-cw" size="sm" className="animate-spin mr-2" />
                 {t('admin.backup.create.creating', 'Создание...')}
               </>
             ) : (
@@ -89,7 +89,7 @@ export const CreateBackupModal: React.FC<CreateBackupModalProps> = ({
               type="checkbox"
               checked={include.users}
               onChange={(e) => setInclude(prev => ({ ...prev, users: e.target.checked }))}
-              className="w-5 h-5 text-primary rounded"
+              className={`w-5 h-5 ${themeClasses.text.primary} rounded`}
             />
             <div className="flex-1">
               <p className={`font-medium ${themeClasses.text.primary}`}>
@@ -106,7 +106,7 @@ export const CreateBackupModal: React.FC<CreateBackupModalProps> = ({
               type="checkbox"
               checked={include.settings}
               onChange={(e) => setInclude(prev => ({ ...prev, settings: e.target.checked }))}
-              className="w-5 h-5 text-primary rounded"
+              className={`w-5 h-5 ${themeClasses.text.primary} rounded`}
             />
             <div className="flex-1">
               <p className={`font-medium ${themeClasses.text.primary}`}>
@@ -123,7 +123,7 @@ export const CreateBackupModal: React.FC<CreateBackupModalProps> = ({
               type="checkbox"
               checked={include.logs}
               onChange={(e) => setInclude(prev => ({ ...prev, logs: e.target.checked }))}
-              className="w-5 h-5 text-primary rounded"
+              className={`w-5 h-5 ${themeClasses.text.primary} rounded`}
             />
             <div className="flex-1">
               <p className={`font-medium ${themeClasses.text.primary}`}>

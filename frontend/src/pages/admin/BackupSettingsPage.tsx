@@ -25,25 +25,15 @@ const BackupSettingsPage: React.FC = () => {
   };
 
   const tabs = [
-    { id: 'sync' as TabType, label: t('admin.backup.tabs.sync', 'Синхронизация'), icon: 'refresh-cw' },
-    { id: 'backup' as TabType, label: t('admin.backup.tabs.backup', 'Бекапы'), icon: 'database' },
-    { id: 'history' as TabType, label: t('admin.backup.tabs.history', 'История'), icon: 'clock' },
+    { id: 'sync' as TabType, label: t('admin.backup.tabs.sync'), icon: 'refresh-cw' },
+    { id: 'backup' as TabType, label: t('admin.backup.tabs.backup'), icon: 'database' },
+    { id: 'history' as TabType, label: t('admin.backup.tabs.history'), icon: 'clock' },
   ];
 
   return (
     <AdminPageTemplate 
-      title={t('admin.backup.title', 'Настройки бекапов и синхронизации')} 
+      title={t('admin.backup.title')} 
       showSidebar={true}
-      headerActions={
-        <Button
-          variant="primary"
-          leftIcon={<Icon name="plus" size="sm" />}
-          onClick={handleCreateBackup}
-          className="hidden sm:flex"
-        >
-          {t('admin.backup.create.create', 'Создать бекап')}
-        </Button>
-      }
     >
       <div className="p-4 sm:p-6 pb-24 sm:pb-6">
         {/* Статистика */}
@@ -58,7 +48,7 @@ const BackupSettingsPage: React.FC = () => {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-3 font-medium transition-colors ${
                   activeTab === tab.id
-                    ? 'text-primary border-b-2 border-primary'
+                    ? `${themeClasses.text.primary} border-b-2 border-primary`
                     : `${themeClasses.text.secondary} ${themeClasses.text.hoverPrimary}`
                 }`}
               >
@@ -79,7 +69,7 @@ const BackupSettingsPage: React.FC = () => {
 
           {activeTab === 'backup' && (
             <div>
-              <BackupSettingsSection />
+              <BackupSettingsSection onCreateBackup={handleCreateBackup} />
             </div>
           )}
 

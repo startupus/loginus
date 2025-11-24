@@ -6,6 +6,7 @@ import { PageTemplate } from '../design-system/layouts/PageTemplate';
 import { Button } from '../design-system/primitives/Button';
 import { Icon } from '../design-system/primitives/Icon';
 import { DataSection } from '../design-system/composites/DataSection';
+import { themeClasses } from '../design-system/utils/themeClasses';
 import { personalApi } from '../services/api/personal';
 
 /**
@@ -24,7 +25,7 @@ const PersonalAddressesPage: React.FC = () => {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-text-secondary">{t('common.loading', 'Загрузка...')}</p>
+            <p className={themeClasses.text.secondary}>{t('common.loading', 'Загрузка...')}</p>
           </div>
         </div>
       </PageTemplate>
@@ -45,16 +46,16 @@ const PersonalAddressesPage: React.FC = () => {
             {addresses.map((address: any) => (
               <div
                 key={address.type}
-                className="p-6 rounded-lg border border-border bg-background dark:bg-surface hover:shadow-md transition-shadow"
+                className={`p-6 rounded-lg ${themeClasses.border.default} ${themeClasses.background.surface} hover:shadow-md transition-shadow`}
               >
                 <div className="flex flex-col items-center gap-4">
                   <Icon name={address.icon || 'map-pin'} size="xl" className="text-primary" />
                   <div className="text-center">
-                    <h3 className="font-semibold text-text-primary mb-1">
+                    <h3 className={`font-semibold ${themeClasses.text.primary} mb-1`}>
                       {address.label || address.type}
                     </h3>
                     {address.added ? (
-                      <p className="text-sm text-text-secondary">
+                      <p className={`text-sm ${themeClasses.text.secondary}`}>
                         {address.address || t('common.edit', 'Редактировать')}
                       </p>
                     ) : (

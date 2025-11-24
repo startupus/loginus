@@ -11,6 +11,7 @@ import { LoadingState, ErrorState, EmptyState } from '@/design-system/composites
 import { paymentApi } from '@/services/api/payment';
 import { themeClasses } from '@/design-system/utils/themeClasses';
 import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';
+import { formatNumber, formatCurrency } from '@/utils/intl/formatters';
 import { Link } from 'react-router-dom';
 import { preloadModule } from '@/services/i18n/config';
 
@@ -112,8 +113,8 @@ interface PaymentHistoryItemComponentProps {
 }
 
 const PaymentHistoryItemComponent: React.FC<PaymentHistoryItemComponentProps> = ({ payment }) => {
-  const { i18n } = useTranslation();
-  const locale = i18n.language || 'ru';
+  const currentLang = useCurrentLanguage();
+  const formattedAmount = formatCurrency(Math.abs(payment.amount), payment.currency, currentLang);
   
   return (
     <div className="flex items-center justify-between py-3">
@@ -132,7 +133,7 @@ const PaymentHistoryItemComponent: React.FC<PaymentHistoryItemComponentProps> = 
       </div>
       <div className="flex-shrink-0 text-right ml-4">
         <div className={`font-medium ${themeClasses.text.primary}`}>
-          {payment.amount < 0 ? '−' : '+'}{Math.abs(payment.amount).toLocaleString(locale)} {payment.currency}
+          {payment.amount < 0 ? '−' : '+'}{formattedAmount}
         </div>
       </div>
     </div>
@@ -240,7 +241,7 @@ const PayPage: React.FC = () => {
               icon={<Icon name="credit-card" size="lg" className={themeClasses.text.primary} />}
               title={t('payment.methods.cards', 'Карты')}
               badge={cardsCount > 0 ? cardsCount : undefined}
-              href="/pay/cards"
+              href={buildPathWithLang('/pay/cards', currentLang)}
             />
           </div>
         )}

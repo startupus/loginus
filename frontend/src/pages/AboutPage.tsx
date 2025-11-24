@@ -103,10 +103,10 @@ const AboutPage: React.FC = () => {
       <section className="relative overflow-hidden bg-gradient-to-br from-gray-1 via-white to-primary/5 pt-32 pb-20 dark:from-dark dark:via-dark dark:to-dark-2 lg:pt-40 lg:pb-32">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="mb-6 text-5xl font-bold leading-tight text-text-primary sm:text-6xl lg:text-[64px]">
+            <h1 className={`mb-6 text-5xl font-bold leading-tight ${themeClasses.text.primary} sm:text-6xl lg:text-[64px]`}>
               {t('about.hero.title', 'О Loginus ID')}
             </h1>
-            <p className="mb-10 text-xl leading-relaxed text-text-secondary max-w-3xl mx-auto">
+            <p className={`mb-10 text-xl leading-relaxed ${themeClasses.text.secondary} max-w-3xl mx-auto`}>
               {t('about.hero.description', 'Loginus ID — это единый аккаунт для всех сервисов Loginus. Быстрая и безопасная авторизация, управление данными, платежами и семейным доступом в одном месте.')}
             </p>
             <div className="flex flex-wrap justify-center gap-4">
@@ -140,17 +140,17 @@ const AboutPage: React.FC = () => {
       <section className={`py-20 ${themeClasses.background.surfaceElevated}`}>
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-text-primary mb-6 text-center">
+            <h2 className={`text-3xl font-bold ${themeClasses.text.primary} mb-6 text-center`}>
               {t('about.what.title', 'Что такое Loginus ID?')}
             </h2>
             <div className="prose prose-lg dark:prose-invert max-w-none">
-              <p className="text-lg text-text-secondary leading-relaxed mb-6">
+              <p className={`text-lg ${themeClasses.text.secondary} leading-relaxed mb-6`}>
                 {t('about.what.description1', 'Loginus ID — это единая система идентификации и авторизации для всех сервисов Loginus. Создав один аккаунт, вы получаете доступ ко всем возможностям экосистемы Loginus.')}
               </p>
-              <p className="text-lg text-text-secondary leading-relaxed mb-6">
+              <p className={`text-lg ${themeClasses.text.secondary} leading-relaxed mb-6`}>
                 {t('about.what.description2', 'Система разработана с учетом требований безопасности и защиты персональных данных. Все данные хранятся в зашифрованном виде и защищены по стандарту ГОСТ.')}
               </p>
-              <p className="text-lg text-text-secondary leading-relaxed">
+              <p className={`text-lg ${themeClasses.text.secondary} leading-relaxed`}>
                 {t('about.what.description3', 'С Loginus ID вы можете управлять персональными данными, документами, платежами, семейным доступом и многим другим из единого интерфейса.')}
               </p>
             </div>
@@ -170,13 +170,13 @@ const AboutPage: React.FC = () => {
                 key={index}
                 className={`${themeClasses.card.shadow} rounded-xl p-6 ${themeClasses.border.dark} hover:shadow-lg transition-all`}
               >
-                <div className="w-12 h-12 bg-primary/10 dark:bg-primary/20 rounded-lg flex items-center justify-center mb-4">
+                <div className={`${themeClasses.iconCircle.primarySquare} mb-4`}>
                   <Icon name={feature.icon} size="lg" className="text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold text-text-primary mb-3">
+                <h3 className={`text-xl font-semibold ${themeClasses.text.primary} mb-3`}>
                   {feature.title}
                 </h3>
-                <p className="text-text-secondary leading-relaxed">
+                <p className={`${themeClasses.text.secondary} leading-relaxed`}>
                   {feature.description}
                 </p>
               </div>
@@ -189,19 +189,19 @@ const AboutPage: React.FC = () => {
       <section className={`py-20 ${themeClasses.background.surfaceElevated}`}>
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-text-primary mb-12 text-center">
+            <h2 className={`text-3xl font-bold ${themeClasses.text.primary} mb-12 text-center`}>
               {t('about.benefits.title', 'Почему Loginus ID?')}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {benefits.map((benefit, index) => (
                 <div key={index} className="text-center">
-                  <div className="w-16 h-16 bg-primary/10 dark:bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className={`${themeClasses.iconCircle.primaryLarge} mx-auto mb-4`}>
                     <Icon name="check-circle" size="xl" className="text-primary" />
                   </div>
-                  <h3 className="text-xl font-semibold text-text-primary mb-3">
+                  <h3 className={`text-xl font-semibold ${themeClasses.text.primary} mb-3`}>
                     {benefit.title}
                   </h3>
-                  <p className="text-text-secondary">
+                  <p className={themeClasses.text.secondary}>
                     {benefit.description}
                   </p>
                 </div>
@@ -215,10 +215,10 @@ const AboutPage: React.FC = () => {
       <section className="py-20 bg-gradient-to-br from-primary/10 to-primary/5 dark:from-dark dark:to-dark-2">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-bold text-text-primary mb-6">
+            <h2 className={`text-3xl font-bold ${themeClasses.text.primary} mb-6`}>
               {t('about.cta.title', 'Готовы начать?')}
             </h2>
-            <p className="text-lg text-text-secondary mb-8">
+            <p className={`text-lg ${themeClasses.text.secondary} mb-8`}>
               {t('about.cta.description', 'Создайте свой Loginus ID и получите доступ ко всем возможностям экосистемы Loginus.')}
             </p>
             <Button
@@ -242,11 +242,11 @@ const AboutPage: React.FC = () => {
           <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
             <div className="flex items-center gap-3">
               <div 
-                className="w-8 h-8 rounded-lg flex items-center justify-center ring-1 ring-black/5 !bg-gray-900 text-white dark:!bg-white dark:!text-gray-900"
+                className={`w-8 h-8 rounded-lg flex items-center justify-center ring-1 ring-black/5 ${themeClasses.logo.inverted}`}
               >
                 <span className="text-sm font-extrabold leading-none">iD</span>
               </div>
-              <p className="text-sm text-text-secondary">
+              <p className={`text-sm ${themeClasses.text.secondary}`}>
                 {(() => {
                   const projectStartYear = 2025;
                   const currentYear = new Date().getFullYear();
@@ -258,13 +258,13 @@ const AboutPage: React.FC = () => {
               </p>
             </div>
             <div className="flex gap-8">
-              <a href={buildPathWithLang('/about', currentLang)} className="text-sm font-medium text-text-secondary hover:text-primary transition-colors">
+              <a href={buildPathWithLang('/about', currentLang)} className={`text-sm font-medium ${themeClasses.text.secondary} hover:text-primary transition-colors`}>
                 {t('landing.footer.links.about', 'О проекте')}
               </a>
-              <a href={buildPathWithLang('/privacy', currentLang)} className="text-sm font-medium text-text-secondary hover:text-primary transition-colors">
+              <a href={buildPathWithLang('/privacy', currentLang)} className={`text-sm font-medium ${themeClasses.text.secondary} hover:text-primary transition-colors`}>
                 {t('landing.footer.links.privacy', 'Конфиденциальность')}
               </a>
-              <a href={buildPathWithLang('/terms', currentLang)} className="text-sm font-medium text-text-secondary hover:text-primary transition-colors">
+              <a href={buildPathWithLang('/terms', currentLang)} className={`text-sm font-medium ${themeClasses.text.secondary} hover:text-primary transition-colors`}>
                 {t('landing.footer.links.terms', 'Условия')}
               </a>
             </div>

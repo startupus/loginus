@@ -47,11 +47,11 @@ const PersonalDocumentsPage: React.FC = () => {
                 <div className="flex flex-col items-center gap-4">
                   <Icon name={doc.icon || 'document'} size="xl" className="text-primary" />
                   <div className="text-center">
-                    <h3 className="font-semibold text-text-primary mb-1">
+                    <h3 className={`font-semibold ${themeClasses.text.primary} mb-1`}>
                       {doc.label || doc.type}
                     </h3>
                     {doc.added ? (
-                      <p className="text-sm text-text-secondary">
+                      <p className={`text-sm ${themeClasses.text.secondary}`}>
                         {t('common.edit')}
                       </p>
                     ) : (

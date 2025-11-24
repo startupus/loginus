@@ -115,9 +115,9 @@ export const RestoreBackupModal: React.FC<RestoreBackupModalProps> = ({
       <div className="space-y-4">
         {backup && (
           <>
-            <div className={`p-4 rounded-lg bg-warning/10 border border-warning/20`}>
+            <div className={`p-4 rounded-lg bg-warning/10 ${themeClasses.border.default} border-warning/20`}>
               <div className="flex items-start gap-3">
-                <Icon name="alert-triangle" size="md" className="text-warning mt-0.5" />
+                <Icon name="alert-triangle" size="md" className={`${themeClasses.text.warning} mt-0.5`} />
                 <div>
                   <p className={`font-medium ${themeClasses.text.primary} mb-1`}>
                     {t('admin.backup.restore.warning', 'Внимание!')}
@@ -160,7 +160,7 @@ export const RestoreBackupModal: React.FC<RestoreBackupModalProps> = ({
                 type="checkbox"
                 checked={restoreOptions.restoreUsers}
                 onChange={(e) => setRestoreOptions(prev => ({ ...prev, restoreUsers: e.target.checked }))}
-                className="w-5 h-5 text-primary rounded"
+                className={`w-5 h-5 ${themeClasses.text.primary} rounded`}
               />
               <div className="flex-1">
                 <p className={`font-medium ${themeClasses.text.primary}`}>
@@ -177,7 +177,7 @@ export const RestoreBackupModal: React.FC<RestoreBackupModalProps> = ({
                 type="checkbox"
                 checked={restoreOptions.restoreSettings}
                 onChange={(e) => setRestoreOptions(prev => ({ ...prev, restoreSettings: e.target.checked }))}
-                className="w-5 h-5 text-primary rounded"
+                className={`w-5 h-5 ${themeClasses.text.primary} rounded`}
               />
               <div className="flex-1">
                 <p className={`font-medium ${themeClasses.text.primary}`}>
@@ -194,7 +194,7 @@ export const RestoreBackupModal: React.FC<RestoreBackupModalProps> = ({
                 type="checkbox"
                 checked={restoreOptions.restoreLogs}
                 onChange={(e) => setRestoreOptions(prev => ({ ...prev, restoreLogs: e.target.checked }))}
-                className="w-5 h-5 text-primary rounded"
+                className={`w-5 h-5 ${themeClasses.text.primary} rounded`}
               />
               <div className="flex-1">
                 <p className={`font-medium ${themeClasses.text.primary}`}>

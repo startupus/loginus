@@ -16,7 +16,7 @@ export const SyncStatusIndicator: React.FC<SyncStatusIndicatorProps> = ({ connec
 
   return (
     <div className={`flex items-center gap-3 p-3 rounded-lg ${themeClasses.background.gray2}`}>
-      <div className={`w-3 h-3 rounded-full ${connected ? 'bg-success' : themeClasses.background.gray2}`} />
+      <div className={`w-3 h-3 rounded-full ${connected ? themeClasses.background.success : themeClasses.background.gray2}`} />
       <div className="flex-1">
         <p className={`text-sm font-medium ${themeClasses.text.primary}`}>
           {connected

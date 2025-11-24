@@ -133,7 +133,7 @@ export const RecentActivitiesWidget: React.FC<RecentActivitiesWidgetProps> = ({
       isDragging={isDragging}
       actions={
         <button
-          className="text-sm text-primary hover:underline"
+          className={`text-sm ${themeClasses.text.primary} hover:underline`}
           aria-label={viewAllLabel}
         >
           {viewAllLabel}

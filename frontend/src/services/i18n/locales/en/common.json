@@ -31,6 +31,9 @@
     "edit": "Edit",
     "delete": "Delete",
     "loading": "Loading...",
+    "selectIcon": "Select icon",
+    "searchIcon": "Search icon...",
+    "noIconsFound": "No icons found",
     "theme": {
       "toggle": "Current theme: {{mode}}. Click to switch",
       "mode": {

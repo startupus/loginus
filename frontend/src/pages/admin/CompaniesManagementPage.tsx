@@ -113,9 +113,9 @@ const CompaniesManagementPage: React.FC = () => {
 
   const getPlanLabel = (plan: string) => {
     const labels: Record<string, string> = {
-      basic: t('admin.companies.plans.basic', 'Базовый'),
-      premium: t('admin.companies.plans.premium', 'Премиум'),
-      enterprise: t('admin.companies.plans.enterprise', 'Корпоративный'),
+      basic: t('admin.companies.plans.basic'),
+      premium: t('admin.companies.plans.premium'),
+      enterprise: t('admin.companies.plans.enterprise'),
     };
     return labels[plan] || plan;
   };
@@ -123,20 +123,20 @@ const CompaniesManagementPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <AdminPageTemplate title={t('admin.companies.title', 'Управление компаниями')} showSidebar={true}>
-        <LoadingState text={t('admin.companies.loading', 'Загрузка компаний...')} />
+      <AdminPageTemplate title={t('admin.companies.title')} showSidebar={true}>
+        <LoadingState text={t('admin.companies.loading')} />
       </AdminPageTemplate>
     );
   }
 
   if (error) {
     return (
-      <AdminPageTemplate title={t('admin.companies.title', 'Управление компаниями')} showSidebar={true}>
+      <AdminPageTemplate title={t('admin.companies.title')} showSidebar={true}>
         <ErrorState
-          title={t('admin.companies.error.title', 'Ошибка загрузки компаний')}
-          description={t('admin.companies.error.description', 'Не удалось загрузить список компаний')}
+          title={t('admin.companies.error.title')}
+          description={t('admin.companies.error.description')}
           action={{
-            label: t('common.retry', 'Повторить'),
+            label: t('common.retry'),
             onClick: () => refetch(),
           }}
         />
@@ -146,7 +146,7 @@ const CompaniesManagementPage: React.FC = () => {
 
   return (
     <AdminPageTemplate 
-      title={t('admin.companies.title', 'Управление компаниями')} 
+      title={t('admin.companies.title')} 
       showSidebar={true}
       headerActions={
         <Button
@@ -155,7 +155,7 @@ const CompaniesManagementPage: React.FC = () => {
           onClick={handleCreateCompany}
           className="hidden sm:flex"
         >
-          {t('admin.companies.add', 'Добавить')}
+          {t('admin.companies.add')}
         </Button>
       }
     >
@@ -166,7 +166,7 @@ const CompaniesManagementPage: React.FC = () => {
           <div className="lg:col-span-2">
             <Input
               type="text"
-              placeholder={t('admin.companies.search', 'Поиск по названию или домену...')}
+              placeholder={t('admin.companies.search')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               rightIcon={<Icon name="search" size="sm" className={themeClasses.text.secondary} />}
@@ -180,10 +180,10 @@ const CompaniesManagementPage: React.FC = () => {
               onChange={(e) => setPlanFilter(e.target.value)}
               className={`${themeClasses.input.default} w-full`}
             >
-              <option value="all">{t('admin.companies.filters.allPlans', 'Все тарифы')}</option>
-              <option value="basic">{t('admin.companies.plans.basic', 'Базовый')}</option>
-              <option value="premium">{t('admin.companies.plans.premium', 'Премиум')}</option>
-              <option value="enterprise">{t('admin.companies.plans.enterprise', 'Корпоративный')}</option>
+              <option value="all">{t('admin.companies.filters.allPlans')}</option>
+              <option value="basic">{t('admin.companies.plans.basic')}</option>
+              <option value="premium">{t('admin.companies.plans.premium')}</option>
+              <option value="enterprise">{t('admin.companies.plans.enterprise')}</option>
             </select>
           </div>
         </div>
@@ -195,22 +195,22 @@ const CompaniesManagementPage: React.FC = () => {
               <thead className={themeClasses.background.gray2}>
                 <tr>
                   <th className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary}`}>
-                    {t('admin.companies.table.name', 'Название')}
+                    {t('admin.companies.table.name')}
                   </th>
                   <th className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary}`}>
-                    {t('admin.companies.table.plan', 'Тариф')}
+                    {t('admin.companies.table.plan')}
                   </th>
                   <th className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary}`}>
-                    {t('admin.companies.table.services', 'Сервисы')}
+                    {t('admin.companies.table.services')}
                   </th>
                   <th className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary}`}>
-                    {t('admin.companies.table.users', 'Пользователи')}
+                    {t('admin.companies.table.users')}
                   </th>
                   <th className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary}`}>
-                    {t('admin.companies.table.lastActivity', 'Последняя активность')}
+                    {t('admin.companies.table.lastActivity')}
                   </th>
                   <th className={`px-6 py-4 text-right text-sm font-semibold ${themeClasses.text.primary}`}>
-                    {t('admin.companies.table.actions', 'Действия')}
+                    {t('admin.companies.table.actions')}
                   </th>
                 </tr>
               </thead>
@@ -220,8 +220,8 @@ const CompaniesManagementPage: React.FC = () => {
                     <td colSpan={6} className="px-6 py-12">
                       <EmptyState
                         icon="briefcase"
-                        title={t('admin.companies.empty.title', 'Компании не найдены')}
-                        description={t('admin.companies.empty.description', 'Попробуйте изменить параметры поиска или фильтры')}
+                        title={t('admin.companies.empty.title')}
+                        description={t('admin.companies.empty.description')}
                       />
                     </td>
                   </tr>
@@ -264,17 +264,17 @@ const CompaniesManagementPage: React.FC = () => {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleViewCompany(company.id)}
-                            title={t('admin.companies.view', 'Просмотр')}
+                            title={t('admin.companies.view')}
                           >
                             <Icon name="eye" size="sm" className="mr-2" />
-                            {t('admin.companies.view', 'Просмотр')}
+                            {t('admin.companies.view')}
                           </Button>
                           <Button
                             variant="ghost"
                             size="sm"
                             iconOnly
                             onClick={() => handleEditCompany(company)}
-                            title={t('admin.companies.edit', 'Редактировать')}
+                            title={t('admin.companies.edit')}
                           >
                             <Icon name="edit" size="sm" />
                           </Button>
@@ -283,9 +283,9 @@ const CompaniesManagementPage: React.FC = () => {
                             size="sm"
                             iconOnly
                             onClick={() => handleDeleteClick(company.id)}
-                            title={t('admin.companies.delete', 'Удалить')}
+                            title={t('admin.companies.delete')}
                           >
-                            <Icon name="trash" size="sm" className="text-error" />
+                            <Icon name="trash" size="sm" className={themeClasses.text.error} />
                           </Button>
                         </div>
                       </td>
@@ -328,21 +328,21 @@ const CompaniesManagementPage: React.FC = () => {
       <Modal
         isOpen={deleteConfirmModal.isOpen}
         onClose={() => setDeleteConfirmModal({ companyId: null, isOpen: false })}
-        title={t('admin.companies.deleteConfirmTitle', 'Подтверждение удаления')}
+        title={t('admin.companies.deleteConfirmTitle')}
         size="sm"
         footer={
           <div className="flex gap-3 justify-end">
             <Button variant="outline" onClick={() => setDeleteConfirmModal({ companyId: null, isOpen: false })}>
-              {t('common.cancel', 'Отменить')}
+              {t('common.cancel')}
             </Button>
             <Button variant="error" onClick={handleDeleteConfirm}>
-              {t('common.delete', 'Удалить')}
+              {t('common.delete')}
             </Button>
           </div>
         }
       >
         <p className={themeClasses.text.primary}>
-          {t('admin.companies.deleteConfirm', 'Вы уверены, что хотите удалить компанию?')}
+          {t('admin.companies.deleteConfirm')}
         </p>
       </Modal>
     </AdminPageTemplate>
@@ -402,12 +402,12 @@ const CompanyEditModal: React.FC<CompanyEditModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={isCreateMode ? t('admin.companies.createCompany', 'Создать компанию') : t('admin.companies.editCompany', 'Редактировать компанию')}
+      title={isCreateMode ? t('admin.companies.createCompany') : t('admin.companies.editCompany')}
       size="lg"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
-          label={t('admin.companies.form.name', 'Название компании')}
+          label={t('admin.companies.form.name')}
           type="text"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -415,7 +415,7 @@ const CompanyEditModal: React.FC<CompanyEditModalProps> = ({
         />
 
         <Input
-          label={t('admin.companies.form.domain', 'Домен')}
+          label={t('admin.companies.form.domain')}
           type="text"
           value={formData.domain}
           onChange={(e) => setFormData({ ...formData, domain: e.target.value })}
@@ -424,7 +424,7 @@ const CompanyEditModal: React.FC<CompanyEditModalProps> = ({
 
         <div>
           <label className={`block text-sm font-medium ${themeClasses.text.primary} mb-2`}>
-            {t('admin.companies.form.plan', 'Тариф')}
+            {t('admin.companies.form.plan')}
           </label>
           <select
             value={formData.subscriptionPlan}
@@ -432,22 +432,22 @@ const CompanyEditModal: React.FC<CompanyEditModalProps> = ({
             className={`${themeClasses.input.default} w-full`}
             required
           >
-            <option value="basic">{t('admin.companies.plans.basic', 'Базовый')}</option>
-            <option value="premium">{t('admin.companies.plans.premium', 'Премиум')}</option>
-            <option value="enterprise">{t('admin.companies.plans.enterprise', 'Корпоративный')}</option>
+            <option value="basic">{t('admin.companies.plans.basic')}</option>
+            <option value="premium">{t('admin.companies.plans.premium')}</option>
+            <option value="enterprise">{t('admin.companies.plans.enterprise')}</option>
           </select>
         </div>
 
         <div className="flex justify-end gap-3 pt-4 border-t border-border">
           <Button variant="outline" onClick={onClose} type="button">
-            {t('common.cancel', 'Отмена')}
+            {t('common.cancel')}
           </Button>
           <Button
             variant="primary"
             type="submit"
             loading={createMutation.isPending || updateMutation.isPending}
           >
-            {isCreateMode ? t('common.create', 'Создать') : t('common.save', 'Сохранить')}
+            {isCreateMode ? t('common.create') : t('common.save')}
           </Button>
         </div>
       </form>

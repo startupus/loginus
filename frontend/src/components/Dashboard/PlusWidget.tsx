@@ -72,7 +72,7 @@ export const PlusWidget: React.FC<PlusWidgetProps> = ({
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-text-secondary mb-1">
+            <p className={`text-sm ${themeClasses.text.secondary} mb-1`}>
               {t('dashboard.plus.status', 'Статус')}
             </p>
             {active ? (
@@ -89,12 +89,12 @@ export const PlusWidget: React.FC<PlusWidgetProps> = ({
         
         {active && (
           <>
-            <div className="flex items-center justify-between p-3 rounded-lg bg-primary/5 dark:bg-primary/10 transition-all duration-200 group-hover:bg-primary/10 dark:group-hover:bg-primary/20">
+            <div className={`flex items-center justify-between p-3 rounded-lg ${themeClasses.background.primarySemiTransparent} transition-all duration-200 ${themeClasses.background.primarySemiTransparentHover}`}>
               <div>
-                <p className="text-sm text-text-secondary mb-1">
+                <p className={`text-sm ${themeClasses.text.secondary} mb-1`}>
                   {t('dashboard.plus.points', 'Баллы')}
                 </p>
-                <p className="text-xl font-bold text-text-primary transition-transform duration-200 group-hover:scale-105">
+                <p className={`text-xl font-bold ${themeClasses.text.primary} transition-transform duration-200 group-hover:scale-105`}>
                   {formatNumber(points, currentLang)}
                 </p>
               </div>
@@ -103,15 +103,15 @@ export const PlusWidget: React.FC<PlusWidgetProps> = ({
             {tasks > 0 && (
               <div className={`flex items-center justify-between p-3 rounded-lg ${themeClasses.card.gridItem}`}>
                 <div>
-                  <p className="text-sm text-text-secondary mb-1">
+                  <p className={`text-sm ${themeClasses.text.secondary} mb-1`}>
                     {t('dashboard.plus.tasks', 'Заданий')}
                   </p>
-                  <p className="text-lg font-semibold text-text-primary">
+                  <p className={`text-lg font-semibold ${themeClasses.text.primary}`}>
                     {tasks}
                   </p>
                 </div>
-                <Link to="/plus/tasks" className="inline-block">
-                  <Button variant="ghost" size="sm" className="transition-all duration-200 hover:scale-105 hover:bg-primary/10">
+                <Link to={buildPathWithLang('/plus/tasks', currentLang)} className="inline-block">
+                  <Button variant="ghost" size="sm" className={`transition-all duration-200 hover:scale-105 ${themeClasses.background.primarySemiTransparentHover}`}>
                     {t('dashboard.plus.complete', 'Выполнить')}
                   </Button>
                 </Link>

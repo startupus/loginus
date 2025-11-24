@@ -205,7 +205,7 @@ export const Modal: React.FC<ModalProps> = ({
   const modalContent = (
     // Overlay - ТОЧНЫЕ классы из TailGrids Modal1.jsx
     <div 
-      className={`fixed left-0 top-0 ${position === 'center' ? 'z-[100001]' : 'z-[100]'} flex h-full min-h-screen w-full ${positionClasses} ${position === 'center' ? 'bg-text-primary/90 px-4 py-5' : ''}`}
+      className={`fixed left-0 top-0 ${position === 'center' ? 'z-[100001]' : 'z-[100]'} flex h-full min-h-screen w-full ${positionClasses} ${position === 'center' ? `${themeClasses.overlay.modal} px-4 py-5` : ''}`}
       style={position !== 'center' ? { background: 'transparent', pointerEvents: 'none' } : {}}
       onClick={(e) => {
         // Закрываем модалку при клике на overlay
@@ -217,14 +217,14 @@ export const Modal: React.FC<ModalProps> = ({
       {/* Modal Content - классы из TailGrids Modal1.jsx */}
         <div
         ref={modalRef}
-        className={`w-full ${sizeClasses[size]} rounded-[20px] ${themeClasses.card.shadow} px-8 py-12 text-center md:px-[70px] md:py-[60px] ${className}`}
+        className={`w-full ${sizeClasses[size]} rounded-2xl ${themeClasses.card.shadow} ${themeClasses.background.surface} flex flex-col max-h-[90vh] ${className}`}
         style={position !== 'center' ? { ...positionStyles, position: 'fixed', zIndex: 101, pointerEvents: 'auto' } : {}}
         >
         {/* Close Button */}
         {showCloseButton && (
           <button
             onClick={onClose}
-            className={`absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full ${themeClasses.background.gray} ${themeClasses.active.navItemInactive} transition-colors ${themeClasses.text.primary} hover:text-error shadow-sm`}
+            className={`absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full ${themeClasses.background.gray} ${themeClasses.active.navItemInactive} transition-colors ${themeClasses.text.primary} hover:text-error shadow-sm z-10`}
             aria-label="Close"
           >
             <svg
@@ -245,26 +245,28 @@ export const Modal: React.FC<ModalProps> = ({
           </button>
         )}
         
-        {/* Title - из TailGrids Modal1.jsx */}
+        {/* Header - фиксированный вверху */}
           {title && (
-          <>
+          <div className="flex-shrink-0 px-8 pt-12 pb-6 text-center md:px-[70px] md:pt-[60px]">
             <h3 className={`pb-[18px] text-xl font-semibold ${themeClasses.text.primary} sm:text-2xl`}>
               {title}
             </h3>
             {/* Separator - из TailGrids Modal1.jsx */}
             <span className="mx-auto mb-6 inline-block h-1 w-[90px] rounded-sm bg-primary"></span>
-          </>
+          </div>
           )}
 
-        {/* Content - из TailGrids Modal1.jsx */}
-        <div className={`mb-10 text-base leading-relaxed ${themeClasses.text.secondary}`}>
+        {/* Content - скроллируемый */}
+        <div className={`flex-1 overflow-y-auto px-8 text-base leading-relaxed ${themeClasses.text.secondary} ${title ? '' : 'pt-12 md:pt-[60px]'} ${footer ? 'pb-4' : 'pb-12 md:pb-[60px]'} md:px-[70px]`}>
           {children}
         </div>
 
-          {/* Footer */}
+          {/* Footer - фиксированный внизу */}
           {footer && (
-          <div className="-mx-3 flex flex-wrap">
+          <div className={`flex-shrink-0 border-t ${themeClasses.border.default} px-8 py-4 md:px-[70px] ${themeClasses.background.surface}`}>
+            <div className="flex justify-end gap-3">
               {footer}
+            </div>
             </div>
           )}
       </div>

@@ -1,7 +1,8 @@
-import React, { useMemo, useState, useCallback, lazy, Suspense } from 'react';
+import React, { useMemo, useState, useCallback, lazy, Suspense, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { PageTemplate } from '@/design-system/layouts/PageTemplate';
+import { preloadModule } from '@/services/i18n/config';
 // Прямые импорты для tree-shaking
 import { Button } from '@/design-system/primitives/Button';
 import { Icon } from '@/design-system/primitives/Icon';
@@ -10,6 +11,7 @@ import { Badge } from '@/design-system/primitives/Badge';
 import { DataSection } from '@/design-system/composites/DataSection';
 import { SeparatedList } from '@/design-system/composites/SeparatedList';
 import { Separator } from '@/design-system/primitives/Separator';
+import { LoadingState, ErrorState, EmptyState } from '@/design-system/composites';
 import { PetsSection } from '@/components/Dashboard/PetsSection';
 import { familyApi } from '@/services/api/family';
 import { personalApi } from '@/services/api/personal';
@@ -61,7 +63,7 @@ const MemberItem: React.FC<MemberItemProps> = React.memo(({ member, isChild = fa
   if (isPending) {
     roleText = ''; // Для pending не показываем описание
   } else if (isAdmin) {
-    roleText = `${t('family.role.admin', 'Админ')} • ${member.email || member.phone || ''}`;
+    roleText = `${t('family.role.admin')} • ${member.email || member.phone || ''}`;
   } else if (isChildMember) {
     roleText = ''; // Для детей не показываем email
   } else {
@@ -99,11 +101,11 @@ const MemberItem: React.FC<MemberItemProps> = React.memo(({ member, isChild = fa
             status={member.isOnline ? 'online' : 'offline'}
           />
           {badgeIcon && (
-            <div className="absolute -bottom-1 -right-1 bg-background dark:bg-dark-2 rounded-full p-0.5">
+            <div className={`absolute -bottom-1 -right-1 ${themeClasses.background.surfaceElevated} rounded-full p-0.5`}>
               <Icon 
                 name={badgeIcon} 
                 size="xs" 
-                className="text-text-secondary"
+                className={themeClasses.text.secondary}
               />
             </div>
           )}
@@ -139,9 +141,42 @@ MemberItem.displayName = 'MemberItem';
  * FamilyPage - страница управления семьей
  */
 const FamilyPage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  
+  // Предзагрузка модуля modals для переводов типов питомцев
+  useEffect(() => {
+    const loadModules = async () => {
+      try {
+        // Модуль profile уже загружается в критичных модулях, загружаем только modals
+        await preloadModule('modals');
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('[FamilyPage] Failed to load modules:', error);
+        }
+      }
+    };
+
+    loadModules();
+
+    // Перезагружаем модули при смене языка
+    const handleLanguageChanged = async () => {
+      try {
+        await preloadModule('modals');
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('[FamilyPage] Failed to reload modules on language change:', error);
+        }
+      }
+    };
+
+    i18n.on('languageChanged', handleLanguageChanged);
+
+    return () => {
+      i18n.off('languageChanged', handleLanguageChanged);
+    };
+  }, [i18n]);
   
   // Мемоизированные обработчики для оптимизации
   const handleOpenModal = useCallback((e: React.MouseEvent) => {
@@ -158,7 +193,7 @@ const FamilyPage: React.FC = () => {
     setIsInviteModalOpen(false);
   }, [queryClient]);
   
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['family-members'],
     queryFn: () => familyApi.getMembers(),
     staleTime: 5 * 60 * 1000, // 5 минут - данные считаются свежими
@@ -186,28 +221,38 @@ const FamilyPage: React.FC = () => {
 
   // Константы для features группы
   const groupFeatures = useMemo(() => [
-    { icon: 'credit-card' as const, title: t('family.features.pay', 'Семейная оплата'), active: true },
-    { icon: 'plus' as const, title: t('family.features.plus', 'Плюс для близких'), active: true },
-    { icon: 'mail' as const, title: t('family.features.y360', 'Тариф Яндекс 360'), active: false },
-    { icon: 'users' as const, title: t('family.features.roles', 'Роли'), active: true },
+    { icon: 'credit-card' as const, title: t('family.features.pay'), active: true },
+    { icon: 'plus' as const, title: t('family.features.plus'), active: true },
+    { icon: 'mail' as const, title: t('family.features.y360'), active: false },
+    { icon: 'users' as const, title: t('family.features.roles'), active: true },
   ], [t]);
 
   if (isLoading) {
     return (
-      <PageTemplate title={t('sidebar.family', 'Семья')} showSidebar={true}>
-        <div className={themeClasses.state.loading}>
-          <div className={themeClasses.state.loadingSpinner}>
-            <div className={themeClasses.state.loadingSpinnerElement}></div>
-            <p className={themeClasses.text.secondary}>{t('common.loading', 'Загрузка...')}</p>
-          </div>
-        </div>
+      <PageTemplate title={t('sidebar.family')} showSidebar={true}>
+        <LoadingState text={t('common.loading')} />
+      </PageTemplate>
+    );
+  }
+
+  if (error) {
+    return (
+      <PageTemplate title={t('sidebar.family')} showSidebar={true}>
+        <ErrorState
+          title={t('common.error')}
+          description={t('common.error')}
+          action={{
+            label: t('common.retry'),
+            onClick: () => queryClient.invalidateQueries({ queryKey: ['family-members'] }),
+          }}
+        />
       </PageTemplate>
     );
   }
 
   return (
     <PageTemplate 
-      title={t('sidebar.family', 'Семья')} 
+      title={t('sidebar.family')} 
       showSidebar={true}
       contentClassName="space-y-8 max-w-4xl mx-auto"
     >
@@ -216,16 +261,16 @@ const FamilyPage: React.FC = () => {
           <div className={themeClasses.promo.content}>
             <div className="flex-1">
               <h2 className={`${themeClasses.promo.title} ${themeClasses.text.white}`}>
-                {t('family.promo.plus.title', 'Плюса хватит всем')}
+                {t('family.promo.plus.title')}
               </h2>
               <p className={`${themeClasses.promo.description} ${themeClasses.text.whiteOpacity}`}>
-                {t('family.promo.plus.description', 'Одной подписки мало? Добавьте ещё 2 близких и 5 устройств')}
+                {t('family.promo.plus.description')}
               </p>
               <Button 
                 variant="secondary" 
                 className={themeClasses.promo.buttonInverted}
               >
-                {t('family.promo.plus.action', 'Расширить за 250 ₽ в месяц')}
+                {t('family.promo.plus.action')}
               </Button>
             </div>
             <div className={`${themeClasses.promo.iconHidden} ${themeClasses.text.whiteOpacity}`}>
@@ -240,7 +285,7 @@ const FamilyPage: React.FC = () => {
         {/* Family Group Section */}
         <DataSection
           id="group"
-          title={t('family.group.title', 'Семейная группа')}
+          title={t('family.group.title')}
         >
           <div className={LIST_CONTAINER_CLASSES}>
             {(members.length > 0 || pendingInvites.length > 0) ? (
@@ -279,7 +324,7 @@ const FamilyPage: React.FC = () => {
                         <Icon name="plus" size="md" />
                       </div>
                       <div className={`font-medium ${themeClasses.text.primary}`}>
-                        {t('family.invite.action', 'Пригласить близкого')}
+                        {t('family.inviteButton')}
                       </div>
                     </div>
                   </button>
@@ -297,32 +342,24 @@ const FamilyPage: React.FC = () => {
                         <Icon name="smile" size="md" />
                       </div>
                       <div className={`font-medium ${themeClasses.text.primary}`}>
-                        {t('family.child.create', 'Создать детский аккаунт')}
+                        {t('family.child.create')}
                       </div>
                     </div>
                   </a>
                 </div>
               </div>
             ) : (
-              <div className={EMPTY_STATE_CLASSES}>
-                <div className={themeClasses.iconCircle.info + ' mb-4'}>
-                  <Icon name="users" size="lg" />
-                </div>
-                <h3 className={`text-lg font-medium ${themeClasses.text.primary} mb-2`}>
-                  {t('family.empty.title', 'Нет участников')}
-                </h3>
-                <p className={`${themeClasses.text.secondary} max-w-md mb-4`}>
-                  {t('family.empty.description', 'Пригласите близких в семейную группу, чтобы делиться подписками и сервисами')}
-                </p>
-                <Button 
-                  variant="primary" 
-                  size="sm"
-                  leftIcon={<Icon name="user-plus" size="sm" />}
-                  onClick={handleOpenModal}
-                >
-                  {t('family.inviteButton', 'Пригласить участника')}
-                </Button>
-              </div>
+              <EmptyState
+                icon="users"
+                title={t('family.empty.title')}
+                description={t('family.empty.description')}
+                action={{
+                  label: t('family.inviteButton'),
+                  onClick: handleOpenModal,
+                  variant: 'primary',
+                }}
+                variant="info"
+              />
             )}
           </div>
         </DataSection>
@@ -330,7 +367,7 @@ const FamilyPage: React.FC = () => {
         {/* Group Features Section */}
         <DataSection
           id="features"
-          title={t('family.features.title', 'Возможности группы')}
+          title={t('family.features.title')}
         >
           <div className={LIST_CONTAINER_CLASSES}>
             <SeparatedList className="p-4">
@@ -358,7 +395,7 @@ const FamilyPage: React.FC = () => {
                   }
                 >
                   <span className={`font-medium ${themeClasses.text.primary}`}>
-                    {t('family.features.delete', 'Удалить группу')}
+                    {t('family.features.delete')}
                   </span>
                 </Button>
               </div>

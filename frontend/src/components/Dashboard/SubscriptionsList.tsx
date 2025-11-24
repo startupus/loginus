@@ -99,7 +99,7 @@ export const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
           >
             {/* Заголовок с бейджем */}
             <div className="flex items-start justify-between gap-2 mb-3">
-              <h3 className="text-base font-semibold text-text-primary">
+              <h3 className={`text-base font-semibold ${themeClasses.text.primary}`}>
                 {getSubscriptionName(subscription.type, t, subscription.name)}
               </h3>
               {subscription.active && (
@@ -120,7 +120,7 @@ export const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                 {getPriceLabel(subscription)}
               </div>
               {getPricePerMonthLabel(subscription) && (
-                <div className="text-xs text-text-secondary mt-1">
+                <div className={`text-xs ${themeClasses.text.secondary} mt-1`}>
                   {getPricePerMonthLabel(subscription)}
                 </div>
               )}
@@ -129,7 +129,7 @@ export const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
             {/* Статус или дата */}
             {subscription.active && subscription.expiresAt && (
               <div className="mb-3">
-                <p className="text-xs text-text-secondary">
+                <p className={`text-xs ${themeClasses.text.secondary}`}>
                   {t('dashboard.subscriptions.activeUntil', {
                     date: subscription.expiresAt,
                     defaultValue: `Active until ${subscription.expiresAt}`,
@@ -169,13 +169,13 @@ export const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                     {getPriceLabel(selectedSubscription)}
                   </span>
                   {getPricePerMonthLabel(selectedSubscription) && (
-                    <span className="text-sm text-text-secondary">
+                    <span className={`text-sm ${themeClasses.text.secondary}`}>
                       {getPricePerMonthLabel(selectedSubscription)}
                     </span>
                   )}
                 </div>
                 {selectedSubscription.active && selectedSubscription.expiresAt && (
-                  <p className="text-sm text-text-secondary">
+                  <p className={`text-sm ${themeClasses.text.secondary}`}>
                     {t('dashboard.subscriptions.activeUntil', {
                       date: selectedSubscription.expiresAt,
                       defaultValue: `Active until ${selectedSubscription.expiresAt}`,
@@ -201,7 +201,7 @@ export const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
             {/* Преимущества */}
             {getSubscriptionFeatures(selectedSubscription.type, t, selectedSubscription.features).length > 0 && (
               <div>
-                <h4 className="text-lg font-semibold text-text-primary mb-3">
+                <h4 className={`text-lg font-semibold ${themeClasses.text.primary} mb-3`}>
                   {t('dashboard.subscriptions.includes', { defaultValue: 'Included in subscription:' })}
                 </h4>
                 <div className="space-y-3">
@@ -214,7 +214,7 @@ export const SubscriptionsList: React.FC<SubscriptionsListProps> = ({
                           className="text-success" 
                         />
                       </div>
-                      <span className="text-sm text-text-secondary flex-1">
+                      <span className={`text-sm ${themeClasses.text.secondary} flex-1`}>
                         {feature}
                       </span>
                     </div>

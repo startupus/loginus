@@ -61,7 +61,7 @@ export const PetsSection: React.FC<PetsSectionProps> = ({
           pets.map((pet, index) => (
             <button
               key={pet.id}
-              className={`w-full p-4 rounded-lg bg-gray-1/50 dark:bg-dark-3/50 ${themeClasses.border.default} hover:border-primary/30 dark:hover:border-primary/30 hover:bg-gray-1 dark:hover:bg-dark-3 transition-all duration-200 animate-fade-in text-left`}
+              className={`w-full p-4 rounded-lg ${themeClasses.background.cardSemiTransparent} ${themeClasses.border.default} hover:border-primary/30 dark:hover:border-primary/30 ${themeClasses.background.cardHover} transition-all duration-200 animate-fade-in text-left`}
               style={{ animationDelay: `${index * 30}ms` }}
             >
               <div className="flex items-center gap-4">
@@ -73,7 +73,7 @@ export const PetsSection: React.FC<PetsSectionProps> = ({
                     className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
                   />
                 ) : (
-                  <div className="w-12 h-12 rounded-lg bg-gray-1 dark:bg-dark-3 flex items-center justify-center flex-shrink-0">
+                  <div className={`w-12 h-12 rounded-lg ${themeClasses.background.iconContainer} flex items-center justify-center flex-shrink-0`}>
                     <Icon name="heart" size="md" className={themeClasses.text.secondary} />
                   </div>
                 )}

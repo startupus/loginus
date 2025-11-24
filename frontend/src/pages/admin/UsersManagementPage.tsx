@@ -6,7 +6,6 @@ import { Input } from '../../design-system/primitives/Input';
 import { Button } from '../../design-system/primitives/Button';
 import { Icon } from '../../design-system/primitives/Icon';
 import { Badge } from '../../design-system/primitives/Badge';
-import { Avatar } from '../../design-system/primitives/Avatar';
 import { Modal } from '../../design-system/composites/Modal';
 import { adminApi } from '../../services/api/admin';
 import { useAdminPermissions } from '../../hooks/useAdminPermissions';
@@ -31,7 +30,7 @@ interface User {
 
 const UsersManagementPage: React.FC = () => {
   const { t } = useTranslation();
-  const { isSuperAdmin, canAccessCompany } = useAdminPermissions();
+  const { isSuperAdmin } = useAdminPermissions();
   const [deleteConfirmModal, setDeleteConfirmModal] = useState<{ userId: string | null; isOpen: boolean }>({ userId: null, isOpen: false });
   const currentLang = useCurrentLanguage();
   const locale = currentLang === 'en' ? 'en' : 'ru';
@@ -90,13 +89,15 @@ const UsersManagementPage: React.FC = () => {
   });
 
   // Извлечение данных из ответа API
-  const users = Array.isArray(usersResponse?.data?.data?.data) 
-    ? usersResponse.data.data.data 
-    : [];
-  const companies = Array.isArray(companiesResponse?.data?.data?.data) 
-    ? companiesResponse.data.data.data 
-    : [];
-  const meta = usersResponse?.data?.data?.meta || { total: 0, page: 1, limit: 10, totalPages: 1 };
+  const users = usersResponse?.data?.data?.users || [];
+  const companies = companiesResponse?.data?.data?.companies || [];
+  const metaData = usersResponse?.data?.data || { total: 0, page: 1, limit: 10 };
+  const meta = {
+    total: metaData.total,
+    page: metaData.page,
+    limit: metaData.limit,
+    totalPages: Math.ceil(metaData.total / metaData.limit),
+  };
   
   // Обработчик сортировки
   const handleSort = (column: 'displayName' | 'role' | 'status' | 'createdAt') => {
@@ -171,27 +172,27 @@ const UsersManagementPage: React.FC = () => {
 
   const getRoleLabel = (role: string) => {
     const labels: Record<string, string> = {
-      super_admin: t('admin.users.roles.super_admin', 'Супер-админ'),
-      super_admin_staff: t('admin.users.roles.super_admin_staff', 'Персонал супер-админа'),
-      company_admin: t('admin.users.roles.company_admin', 'Админ компании'),
-      company_admin_staff: t('admin.users.roles.company_admin_staff', 'Персонал админа'),
-      user: t('admin.users.roles.user', 'Пользователь'),
+      super_admin: t('admin.users.roles.super_admin'),
+      super_admin_staff: t('admin.users.roles.super_admin_staff'),
+      company_admin: t('admin.users.roles.company_admin'),
+      company_admin_staff: t('admin.users.roles.company_admin_staff'),
+      user: t('admin.users.roles.user'),
     };
     return labels[role] || role;
   };
 
   const getStatusLabel = (status: string) => {
     const labels: Record<string, string> = {
-      active: t('admin.users.status.active', 'Активен'),
-      inactive: t('admin.users.status.inactive', 'Неактивен'),
-      blocked: t('admin.users.status.blocked', 'Заблокирован'),
+      active: t('admin.users.status.active'),
+      inactive: t('admin.users.status.inactive'),
+      blocked: t('admin.users.status.blocked'),
     };
     return labels[status] || status;
   };
 
   if (isLoading) {
     return (
-      <AdminPageTemplate title={t('admin.users.title', 'Управление пользователями')} showSidebar={true}>
+      <AdminPageTemplate title={t('admin.users.title')} showSidebar={true}>
         <div className="flex items-center justify-center min-h-[400px]">
           <Icon name="loader" size="lg" className="animate-spin" color="rgb(var(--color-primary))" />
         </div>
@@ -201,12 +202,12 @@ const UsersManagementPage: React.FC = () => {
 
   if (error) {
     return (
-      <AdminPageTemplate title={t('admin.users.title', 'Управление пользователями')} showSidebar={true}>
+      <AdminPageTemplate title={t('admin.users.title')} showSidebar={true}>
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <Icon name="alert-circle" size="lg" color="rgb(var(--color-error))" className="mx-auto mb-4" />
             <p className={themeClasses.text.secondary}>
-              {t('errors.500Description', 'Что-то пошло не так. Мы уже работаем над исправлением.')}
+              {t('errors.500Description')}
             </p>
           </div>
         </div>
@@ -225,7 +226,7 @@ const UsersManagementPage: React.FC = () => {
           onClick={handleCreateUser}
           className="hidden sm:flex"
         >
-          {t('admin.users.add', 'Добавить')}
+          {t('admin.users.add')}
         </Button>
       }
     >
@@ -236,7 +237,7 @@ const UsersManagementPage: React.FC = () => {
           <div className="lg:col-span-2">
             <Input
               type="text"
-              placeholder={t('admin.users.search', 'Поиск по имени, email или телефону...')}
+              placeholder={t('admin.users.search')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               rightIcon={<Icon name="search" size="sm" className={themeClasses.text.secondary} />}
@@ -250,12 +251,12 @@ const UsersManagementPage: React.FC = () => {
               onChange={(e) => setRoleFilter(e.target.value)}
               className={`${themeClasses.input.default} w-full`}
             >
-              <option value="all">{t('admin.users.filters.allRoles', 'Все роли')}</option>
-              <option value="super_admin">{t('admin.users.roles.super_admin', 'Супер-админ')}</option>
-              <option value="super_admin_staff">{t('admin.users.roles.super_admin_staff', 'Персонал супер-админа')}</option>
-              <option value="company_admin">{t('admin.users.roles.company_admin', 'Админ компании')}</option>
-              <option value="company_admin_staff">{t('admin.users.roles.company_admin_staff', 'Персонал админа')}</option>
-              <option value="user">{t('admin.users.roles.user', 'Пользователь')}</option>
+              <option value="all">{t('admin.users.filters.allRoles')}</option>
+              <option value="super_admin">{t('admin.users.roles.super_admin')}</option>
+              <option value="super_admin_staff">{t('admin.users.roles.super_admin_staff')}</option>
+              <option value="company_admin">{t('admin.users.roles.company_admin')}</option>
+              <option value="company_admin_staff">{t('admin.users.roles.company_admin_staff')}</option>
+              <option value="user">{t('admin.users.roles.user')}</option>
             </select>
           </div>
 
@@ -266,10 +267,10 @@ const UsersManagementPage: React.FC = () => {
               onChange={(e) => setStatusFilter(e.target.value)}
               className={`${themeClasses.input.default} w-full`}
             >
-              <option value="all">{t('admin.users.filters.allStatuses', 'Все статусы')}</option>
-              <option value="active">{t('admin.users.status.active', 'Активен')}</option>
-              <option value="inactive">{t('admin.users.status.inactive', 'Неактивен')}</option>
-              <option value="blocked">{t('admin.users.status.blocked', 'Заблокирован')}</option>
+              <option value="all">{t('admin.users.filters.allStatuses')}</option>
+              <option value="active">{t('admin.users.status.active')}</option>
+              <option value="inactive">{t('admin.users.status.inactive')}</option>
+              <option value="blocked">{t('admin.users.status.blocked')}</option>
             </select>
           </div>
 
@@ -281,7 +282,7 @@ const UsersManagementPage: React.FC = () => {
                 onChange={(e) => setCompanyFilter(e.target.value)}
                 className={`${themeClasses.input.default} w-full`}
               >
-                <option value="all">{t('admin.users.filters.allCompanies', 'Все компании')}</option>
+                <option value="all">{t('admin.users.filters.allCompanies')}</option>
                 {companies.map((company: any) => (
                   <option key={company.id} value={company.id}>
                     {company.name}
@@ -303,7 +304,7 @@ const UsersManagementPage: React.FC = () => {
                     onClick={() => handleSort('displayName')}
                   >
                     <div className="flex items-center gap-2">
-                      {t('admin.users.table.user', 'Пользователь')}
+                      {t('admin.users.table.user')}
                       {sortBy === 'displayName' && (
                         <Icon name={sortOrder === 'asc' ? 'chevron-up' : 'chevron-down'} size="sm" />
                       )}
@@ -314,7 +315,7 @@ const UsersManagementPage: React.FC = () => {
                     onClick={() => handleSort('role')}
                   >
                     <div className="flex items-center gap-2">
-                      {t('admin.users.table.role', 'Роль')}
+                      {t('admin.users.table.role')}
                       {sortBy === 'role' && (
                         <Icon name={sortOrder === 'asc' ? 'chevron-up' : 'chevron-down'} size="sm" />
                       )}
@@ -325,7 +326,7 @@ const UsersManagementPage: React.FC = () => {
                     onClick={() => handleSort('status')}
                   >
                     <div className="flex items-center gap-2">
-                      {t('admin.users.table.status', 'Статус')}
+                      {t('admin.users.table.status')}
                       {sortBy === 'status' && (
                         <Icon name={sortOrder === 'asc' ? 'chevron-up' : 'chevron-down'} size="sm" />
                       )}
@@ -333,21 +334,21 @@ const UsersManagementPage: React.FC = () => {
                   </th>
                   {isSuperAdmin && (
                     <th                     className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary}`}>
-                      {t('admin.users.table.company', 'Компания')}
+                      {t('admin.users.table.company')}
                     </th>
                   )}
                   <th className={`px-6 py-4 text-left text-sm font-semibold ${themeClasses.text.primary} relative`}>
                     <div className="flex items-center gap-2">
                       <button 
                         onClick={() => setShowDatePicker(!showDatePicker)}
-                        className="flex items-center gap-2 hover:text-primary transition-colors"
+                        className={`flex items-center gap-2 ${themeClasses.link.primary} transition-colors`}
                       >
                         <Icon name="calendar" size="sm" />
-                        {t('admin.users.table.createdAt', 'Дата регистрации')}
+                        {t('admin.users.table.createdAt')}
                       </button>
                       <button 
                         onClick={() => handleSort('createdAt')}
-                        className="hover:text-primary transition-colors"
+                        className={`${themeClasses.link.primary} transition-colors`}
                       >
                         {sortBy === 'createdAt' && (
                           <Icon name={sortOrder === 'asc' ? 'chevron-up' : 'chevron-down'} size="sm" />
@@ -360,20 +361,18 @@ const UsersManagementPage: React.FC = () => {
                           <div>
                             <Input
                               type="date"
-                              label={t('admin.users.dateFrom', 'С')}
+                              label={t('admin.users.dateFrom')}
                               value={dateFrom}
                               onChange={(e) => setDateFrom(e.target.value)}
-                              size="sm"
                               placeholder="дд.мм.гггг"
                             />
                           </div>
                           <div>
                             <Input
                               type="date"
-                              label={t('admin.users.dateTo', 'По')}
+                              label={t('admin.users.dateTo')}
                               value={dateTo}
                               onChange={(e) => setDateTo(e.target.value)}
-                              size="sm"
                               placeholder="дд.мм.гггг"
                             />
                           </div>
@@ -388,7 +387,7 @@ const UsersManagementPage: React.FC = () => {
                               }}
                               className="flex-1"
                             >
-                              {t('common.reset', 'Сбросить')}
+                              {t('common.reset')}
                             </Button>
                             <Button 
                               size="sm" 
@@ -396,7 +395,7 @@ const UsersManagementPage: React.FC = () => {
                               onClick={() => setShowDatePicker(false)}
                               className="flex-1"
                             >
-                              {t('common.apply', 'Применить')}
+                              {t('common.apply')}
                             </Button>
                           </div>
                         </div>
@@ -404,7 +403,7 @@ const UsersManagementPage: React.FC = () => {
                     )}
                   </th>
                   <th className={`px-6 py-4 text-right text-sm font-semibold ${themeClasses.text.primary}`}>
-                    {t('admin.users.table.actions', 'Действия')}
+                    {t('admin.users.table.actions')}
                   </th>
                 </tr>
               </thead>
@@ -415,7 +414,7 @@ const UsersManagementPage: React.FC = () => {
                       <div className="flex flex-col items-center">
                         <Icon name="users" size="lg" className={`${themeClasses.text.secondary} mb-4`} />
                         <p className={themeClasses.text.secondary}>
-                          {t('admin.users.empty', 'Пользователи не найдены')}
+                          {t('admin.users.empty')}
                         </p>
                       </div>
                     </td>
@@ -425,14 +424,14 @@ const UsersManagementPage: React.FC = () => {
                     <tr key={user.id} className={`${themeClasses.list.itemHover} transition-colors`}>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="relative inline-flex items-center justify-center overflow-hidden rounded-full w-10 h-10 text-base bg-primary/10 text-primary font-semibold">
+                          <div className={`relative inline-flex items-center justify-center overflow-hidden rounded-full w-10 h-10 text-base ${themeClasses.iconCircle.primary}`}>
                             {user.avatar ? (
                               <img src={user.avatar} alt={user.displayName} className="w-full h-full object-cover" />
                             ) : (
                               getInitials(user.displayName)
                             )}
                             <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white dark:border-dark-2 ${
-                              user.status === 'active' ? 'bg-success' : 'bg-gray-3'
+                              user.status === 'active' ? themeClasses.background.success : themeClasses.background.gray3
                             }`} />
                           </div>
                           <div>
@@ -477,7 +476,7 @@ const UsersManagementPage: React.FC = () => {
                             size="sm"
                             iconOnly
                             onClick={() => handleEditUser(user)}
-                            title={t('admin.users.edit', 'Редактировать')}
+                            title={t('admin.users.edit')}
                           >
                             <Icon name="edit" size="sm" />
                           </Button>
@@ -486,9 +485,9 @@ const UsersManagementPage: React.FC = () => {
                             size="sm"
                             iconOnly
                             onClick={() => handleDeleteClick(user.id)}
-                            title={t('admin.users.delete', 'Удалить')}
+                            title={t('admin.users.delete')}
                           >
-                            <Icon name="trash" size="sm" className="text-danger" />
+                            <Icon name="trash" size="sm" className={themeClasses.text.error} />
                           </Button>
                         </div>
                       </td>
@@ -505,7 +504,7 @@ const UsersManagementPage: React.FC = () => {
           <div className={`flex flex-col sm:flex-row items-center justify-between mt-6 px-4 py-3 ${themeClasses.card.default} ${themeClasses.border.default} rounded-lg gap-4`}>
             <div className="flex items-center gap-2">
               <span className={`text-sm ${themeClasses.text.secondary}`}>
-                {t('admin.users.showing', 'Показано')} {(meta.page - 1) * meta.limit + 1}-{Math.min(meta.page * meta.limit, meta.total)} {t('admin.users.of', 'из')} {meta.total}
+                {t('admin.users.showing')} {(meta.page - 1) * meta.limit + 1}-{Math.min(meta.page * meta.limit, meta.total)} {t('admin.users.of')} {meta.total}
               </span>
             </div>
             <div className="flex items-center gap-2">
@@ -589,21 +588,21 @@ const UsersManagementPage: React.FC = () => {
       <Modal
         isOpen={deleteConfirmModal.isOpen}
         onClose={() => setDeleteConfirmModal({ userId: null, isOpen: false })}
-        title={t('admin.users.deleteConfirmTitle', 'Подтверждение удаления')}
+        title={t('admin.users.deleteConfirmTitle')}
         size="sm"
         footer={
           <div className="flex gap-3 justify-end">
             <Button variant="outline" onClick={() => setDeleteConfirmModal({ userId: null, isOpen: false })}>
-              {t('common.cancel', 'Отменить')}
+              {t('common.cancel')}
             </Button>
             <Button variant="error" onClick={handleDeleteConfirm}>
-              {t('common.delete', 'Удалить')}
+              {t('common.delete')}
             </Button>
           </div>
         }
       >
         <p className={themeClasses.text.primary}>
-          {t('admin.users.deleteConfirm', 'Вы уверены, что хотите удалить пользователя?')}
+          {t('admin.users.deleteConfirm')}
         </p>
       </Modal>
     </AdminPageTemplate>
@@ -670,20 +669,20 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={isCreateMode ? t('admin.users.createUser', 'Создать пользователя') : t('admin.users.editUser', 'Редактировать пользователя')}
+      title={isCreateMode ? t('admin.users.createUser') : t('admin.users.editUser')}
       size="lg"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
-            label={t('admin.users.form.firstName', 'Имя')}
+            label={t('admin.users.form.firstName')}
             type="text"
             value={formData.firstName}
             onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
             required
           />
           <Input
-            label={t('admin.users.form.lastName', 'Фамилия')}
+            label={t('admin.users.form.lastName')}
             type="text"
             value={formData.lastName}
             onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
@@ -700,7 +699,7 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
         />
 
         <Input
-          label={t('admin.users.form.phone', 'Телефон')}
+          label={t('admin.users.form.phone')}
           type="tel"
           value={formData.phone}
           onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
@@ -710,7 +709,7 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className={`block text-sm font-medium ${themeClasses.text.primary} mb-2`}>
-              {t('admin.users.form.role', 'Роль')}
+              {t('admin.users.form.role')}
             </label>
             <select
               value={formData.role}
@@ -718,13 +717,13 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
               className={`${themeClasses.input.default} w-full`}
               required
             >
-              <option value="user">{t('admin.users.roles.user', 'Пользователь')}</option>
-              <option value="company_admin_staff">{t('admin.users.roles.company_admin_staff', 'Персонал админа')}</option>
-              <option value="company_admin">{t('admin.users.roles.company_admin', 'Админ компании')}</option>
+              <option value="user">{t('admin.users.roles.user')}</option>
+              <option value="company_admin_staff">{t('admin.users.roles.company_admin_staff')}</option>
+              <option value="company_admin">{t('admin.users.roles.company_admin')}</option>
               {isSuperAdmin && (
                 <>
-                  <option value="super_admin_staff">{t('admin.users.roles.super_admin_staff', 'Персонал супер-админа')}</option>
-                  <option value="super_admin">{t('admin.users.roles.super_admin', 'Супер-админ')}</option>
+                  <option value="super_admin_staff">{t('admin.users.roles.super_admin_staff')}</option>
+                  <option value="super_admin">{t('admin.users.roles.super_admin')}</option>
                 </>
               )}
             </select>
@@ -740,9 +739,9 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
               className={`${themeClasses.input.default} w-full`}
               required
             >
-              <option value="active">{t('admin.users.status.active', 'Активен')}</option>
-              <option value="inactive">{t('admin.users.status.inactive', 'Неактивен')}</option>
-              <option value="blocked">{t('admin.users.status.blocked', 'Заблокирован')}</option>
+              <option value="active">{t('admin.users.status.active')}</option>
+              <option value="inactive">{t('admin.users.status.inactive')}</option>
+              <option value="blocked">{t('admin.users.status.blocked')}</option>
             </select>
           </div>
         </div>

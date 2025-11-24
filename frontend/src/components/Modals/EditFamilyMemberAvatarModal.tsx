@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal } from '../../design-system/composites';
 import { Button, Avatar, Icon } from '../../design-system/primitives';
+import { themeClasses } from '../../design-system/utils/themeClasses';
 import { getInitials } from '../../utils/stringUtils';
 import { PREDEFINED_AVATARS } from '../../utils/avatars';
 import { preloadModule } from '../../services/i18n/config';
@@ -107,14 +108,14 @@ export const EditFamilyMemberAvatarModal: React.FC<EditFamilyMemberAvatarModalPr
             size="2xl"
             rounded
           />
-          <p className="text-sm font-medium text-text-primary">
+          <p className={`text-sm font-medium ${themeClasses.text.primary}`}>
             {initialData?.name}
           </p>
         </div>
 
         {/* Выбор аватара */}
         <div>
-          <label className="block text-sm font-medium text-text-primary mb-3">
+          <label className={`block text-sm font-medium ${themeClasses.text.primary} mb-3`}>
             {t('familyMember.selectAvatar', { defaultValue: 'Select an avatar' })}
           </label>
           

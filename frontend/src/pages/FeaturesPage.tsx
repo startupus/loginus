@@ -167,10 +167,10 @@ const FeaturesPage: React.FC = () => {
       <section className="relative overflow-hidden bg-gradient-to-br from-gray-1 via-white to-primary/5 pt-32 pb-20 dark:from-dark dark:via-dark dark:to-dark-2 lg:pt-40 lg:pb-32">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="mb-6 text-5xl font-bold leading-tight text-text-primary sm:text-6xl lg:text-[64px]">
+            <h1 className={`mb-6 text-5xl font-bold leading-tight ${themeClasses.text.primary} sm:text-6xl lg:text-[64px]`}>
               {t('features.hero.title', 'Возможности Loginus ID')}
             </h1>
-            <p className="mb-10 text-xl leading-relaxed text-text-secondary max-w-3xl mx-auto">
+            <p className={`mb-10 text-xl leading-relaxed ${themeClasses.text.secondary} max-w-3xl mx-auto`}>
               {t('features.hero.description', 'Единый аккаунт для управления всеми вашими данными, платежами и сервисами. Безопасно, быстро и удобно.')}
             </p>
             <div className="flex flex-wrap justify-center gap-4">
@@ -204,10 +204,10 @@ const FeaturesPage: React.FC = () => {
       <section className={`py-20 ${themeClasses.page.containerGray}`}>
         <div className="container mx-auto px-4">
           <div className="mb-16 text-center">
-            <h2 className="text-3xl font-bold text-text-primary mb-4 lg:text-4xl">
+            <h2 className={`text-3xl font-bold ${themeClasses.text.primary} mb-4 lg:text-4xl`}>
               {t('features.main.title', 'Основные возможности')}
             </h2>
-            <p className="text-lg text-text-secondary max-w-2xl mx-auto">
+            <p className={`text-lg ${themeClasses.text.secondary} max-w-2xl mx-auto`}>
               {t('features.main.subtitle', 'Всё, что нужно для удобной и безопасной работы с вашими данными')}
             </p>
           </div>
@@ -220,14 +220,14 @@ const FeaturesPage: React.FC = () => {
               >
                 {/* Заголовок и описание сверху */}
                 <div className="flex items-start gap-6 mb-6">
-                  <div className="flex-shrink-0 w-16 h-16 bg-primary/10 dark:bg-primary/20 rounded-xl flex items-center justify-center">
+                  <div className={`flex-shrink-0 ${themeClasses.iconCircle.primaryLarge} rounded-xl`}>
                     {feature.icon}
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-2xl font-bold text-text-primary mb-3">
+                    <h3 className={`text-2xl font-bold ${themeClasses.text.primary} mb-3`}>
                       {feature.title}
                     </h3>
-                    <p className="text-lg text-text-secondary leading-relaxed">
+                    <p className={`text-lg ${themeClasses.text.secondary} leading-relaxed`}>
                       {feature.description}
                     </p>
                   </div>
@@ -241,7 +241,7 @@ const FeaturesPage: React.FC = () => {
                         <div className="flex-shrink-0 w-5 h-5 mt-0.5">
                           <Icon name="check-circle" size="sm" className="text-success" />
                         </div>
-                        <span className="text-base text-text-secondary leading-relaxed">
+                        <span className={`text-base ${themeClasses.text.secondary} leading-relaxed`}>
                           {detail}
                         </span>
                       </li>
@@ -258,7 +258,7 @@ const FeaturesPage: React.FC = () => {
       <section className={`py-20 ${themeClasses.background.surfaceElevated}`}>
         <div className="container mx-auto px-4">
           <div className="mb-16 text-center">
-            <h2 className="text-3xl font-bold text-text-primary mb-4 lg:text-4xl">
+            <h2 className={`text-3xl font-bold ${themeClasses.text.primary} mb-4 lg:text-4xl`}>
               {t('features.additional.title', 'Дополнительные возможности')}
             </h2>
           </div>
@@ -268,10 +268,10 @@ const FeaturesPage: React.FC = () => {
                 key={index}
                 className={`${themeClasses.card.shadow} rounded-xl p-6 ${themeClasses.border.dark} hover:shadow-lg transition-all`}
               >
-                <h3 className="text-xl font-semibold text-text-primary mb-3">
+                <h3 className={`text-xl font-semibold ${themeClasses.text.primary} mb-3`}>
                   {feature.title}
                 </h3>
-                <p className="text-text-secondary leading-relaxed">
+                <p className={`${themeClasses.text.secondary} leading-relaxed`}>
                   {feature.description}
                 </p>
               </div>
@@ -284,10 +284,10 @@ const FeaturesPage: React.FC = () => {
       <section className="py-20 bg-gradient-to-br from-primary/10 to-primary/5 dark:from-dark dark:to-dark-2">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-bold text-text-primary mb-6">
+            <h2 className={`text-3xl font-bold ${themeClasses.text.primary} mb-6`}>
               {t('features.cta.title', 'Готовы начать?')}
             </h2>
-            <p className="text-lg text-text-secondary mb-8">
+            <p className={`text-lg ${themeClasses.text.secondary} mb-8`}>
               {t('features.cta.description', 'Создайте свой Loginus ID и получите доступ ко всем возможностям уже сегодня.')}
             </p>
             <Button
@@ -311,11 +311,11 @@ const FeaturesPage: React.FC = () => {
           <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
             <div className="flex items-center gap-3">
               <div 
-                className="w-8 h-8 rounded-lg flex items-center justify-center ring-1 ring-black/5 !bg-gray-900 text-white dark:!bg-white dark:!text-gray-900"
+                className={`w-8 h-8 rounded-lg flex items-center justify-center ring-1 ring-black/5 ${themeClasses.logo.inverted}`}
               >
                 <span className="text-sm font-extrabold leading-none">iD</span>
               </div>
-              <p className="text-sm text-text-secondary">
+              <p className={`text-sm ${themeClasses.text.secondary}`}>
                 {(() => {
                   const projectStartYear = 2025;
                   const currentYear = new Date().getFullYear();
@@ -327,13 +327,13 @@ const FeaturesPage: React.FC = () => {
               </p>
             </div>
             <div className="flex gap-8">
-              <a href={buildPathWithLang('/about', currentLang)} className="text-sm font-medium text-text-secondary hover:text-primary transition-colors">
+              <a href={buildPathWithLang('/about', currentLang)} className={`text-sm font-medium ${themeClasses.text.secondary} hover:text-primary transition-colors`}>
                 {t('landing.footer.links.about', 'О проекте')}
               </a>
-              <a href={buildPathWithLang('/privacy', currentLang)} className="text-sm font-medium text-text-secondary hover:text-primary transition-colors">
+              <a href={buildPathWithLang('/privacy', currentLang)} className={`text-sm font-medium ${themeClasses.text.secondary} hover:text-primary transition-colors`}>
                 {t('landing.footer.links.privacy', 'Конфиденциальность')}
               </a>
-              <a href={buildPathWithLang('/terms', currentLang)} className="text-sm font-medium text-text-secondary hover:text-primary transition-colors">
+              <a href={buildPathWithLang('/terms', currentLang)} className={`text-sm font-medium ${themeClasses.text.secondary} hover:text-primary transition-colors`}>
                 {t('landing.footer.links.terms', 'Условия')}
               </a>
             </div>

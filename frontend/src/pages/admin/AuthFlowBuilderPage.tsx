@@ -1,92 +1,368 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AdminPageTemplate } from '../../design-system/layouts/AdminPageTemplate';
 import { Button } from '../../design-system/primitives/Button';
 import { Icon } from '../../design-system/primitives/Icon';
-import { Badge } from '../../design-system/primitives/Badge';
+import { LoadingState } from '../../design-system/composites/LoadingState';
 import { themeClasses } from '../../design-system/utils/themeClasses';
-
-interface AuthMethod {
-  id: string;
-  name: string;
-  icon: string;
-  enabled: boolean;
-  isPrimary: boolean;
-  order: number;
-  type: 'primary' | 'oauth' | 'alternative';
-}
+import { MethodColumn, AuthMethod } from '../../components/admin/MethodColumn';
+import { AddAuthMethodModal } from '../../components/admin/AddAuthMethodModal';
+import { authFlowApi } from '../../services/api/auth-flow';
+import { useDebounce } from '../../hooks/useDebounce';
+import { preloadModule } from '../../services/i18n/config';
 
 /**
  * AuthFlowBuilderPage - страница настройки алгоритма авторизации
  * Drag & Drop конструктор для настройки методов входа
+ * Две колонки: Авторизация и Регистрация
  */
 const AuthFlowBuilderPage: React.FC = () => {
   const { t, i18n } = useTranslation();
+  const queryClient = useQueryClient();
   
+  // Предзагрузка модуля admin для переводов
+  useEffect(() => {
+    const loadAdminModule = async () => {
+      try {
+        await preloadModule('admin');
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('[AuthFlowBuilderPage] Failed to preload admin module:', error);
+        }
+      }
+    };
+
+    loadAdminModule();
+
+    // Перезагружаем модуль при смене языка
+    const handleLanguageChanged = async () => {
+      try {
+        await preloadModule('admin');
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('[AuthFlowBuilderPage] Failed to reload admin module on language change:', error);
+        }
+      }
+    };
+
+    i18n.on('languageChanged', handleLanguageChanged);
+
+    return () => {
+      i18n.off('languageChanged', handleLanguageChanged);
+    };
+  }, [i18n]);
+  
+  // Загрузка данных с сервера
+  // Важно: refetchOnMount: true для получения актуальных данных при каждом открытии страницы
+  // Это решает проблему с разным контентом в разных браузерах
+  const { data: authFlowData, isLoading, error } = useQuery({
+    queryKey: ['authFlow'],
+    queryFn: async () => {
+      const response = await authFlowApi.getAuthFlow();
+      return response.data;
+    },
+    staleTime: 0, // Данные всегда считаются устаревшими, чтобы получать свежие данные
+    gcTime: 5 * 60 * 1000, // Храним в кеше 5 минут для быстрого отображения
+    refetchOnMount: true, // Всегда загружаем свежие данные при монтировании
+    refetchOnWindowFocus: false, // Не перезагружаем при фокусе окна
+    retry: 1,
+    retryDelay: 1000,
+  });
+
   // Базовые методы авторизации (без переводов)
   const baseAuthMethods = useMemo(() => [
     { id: 'phone-email', icon: 'mail', enabled: true, isPrimary: true, order: 1, type: 'primary' as const },
     { id: 'github', icon: 'github', enabled: true, isPrimary: false, order: 2, type: 'oauth' as const },
     { id: 'telegram', icon: 'message-circle', enabled: true, isPrimary: false, order: 3, type: 'oauth' as const },
     { id: 'gosuslugi', icon: 'shield', enabled: true, isPrimary: false, order: 4, type: 'oauth' as const },
-    { id: 'tinkoff', icon: 'credit-card', enabled: true, isPrimary: false, order: 5, type: 'oauth' as const },
+    { id: 'tinkoff', icon: 'tinkoff', enabled: true, isPrimary: false, order: 5, type: 'oauth' as const },
     { id: 'qr', icon: 'qr-code', enabled: true, isPrimary: false, order: 6, type: 'alternative' as const },
     { id: 'password', icon: 'lock', enabled: true, isPrimary: false, order: 7, type: 'alternative' as const },
     { id: 'yandex', icon: 'user', enabled: true, isPrimary: false, order: 8, type: 'oauth' as const },
     { id: 'saber', icon: 'user', enabled: false, isPrimary: false, order: 9, type: 'oauth' as const },
   ], []);
+
+  // Состояние методов авторизации
+  const [authMethods, setAuthMethods] = useState<AuthMethod[]>([]);
   
-  // Методы авторизации с переводами (реактивные к смене языка)
-  const initialAuthMethods = useMemo(() => baseAuthMethods.map(method => ({
-    ...method,
-    name: t(`admin.authFlow.methods.${method.id}`, method.id),
-  })), [baseAuthMethods, t, i18n.language]);
-  
-  const [authMethods, setAuthMethods] = useState<AuthMethod[]>(initialAuthMethods);
-  
-  // Обновляем методы при смене языка
-  React.useEffect(() => {
-    setAuthMethods(prevMethods => {
-      return prevMethods.map(prevMethod => {
-        const baseMethod = baseAuthMethods.find(b => b.id === prevMethod.id);
-        if (!baseMethod) return prevMethod;
-        return {
-          ...prevMethod,
-          name: t(`admin.authFlow.methods.${baseMethod.id}`, baseMethod.id),
-        };
+  // Флаг для отслеживания локальных изменений (которые еще не сохранены)
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  // Мутация для сохранения (объявляем до использования в useEffect)
+  const saveMutation = useMutation({
+    mutationFn: (methods: AuthMethod[]) => authFlowApi.updateAuthFlow(methods),
+    onSuccess: () => {
+      // Сбрасываем флаг несохраненных изменений
+      setHasUnsavedChanges(false);
+      // Обновляем данные из API, но только после небольшой задержки, чтобы дать серверу время обработать запрос
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['authFlow'] });
+      }, 100);
+    },
+    onError: () => {
+      // При ошибке сохраняем флаг, чтобы не перезаписывать состояние
+      // Флаг будет сброшен при следующем успешном сохранении
+    },
+  });
+
+  // Синхронизация методов с данными из API
+  useEffect(() => {
+    if (isLoading) return;
+    
+    // Не перезаписываем состояние, если есть несохраненные локальные изменения или идет сохранение
+    if (hasUnsavedChanges || saveMutation.isPending) return;
+
+    if (authFlowData) {
+      // Объединяем методы из login и registration
+      const allMethods = [
+        ...(authFlowData.login || []).map((m: any) => ({ ...m, flow: 'login' as const })),
+        ...(authFlowData.registration || []).map((m: any) => ({ ...m, flow: 'registration' as const })),
+      ];
+      const methodsWithNames = allMethods.map(method => ({
+        ...method,
+        name: method.name || t(`admin.authFlow.methods.${method.id}`, method.id),
+      }));
+      
+      // Обновляем состояние, сравнивая структуру данных
+      setAuthMethods(prevMethods => {
+        // Если есть локальные методы, которых нет в API (недавно добавленные), сохраняем их
+        const localOnlyMethods = prevMethods.filter(prevMethod => 
+          !methodsWithNames.some(apiMethod => 
+            apiMethod.id === prevMethod.id && apiMethod.flow === prevMethod.flow
+          )
+        );
+        
+        // Объединяем методы из API с локальными методами, которых еще нет в API
+        const mergedMethods = [...methodsWithNames, ...localOnlyMethods];
+        
+        // Создаем ключи для сравнения структуры (без имен для избежания циклов)
+        const prevIds = prevMethods.map(m => `${m.id}-${m.flow}-${m.order}`).sort().join(',');
+        const newIds = mergedMethods.map(m => `${m.id}-${m.flow}-${m.order}`).sort().join(',');
+        
+        // Если структура идентична, обновляем только имена (при смене языка)
+        if (prevIds === newIds && prevMethods.length > 0) {
+          return prevMethods.map(prevMethod => {
+            const updatedMethod = mergedMethods.find(
+              m => m.id === prevMethod.id && m.flow === prevMethod.flow
+            );
+            if (updatedMethod) {
+              return { ...prevMethod, name: updatedMethod.name };
+            }
+            return prevMethod;
+          });
+        }
+        
+        // Если структура изменилась или это первая загрузка, используем объединенные методы
+        // Гарантируем, что в каждом потоке есть ровно один primary метод
+        const loginMethods = mergedMethods.filter(m => m.flow === 'login');
+        const registrationMethods = mergedMethods.filter(m => m.flow === 'registration');
+        
+        // Для потока login: оставляем только один primary метод (первый по порядку)
+        const primaryLoginMethods = loginMethods.filter(m => m.isPrimary);
+        if (primaryLoginMethods.length > 1) {
+          // Если несколько primary, оставляем только первый по порядку
+          const firstPrimary = primaryLoginMethods.sort((a, b) => a.order - b.order)[0];
+          mergedMethods.forEach(m => {
+            if (m.flow === 'login') {
+              m.isPrimary = m.id === firstPrimary.id;
+            }
+          });
+        } else if (loginMethods.length > 0 && !loginMethods.some(m => m.isPrimary)) {
+          // Если нет primary методов, делаем первый primary
+          const firstLogin = loginMethods.sort((a, b) => a.order - b.order)[0];
+          const index = mergedMethods.findIndex(m => m.id === firstLogin.id && m.flow === 'login');
+          if (index !== -1) {
+            mergedMethods[index].isPrimary = true;
+          }
+        }
+        
+        // Для потока registration: оставляем только один primary метод (первый по порядку)
+        const primaryRegistrationMethods = registrationMethods.filter(m => m.isPrimary);
+        if (primaryRegistrationMethods.length > 1) {
+          // Если несколько primary, оставляем только первый по порядку
+          const firstPrimary = primaryRegistrationMethods.sort((a, b) => a.order - b.order)[0];
+          mergedMethods.forEach(m => {
+            if (m.flow === 'registration') {
+              m.isPrimary = m.id === firstPrimary.id;
+            }
+          });
+        } else if (registrationMethods.length > 0 && !registrationMethods.some(m => m.isPrimary)) {
+          // Если нет primary методов, делаем первый primary
+          const firstRegistration = registrationMethods.sort((a, b) => a.order - b.order)[0];
+          const index = mergedMethods.findIndex(m => m.id === firstRegistration.id && m.flow === 'registration');
+          if (index !== -1) {
+            mergedMethods[index].isPrimary = true;
+          }
+        }
+        
+        return mergedMethods;
       });
-    });
-  }, [t, i18n.language, baseAuthMethods]);
+    } else if (!isLoading && !hasUnsavedChanges && !saveMutation.isPending) {
+      // Если данных нет и состояние пустое, создаем дефолтные методы
+      setAuthMethods(prevMethods => {
+        if (prevMethods.length > 0) return prevMethods; // Не перезаписываем если уже есть методы
+        
+        const loginMethods = baseAuthMethods.slice(0, Math.ceil(baseAuthMethods.length / 2));
+        const registrationMethods = baseAuthMethods.slice(Math.ceil(baseAuthMethods.length / 2));
+        
+        const defaultMethods = [
+          ...loginMethods.map(m => ({ ...m, flow: 'login' as const, name: t(`admin.authFlow.methods.${m.id}`) })),
+          ...registrationMethods.map(m => ({ ...m, flow: 'registration' as const, name: t(`admin.authFlow.methods.${m.id}`) })),
+        ];
+        
+        // Гарантируем, что в каждом потоке есть ровно один primary метод
+        const defaultLoginMethods = defaultMethods.filter(m => m.flow === 'login');
+        const defaultRegistrationMethods = defaultMethods.filter(m => m.flow === 'registration');
+        
+        // Для потока login: устанавливаем primary только для первого метода
+        if (defaultLoginMethods.length > 0) {
+          const firstLogin = defaultLoginMethods.sort((a, b) => a.order - b.order)[0];
+          defaultMethods.forEach(m => {
+            if (m.flow === 'login') {
+              m.isPrimary = m.id === firstLogin.id;
+            }
+          });
+        }
+        
+        // Для потока registration: устанавливаем primary только для первого метода
+        if (defaultRegistrationMethods.length > 0) {
+          const firstRegistration = defaultRegistrationMethods.sort((a, b) => a.order - b.order)[0];
+          defaultMethods.forEach(m => {
+            if (m.flow === 'registration') {
+              m.isPrimary = m.id === firstRegistration.id;
+            }
+          });
+        }
+        
+        return defaultMethods;
+      });
+    }
+  }, [authFlowData, isLoading, t, i18n.language, baseAuthMethods, hasUnsavedChanges, saveMutation.isPending]);
+
+  // Флаг для отслеживания первой загрузки данных
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [lastSyncedMethods, setLastSyncedMethods] = useState<string>('');
+
+  // Debounce для автосохранения
+  const debouncedMethods = useDebounce(authMethods, 1000);
+
+  // Отмечаем завершение первой загрузки
+  useEffect(() => {
+    if (!isLoading && authFlowData !== undefined) {
+      setIsInitialLoad(false);
+    }
+  }, [isLoading, authFlowData]);
+
+  // Автосохранение при изменении методов (только после первой загрузки и если методы действительно изменились)
+  useEffect(() => {
+    if (!isInitialLoad && debouncedMethods.length > 0 && !isLoading && !saveMutation.isPending) {
+      // Проверяем, действительно ли методы изменились
+      const currentMethodsKey = JSON.stringify(
+        debouncedMethods.map(m => ({ id: m.id, flow: m.flow, enabled: m.enabled, isPrimary: m.isPrimary, order: m.order }))
+          .sort((a, b) => a.order - b.order)
+      );
+      
+      if (currentMethodsKey !== lastSyncedMethods) {
+        setLastSyncedMethods(currentMethodsKey);
+        setHasUnsavedChanges(true);
+        saveMutation.mutate(debouncedMethods);
+      }
+    }
+  }, [debouncedMethods, isLoading, isInitialLoad, lastSyncedMethods, saveMutation.isPending]);
 
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [addModalFlow, setAddModalFlow] = useState<'login' | 'registration'>('login');
 
-  const handleAddMethod = () => {
-    console.log('Add new auth method');
-    // TODO: Открыть модальное окно для добавления нового метода
+  const handleAddLoginMethod = () => {
+    setAddModalFlow('login');
+    setIsAddModalOpen(true);
+  };
+
+  const handleAddRegistrationMethod = () => {
+    setAddModalFlow('registration');
+    setIsAddModalOpen(true);
+  };
+
+  const handleAddMethod = (methodData: Omit<AuthMethod, 'name'> & { name?: string }) => {
+    const flowMethods = authMethods.filter(m => m.flow === methodData.flow);
+    const hasPrimaryInFlow = flowMethods.some(m => m.isPrimary);
+    
+    const newMethod: AuthMethod = {
+      ...methodData,
+      name: methodData.name || t(`admin.authFlow.methods.${methodData.id}`),
+      // Если это первый метод в потоке или нет primary методов, делаем его primary
+      isPrimary: !hasPrimaryInFlow || (flowMethods.length === 0),
+    };
+    
+    // Помечаем, что есть локальные изменения
+    setHasUnsavedChanges(true);
+    setAuthMethods([...authMethods, newMethod]);
+  };
+
+  const handleRemoveMethod = (methodId: string, flow: 'login' | 'registration') => {
+    const methodToRemove = authMethods.find(m => m.id === methodId && m.flow === flow);
+    if (!methodToRemove) return;
+
+    const flowMethods = authMethods.filter(m => m.flow === flow);
+    const remainingMethods = flowMethods.filter(m => m.id !== methodId);
+    
+    // Если удаляем primary метод и есть другие методы в потоке, делаем первый из них primary
+    let updatedMethods = authMethods.filter(m => !(m.id === methodId && m.flow === flow));
+    
+    if (methodToRemove.isPrimary && remainingMethods.length > 0) {
+      // Находим первый метод в потоке по порядку и делаем его primary, остальные снимаем primary
+      const sortedRemaining = remainingMethods.sort((a, b) => a.order - b.order);
+      const firstRemainingMethod = sortedRemaining[0];
+      updatedMethods = updatedMethods.map(m => {
+        if (m.flow === flow) {
+          // В том же потоке: устанавливаем primary только для первого метода
+          return m.id === firstRemainingMethod.id 
+            ? { ...m, isPrimary: true }
+            : { ...m, isPrimary: false };
+        }
+        return m; // В других потоках не меняем
+      });
+    }
+    
+    setHasUnsavedChanges(true);
+    setAuthMethods(updatedMethods);
   };
 
   const handleDragStart = (id: string) => {
     setDraggedItem(id);
   };
 
-  const handleDragOver = (e: React.DragEvent, id: string) => {
+  const handleDragOver = (e: React.DragEvent, id: string, flow: 'login' | 'registration') => {
     e.preventDefault();
     if (!draggedItem || draggedItem === id) return;
 
-    const draggedIndex = authMethods.findIndex(m => m.id === draggedItem);
-    const targetIndex = authMethods.findIndex(m => m.id === id);
+    // Фильтруем методы по потоку
+    const flowMethods = authMethods.filter(m => m.flow === flow);
+    const draggedIndex = flowMethods.findIndex(m => m.id === draggedItem);
+    const targetIndex = flowMethods.findIndex(m => m.id === id);
 
     if (draggedIndex === -1 || targetIndex === -1) return;
 
-    const newMethods = [...authMethods];
-    const [removed] = newMethods.splice(draggedIndex, 1);
-    newMethods.splice(targetIndex, 0, removed);
+    // Проверяем, что перетаскиваемый метод из того же потока
+    const draggedMethod = authMethods.find(m => m.id === draggedItem);
+    if (!draggedMethod || draggedMethod.flow !== flow) return;
 
-    // Обновляем порядок
-    newMethods.forEach((method, index) => {
-      method.order = index + 1;
+    const newMethods = [...authMethods];
+    const flowMethodIds = flowMethods.map(m => m.id);
+    const [removed] = flowMethodIds.splice(draggedIndex, 1);
+    flowMethodIds.splice(targetIndex, 0, removed);
+
+    // Обновляем порядок методов в потоке
+    flowMethodIds.forEach((methodId, index) => {
+      const method = newMethods.find(m => m.id === methodId);
+      if (method) {
+        method.order = index + 1;
+      }
     });
 
+    setHasUnsavedChanges(true);
     setAuthMethods(newMethods);
   };
 
@@ -94,246 +370,163 @@ const AuthFlowBuilderPage: React.FC = () => {
     setDraggedItem(null);
   };
 
-  const toggleMethod = (id: string) => {
+  const togglePrimary = (id: string) => {
+    const method = authMethods.find(m => m.id === id);
+    if (!method) return;
+
+    // Если пытаемся снять primary, проверяем, есть ли еще primary методы в том же потоке
+    if (method.isPrimary) {
+      const flowMethods = authMethods.filter(m => m.flow === method.flow);
+      const primaryCount = flowMethods.filter(m => m.isPrimary).length;
+      
+      // Если это последний primary метод в потоке, не позволяем снять primary
+      if (primaryCount === 1) {
+        return; // Нельзя снять primary с последнего метода
+      }
+    }
+
+    setHasUnsavedChanges(true);
+    
+    // Если устанавливаем primary, снимаем primary со всех остальных методов в том же потоке
+    if (!method.isPrimary) {
+      setAuthMethods(authMethods.map(m => {
+        if (m.flow === method.flow) {
+          // В том же потоке: устанавливаем primary только для выбранного метода
+          return m.id === id ? { ...m, isPrimary: true } : { ...m, isPrimary: false };
+        }
+        return m; // В других потоках не меняем
+      }));
+    } else {
+      // Если снимаем primary (и это не последний), просто снимаем
+      setAuthMethods(authMethods.map(m => 
+        m.id === id ? { ...m, isPrimary: false } : m
+      ));
+    }
+  };
+
+  const toggleEnabled = (id: string) => {
+    setHasUnsavedChanges(true);
     setAuthMethods(authMethods.map(method => 
       method.id === id ? { ...method, enabled: !method.enabled } : method
     ));
   };
 
-  const togglePrimary = (id: string) => {
-    setAuthMethods(authMethods.map(method => 
-      method.id === id ? { ...method, isPrimary: !method.isPrimary } : method
-    ));
+  // Разделяем методы по потокам
+  const loginMethods = authMethods.filter(m => m.flow === 'login').sort((a, b) => a.order - b.order);
+  const registrationMethods = authMethods.filter(m => m.flow === 'registration').sort((a, b) => a.order - b.order);
+
+  // Проверяем, можно ли снять primary с метода
+  const canTogglePrimary = (id: string) => {
+    const method = authMethods.find(m => m.id === id);
+    if (!method || !method.isPrimary) return true;
+    
+    const flowMethods = authMethods.filter(m => m.flow === method.flow);
+    const primaryCount = flowMethods.filter(m => m.isPrimary).length;
+    
+    // Можно снять primary только если есть другие primary методы в потоке
+    return primaryCount > 1;
   };
 
-  const primaryMethods = authMethods.filter(m => m.type === 'primary');
-  const oauthMethods = authMethods.filter(m => m.type === 'oauth');
-  const alternativeMethods = authMethods.filter(m => m.type === 'alternative');
+  // Показываем ошибку если запрос не удался
+  if (error) {
+    return (
+      <AdminPageTemplate 
+        title={t('admin.authFlow.title')} 
+        showSidebar={true}
+      >
+        <div className={`${themeClasses.card.default} ${themeClasses.spacing.p6} text-center`}>
+          <Icon name="alert-circle" size="lg" className={`${themeClasses.text.destructive} ${themeClasses.spacing.mb4}`} />
+          <p className={themeClasses.text.destructive}>
+            {t('common.error', 'Ошибка загрузки данных')}
+          </p>
+          <Button
+            variant="outline"
+            onClick={() => queryClient.invalidateQueries({ queryKey: ['authFlow'] })}
+            className={themeClasses.spacing.mt4}
+          >
+            {t('common.retry', 'Повторить')}
+          </Button>
+        </div>
+      </AdminPageTemplate>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <AdminPageTemplate 
+        title={t('admin.authFlow.title')} 
+        showSidebar={true}
+      >
+        <LoadingState text={t('common.loading')} />
+      </AdminPageTemplate>
+    );
+  }
 
   return (
     <AdminPageTemplate 
-      title={t('admin.authFlow.title', 'Настройка алгоритма авторизации')} 
+      title={t('admin.authFlow.title')} 
       showSidebar={true}
-      headerActions={
-        <Button
-          variant="primary"
-          leftIcon={<Icon name="plus" size="sm" />}
-          onClick={handleAddMethod}
-          className="hidden sm:flex"
-        >
-          {t('admin.authFlow.add', 'Добавить')}
-        </Button>
-      }
     >
-      <div className="p-4 sm:p-6 pb-24 sm:pb-6">
+      <div className={`${themeClasses.spacing.p4} sm:${themeClasses.spacing.p6} ${themeClasses.spacing.pb24} sm:${themeClasses.spacing.pb6}`}>
         {/* Инструкция */}
-        <div className={`${themeClasses.card.default} p-4 mb-6`}>
-          <div className="flex items-start gap-3">
-            <Icon name="info" size="md" className="text-primary mt-0.5" />
+        <div className={`${themeClasses.card.default} ${themeClasses.spacing.p4} ${themeClasses.spacing.mb6}`}>
+          <div className={`${themeClasses.utility.flexItemsStart} ${themeClasses.spacing.gap3}`}>
+            <Icon name="info" size="md" className={`${themeClasses.text.primary} ${themeClasses.spacing.mt1}`} />
             <div>
-              <p className={`text-sm ${themeClasses.text.primary} font-medium mb-1`}>
-                {t('admin.authFlow.instruction.title', 'Настройка алгоритма авторизации')}
+              <p className={`text-sm ${themeClasses.text.primary} font-medium ${themeClasses.spacing.mb2}`}>
+                {t('admin.authFlow.instruction.title')}
               </p>
               <p className={`text-sm ${themeClasses.text.secondary}`}>
-                {t('admin.authFlow.instruction.description', 'Перетаскивайте методы для изменения порядка. Используйте переключатели для активации/деактивации методов и установки основных способов входа.')}
+                {t('admin.authFlow.instruction.description')}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Основной метод */}
-          <div>
-            <h3 className={`text-lg font-semibold ${themeClasses.text.primary} mb-4`}>
-              {t('admin.authFlow.primaryMethod', 'Основной метод')}
-            </h3>
-            <div className="space-y-3">
-              {primaryMethods.map((method) => (
-                <div
-                  key={method.id}
-                  draggable
-                  onDragStart={() => handleDragStart(method.id)}
-                  onDragOver={(e) => handleDragOver(e, method.id)}
-                  onDragEnd={handleDragEnd}
-                  className={`${themeClasses.card.default} p-4 cursor-move hover:shadow-lg transition-all ${
-                    draggedItem === method.id ? 'opacity-50' : ''
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Icon name="grip-vertical" size="sm" className={themeClasses.text.secondary} />
-                      <Icon name={method.icon as any} size="md" className="text-primary" />
-                      <div>
-                        <p className={`font-medium ${themeClasses.text.primary}`}>{method.name}</p>
-                        <p className={`text-xs ${themeClasses.text.secondary}`}>{t('admin.authFlow.order', 'Порядок')}: {method.order}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => toggleMethod(method.id)}
-                        className={`w-10 h-6 rounded-full transition-colors ${
-                          method.enabled ? 'bg-success' : 'bg-gray-3'
-                        }`}
-                      >
-                        <div className={`w-4 h-4 ${themeClasses.background.surface} rounded-full transition-transform ${
-                          method.enabled ? 'translate-x-5' : 'translate-x-1'
-                        }`} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* OAuth методы */}
-          <div>
-            <h3 className={`text-lg font-semibold ${themeClasses.text.primary} mb-4`}>
-              {t('admin.authFlow.oauthMethods', 'OAuth методы')}
-            </h3>
-            <div className="space-y-3">
-              {oauthMethods.map((method) => (
-                <div
-                  key={method.id}
-                  draggable
-                  onDragStart={() => handleDragStart(method.id)}
-                  onDragOver={(e) => handleDragOver(e, method.id)}
-                  onDragEnd={handleDragEnd}
-                  className={`${themeClasses.card.default} p-4 cursor-move hover:shadow-lg transition-all ${
-                    draggedItem === method.id ? 'opacity-50' : ''
-                  } ${!method.enabled ? 'opacity-60' : ''}`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Icon name="grip-vertical" size="sm" className={themeClasses.text.secondary} />
-                      <Icon name={method.icon as any} size="md" className="text-primary" />
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className={`font-medium ${themeClasses.text.primary}`}>{method.name}</p>
-                          {method.isPrimary && (
-                            <Badge variant="warning" size="sm">{t('admin.authFlow.primary', 'Основной')}</Badge>
-                          )}
-                        </div>
-                        <p className={`text-xs ${themeClasses.text.secondary}`}>{t('admin.authFlow.order', 'Порядок')}: {method.order}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => togglePrimary(method.id)}
-                        title={t('admin.authFlow.primaryOnStartPage', 'Основной на стартовой странице')}
-                        className={`p-1 rounded transition-colors ${
-                          method.isPrimary ? 'text-warning' : 'text-gray-3'
-                        }`}
-                      >
-                        <Icon name="star" size="sm" />
-                      </button>
-                      <button
-                        onClick={() => toggleMethod(method.id)}
-                        className={`w-10 h-6 rounded-full transition-colors ${
-                          method.enabled ? 'bg-success' : 'bg-gray-3'
-                        }`}
-                      >
-                        <div className={`w-4 h-4 ${themeClasses.background.surface} rounded-full transition-transform ${
-                          method.enabled ? 'translate-x-5' : 'translate-x-1'
-                        }`} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Альтернативные методы */}
-          <div>
-            <h3 className={`text-lg font-semibold ${themeClasses.text.primary} mb-4`}>
-              {t('admin.authFlow.alternativeMethods', 'Альтернативные методы')}
-            </h3>
-            <div className="space-y-3">
-              {alternativeMethods.map((method) => (
-                <div
-                  key={method.id}
-                  draggable
-                  onDragStart={() => handleDragStart(method.id)}
-                  onDragOver={(e) => handleDragOver(e, method.id)}
-                  onDragEnd={handleDragEnd}
-                  className={`${themeClasses.card.default} p-4 cursor-move hover:shadow-lg transition-all ${
-                    draggedItem === method.id ? 'opacity-50' : ''
-                  } ${!method.enabled ? 'opacity-60' : ''}`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Icon name="grip-vertical" size="sm" className={themeClasses.text.secondary} />
-                      <Icon name={method.icon as any} size="md" className="text-primary" />
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className={`font-medium ${themeClasses.text.primary}`}>{method.name}</p>
-                          {method.isPrimary && (
-                            <Badge variant="warning" size="sm">{t('admin.authFlow.primary', 'Основной')}</Badge>
-                          )}
-                        </div>
-                        <p className={`text-xs ${themeClasses.text.secondary}`}>{t('admin.authFlow.order', 'Порядок')}: {method.order}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => togglePrimary(method.id)}
-                        title={t('admin.authFlow.primaryOnStartPage', 'Основной на стартовой странице')}
-                        className={`p-1 rounded transition-colors ${
-                          method.isPrimary ? 'text-warning' : 'text-gray-3'
-                        }`}
-                      >
-                        <Icon name="star" size="sm" />
-                      </button>
-                      <button
-                        onClick={() => toggleMethod(method.id)}
-                        className={`w-10 h-6 rounded-full transition-colors ${
-                          method.enabled ? 'bg-success' : 'bg-gray-3'
-                        }`}
-                      >
-                        <div className={`w-4 h-4 ${themeClasses.background.surface} rounded-full transition-transform ${
-                          method.enabled ? 'translate-x-5' : 'translate-x-1'
-                        }`} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Кнопка сохранения */}
-        <div className={`${themeClasses.card.default} p-4 mt-6 flex items-center justify-between`}>
-          <p className={`text-sm ${themeClasses.text.secondary}`}>
-            {t('admin.authFlow.saveHint', 'Не забудьте сохранить изменения')}
-          </p>
-          <div className="flex gap-3">
-            <Button variant="outline" size="md">
-              {t('common.cancel', 'Отменить')}
-            </Button>
-            <Button variant="primary" size="md">
-              {t('common.save', 'Сохранить')}
-            </Button>
-          </div>
+        {/* Две колонки: Авторизация и Регистрация */}
+        <div className={`grid grid-cols-1 lg:grid-cols-2 ${themeClasses.spacing.gap6}`}>
+          <MethodColumn
+            title={t('admin.authFlow.login')}
+            methods={loginMethods}
+            flow="login"
+            draggedItem={draggedItem}
+            onAddMethod={handleAddLoginMethod}
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
+            onDragEnd={handleDragEnd}
+            onTogglePrimary={togglePrimary}
+            onToggleEnabled={toggleEnabled}
+            onRemoveMethod={handleRemoveMethod}
+            canTogglePrimary={canTogglePrimary}
+          />
+          <MethodColumn
+            title={t('admin.authFlow.registration')}
+            methods={registrationMethods}
+            flow="registration"
+            draggedItem={draggedItem}
+            onAddMethod={handleAddRegistrationMethod}
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
+            onDragEnd={handleDragEnd}
+            onTogglePrimary={togglePrimary}
+            onToggleEnabled={toggleEnabled}
+            onRemoveMethod={handleRemoveMethod}
+            canTogglePrimary={canTogglePrimary}
+          />
         </div>
       </div>
 
-      {/* Мобильная кнопка добавления метода */}
-      <div className="sm:hidden fixed bottom-4 right-4 z-50">
-        <Button
-          variant="primary"
-          size="lg"
-          onClick={handleAddMethod}
-          className="rounded-full shadow-xl hover:shadow-2xl"
-          iconOnly
-        >
-          <Icon name="plus" size="md" />
-        </Button>
-      </div>
+      {/* Модальное окно добавления/удаления метода */}
+      <AddAuthMethodModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        flow={addModalFlow}
+        onAdd={handleAddMethod}
+        onRemove={handleRemoveMethod}
+        existingMethods={authMethods}
+      />
     </AdminPageTemplate>
   );
 };
 
 export default AuthFlowBuilderPage;
-

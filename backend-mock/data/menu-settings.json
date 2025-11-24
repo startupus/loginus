@@ -11,10 +11,30 @@
       "path": "/dashboard"
     },
     {
-      "id": "data",
+      "id": "security",
       "type": "default",
       "enabled": true,
       "order": 2,
+      "systemId": "security",
+      "label": "Безопасность",
+      "icon": "shield",
+      "path": "/security"
+    },
+    {
+      "id": "family",
+      "type": "default",
+      "enabled": true,
+      "order": 3,
+      "systemId": "family",
+      "label": "Семья",
+      "icon": "users",
+      "path": "/family"
+    },
+    {
+      "id": "data",
+      "type": "default",
+      "enabled": false,
+      "order": 4,
       "systemId": "data",
       "label": "Данные",
       "icon": "document",
@@ -39,26 +59,6 @@
           "path": "/data/addresses"
         }
       ]
-    },
-    {
-      "id": "security",
-      "type": "default",
-      "enabled": true,
-      "order": 3,
-      "systemId": "security",
-      "label": "Безопасность",
-      "icon": "shield",
-      "path": "/security"
-    },
-    {
-      "id": "family",
-      "type": "default",
-      "enabled": true,
-      "order": 4,
-      "systemId": "family",
-      "label": "Семья",
-      "icon": "users",
-      "path": "/family"
     },
     {
       "id": "work",

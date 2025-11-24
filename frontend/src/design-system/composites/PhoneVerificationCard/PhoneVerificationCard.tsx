@@ -25,7 +25,7 @@ export const PhoneVerificationCard: React.FC<PhoneVerificationCardProps> = ({
   const formattedPhone = formatPhone(phone);
 
   return (
-    <div className="relative p-4 rounded-lg bg-primary/5 border border-primary/20 dark:bg-primary/10 dark:border-primary/30">
+    <div className={`relative ${themeClasses.spacing.p4} ${themeClasses.utility.roundedLg} ${themeClasses.background.primarySemiTransparent} ${themeClasses.border.primarySemiTransparent}`}>
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1">
           <p className={`text-sm font-medium ${themeClasses.text.primary} mb-1`}>

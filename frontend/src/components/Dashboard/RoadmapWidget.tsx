@@ -125,13 +125,13 @@ export const RoadmapWidget: React.FC<RoadmapWidgetProps> = ({
       actions={
         <button
           onClick={handleViewFull}
-          className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-gray-1 dark:hover:bg-gray-2 transition-colors duration-200 group"
+          className={`flex items-center gap-2 px-2 py-2 rounded-lg ${themeClasses.background.hoverGray} transition-colors duration-200 group`}
           aria-label={t('dashboard.roadmap.viewFull', { defaultValue: 'Open full roadmap' })}
         >
-          <span className="text-sm text-text-secondary group-hover:text-primary transition-colors duration-200">
+          <span className={`text-sm ${themeClasses.text.secondary} group-hover:text-primary transition-colors duration-200`}>
             {t('dashboard.roadmap.viewFull', { defaultValue: 'Full Version' })}
           </span>
-          <Icon name="arrow-right" size="sm" className="text-text-secondary group-hover:text-primary group-hover:translate-x-1 transition-all duration-200" />
+          <Icon name="arrow-right" size="sm" className={`${themeClasses.text.secondary} group-hover:text-primary group-hover:translate-x-1 transition-all duration-200`} />
         </button>
       }
     >
@@ -143,7 +143,7 @@ export const RoadmapWidget: React.FC<RoadmapWidgetProps> = ({
               className={`flex items-center gap-2 p-2 rounded-lg ${themeClasses.card.gridItem} ${themeClasses.card.gridItemHover} transition-all duration-200 group`}
             >
               {/* Иконка */}
-              <div className={`flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center bg-primary/10 dark:bg-primary/20 ${getPriorityColor(step.priority)}`}>
+              <div className={`flex-shrink-0 ${themeClasses.iconCircle.primarySmall} ${getPriorityColor(step.priority)}`}>
                 {step.icon ? (
                   <Icon name={step.icon} size="xs" />
                 ) : (
@@ -153,11 +153,11 @@ export const RoadmapWidget: React.FC<RoadmapWidgetProps> = ({
               
               {/* Контент */}
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-text-primary group-hover:text-primary transition-colors line-clamp-1">
+                <p className={`text-xs font-medium ${themeClasses.text.primary} group-hover:text-primary transition-colors line-clamp-1`}>
                   {getStepTitle(step)}
                 </p>
                 {step.courseTitle && (
-                  <p className="text-[10px] text-text-secondary mt-0.5 line-clamp-1">
+                  <p className={`text-[10px] ${themeClasses.text.secondary} mt-0.5 line-clamp-1`}>
                     {getCourseTitle(step)}
                   </p>
                 )}
@@ -165,7 +165,7 @@ export const RoadmapWidget: React.FC<RoadmapWidgetProps> = ({
               
               {/* Дата */}
               {step.date && (
-                <div className="flex-shrink-0 text-[10px] text-text-secondary">
+                <div className={`flex-shrink-0 text-[10px] ${themeClasses.text.secondary}`}>
                   {formatDate(step.date, currentLang, { day: 'numeric', month: 'short' })}
                 </div>
               )}
@@ -182,12 +182,12 @@ export const RoadmapWidget: React.FC<RoadmapWidgetProps> = ({
       ) : (
         <div className="text-center py-8">
           <div className={`w-16 h-16 mx-auto mb-4 rounded-full ${themeClasses.card.gridItemIcon} flex items-center justify-center`}>
-            <Icon name="flag" size="lg" className="text-text-secondary" />
+            <Icon name="flag" size="lg" className={themeClasses.text.secondary} />
           </div>
-          <p className="text-sm text-text-secondary mb-2">
+          <p className={`text-sm ${themeClasses.text.secondary} mb-2`}>
             {t('dashboard.roadmap.empty', { defaultValue: 'All steps completed!' })}
           </p>
-          <p className="text-xs text-text-secondary">
+          <p className={`text-xs ${themeClasses.text.secondary}`}>
             {t('dashboard.roadmap.emptyDescription', { defaultValue: 'Great job!' })}
           </p>
         </div>

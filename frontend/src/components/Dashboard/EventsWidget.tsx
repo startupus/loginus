@@ -71,7 +71,7 @@ export const EventsWidget: React.FC<EventsWidgetProps> = ({
     <WidgetCard
       title={
         <div className="flex items-center gap-2">
-          <span className="text-xl font-semibold text-text-primary sm:text-[22px] md:text-xl lg:text-[22px] xl:text-xl 2xl:text-[22px]">
+          <span className={`text-xl font-semibold ${themeClasses.text.primary} sm:text-[22px] md:text-xl lg:text-[22px] xl:text-xl 2xl:text-[22px]`}>
             {t('dashboard.events.title', { defaultValue: 'Events' })}
           </span>
           {displayedEvents.length > 0 && (
@@ -101,13 +101,13 @@ export const EventsWidget: React.FC<EventsWidgetProps> = ({
               className={`flex items-start gap-2 p-2 rounded-lg ${themeClasses.card.gridItem} ${themeClasses.card.gridItemHover} transition-all duration-200 group`}
             >
               {/* Дата */}
-              <div className="flex-shrink-0 w-12 text-xs text-text-secondary text-center pt-0.5">
+              <div className={`flex-shrink-0 w-12 text-xs ${themeClasses.text.secondary} text-center pt-0.5`}>
                 {formatRelativeTimeWithT(event.date, t, currentLang)}
               </div>
               
               {/* Контент */}
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-text-primary group-hover:text-primary transition-colors line-clamp-2">
+                <p className={`text-xs font-medium ${themeClasses.text.primary} group-hover:text-primary transition-colors line-clamp-2`}>
                   {getEventTitle(event)}
                 </p>
               </div>
@@ -117,9 +117,9 @@ export const EventsWidget: React.FC<EventsWidgetProps> = ({
       ) : (
         <div className="text-center py-8">
           <div className={`w-16 h-16 mx-auto mb-4 rounded-full ${themeClasses.card.gridItemIcon} flex items-center justify-center`}>
-            <Icon name="bell" size="lg" className="text-text-secondary" />
+            <Icon name="bell" size="lg" className={themeClasses.text.secondary} />
           </div>
-          <p className="text-sm text-text-secondary">
+          <p className={`text-sm ${themeClasses.text.secondary}`}>
             {t('dashboard.events.empty', { defaultValue: 'No new events' })}
           </p>
         </div>

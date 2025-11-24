@@ -5,6 +5,7 @@ import { Button } from '../../../design-system/primitives/Button';
 import { Input } from '../../../design-system/primitives/Input';
 import { Icon } from '../../../design-system/primitives/Icon';
 import { Badge } from '../../../design-system/primitives/Badge';
+import { Switch } from '../../../design-system/composites/Switch';
 import { themeClasses } from '../../../design-system/utils/themeClasses';
 import { backupApi, SyncSettings } from '../../../services/api/backup';
 import { SyncStatusIndicator } from './SyncStatusIndicator';
@@ -122,16 +123,11 @@ export const SyncSettingsSection: React.FC = () => {
                 {t('admin.backup.sync.enableDesc', 'Автоматическая синхронизация данных с центральным сервером')}
               </p>
             </div>
-            <button
-              onClick={() => handleToggle('enabled', !syncSettings.enabled)}
-              className={`w-12 h-6 rounded-full transition-colors ${
-                syncSettings.enabled ? 'bg-success' : 'bg-gray-3'
-              }`}
-            >
-              <div className={`w-5 h-5 ${themeClasses.background.surface} rounded-full transition-transform ${
-                syncSettings.enabled ? 'translate-x-6' : 'translate-x-0.5'
-              }`} />
-            </button>
+            <Switch
+              checked={syncSettings.enabled}
+              onChange={(checked) => handleToggle('enabled', checked)}
+              size="sm"
+            />
           </div>
 
           {/* Расписание синхронизации */}
@@ -267,16 +263,11 @@ export const SyncSettingsSection: React.FC = () => {
                   {t('admin.backup.sync.enrichmentPrivacy', 'Обогащенная информация будет доступна только администраторам системы. Пользователи будут видеть только данные, которые сами ввели про себя.')}
                 </p>
               </div>
-              <button
-                onClick={() => handleInputChange('enrichment.enabled', !syncSettings.enrichment.enabled)}
-                className={`w-12 h-6 rounded-full transition-colors ${
-                  syncSettings.enrichment.enabled ? 'bg-success' : 'bg-gray-3'
-                }`}
-              >
-                <div className={`w-5 h-5 ${themeClasses.background.surface} rounded-full transition-transform ${
-                  syncSettings.enrichment.enabled ? 'translate-x-6' : 'translate-x-0.5'
-                }`} />
-              </button>
+              <Switch
+                checked={syncSettings.enrichment.enabled}
+                onChange={(checked) => handleInputChange('enrichment.enabled', checked)}
+                size="sm"
+              />
             </div>
 
             {/* Источники данных */}
@@ -310,7 +301,7 @@ export const SyncSettingsSection: React.FC = () => {
                             type="checkbox"
                             checked={isChecked}
                             onChange={() => handleEnrichmentSourceToggle(key)}
-                            className="w-4 h-4 text-primary rounded"
+                            className={`w-4 h-4 ${themeClasses.text.primary} rounded`}
                           />
                           <span className={themeClasses.text.primary}>{sourceLabel}</span>
                         </label>
@@ -329,16 +320,11 @@ export const SyncSettingsSection: React.FC = () => {
                       {t('admin.backup.sync.autoEnrichDesc', 'Обогащать данные при каждой синхронизации')}
                     </p>
                   </div>
-                  <button
-                    onClick={() => handleInputChange('enrichment.autoEnrich', !syncSettings.enrichment.autoEnrich)}
-                    className={`w-12 h-6 rounded-full transition-colors ${
-                      syncSettings.enrichment.autoEnrich ? 'bg-success' : 'bg-gray-3'
-                    }`}
-                  >
-                    <div className={`w-5 h-5 ${themeClasses.background.surface} rounded-full transition-transform ${
-                      syncSettings.enrichment.autoEnrich ? 'translate-x-6' : 'translate-x-0.5'
-                    }`} />
-                  </button>
+                  <Switch
+                    checked={syncSettings.enrichment.autoEnrich}
+                    onChange={(checked) => handleInputChange('enrichment.autoEnrich', checked)}
+                    size="sm"
+                  />
                 </div>
               </>
             )}

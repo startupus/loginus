@@ -1,16 +1,23 @@
 import { apiClient } from './client';
 
-export interface AuthStep {
+export interface AuthMethod {
   id: string;
-  type: 'phone_verification' | 'email_verification' | 'password_setup' | 'biometric_setup' | '2fa_setup' | 'profile_completion';
+  name: string;
+  icon: string;
+  enabled: boolean;
+  isPrimary: boolean;
   order: number;
-  required: boolean;
-  config: Record<string, any>;
+  type: 'primary' | 'oauth' | 'alternative';
+  flow: 'login' | 'registration';
 }
 
 export interface AuthFlowResponse {
   success: boolean;
-  data: AuthStep[];
+  data: {
+    login: AuthMethod[];
+    registration: AuthMethod[];
+    updatedAt?: string;
+  };
 }
 
 export const authFlowApi = {
@@ -22,7 +29,8 @@ export const authFlowApi = {
   /**
    * Сохранить алгоритм авторизации
    */
-  updateAuthFlow: (steps: AuthStep[]) => apiClient.put<AuthFlowResponse>('/admin/auth-flow', { steps }),
+  updateAuthFlow: (methods: AuthMethod[]) => 
+    apiClient.put<AuthFlowResponse>('/admin/auth-flow', { methods }),
 
   /**
    * Тестировать алгоритм авторизации

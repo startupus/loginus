@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Input } from '../../design-system/primitives';
 import { Modal } from '../../design-system/composites';
+import { themeClasses } from '../../design-system/utils/themeClasses';
 import { personalApi } from '../../services/api/personal';
 import {
   validateDocumentSeries,
@@ -150,13 +151,13 @@ export const AddDocumentModal: React.FC<AddDocumentModalProps> = ({
         {/* Тип документа */}
         {!documentType && (
           <div>
-            <label className="block text-sm font-medium text-text-primary mb-2">
+            <label className={`block text-sm font-medium ${themeClasses.text.primary} mb-2`}>
               {t('modals.document.type', 'Тип документа')}
             </label>
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value as DocumentType)}
-              className="w-full rounded-md border border-border px-5 py-[10px] bg-transparent text-text-primary"
+              className={`w-full rounded-md border border-border px-5 py-[10px] bg-transparent ${themeClasses.text.primary}`}
             >
               {Object.entries(DOCUMENT_TYPES).map(([key, value]) => (
                 <option key={key} value={key}>
@@ -221,7 +222,7 @@ export const AddDocumentModal: React.FC<AddDocumentModalProps> = ({
 
         {/* Загрузка файла */}
         <div>
-          <label className="block text-sm font-medium text-text-primary mb-2">
+          <label className={`block text-sm font-medium ${themeClasses.text.primary} mb-2`}>
             {t('modals.document.upload', 'Загрузить фото/скан')}
           </label>
           <div className="flex items-center gap-3">
@@ -234,13 +235,13 @@ export const AddDocumentModal: React.FC<AddDocumentModalProps> = ({
             />
             <label
               htmlFor="document-file"
-              className="flex-1 px-4 py-2 rounded-lg border border-border bg-gray-1 dark:bg-gray-2 text-text-primary cursor-pointer hover:border-primary transition-colors text-center"
+              className={`flex-1 px-4 py-2 rounded-lg border border-border ${themeClasses.background.gray2} ${themeClasses.text.primary} cursor-pointer hover:border-primary transition-colors text-center`}
             >
               {file ? file.name : t('modals.document.uploadButton', 'Выбрать файл')}
             </label>
           </div>
           {file && (
-            <p className="text-sm text-text-secondary mt-1">
+            <p className={`text-sm ${themeClasses.text.secondary} mt-1`}>
               {t('modals.document.uploaded', 'Файл загружен')}
             </p>
           )}

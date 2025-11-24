@@ -39,7 +39,7 @@ export const WidgetSelector: React.FC<WidgetSelectorProps> = ({
     <>
       {/* Overlay */}
       <div
-        className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm z-40 transition-opacity duration-300"
+        className={themeClasses.overlay.panel}
         onClick={onClose}
       />
       
@@ -57,7 +57,7 @@ export const WidgetSelector: React.FC<WidgetSelectorProps> = ({
             </h2>
             <button
               onClick={onClose}
-              className="p-2 rounded-lg hover:bg-gray-1 dark:hover:bg-gray-2 transition-colors"
+              className={`p-2 rounded-lg ${themeClasses.list.itemHover} transition-colors`}
               aria-label={t('common.close', 'Закрыть')}
             >
               <Icon name="close" size="md" className={themeClasses.text.secondary} />
