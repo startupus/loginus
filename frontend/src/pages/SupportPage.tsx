@@ -37,6 +37,20 @@ const SupportPage: React.FC = () => {
   const [showChatHistory, setShowChatHistory] = useState<boolean>(false);
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
 
+  const agentName = useMemo(
+    () => t('support.chat.agentName', 'Loginus Support'),
+    [t],
+  );
+  const agentInitials = useMemo(
+    () => t('support.chat.agentInitials', 'LS'),
+    [t],
+  );
+  const userName = useMemo(
+    () => t('support.chat.userName', 'You'),
+    [t],
+  );
+  const userInitials = useMemo(() => getInitials(userName), [userName]);
+
   // Автоматическое изменение высоты textarea при вводе текста (кнопки остаются фиксированного размера)
   useEffect(() => {
     const updateHeight = () => {
@@ -235,9 +249,35 @@ const SupportPage: React.FC = () => {
     [chatHistoryData?.closed]
   );
   const services = useMemo(
-    () => Array.isArray(servicesData) ? servicesData : [],
+    () => (Array.isArray(servicesData) ? servicesData : []).filter((service) => Boolean(service)),
     [servicesData]
   );
+  const servicesWithFallback = useMemo(
+    () =>
+      services.map((service) => {
+        if (!service) {
+          return service;
+        }
+        const key = service.id ? `support.services.${service.id}` : '';
+        const translatedName = service.id
+          ? t(key, { defaultValue: service.name ?? service.id })
+          : service.name;
+        return {
+          ...service,
+          name: service.name || translatedName || agentName,
+        };
+      }),
+    [services, t, agentName]
+  );
+  const serviceNamesById = useMemo(() => {
+    const map = new Map<string, string>();
+    servicesWithFallback.forEach((service) => {
+      if (service?.id && service?.name) {
+        map.set(service.id, service.name);
+      }
+    });
+    return map;
+  }, [servicesWithFallback]);
   const messages = useMemo(
     () => Array.isArray(messagesData) ? messagesData : [],
     [messagesData]
@@ -349,20 +389,24 @@ const SupportPage: React.FC = () => {
 
   // Формируем папки продуктов из сервисов (должно быть до условных return)
   const productFolders: ProductFolder[] = useMemo(() => {
-    return services.map(service => ({
-      id: service.id,
-      name: service.name,
-      icon: service.icon,
+    return servicesWithFallback.map((service, index) => ({
+      id: service?.id ?? `service-${index}`,
+      name: service?.name ?? agentName,
+      icon: service?.icon,
     }));
-  }, [services]);
+  }, [servicesWithFallback, agentName]);
 
   // Фильтруем чаты по выбранной папке (должно быть до условных return)
   const filteredChatHistory = useMemo(() => {
     if (activeFolderId === 'all') {
       return chatHistory;
     }
-    return chatHistory.filter(chat => chat.service === services.find(s => s.id === activeFolderId)?.name);
-  }, [activeFolderId, chatHistory, services]);
+    const targetName = serviceNamesById.get(activeFolderId);
+    if (!targetName) {
+      return chatHistory;
+    }
+    return chatHistory.filter((chat) => chat?.service === targetName);
+  }, [activeFolderId, chatHistory, serviceNamesById]);
 
   // Loading state
   if (isLoadingChats || isLoadingServices) {
@@ -474,7 +518,7 @@ const SupportPage: React.FC = () => {
               </button>
             <ChatHeader
               name={activeChat?.name || t('support.chat.title', 'Поддержка Loginus ID')}
-              service={activeChat?.service || 'Поддержка'}
+              service={activeChat?.service || agentName}
               isOnline={activeChat?.isOnline ?? false}
                 textLeftPadding="lg:ml-0 ml-12 sm:ml-16"
             />
@@ -494,16 +538,16 @@ const SupportPage: React.FC = () => {
                     sender="bot"
                     message={t('support.chat.welcome', 'Здравствуйте! Я помогу вам разобраться с вопросами по Loginus ID.')}
                     timestamp={formatDate(new Date(), currentLang, { hour: '2-digit', minute: '2-digit' })}
-                    senderName="Поддержка"
-                    initials="П"
+                    senderName={agentName}
+                    initials={agentInitials}
                   />
 
                   {/* Кнопки выбора темы */}
                   <div className="flex items-start gap-3">
                     <div className="flex-shrink-0">
                       <Avatar
-                        initials="П"
-                        name="Поддержка"
+                        initials={agentInitials}
+                        name={agentName}
                         size="sm"
                         rounded
                       />
@@ -514,19 +558,19 @@ const SupportPage: React.FC = () => {
                           {t('support.chat.selectTopic', 'Выберите тему вашего вопроса:')}
                         </p>
                         <div className="grid grid-cols-2 gap-2">
-                          {services.filter(service => service && service.id).map((service) => {
-                            const IconComponent = getServiceIcon(service.icon || service.id);
+                          {servicesWithFallback.filter(service => service && service.id).map((service) => {
+                            const IconComponent = getServiceIcon(service?.icon || service?.id);
                             return (
                             <Button
-                              key={service.id}
-                              variant={selectedService === service.id ? 'primary' : 'outline'}
+                              key={service?.id}
+                              variant={selectedService === service?.id ? 'primary' : 'outline'}
                               size="sm"
                               className="justify-start"
-                              onClick={() => handleServiceSelect(service.id)}
+                              onClick={() => service?.id && handleServiceSelect(service.id)}
                               disabled={createChatMutation.isPending}
                                 leftIcon={<IconComponent size={16} />}
                             >
-                                {service.name}
+                                {service?.name}
                             </Button>
                             );
                           })}
@@ -542,9 +586,12 @@ const SupportPage: React.FC = () => {
                       key={message.id}
                       sender={message.sender}
                       message={message.message}
-                      timestamp={new Date(message.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                      senderName={message.sender === 'bot' ? 'Поддержка' : 'Вы'}
-                      initials={message.sender === 'bot' ? 'П' : getInitials('Вы')}
+                      timestamp={formatDate(message.timestamp, currentLang, {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                      senderName={message.sender === 'bot' ? agentName : userName}
+                      initials={message.sender === 'bot' ? agentInitials : userInitials}
                       edited={message.edited}
                       editedAt={message.editedAt}
                       canEdit={canEditMessage(message)}
@@ -650,7 +697,7 @@ const SupportPage: React.FC = () => {
                     className="p-0 flex items-center justify-center"
                     aria-label={editingMessageId ? t('support.chat.saveEdit', 'Сохранить изменения') : t('support.chat.sendMessage', 'Отправить сообщение')}
                   >
-                    {React.createElement(getServiceIcon('send'), { size: 20, className: 'text-white' })}
+                    {React.createElement(getServiceIcon('send'), { size: 20, className: themeClasses.text.white })}
                   </Button>
                 ) : editingMessageId ? (
                   <Button 

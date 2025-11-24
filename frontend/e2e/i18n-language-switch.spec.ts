@@ -178,6 +178,24 @@ test.describe('i18n Language Switch', () => {
     await expect(balanceEn).toBeVisible({ timeout: 3000 });
   });
 
+  test('should render support page in English without Russian artefacts', async ({ page }) => {
+    await page.goto('about:blank');
+    await page.evaluate(() => {
+      localStorage.removeItem('loginus-language');
+      sessionStorage?.clear();
+    });
+
+    await page.goto('http://localhost:3000/en/support');
+    await page.waitForLoadState('networkidle');
+
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+    await expect(page.locator('text=Loginus Support')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('text=Hello! I will help you with questions about Loginus ID.')).toBeVisible();
+
+    await expect(page.locator('text=Поддержка')).toHaveCount(0);
+    await expect(page.locator('text=Здравствуйте!')).toHaveCount(0);
+  });
+
   test('should not flash English text before switching to Russian on initial load', async ({ page }) => {
     // Переходим на русскую версию dashboard
     await page.goto('http://localhost:3000/ru/dashboard');

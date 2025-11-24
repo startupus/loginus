@@ -134,7 +134,7 @@ export const AddButton: React.FC<AddButtonProps> = ({
         onClick={onClick}
         className={`${baseClasses} flex-col ${currentSize.padding} ${currentSize.gap} ${className}`.trim()}
       >
-        <div className={`${iconSizeForVertical} rounded-full ${themeClasses.background.iconContainer} ${themeClasses.utility.flexItemsCenter} ${themeClasses.utility.transitionAll} duration-200 ${themeClasses.background.primarySemiTransparentHover}`}>
+        <div className={`${iconSizeForVertical} rounded-full ${themeClasses.background.iconContainer} flex items-center justify-center ${themeClasses.utility.transitionAll} duration-200 ${themeClasses.background.primarySemiTransparentHover}`}>
           <Icon 
             name="plus" 
             size={iconSizeForVerticalIcon} 

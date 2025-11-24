@@ -222,7 +222,7 @@ export const InviteFamilyMemberModal: React.FC<InviteFamilyMemberModalProps> = (
               className={`px-4 py-2 rounded-xl border transition-all duration-200 ${
                 isLoading
                   ? 'bg-gray-1 dark:bg-dark-3 border-border text-text-secondary cursor-not-allowed opacity-50'
-                  : 'bg-white dark:bg-dark-2 border-border text-text-primary hover:border-primary hover:bg-primary/5 dark:hover:bg-primary/10'
+                  : `${themeClasses.card.default} ${themeClasses.text.primary} hover:border-primary ${themeClasses.card.hover}`
               }`}
             >
               {t(`family.invite.relations.${relation}`)}

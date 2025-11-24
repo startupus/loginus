@@ -7,8 +7,10 @@ export interface AuthMethod {
   enabled: boolean;
   isPrimary: boolean;
   order: number;
-  type: 'primary' | 'oauth' | 'alternative';
-  flow: 'login' | 'registration';
+  type: 'primary' | 'oauth' | 'alternative' | 'registration-field' | 'auth-factor';
+  flow: 'login' | 'registration' | 'factors';
+  stepType?: 'field' | 'auth-method';
+  fieldType?: 'surname' | 'name' | 'passport' | 'inn' | 'snils' | 'birthdate' | 'gender';
 }
 
 export interface AuthFlowResponse {
@@ -16,6 +18,7 @@ export interface AuthFlowResponse {
   data: {
     login: AuthMethod[];
     registration: AuthMethod[];
+    factors?: AuthMethod[];
     updatedAt?: string;
   };
 }

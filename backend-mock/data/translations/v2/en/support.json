@@ -15,8 +15,11 @@
       "edited": "edited",
       "edit": "Edit",
       "editingPlaceholder": "Editing message...",
-      "saveEdit": "Save changes",
-      "cancelEdit": "Cancel editing"
+    "saveEdit": "Save changes",
+    "cancelEdit": "Cancel editing",
+    "agentName": "Loginus Support",
+    "agentInitials": "LS",
+    "userName": "You"
     },
     "history": {
       "title": "Support History",

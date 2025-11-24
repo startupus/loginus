@@ -6,6 +6,53 @@
 type Locale = 'ru' | 'en';
 
 /**
+ * Нормализует код валюты, преобразуя символы в ISO 4217 коды
+ * @param currency - Код валюты или символ валюты
+ * @returns Нормализованный код валюты ISO 4217
+ */
+function normalizeCurrencyCode(currency: string): string {
+  // Маппинг символов валют на ISO 4217 коды
+  const currencyMap: Record<string, string> = {
+    '₽': 'RUB',
+    '₴': 'UAH',
+    '€': 'EUR',
+    '$': 'USD',
+    '£': 'GBP',
+    '¥': 'JPY',
+    '₹': 'INR',
+    '₦': 'NGN',
+    '₨': 'PKR',
+    '₩': 'KRW',
+    '₪': 'ILS',
+    '₫': 'VND',
+    '₭': 'LAK',
+    '₮': 'MNT',
+    '₯': 'GRD',
+    '₰': 'DEM',
+    '₱': 'PHP',
+    '₲': 'PYG',
+    '₳': 'AUD',
+    '₵': 'GHS',
+    '₶': 'CZK',
+    '₷': 'EEK',
+    '₸': 'KZT',
+  };
+
+  // Если это символ валюты, преобразуем в код
+  if (currencyMap[currency]) {
+    return currencyMap[currency];
+  }
+
+  // Если это уже код валюты (3 символа), возвращаем как есть
+  if (currency.length === 3 && /^[A-Z]{3}$/.test(currency)) {
+    return currency;
+  }
+
+  // По умолчанию возвращаем RUB для неизвестных значений
+  return 'RUB';
+}
+
+/**
  * Форматирует число с учетом текущего языка
  * @param value - Число для форматирования
  * @param locale - Локаль ('ru' | 'en')
@@ -19,7 +66,7 @@ export function formatNumber(value: number, locale: Locale = 'ru'): string {
 /**
  * Форматирует число с валютой
  * @param value - Число для форматирования
- * @param currency - Код валюты (по умолчанию 'RUB')
+ * @param currency - Код валюты или символ валюты (по умолчанию 'RUB')
  * @param locale - Локаль ('ru' | 'en')
  * @returns Отформатированное число с валютой
  */
@@ -29,12 +76,28 @@ export function formatCurrency(
   locale: Locale = 'ru',
 ): string {
   const localeString = locale === 'en' ? 'en-US' : 'ru-RU';
-  return new Intl.NumberFormat(localeString, {
-    style: 'currency',
-    currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value);
+  const normalizedCurrency = normalizeCurrencyCode(currency);
+  
+  try {
+    return new Intl.NumberFormat(localeString, {
+      style: 'currency',
+      currency: normalizedCurrency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value);
+  } catch (error) {
+    // Fallback на форматирование числа с символом валюты, если код валюты не поддерживается
+    if (process.env.NODE_ENV === 'development') {
+      console.warn(`[formatCurrency] Invalid currency code: ${currency}, normalized to: ${normalizedCurrency}`, error);
+    }
+    // Используем RUB как fallback
+    return new Intl.NumberFormat(localeString, {
+      style: 'currency',
+      currency: 'RUB',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value);
+  }
 }
 
 /**

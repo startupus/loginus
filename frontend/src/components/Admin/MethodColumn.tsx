@@ -14,22 +14,24 @@ export interface AuthMethod {
   enabled: boolean;
   isPrimary: boolean;
   order: number;
-  type: 'primary' | 'oauth' | 'alternative';
-  flow: 'login' | 'registration';
+  type: 'primary' | 'oauth' | 'alternative' | 'registration-field' | 'auth-factor';
+  flow: 'login' | 'registration' | 'factors';
+  stepType?: 'field' | 'auth-method'; // Тип шага: поле формы или метод авторизации
+  fieldType?: 'surname' | 'name' | 'passport' | 'inn' | 'snils' | 'birthdate' | 'gender'; // Тип поля для шагов регистрации
 }
 
 interface MethodColumnProps {
   title: string;
   methods: AuthMethod[];
-  flow: 'login' | 'registration';
+  flow: 'login' | 'registration' | 'factors';
   draggedItem: string | null;
   onAddMethod: () => void;
   onDragStart: (id: string) => void;
-  onDragOver: (e: React.DragEvent, id: string, flow: 'login' | 'registration') => void;
+  onDragOver: (e: React.DragEvent, id: string, flow: 'login' | 'registration' | 'factors') => void;
   onDragEnd: () => void;
   onTogglePrimary: (id: string) => void;
   onToggleEnabled: (id: string) => void;
-  onRemoveMethod: (id: string, flow: 'login' | 'registration') => void;
+  onRemoveMethod: (id: string, flow: 'login' | 'registration' | 'factors') => void;
   canTogglePrimary?: (id: string) => boolean;
 }
 
@@ -107,11 +109,11 @@ export const MethodColumn: React.FC<MethodColumnProps> = ({
           />
         ) : (
           methods.map((method) => (
-            <div
+              <div
               key={method.id}
-              draggable
-              onDragStart={() => onDragStart(method.id)}
-              onDragOver={(e) => onDragOver(e, method.id, flow)}
+              draggable={!(flow === 'factors' && method.id === 'login-window')}
+              onDragStart={() => !(flow === 'factors' && method.id === 'login-window') && onDragStart(method.id)}
+              onDragOver={(e) => !(flow === 'factors' && method.id === 'login-window') && onDragOver(e, method.id, flow)}
               onDragEnd={onDragEnd}
               className={`${themeClasses.card.default} ${themeClasses.spacing.p4} cursor-move hover:shadow-lg ${themeClasses.utility.transitionAll} ${
                 draggedItem === method.id ? 'opacity-50' : ''
@@ -119,7 +121,13 @@ export const MethodColumn: React.FC<MethodColumnProps> = ({
             >
               <div className={`${themeClasses.utility.flexItemsCenter} ${themeClasses.utility.justifyBetween}`}>
                 <div className={`${themeClasses.utility.flexItemsCenter} ${themeClasses.spacing.gap3}`}>
-                  <Icon name="grip-vertical" size="sm" className={themeClasses.text.secondary} />
+                  {/* Не показываем grip-vertical для обязательного метода "Окно входа" в factors flow */}
+                  {!(flow === 'factors' && method.id === 'login-window') && (
+                    <Icon name="grip-vertical" size="sm" className={themeClasses.text.secondary} />
+                  )}
+                  {flow === 'factors' && method.id === 'login-window' && (
+                    <Icon name="lock" size="sm" className={themeClasses.text.primary} title={t('admin.authFlow.factors.required', 'Обязательный шаг')} />
+                  )}
                   {/* Используем getAuthMethodIcon для специальных иконок (tinkoff, yandex, saber и др.), 
                       иначе используем компонент Icon */}
                   {getAuthMethodIcon(method.id) ? (
@@ -134,19 +142,31 @@ export const MethodColumn: React.FC<MethodColumnProps> = ({
                     <Icon name={method.icon as any} size="md" className={themeClasses.text.primary} />
                   )}
                   <div>
-                    <p className={`font-medium ${themeClasses.text.primary}`}>{method.name}</p>
+                    <p className={`font-medium ${themeClasses.text.primary}`}>
+                      {method.name || (method.stepType === 'field' 
+                        ? t(`admin.authFlow.registrationSteps.${method.id}`, method.id)
+                        : t(`admin.authFlow.methods.${method.id}`, method.id))}
+                    </p>
                     <p className={`text-xs ${themeClasses.text.secondary}`}>
-                      {t('admin.authFlow.order')}: {method.order}
+                      {method.stepType === 'field' 
+                        ? `${t('admin.authFlow.registrationStep', 'Шаг регистрации')} ${method.order}`
+                        : flow === 'factors' && method.id === 'login-window'
+                        ? t('admin.authFlow.factors.firstStep', 'Первый шаг (обязательный)')
+                        : `${t('admin.authFlow.order')}: ${method.order}`}
                     </p>
                   </div>
                 </div>
                 <div className={`${themeClasses.utility.flexItemsCenter} ${themeClasses.spacing.gap3}`}>
-                  <Switch
-                    checked={method.enabled}
-                    onChange={() => onToggleEnabled(method.id)}
-                    size="sm"
-                  />
-                  {method.isPrimary && (
+                  {/* Для обязательного метода "Окно входа" в factors flow не показываем Switch, так как он всегда включен */}
+                  {!(flow === 'factors' && method.id === 'login-window') && (
+                    <Switch
+                      checked={method.enabled}
+                      onChange={() => onToggleEnabled(method.id)}
+                      size="sm"
+                    />
+                  )}
+                  {/* Кнопка primary только для методов авторизации в login/registration, не для шагов регистрации и факторов */}
+                  {method.stepType !== 'field' && method.flow !== 'factors' && method.isPrimary && (
                     <button
                       onClick={() => canToggle(method.id) && onTogglePrimary(method.id)}
                       disabled={!canToggle(method.id)}
@@ -160,7 +180,7 @@ export const MethodColumn: React.FC<MethodColumnProps> = ({
                       <Icon name="star" size="sm" />
                     </button>
                   )}
-                  {!method.isPrimary && method.type !== 'primary' && (
+                  {method.stepType !== 'field' && method.flow !== 'factors' && !method.isPrimary && method.type !== 'primary' && (
                     <button
                       onClick={() => onTogglePrimary(method.id)}
                       title={t('admin.authFlow.primaryOnStartPage')}
@@ -178,8 +198,13 @@ export const MethodColumn: React.FC<MethodColumnProps> = ({
                       e.stopPropagation();
                       onRemoveMethod(method.id, flow);
                     }}
-                    className="text-destructive hover:text-destructive-foreground hover:bg-destructive/10"
-                    title={t('common.delete', 'Удалить')}
+                    disabled={!method.enabled || (flow === 'factors' && method.id === 'login-window')}
+                    className="text-destructive hover:text-destructive-foreground hover:bg-destructive/10 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                    title={!method.enabled 
+                      ? t('admin.authFlow.cannotDeleteDisabled', 'Нельзя удалить отключенный метод')
+                      : (flow === 'factors' && method.id === 'login-window')
+                      ? t('admin.authFlow.factors.required', 'Обязательный шаг')
+                      : t('common.delete', 'Удалить')}
                     type="button"
                   >
                     <Icon name="trash" size="sm" />

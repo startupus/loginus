@@ -16,6 +16,7 @@ import { adminApi, AdminUser, AdminCompany } from '../../services/api/admin';
 import { themeClasses } from '../../design-system/utils/themeClasses';
 import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
 import { formatDate } from '../../utils/intl/formatters';
+import { getInitials } from '../../utils/stringUtils';
 
 const CompanyDetailPage: React.FC = () => {
   const { t } = useTranslation();
@@ -374,8 +375,11 @@ const CompanyDetailPage: React.FC = () => {
                             <div className="flex items-center gap-3">
                               <Avatar
                                 src={user.avatar || undefined}
+                                initials={getInitials(user.displayName)}
                                 name={user.displayName}
                                 size="md"
+                                rounded
+                                showStatus
                                 status={user.status === 'active' ? 'online' : 'offline'}
                               />
                               <div>

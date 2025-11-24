@@ -150,7 +150,8 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
   };
 
   // Дефолтные пункты меню (fallback)
-  // Пересобираем при смене языка (i18n.language)
+  // Оптимизировано: пересобираем только при изменении языка (currentLang) или пути (location.pathname)
+  // Функция t() автоматически обновляется при смене языка через i18n, поэтому i18n.language не нужен в зависимостях
   const defaultSidebarItems: SidebarItem[] = React.useMemo(() => [
     { 
       label: t('sidebar.profile'), 
@@ -204,16 +205,16 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
       icon: 'help-circle', 
       active: location.pathname.includes('/support') 
     },
-  ], [t, currentLang, location.pathname, i18n.language]);
+  ], [t, currentLang, location.pathname]);
 
   // Используем меню из API, если оно загружено, иначе дефолтное
-  // Пересобираем при смене языка
+  // Оптимизировано: пересобираем только при изменении данных меню или языка
   const configuredSidebarItems = React.useMemo(() => {
     const menuItemsFromApi = userMenuData?.data?.data || [];
     return menuItemsFromApi.length > 0
       ? menuItemsFromApi.map(convertMenuItemToSidebarItem)
       : defaultSidebarItems;
-  }, [userMenuData, defaultSidebarItems, currentLang, i18n.language]);
+  }, [userMenuData, defaultSidebarItems, currentLang, t]);
 
   const finalSidebarItems = sidebarItems || (shouldShowSidebar ? configuredSidebarItems : undefined);
 

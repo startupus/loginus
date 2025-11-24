@@ -243,7 +243,7 @@ export const ProfileCardMenu: React.FC<ProfileCardMenuProps> = ({
       aria-label={t('profile.menu', 'Меню профиля')}
       id="react-aria-profile-card-menu"
       data-testid="profile-card-menu"
-      className={`fixed z-[100000] w-[320px] max-h-[212px] bg-white dark:bg-surface rounded-lg shadow-lg ${themeClasses.border.default} overflow-hidden py-1`}
+      className={`fixed z-[100000] w-[320px] max-h-[212px] ${themeClasses.card.default} shadow-lg ${themeClasses.border.default} overflow-hidden py-1`}
       style={{
         top: `${position.top}px`,
         left: `${position.left}px`,

@@ -15,8 +15,11 @@
       "edited": "изменено",
       "edit": "Изменить",
       "editingPlaceholder": "Редактирование сообщения...",
-      "saveEdit": "Сохранить изменения",
-      "cancelEdit": "Отменить редактирование"
+    "saveEdit": "Сохранить изменения",
+    "cancelEdit": "Отменить редактирование",
+    "agentName": "Поддержка Loginus",
+    "agentInitials": "П",
+    "userName": "Вы"
     },
     "history": {
       "title": "История обращений",

@@ -289,7 +289,8 @@ i18n.on('missingKey', (lngs, _ns, key) => {
 });
 
 /**
- * Смена языка с полной загрузкой всех модулей.
+ * Смена языка с загрузкой только критичных модулей.
+ * Остальные модули загружаются по требованию через missingKey handler.
  */
 export const changeLanguage = async (locale: string) => {
   const targetLocale = (locale === 'en' ? 'en' : 'ru') as Locale;
@@ -299,8 +300,27 @@ export const changeLanguage = async (locale: string) => {
       console.log(`[i18n] Changing language to ${targetLocale}`);
     }
 
-    const allModules = await loadAllModulesForLanguage(targetLocale);
-    addBundle(targetLocale, allModules, 'changeLanguage');
+    // Загружаем только критичные модули для быстрого переключения языка
+    // Остальные модули будут загружены по требованию через missingKey handler
+    const criticalModules = await loadModules(
+      targetLocale,
+      [...CRITICAL_MODULES] as ModuleName[],
+      {
+        useAPI: true,
+        useCache: true,
+        useStaticFallback: true,
+      },
+    );
+
+    const mergedCritical = Object.entries(criticalModules).reduce<Record<string, any>>((acc, [name, data]) => {
+      if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+        markModuleAsLoaded(targetLocale, name as ModuleName);
+        return deepMerge(acc, data);
+      }
+      return acc;
+    }, {});
+
+    addBundle(targetLocale, mergedCritical, 'changeLanguage');
 
     await i18n.changeLanguage(targetLocale);
     await i18n.reloadResources(targetLocale);
@@ -321,10 +341,22 @@ export const changeLanguage = async (locale: string) => {
 
 /**
  * Предзагрузка модуля для текущего языка.
+ * Использует кэш если модуль уже загружен, не делает лишних запросов к API.
  */
 export const preloadModule = async (module: ModuleName) => {
   const currentLang = (i18n.language || initialLanguage) as Locale;
-  const data = await loadModuleForI18n(currentLang, module, true);
+  
+  // Проверяем, не загружен ли уже модуль
+  const alreadyLoaded = loadedModules.has(currentLang) && loadedModules.get(currentLang)!.has(module);
+  if (alreadyLoaded) {
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[i18n] Module ${module} already loaded for ${currentLang}, skipping preload`);
+    }
+    return;
+  }
+  
+  // Загружаем модуль без forceReload, чтобы использовать кэш
+  const data = await loadModuleForI18n(currentLang, module, false);
   addBundle(currentLang, data, `preload:${module}`);
 };
 

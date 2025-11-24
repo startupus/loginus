@@ -372,6 +372,7 @@
     "add": "Add",
     "login": "Login",
     "registration": "Registration",
+    "factors": "Authorization Factors",
     "noMethods": "No methods",
     "addMethod": {
       "title": "Add Authentication Method",
@@ -408,7 +409,17 @@
       "microsoft": "Microsoft",
       "biometric": "Biometric",
       "sms": "SMS Code"
-    }
+    },
+    "registrationSteps": {
+      "surname": "Surname",
+      "name": "Name",
+      "passport": "Passport",
+      "inn": "Tax ID",
+      "snils": "SNILS",
+      "birthdate": "Birth Date",
+      "gender": "Gender"
+    },
+    "registrationStep": "Registration step"
   },
   "paymentMethods": {
     "title": "Payment Methods",

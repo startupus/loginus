@@ -78,15 +78,16 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   sender,
   message,
   timestamp,
-  senderName = 'Поддержка',
+  senderName,
   className = '',
   edited = false,
-  editedAt,
+  editedAt: _editedAt,
   canEdit = false,
   onEdit,
   messageId,
 }) => {
   const { t } = useTranslation();
+  const resolvedSenderName = senderName ?? t('support.chat.agentName', 'Loginus Support');
   const isBot = sender === 'bot';
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
@@ -180,7 +181,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   return (
     <div className={`max-w-[85%] sm:max-w-[355px] ${className}`}>
       <p className={`mb-1 sm:mb-2 text-xs sm:text-sm font-medium ${themeClasses.text.secondary}`}>
-        {senderName}
+        {resolvedSenderName}
       </p>
       <div className={`mb-1.5 sm:mb-2 rounded-2xl rounded-tl-none ${themeClasses.background.gray2} px-3 py-2 sm:px-5 sm:py-3`}>
         <p className={`text-sm sm:text-base ${themeClasses.text.primary} break-words`}>{message}</p>

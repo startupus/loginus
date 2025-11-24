@@ -24,6 +24,7 @@ export class AuthFlowService {
       const defaultData = {
         login: [],
         registration: [],
+        factors: [],
         updatedAt: new Date().toISOString(),
       };
       fs.writeFileSync(authFlowPath, JSON.stringify(defaultData, null, 2), 'utf-8');
@@ -59,6 +60,7 @@ export class AuthFlowService {
       data: {
         login: data.login || [],
         registration: data.registration || [],
+        factors: data.factors || [],
         updatedAt: data.updatedAt,
       },
     };
@@ -68,10 +70,12 @@ export class AuthFlowService {
     // Разделяем методы по потокам
     const loginMethods = methods.filter(m => m.flow === 'login');
     const registrationMethods = methods.filter(m => m.flow === 'registration');
+    const factorsMethods = methods.filter(m => m.flow === 'factors');
 
     const data = {
       login: loginMethods,
       registration: registrationMethods,
+      factors: factorsMethods,
     };
 
     this.saveAuthFlow(data);
@@ -84,6 +88,7 @@ export class AuthFlowService {
       data: {
         login: loginMethods,
         registration: registrationMethods,
+        factors: factorsMethods,
         updatedAt: updatedData.updatedAt || new Date().toISOString(),
       },
     };

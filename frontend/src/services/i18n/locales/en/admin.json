@@ -209,6 +209,15 @@
       "biometric": "Biometric",
       "sms": "SMS Code"
     },
+    "registrationSteps": {
+      "surname": "Surname",
+      "name": "Name",
+      "passport": "Passport",
+      "inn": "Tax ID",
+      "snils": "SNILS",
+      "birthdate": "Birth Date",
+      "gender": "Gender"
+    },
     "add": "Add"
   },
   "menuSettings": {
@@ -419,6 +428,9 @@
     "add": "Add",
     "login": "Login",
     "registration": "Registration",
+    "factors": "Authorization Factors",
+    "factors.firstStep": "First step (required)",
+    "factors.required": "Required step",
     "noMethods": "No methods",
     "addMethod": {
       "title": "Add Authentication Method",

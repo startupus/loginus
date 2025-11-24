@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AdminPageTemplate } from '../../design-system/layouts/AdminPageTemplate';
@@ -6,12 +6,15 @@ import { Input } from '../../design-system/primitives/Input';
 import { Button } from '../../design-system/primitives/Button';
 import { Icon } from '../../design-system/primitives/Icon';
 import { Badge } from '../../design-system/primitives/Badge';
+import { Avatar } from '../../design-system/primitives/Avatar';
 import { Modal } from '../../design-system/composites/Modal';
 import { adminApi } from '../../services/api/admin';
 import { useAdminPermissions } from '../../hooks/useAdminPermissions';
+import { useDebounce } from '../../hooks/useDebounce';
 import { themeClasses } from '../../design-system/utils/themeClasses';
 import { formatDate } from '../../utils/intl/formatters';
 import { useCurrentLanguage } from '../../utils/routing';
+import { getInitials } from '../../utils/stringUtils';
 
 interface User {
   id: string;
@@ -27,6 +30,11 @@ interface User {
   createdAt: string;
   updatedAt: string;
 }
+
+type EnrichedUser = User & {
+  companyName: string;
+  createdAtFormatted: string;
+};
 
 const UsersManagementPage: React.FC = () => {
   const { t } = useTranslation();
@@ -45,6 +53,7 @@ const UsersManagementPage: React.FC = () => {
   const [dateTo, setDateTo] = useState<string>('');
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
+  const debouncedSearchQuery = useDebounce(searchQuery, 400);
   
   // Состояния сортировки
   const [sortBy, setSortBy] = useState<'displayName' | 'role' | 'status' | 'createdAt' | null>(null);
@@ -59,20 +68,56 @@ const UsersManagementPage: React.FC = () => {
   const [isCreateMode, setIsCreateMode] = useState(false);
 
   // Запросы
-  const { data: usersResponse, isLoading, error } = useQuery({
-    queryKey: ['users', searchQuery, roleFilter, statusFilter, companyFilter, dateFrom, dateTo, page, limit, sortBy, sortOrder],
-    queryFn: () => adminApi.getUsers({
-      search: searchQuery || undefined,
-      role: roleFilter !== 'all' ? roleFilter : undefined,
-      status: statusFilter !== 'all' ? statusFilter : undefined,
-      companyId: companyFilter !== 'all' ? companyFilter : undefined,
-      dateFrom: dateFrom || undefined,
-      dateTo: dateTo || undefined,
-      page,
-      limit,
-      sortBy: sortBy || undefined,
-      sortOrder: sortOrder || undefined,
-    }),
+  const {
+    data: usersResponse,
+    isLoading,
+    isFetching,
+    error,
+  } = useQuery({
+    queryKey: ['users', debouncedSearchQuery, roleFilter, statusFilter, companyFilter, dateFrom, dateTo, page, limit, sortBy, sortOrder],
+    queryFn: () =>
+      adminApi.getUsers({
+        search: debouncedSearchQuery || undefined,
+        role: roleFilter !== 'all' ? roleFilter : undefined,
+        status: statusFilter !== 'all' ? statusFilter : undefined,
+        companyId: companyFilter !== 'all' ? companyFilter : undefined,
+        dateFrom: dateFrom || undefined,
+        dateTo: dateTo || undefined,
+        page,
+        limit,
+        sortBy: sortBy || undefined,
+        sortOrder: sortOrder || undefined,
+      }),
+    keepPreviousData: true,
+    select: (response) => {
+      const payload = response?.data?.data ?? {};
+      const extractedUsers = Array.isArray(payload.users)
+        ? payload.users
+        : Array.isArray(payload.data)
+          ? payload.data
+          : [];
+      const rawMeta = payload.meta ?? {
+        total: payload.total ?? extractedUsers.length,
+        page: payload.page ?? page,
+        limit: payload.limit ?? limit,
+      };
+      const total = rawMeta.total ?? extractedUsers.length;
+      const currentPage = rawMeta.page ?? page;
+      const currentLimit = rawMeta.limit ?? limit;
+      const totalPages =
+        rawMeta.totalPages ??
+        Math.max(1, Math.ceil((total || 0) / (currentLimit || limit || 1)));
+
+      return {
+        users: extractedUsers,
+        meta: {
+          total,
+          page: currentPage,
+          limit: currentLimit,
+          totalPages,
+        },
+      };
+    },
   });
 
   const { data: companiesResponse } = useQuery({
@@ -89,25 +134,87 @@ const UsersManagementPage: React.FC = () => {
   });
 
   // Извлечение данных из ответа API
-  const users = usersResponse?.data?.data?.users || [];
-  const companies = companiesResponse?.data?.data?.companies || [];
-  const metaData = usersResponse?.data?.data || { total: 0, page: 1, limit: 10 };
-  const meta = {
-    total: metaData.total,
-    page: metaData.page,
-    limit: metaData.limit,
-    totalPages: Math.ceil(metaData.total / metaData.limit),
+  const usersResult = usersResponse ?? {
+    users: [],
+    meta: {
+      total: 0,
+      page: 1,
+      limit,
+      totalPages: 1,
+    },
   };
+
+  const users = usersResult.users as User[];
+  const meta = usersResult.meta;
+
+  const companies = companiesResponse?.data?.data?.companies || [];
+
+  const companiesMap = useMemo(() => {
+    const map = new Map<string, string>();
+    companies.forEach((company: any) => {
+      if (company?.id) {
+        map.set(company.id, company.name);
+      }
+    });
+    return map;
+  }, [companies]);
+
+  const enrichedUsers: EnrichedUser[] = useMemo(
+    () =>
+      users.map((user) => ({
+        ...user,
+        companyName: user.companyId ? companiesMap.get(user.companyId) ?? '-' : '-',
+        createdAtFormatted: formatDate(user.createdAt, locale, {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        }),
+      })),
+    [users, companiesMap, locale],
+  );
+
+  const paginationButtons = useMemo(() => {
+    const totalPages = meta.totalPages || 1;
+    const buttons: number[] = [];
+    const visibleCount = Math.min(5, totalPages);
+
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i += 1) {
+        buttons.push(i);
+      }
+      return buttons;
+    }
+
+    if (page <= 3) {
+      for (let i = 1; i <= visibleCount; i += 1) {
+        buttons.push(i);
+      }
+      return buttons;
+    }
+
+    if (page >= totalPages - 2) {
+      for (let i = totalPages - 4; i <= totalPages; i += 1) {
+        buttons.push(i);
+      }
+      return buttons;
+    }
+
+    for (let i = page - 2; i <= page + 2; i += 1) {
+      buttons.push(i);
+    }
+
+    return buttons;
+  }, [meta.totalPages, page]);
   
   // Обработчик сортировки
-  const handleSort = (column: 'displayName' | 'role' | 'status' | 'createdAt') => {
+  const handleSort = useCallback((column: 'displayName' | 'role' | 'status' | 'createdAt') => {
     if (sortBy === column) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+      setSortOrder((prevOrder) => (prevOrder === 'asc' ? 'desc' : 'asc'));
     } else {
       setSortBy(column);
       setSortOrder('asc');
     }
-  };
+  }, [sortBy]);
   
   // Генерация инициалов для аватара (как в ProfileMenu)
   const getInitials = (name: string): string => {
@@ -190,7 +297,7 @@ const UsersManagementPage: React.FC = () => {
     return labels[status] || status;
   };
 
-  if (isLoading) {
+  if (isLoading && enrichedUsers.length === 0) {
     return (
       <AdminPageTemplate title={t('admin.users.title')} showSidebar={true}>
         <div className="flex items-center justify-center min-h-[400px]">
@@ -295,6 +402,11 @@ const UsersManagementPage: React.FC = () => {
 
         {/* Таблица пользователей */}
         <div className={`${themeClasses.card.default} overflow-hidden`}>
+          {isFetching && (
+            <div className="flex justify-end px-4 py-2">
+              <Icon name="loader" size="sm" className="animate-spin" color="rgb(var(--color-primary))" />
+            </div>
+          )}
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className={themeClasses.background.gray2}>
@@ -420,20 +532,19 @@ const UsersManagementPage: React.FC = () => {
                     </td>
                   </tr>
                 ) : (
-                  users.map((user: User) => (
+                  enrichedUsers.map((user: EnrichedUser) => (
                     <tr key={user.id} className={`${themeClasses.list.itemHover} transition-colors`}>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className={`relative inline-flex items-center justify-center overflow-hidden rounded-full w-10 h-10 text-base ${themeClasses.iconCircle.primary}`}>
-                            {user.avatar ? (
-                              <img src={user.avatar} alt={user.displayName} className="w-full h-full object-cover" />
-                            ) : (
-                              getInitials(user.displayName)
-                            )}
-                            <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white dark:border-dark-2 ${
-                              user.status === 'active' ? themeClasses.background.success : themeClasses.background.gray3
-                            }`} />
-                          </div>
+                          <Avatar
+                            src={user.avatar || undefined}
+                            initials={getInitials(user.displayName)}
+                            name={user.displayName}
+                            size="md"
+                            rounded
+                            showStatus
+                            status={user.status === 'active' ? 'online' : 'offline'}
+                          />
                           <div>
                             <p className={`font-medium ${themeClasses.text.primary}`}>{user.displayName}</p>
                             <p className={`text-sm ${themeClasses.text.secondary}`}>{user.email}</p>
@@ -454,19 +565,13 @@ const UsersManagementPage: React.FC = () => {
                       {isSuperAdmin && (
                         <td className="px-6 py-4">
                           <p className={`text-sm ${themeClasses.text.secondary}`}>
-                            {user.companyId
-                              ? companies.find((c: any) => c.id === user.companyId)?.name || '-'
-                              : '-'}
+                            {user.companyName}
                           </p>
                         </td>
                       )}
                       <td className="px-6 py-4">
                         <p className={`text-sm ${themeClasses.text.secondary}`}>
-                          {formatDate(user.createdAt, locale, {
-                            day: 'numeric',
-                            month: 'short',
-                            year: 'numeric',
-                          })}
+                          {user.createdAtFormatted}
                         </p>
                       </td>
                       <td className="px-6 py-4">
@@ -518,29 +623,17 @@ const UsersManagementPage: React.FC = () => {
                 <Icon name="chevron-left" size="sm" />
               </Button>
               
-              {Array.from({ length: Math.min(5, meta.totalPages) }, (_, i) => {
-                let pageNum;
-                if (meta.totalPages <= 5) {
-                  pageNum = i + 1;
-                } else if (page <= 3) {
-                  pageNum = i + 1;
-                } else if (page >= meta.totalPages - 2) {
-                  pageNum = meta.totalPages - 4 + i;
-                } else {
-                  pageNum = page - 2 + i;
-                }
-                
-                return (
-                  <Button
-                    key={pageNum}
-                    variant={page === pageNum ? 'primary' : 'outline'}
-                    size="sm"
-                    onClick={() => setPage(pageNum)}
-                  >
-                    {pageNum}
-                  </Button>
-                );
-              })}
+              {paginationButtons.map((pageNum) => (
+                <Button
+                  key={pageNum}
+                  variant={page === pageNum ? 'primary' : 'outline'}
+                  size="sm"
+                  onClick={() => setPage(pageNum)}
+                  disabled={isFetching && pageNum === page}
+                >
+                  {pageNum}
+                </Button>
+              ))}
               
               <Button
                 variant="outline"

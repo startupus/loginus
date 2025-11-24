@@ -9,6 +9,7 @@ import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';
 import { useContactMasking } from '@/hooks/useContactMasking';
 import { useTheme } from '../../contexts/ThemeContext';
 import { themeClasses } from '../../utils/themeClasses';
+import { useAdminPermissions } from '@/hooks/useAdminPermissions';
 // Lazy loading для модалки - не нужна при первой загрузке
 const OrganizationModal = React.lazy(() => import('@/components/Modals/OrganizationModal').then(m => ({ default: m.OrganizationModal })));
 import { useModal } from '@/hooks/useModal';
@@ -45,6 +46,7 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
   const currentLang = useCurrentLanguage();
   const { isOpen, toggleMenu, closeMenu, menuRef } = useProfileMenu();
   const { setThemeMode } = useTheme();
+  const { isAdmin } = useAdminPermissions();
   const organizationModal = useModal();
   const [isSkinMenuOpen, setIsSkinMenuOpen] = useState(false);
   const skinMenuRef = useRef<HTMLDivElement>(null);
@@ -120,9 +122,15 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
     return { initials: '', nameForGradient: name };
   };
   
+  // Получаем инициалы и имя для градиента
+  // Используем функцию getInitialsFromName, которая уже содержит всю логику fallback
   const { initials, nameForGradient } = userData.name && userData.name.trim() !== '' 
     ? getInitialsFromName(userData.name)
-    : { initials: '', nameForGradient: userData.name || '' };
+    : (userData.login && userData.login.trim() !== ''
+      ? getInitialsFromName(userData.login)
+      : (userData.email 
+        ? getInitialsFromName(userData.email.split('@')[0])
+        : { initials: '', nameForGradient: '' }))
 
   // Определяем, есть ли валидный src для аватара
   const avatarSrc = userData.avatar && userData.avatar !== null && userData.avatar.trim() !== '' 
@@ -370,6 +378,20 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({
                   {t('profile.settings', 'Настройки')}
                 </span>
               </a>
+
+              {/* Админ панель */}
+              {isAdmin && (
+                <a
+                  href={buildPathWithLang('/admin', currentLang)}
+                  onClick={closeMenu}
+                  className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors group"
+                >
+                  <Icon name="shield" size="sm" className={`${themeClasses.text.secondary} dark:text-dark-6`} />
+                  <span className={`flex-1 text-sm ${themeClasses.text.primary} text-left`}>
+                    {t('profile.adminPanel', 'Админ панель')}
+                  </span>
+                </a>
+              )}
 
               {/* Справка */}
               <a

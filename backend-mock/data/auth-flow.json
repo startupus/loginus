@@ -1,36 +1,18 @@
 {
-  "login": [
+  "login": [],
+  "registration": [],
+  "factors": [
     {
-      "id": "tinkoff",
-      "icon": "tinkoff",
-      "type": "oauth",
-      "flow": "login",
-      "enabled": true,
-      "isPrimary": true,
-      "order": 1,
-      "name": "Tinkoff ID"
-    },
-    {
-      "id": "vk",
-      "icon": "users",
-      "type": "oauth",
-      "flow": "login",
-      "enabled": true,
-      "isPrimary": true,
-      "order": 3,
-      "name": "VK ID"
-    },
-    {
-      "id": "qr",
-      "icon": "qr-code",
-      "type": "alternative",
-      "flow": "login",
+      "id": "login-window",
+      "name": "Окно входа",
+      "icon": "log-in",
       "enabled": true,
       "isPrimary": false,
-      "order": 2,
-      "name": "QR код"
+      "order": 0,
+      "type": "auth-factor",
+      "flow": "factors",
+      "stepType": "auth-method"
     }
   ],
-  "registration": [],
-  "updatedAt": "2025-11-24T12:11:35.402Z"
+  "updatedAt": "2025-11-24T13:33:55.730Z"
 }

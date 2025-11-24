@@ -114,11 +114,33 @@ const AuthFlowBuilderPage: React.FC = () => {
     if (hasUnsavedChanges || saveMutation.isPending) return;
 
     if (authFlowData) {
-      // Объединяем методы из login и registration
-      const allMethods = [
+      // Объединяем методы из login, registration и factors
+      let allMethods = [
         ...(authFlowData.login || []).map((m: any) => ({ ...m, flow: 'login' as const })),
         ...(authFlowData.registration || []).map((m: any) => ({ ...m, flow: 'registration' as const })),
+        ...(authFlowData.factors || []).map((m: any) => ({ ...m, flow: 'factors' as const })),
       ];
+      
+      // Для factors flow всегда добавляем обязательный первый шаг "Окно входа" если его нет
+      const hasLoginWindow = allMethods.some(m => m.flow === 'factors' && m.id === 'login-window');
+      if (!hasLoginWindow) {
+        const loginWindowMethod: AuthMethod = {
+          id: 'login-window',
+          name: t('admin.authFlow.login', 'Окно входа'),
+          icon: 'log-in',
+          enabled: true,
+          isPrimary: false,
+          order: 0,
+          type: 'auth-factor',
+          flow: 'factors',
+          stepType: 'auth-method',
+        };
+        // Увеличиваем order для существующих методов factors
+        allMethods = allMethods.map(m => 
+          m.flow === 'factors' ? { ...m, order: (m.order || 0) + 1 } : m
+        );
+        allMethods.push(loginWindowMethod);
+      }
       const methodsWithNames = allMethods.map(method => ({
         ...method,
         name: method.name || t(`admin.authFlow.methods.${method.id}`, method.id),
@@ -203,18 +225,18 @@ const AuthFlowBuilderPage: React.FC = () => {
       setAuthMethods(prevMethods => {
         if (prevMethods.length > 0) return prevMethods; // Не перезаписываем если уже есть методы
         
-        const loginMethods = baseAuthMethods.slice(0, Math.ceil(baseAuthMethods.length / 2));
-        const registrationMethods = baseAuthMethods.slice(Math.ceil(baseAuthMethods.length / 2));
-        
+    const loginMethods = baseAuthMethods.slice(0, Math.ceil(baseAuthMethods.length / 2));
+    const registrationMethods = baseAuthMethods.slice(Math.ceil(baseAuthMethods.length / 2));
+    
         const defaultMethods = [
-          ...loginMethods.map(m => ({ ...m, flow: 'login' as const, name: t(`admin.authFlow.methods.${m.id}`) })),
-          ...registrationMethods.map(m => ({ ...m, flow: 'registration' as const, name: t(`admin.authFlow.methods.${m.id}`) })),
-        ];
+      ...loginMethods.map(m => ({ ...m, flow: 'login' as const, name: t(`admin.authFlow.methods.${m.id}`) })),
+      ...registrationMethods.map(m => ({ ...m, flow: 'registration' as const, name: t(`admin.authFlow.methods.${m.id}`) })),
+    ];
         
         // Гарантируем, что в каждом потоке есть ровно один primary метод
         const defaultLoginMethods = defaultMethods.filter(m => m.flow === 'login');
         const defaultRegistrationMethods = defaultMethods.filter(m => m.flow === 'registration');
-        
+
         // Для потока login: устанавливаем primary только для первого метода
         if (defaultLoginMethods.length > 0) {
           const firstLogin = defaultLoginMethods.sort((a, b) => a.order - b.order)[0];
@@ -257,23 +279,47 @@ const AuthFlowBuilderPage: React.FC = () => {
   // Автосохранение при изменении методов (только после первой загрузки и если методы действительно изменились)
   useEffect(() => {
     if (!isInitialLoad && debouncedMethods.length > 0 && !isLoading && !saveMutation.isPending) {
+      // Для factors flow всегда убеждаемся, что есть обязательный метод "Окно входа"
+      let methodsToSave = [...debouncedMethods];
+      const factorsMethods = methodsToSave.filter(m => m.flow === 'factors');
+      const hasLoginWindow = factorsMethods.some(m => m.id === 'login-window');
+      
+      if (!hasLoginWindow) {
+        const loginWindowMethod: AuthMethod = {
+          id: 'login-window',
+          name: t('admin.authFlow.login', 'Окно входа'),
+          icon: 'log-in',
+          enabled: true,
+          isPrimary: false,
+          order: 0,
+          type: 'auth-factor',
+          flow: 'factors',
+          stepType: 'auth-method',
+        };
+        // Увеличиваем order для существующих methods factors
+        methodsToSave = methodsToSave.map(m => 
+          m.flow === 'factors' ? { ...m, order: (m.order || 0) + 1 } : m
+        );
+        methodsToSave.push(loginWindowMethod);
+      }
+      
       // Проверяем, действительно ли методы изменились
       const currentMethodsKey = JSON.stringify(
-        debouncedMethods.map(m => ({ id: m.id, flow: m.flow, enabled: m.enabled, isPrimary: m.isPrimary, order: m.order }))
+        methodsToSave.map(m => ({ id: m.id, flow: m.flow, enabled: m.enabled, isPrimary: m.isPrimary, order: m.order }))
           .sort((a, b) => a.order - b.order)
       );
       
       if (currentMethodsKey !== lastSyncedMethods) {
         setLastSyncedMethods(currentMethodsKey);
         setHasUnsavedChanges(true);
-        saveMutation.mutate(debouncedMethods);
+        saveMutation.mutate(methodsToSave);
       }
     }
-  }, [debouncedMethods, isLoading, isInitialLoad, lastSyncedMethods, saveMutation.isPending]);
+  }, [debouncedMethods, isLoading, isInitialLoad, lastSyncedMethods, saveMutation.isPending, t]);
 
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [addModalFlow, setAddModalFlow] = useState<'login' | 'registration'>('login');
+  const [addModalFlow, setAddModalFlow] = useState<'login' | 'registration' | 'factors'>('login');
 
   const handleAddLoginMethod = () => {
     setAddModalFlow('login');
@@ -285,23 +331,74 @@ const AuthFlowBuilderPage: React.FC = () => {
     setIsAddModalOpen(true);
   };
 
+  const handleAddFactorsMethod = () => {
+    setAddModalFlow('factors');
+    setIsAddModalOpen(true);
+  };
+
   const handleAddMethod = (methodData: Omit<AuthMethod, 'name'> & { name?: string }) => {
     const flowMethods = authMethods.filter(m => m.flow === methodData.flow);
     const hasPrimaryInFlow = flowMethods.some(m => m.isPrimary);
     
+    // Определяем имя метода в зависимости от типа шага
+    let methodName = methodData.name;
+    if (!methodName) {
+      if (methodData.stepType === 'field') {
+        // Для шагов регистрации используем переводы для шагов
+        methodName = t(`admin.authFlow.registrationSteps.${methodData.id}`);
+      } else {
+        // Для методов авторизации используем переводы для методов
+        methodName = t(`admin.authFlow.methods.${methodData.id}`);
+      }
+    }
+    
     const newMethod: AuthMethod = {
       ...methodData,
-      name: methodData.name || t(`admin.authFlow.methods.${methodData.id}`),
-      // Если это первый метод в потоке или нет primary методов, делаем его primary
-      isPrimary: !hasPrimaryInFlow || (flowMethods.length === 0),
+      name: methodName,
+      // Для шагов регистрации и факторов авторизации не делаем primary, только для методов авторизации в login/registration
+      isPrimary: (methodData.stepType !== 'field') && (methodData.flow !== 'factors') && (!hasPrimaryInFlow || (flowMethods.length === 0)),
     };
+    
+    // Для factors flow всегда убеждаемся, что есть обязательный метод "Окно входа"
+    let methodsToAdd = [...authMethods, newMethod];
+    
+    if (methodData.flow === 'factors') {
+      const factorsMethods = methodsToAdd.filter(m => m.flow === 'factors');
+      const hasLoginWindow = factorsMethods.some(m => m.id === 'login-window');
+      
+      if (!hasLoginWindow) {
+        const loginWindowMethod: AuthMethod = {
+          id: 'login-window',
+          name: t('admin.authFlow.login', 'Окно входа'),
+          icon: 'log-in',
+          enabled: true,
+          isPrimary: false,
+          order: 0,
+          type: 'auth-factor',
+          flow: 'factors',
+          stepType: 'auth-method',
+        };
+        // Увеличиваем order для остальных methods factors (кроме только что добавленного)
+        methodsToAdd = methodsToAdd.map(m => 
+          m.flow === 'factors' && m.id !== newMethod.id
+            ? { ...m, order: (m.order || 0) + 1 }
+            : m
+        );
+        methodsToAdd.push(loginWindowMethod);
+      }
+    }
     
     // Помечаем, что есть локальные изменения
     setHasUnsavedChanges(true);
-    setAuthMethods([...authMethods, newMethod]);
+    setAuthMethods(methodsToAdd);
   };
 
-  const handleRemoveMethod = (methodId: string, flow: 'login' | 'registration') => {
+  const handleRemoveMethod = (methodId: string, flow: 'login' | 'registration' | 'factors') => {
+    // Нельзя удалить обязательный метод "Окно входа" из factors
+    if (flow === 'factors' && methodId === 'login-window') {
+      return;
+    }
+    
     const methodToRemove = authMethods.find(m => m.id === methodId && m.flow === flow);
     if (!methodToRemove) return;
 
@@ -334,7 +431,7 @@ const AuthFlowBuilderPage: React.FC = () => {
     setDraggedItem(id);
   };
 
-  const handleDragOver = (e: React.DragEvent, id: string, flow: 'login' | 'registration') => {
+  const handleDragOver = (e: React.DragEvent, id: string, flow: 'login' | 'registration' | 'factors') => {
     e.preventDefault();
     if (!draggedItem || draggedItem === id) return;
 
@@ -414,6 +511,30 @@ const AuthFlowBuilderPage: React.FC = () => {
   // Разделяем методы по потокам
   const loginMethods = authMethods.filter(m => m.flow === 'login').sort((a, b) => a.order - b.order);
   const registrationMethods = authMethods.filter(m => m.flow === 'registration').sort((a, b) => a.order - b.order);
+  
+  // Для factors flow всегда добавляем обязательный первый шаг "Окно входа"
+  const factorsMethodsFromState = authMethods.filter(m => m.flow === 'factors').sort((a, b) => a.order - b.order);
+  
+  // Проверяем, есть ли уже "Окно входа" в factors
+  const hasLoginWindow = factorsMethodsFromState.some(m => m.id === 'login-window');
+  
+  // Создаем обязательный метод "Окно входа" если его нет
+  const loginWindowMethod: AuthMethod = {
+    id: 'login-window',
+    name: t('admin.authFlow.login', 'Окно входа'),
+    icon: 'log-in',
+    enabled: true,
+    isPrimary: false,
+    order: 0, // Всегда первый
+    type: 'auth-factor',
+    flow: 'factors',
+    stepType: 'auth-method',
+  };
+  
+  // Объединяем обязательный метод с остальными
+  const factorsMethods = hasLoginWindow 
+    ? factorsMethodsFromState 
+    : [loginWindowMethod, ...factorsMethodsFromState.map(m => ({ ...m, order: m.order + 1 }))];
 
   // Проверяем, можно ли снять primary с метода
   const canTogglePrimary = (id: string) => {
@@ -483,8 +604,8 @@ const AuthFlowBuilderPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Две колонки: Авторизация и Регистрация */}
-        <div className={`grid grid-cols-1 lg:grid-cols-2 ${themeClasses.spacing.gap6}`}>
+        {/* Две колонки: Окно входа и Регистрация */}
+        <div className={`grid grid-cols-1 lg:grid-cols-2 ${themeClasses.spacing.gap6} ${themeClasses.spacing.mb6}`}>
           <MethodColumn
             title={t('admin.authFlow.login')}
             methods={loginMethods}
@@ -505,6 +626,24 @@ const AuthFlowBuilderPage: React.FC = () => {
             flow="registration"
             draggedItem={draggedItem}
             onAddMethod={handleAddRegistrationMethod}
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
+            onDragEnd={handleDragEnd}
+            onTogglePrimary={togglePrimary}
+            onToggleEnabled={toggleEnabled}
+            onRemoveMethod={handleRemoveMethod}
+            canTogglePrimary={canTogglePrimary}
+          />
+        </div>
+
+        {/* Колонка Факторы авторизации ниже */}
+        <div className={themeClasses.spacing.mt6}>
+          <MethodColumn
+            title={t('admin.authFlow.factors')}
+            methods={factorsMethods}
+            flow="factors"
+            draggedItem={draggedItem}
+            onAddMethod={handleAddFactorsMethod}
             onDragStart={handleDragStart}
             onDragOver={handleDragOver}
             onDragEnd={handleDragEnd}

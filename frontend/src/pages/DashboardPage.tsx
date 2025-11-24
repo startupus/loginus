@@ -96,10 +96,8 @@ if (typeof window !== 'undefined') {
     queryKey: dashboardQueryKey,
     queryFn: fetchDashboard,
   });
-  void preloadModule('dashboard');
-  void preloadModule('profile');
-  void preloadModule('data');
-  void preloadModule('modals');
+  // Предзагрузка модулей убрана - модули загружаются в useEffect компонента
+  // Критичные модули (dashboard, profile) уже загружаются при инициализации i18n
 }
 
 /**
@@ -122,37 +120,38 @@ const DashboardPage: React.FC = () => {
   const [selectedDocumentType, setSelectedDocumentType] = useState<DocumentType | undefined>();
   const [selectedAddressType, setSelectedAddressType] = useState<AddressType | undefined>();
   
-  // Предзагрузка и перезагрузка модулей переводов при смене языка
+  // Предзагрузка модулей переводов для страницы dashboard
+  // Критичные модули (dashboard, profile) уже загружены при инициализации i18n
+  // Загружаем только дополнительные модули, которые нужны для этой страницы
   useEffect(() => {
-    const loadModules = async () => {
+    const loadAdditionalModules = async () => {
       try {
+        // Загружаем только не критичные модули, которые нужны для dashboard
+        // dashboard и profile уже загружены как критичные модули
         await Promise.all([
-          preloadModule('dashboard'),
-          preloadModule('profile'),
           preloadModule('data'),
           preloadModule('modals'),
         ]);
       } catch (error) {
         if (process.env.NODE_ENV === 'development') {
-          console.warn('[DashboardPage] Failed to load modules:', error);
+          console.warn('[DashboardPage] Failed to load additional modules:', error);
         }
       }
     };
 
-    loadModules();
+    loadAdditionalModules();
 
-    // Перезагружаем модули при смене языка
+    // При смене языка changeLanguage уже загружает критичные модули (dashboard, profile)
+    // Нужно загрузить только дополнительные модули для этой страницы
     const handleLanguageChanged = async () => {
       try {
         await Promise.all([
-          preloadModule('dashboard'),
-          preloadModule('profile'),
           preloadModule('data'),
           preloadModule('modals'),
         ]);
       } catch (error) {
         if (process.env.NODE_ENV === 'development') {
-          console.warn('[DashboardPage] Failed to reload modules on language change:', error);
+          console.warn('[DashboardPage] Failed to reload additional modules on language change:', error);
         }
       }
     };

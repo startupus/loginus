@@ -370,8 +370,9 @@
   "authFlow": {
     "title": "Настройка алгоритма авторизации",
     "add": "Добавить",
-    "login": "Авторизация",
+    "login": "Окно входа",
     "registration": "Регистрация",
+    "factors": "Факторы авторизации",
     "noMethods": "Нет методов",
     "addMethod": {
       "title": "Добавить метод авторизации",
@@ -408,7 +409,17 @@
       "microsoft": "Microsoft",
       "biometric": "Биометрия",
       "sms": "SMS код"
-    }
+    },
+    "registrationSteps": {
+      "surname": "Фамилия",
+      "name": "Имя",
+      "passport": "Паспорт",
+      "inn": "ИНН",
+      "snils": "СНИЛС",
+      "birthdate": "Дата рождения",
+      "gender": "Пол"
+    },
+    "registrationStep": "Шаг регистрации"
   },
   "paymentMethods": {
     "title": "Способы оплаты",
