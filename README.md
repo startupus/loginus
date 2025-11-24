@@ -172,6 +172,7 @@ frontend/src/
 - [INFO.md](./INFO.md) - Бизнес-описание проекта
 - [TODO.md](./TODO.md) - Рабочий чеклист задач
 - [docs/prompts/I18N_AUDIT_PROMPT.md](./docs/prompts/I18N_AUDIT_PROMPT.md) - Промт для аудита языковых версий
+- [docs/I18N_NEW_PAGES_AUDIT.md](./docs/I18N_NEW_PAGES_AUDIT.md) - Полный чеклист аудита фронтенда после разработки страниц
 - Frontend: [frontend/README.md](./frontend/README.md)
 - Backend Mock: [backend-mock/README.md](./backend-mock/README.md)
 
