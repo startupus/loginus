@@ -299,7 +299,7 @@ const DataPage: React.FC = () => {
     >
       {/* Индикатор обновления данных (не блокирует контент) */}
       {isFetching && !isLoading && (
-        <div className="fixed top-20 right-4 z-50 bg-primary/10 border border-primary/20 rounded-lg px-3 py-2 text-xs text-primary animate-pulse">
+        <div className={`fixed top-20 right-4 z-50 ${themeClasses.background.primarySemiTransparent10} ${themeClasses.border.primarySemi20} ${themeClasses.card.rounded} ${themeClasses.spacing.p3} ${themeClasses.typographySize.bodyXSmall} ${themeClasses.text.primary} animate-pulse`}>
           {t('common.updating', 'Обновление...')}
         </div>
       )}

@@ -13,7 +13,11 @@
       "add": "Add member",
       "member": "Family Member",
       "owner": "Owner",
-      "manage": "Manage"
+      "manage": "Manage",
+      "empty": {
+        "title": "No members yet",
+        "description": "Invite your family to share subscriptions and services."
+      }
     },
     "mail": {
       "title": "Mail",

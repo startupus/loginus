@@ -113,4 +113,38 @@ export class FamilyService {
       data: newChild,
     };
   }
+
+  loginAs(memberId: string) {
+    // Находим члена семьи по ID
+    const member = this.members.find(m => m.id === memberId);
+    
+    if (!member) {
+      throw new Error('Family member not found');
+    }
+
+    // Генерируем токены для входа под аккаунтом члена семьи
+    const tokens = {
+      accessToken: `mock_access_token_${memberId}_${Date.now()}`,
+      refreshToken: `mock_refresh_token_${memberId}_${Date.now()}`,
+      expiresIn: 3600,
+    };
+
+    // Возвращаем данные пользователя и токены
+    return {
+      success: true,
+      data: {
+        user: {
+          id: member.id,
+          name: member.name,
+          email: member.email || null,
+          phone: null,
+          avatar: member.avatar || null,
+          role: member.role === 'child' ? 'user' : 'user', // Дети тоже имеют роль user
+          companyId: null,
+          permissions: [],
+        },
+        tokens,
+      },
+    };
+  }
 }

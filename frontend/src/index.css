@@ -157,21 +157,31 @@
   
   /* ПРАВИЛО 3: Для всех элементов с bg-white и rounded (кроме rounded-full) в темной теме */
   /* НЕ применяется к input/textarea благодаря Правилу 3A выше */
-  html.dark .bg-white[class*="rounded"]:not([class*="rounded-full"]):not([class*="!bg"]):not(input):not(textarea) {
+  /* НЕ применяется к кнопкам с bg-primary, bg-error, bg-success и другими цветными фонами */
+  html.dark .bg-white[class*="rounded"]:not([class*="rounded-full"]):not([class*="!bg"]):not(input):not(textarea):not([class*="bg-primary"]):not([class*="bg-error"]):not([class*="bg-success"]):not([class*="bg-warning"]):not([class*="bg-secondary"]) {
     background-color: rgb(var(--color-surface)) !important;
   }
   
   /* ПРАВИЛО 4: Универсальное правило для dark:bg-dark-2 - переопределяет output.css из tailgrids-bank */
   /* Применяется ТОЛЬКО к карточкам, модалкам и другим UI элементам, НЕ к header */
-  html.dark .dark\:bg-dark-2:not(header):not(header *),
-  html.dark .dark\:bg-dark-2:is(.dark *):not(header):not(header *) {
+  /* НЕ применяется к элементам с bg-surface-elevated (выпадающие меню) */
+  html.dark .dark\:bg-dark-2:not(header):not(header *):not([class*="bg-surface-elevated"]),
+  html.dark .dark\:bg-dark-2:is(.dark *):not(header):not(header *):not([class*="bg-surface-elevated"]) {
     background-color: rgb(var(--color-surface)) !important;
   }
   
   /* ПРАВИЛО 5: Дополнительная защита - переопределяем через атрибут class для максимальной специфичности */
   /* Применяется ТОЛЬКО к элементам внутри карточек/модалок, НЕ к header */
-  html.dark [class*="dark:bg-dark-2"]:not(header):not(header *) {
+  /* НЕ применяется к элементам с bg-surface-elevated (выпадающие меню) */
+  html.dark [class*="dark:bg-dark-2"]:not(header):not(header *):not([class*="bg-surface-elevated"]) {
     background-color: rgb(var(--color-surface)) !important;
+  }
+
+  /* ПРАВИЛО 10: Защита для выпадающих меню с bg-surface-elevated */
+  /* Гарантирует правильный фон для выпадающих меню (MobileBottomNav и другие) */
+  html.dark [class*="bg-surface-elevated"][class*="dark:bg-dark-2"],
+  html.dark [class*="bg-surface-elevated"] {
+    background-color: rgb(var(--color-surface-elevated)) !important;
   }
   
   /* СИСТЕМНОЕ ИСПРАВЛЕНИЕ: Переопределяем неправильные фоны для grid элементов */

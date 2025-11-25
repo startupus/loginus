@@ -63,7 +63,7 @@ const MemberItem: React.FC<MemberItemProps> = React.memo(({ member, isChild = fa
   if (isPending) {
     roleText = ''; // Для pending не показываем описание
   } else if (isAdmin) {
-    roleText = `${t('family.role.admin')} • ${member.email || member.phone || ''}`;
+    roleText = `${t('profile.family.role.admin', 'Админ')} • ${member.email || member.phone || ''}`;
   } else if (isChildMember) {
     roleText = ''; // Для детей не показываем email
   } else {
@@ -221,10 +221,10 @@ const FamilyPage: React.FC = () => {
 
   // Константы для features группы
   const groupFeatures = useMemo(() => [
-    { icon: 'credit-card' as const, title: t('family.features.pay'), active: true },
-    { icon: 'plus' as const, title: t('family.features.plus'), active: true },
-    { icon: 'mail' as const, title: t('family.features.y360'), active: false },
-    { icon: 'users' as const, title: t('family.features.roles'), active: true },
+    { icon: 'credit-card' as const, title: t('profile.family.features.pay', 'Семейная оплата'), active: true },
+    { icon: 'plus' as const, title: t('profile.family.features.plus', 'Плюс для близких'), active: true },
+    { icon: 'mail' as const, title: t('profile.family.features.y360', 'Тариф Яндекс 360'), active: false },
+    { icon: 'users' as const, title: t('profile.family.features.roles', 'Роли'), active: true },
   ], [t]);
 
   if (isLoading) {
@@ -261,16 +261,16 @@ const FamilyPage: React.FC = () => {
           <div className={themeClasses.promo.content}>
             <div className="flex-1">
               <h2 className={`${themeClasses.promo.title} ${themeClasses.text.white}`}>
-                {t('family.promo.plus.title')}
+                {t('profile.family.promo.plus.title', 'Плюса хватит всем')}
               </h2>
               <p className={`${themeClasses.promo.description} ${themeClasses.text.whiteOpacity}`}>
-                {t('family.promo.plus.description')}
+                {t('profile.family.promo.plus.description', 'Подключите до 3 близких к подписке Плюс')}
               </p>
               <Button 
                 variant="secondary" 
                 className={themeClasses.promo.buttonInverted}
               >
-                {t('family.promo.plus.action')}
+                {t('profile.family.promo.plus.action', 'Расширить за 250 ₽')}
               </Button>
             </div>
             <div className={`${themeClasses.promo.iconHidden} ${themeClasses.text.whiteOpacity}`}>
@@ -285,7 +285,7 @@ const FamilyPage: React.FC = () => {
         {/* Family Group Section */}
         <DataSection
           id="group"
-          title={t('family.group.title')}
+          title={t('profile.family.group.title', 'Семейная группа')}
         >
           <div className={LIST_CONTAINER_CLASSES}>
             {(members.length > 0 || pendingInvites.length > 0) ? (
@@ -324,7 +324,7 @@ const FamilyPage: React.FC = () => {
                         <Icon name="plus" size="md" />
                       </div>
                       <div className={`font-medium ${themeClasses.text.primary}`}>
-                        {t('family.inviteButton')}
+                        {t('profile.family.inviteButton', 'Пригласить')}
                       </div>
                     </div>
                   </button>
@@ -342,7 +342,7 @@ const FamilyPage: React.FC = () => {
                         <Icon name="smile" size="md" />
                       </div>
                       <div className={`font-medium ${themeClasses.text.primary}`}>
-                        {t('family.child.create')}
+                        {t('profile.family.child.create', 'Создать аккаунт')}
                       </div>
                     </div>
                   </a>
@@ -351,10 +351,10 @@ const FamilyPage: React.FC = () => {
             ) : (
               <EmptyState
                 icon="users"
-                title={t('family.empty.title')}
-                description={t('family.empty.description')}
+                title={t('profile.family.empty.title', 'Пока нет участников семьи')}
+                description={t('profile.family.empty.description', 'Пригласите близких, чтобы делиться подписками и сервисами.')}
                 action={{
-                  label: t('family.inviteButton'),
+                  label: t('profile.family.inviteButton', 'Пригласить'),
                   onClick: handleOpenModal,
                   variant: 'primary',
                 }}
@@ -367,7 +367,7 @@ const FamilyPage: React.FC = () => {
         {/* Group Features Section */}
         <DataSection
           id="features"
-          title={t('family.features.title')}
+          title={t('profile.family.features.title', 'Возможности группы')}
         >
           <div className={LIST_CONTAINER_CLASSES}>
             <SeparatedList className="p-4">
@@ -395,7 +395,7 @@ const FamilyPage: React.FC = () => {
                   }
                 >
                   <span className={`font-medium ${themeClasses.text.primary}`}>
-                    {t('family.features.delete')}
+                    {t('profile.family.features.delete', 'Удалить группу')}
                   </span>
                 </Button>
               </div>

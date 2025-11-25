@@ -85,6 +85,13 @@ export const Icon: React.FC<IconProps> = React.memo(({
         d="M4 6h16M4 12h16M4 18h16"
       />
     ),
+    'more-horizontal': (
+      <>
+        <circle cx="6" cy="12" r="1.5" fill="currentColor" />
+        <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+        <circle cx="18" cy="12" r="1.5" fill="currentColor" />
+      </>
+    ),
     
     // User & Auth
     user: (

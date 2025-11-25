@@ -65,7 +65,8 @@
     "help": "Справка",
     "loginusIdSite": "Loginus ID для сайта",
     "langSwitcher": "Переключатель языка",
-    "brandPreset": "Переключить бренд‑пресет"
+    "brandPreset": "Переключить бренд‑пресет",
+    "more": "Еще"
   },
   "iframe": {
     "title": "Встроенный контент",

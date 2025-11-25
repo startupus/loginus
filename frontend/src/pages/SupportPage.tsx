@@ -34,6 +34,7 @@ const SupportPage: React.FC = () => {
   const [messageInput, setMessageInput] = useState<string>('');
   const [activeFolderId, setActiveFolderId] = useState<string>('all');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const inputAreaRef = useRef<HTMLDivElement>(null);
   const [showChatHistory, setShowChatHistory] = useState<boolean>(false);
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
 
@@ -82,6 +83,39 @@ const SupportPage: React.FC = () => {
       }
     };
   }, [messageInput]);
+
+  // Установка отступа снизу для мобильной навигации
+  useEffect(() => {
+    if (!inputAreaRef.current) return;
+
+    const updatePadding = () => {
+      if (inputAreaRef.current) {
+        // Проверяем, является ли экран мобильным (меньше xl breakpoint = 1280px)
+        const isMobile = window.matchMedia('(max-width: 1279px)').matches;
+        if (isMobile) {
+          // Устанавливаем отступ снизу для мобильной навигации (h-16 = 4rem = 64px + safe-area)
+          inputAreaRef.current.style.paddingBottom = 'calc(4rem + env(safe-area-inset-bottom))';
+        } else {
+          // На десктопе убираем отступ
+          inputAreaRef.current.style.paddingBottom = '0';
+        }
+      }
+    };
+
+    // Устанавливаем отступ при монтировании
+    updatePadding();
+
+    // Обновляем при изменении размера окна
+    const mediaQuery = window.matchMedia('(max-width: 1279px)');
+    const handleResize = () => updatePadding();
+    mediaQuery.addEventListener('change', handleResize);
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      mediaQuery.removeEventListener('change', handleResize);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   // Загрузка данных через API
   const { data: chatHistoryData, isLoading: isLoadingChats, error: chatHistoryError } = useQuery({
@@ -605,13 +639,18 @@ const SupportPage: React.FC = () => {
           </div>
 
           {/* Поле ввода */}
-          <div className={`${themeClasses.background.default} ${themeClasses.border.top}`} role="region" aria-label={t('support.chat.inputArea', 'Область ввода сообщения')}>
+          <div 
+            ref={inputAreaRef}
+            className={`${themeClasses.background.default} ${themeClasses.border.top}`} 
+            role="region" 
+            aria-label={t('support.chat.inputArea', 'Область ввода сообщения')}
+          >
             {/* Индикатор редактирования */}
             {editingMessageId && (() => {
               const editingMessage = messages.find(msg => msg.id === editingMessageId);
               return editingMessage ? (
-                <div className={`${themeClasses.background.primaryEditing} border-b border-primary/30 px-3 sm:px-4 py-2.5 flex items-center justify-between gap-2`}>
-                  <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                <div className={`${themeClasses.background.primaryEditing} border-b ${themeClasses.border.primarySemi30} ${themeClasses.spacing.px3} sm:${themeClasses.spacing.px4} ${themeClasses.spacing.py2_5} flex items-center justify-between ${themeClasses.spacing.gap2}`}>
+                  <div className={`flex items-center ${themeClasses.spacing.gap2} sm:${themeClasses.spacing.gap3} flex-1 min-w-0`}>
                     <div className={`flex-shrink-0 ${themeClasses.text.primary}`}>
                       {React.createElement(getServiceIcon('edit'), { size: 18 })}
                     </div>
@@ -630,7 +669,7 @@ const SupportPage: React.FC = () => {
                       setEditingMessageId(null);
                       setMessageInput('');
                     }}
-                    className="flex-shrink-0 w-8 h-8 rounded-full hover:bg-primary/20 dark:hover:bg-primary/30 transition-colors flex items-center justify-center"
+                    className={`flex-shrink-0 w-8 h-8 rounded-full ${themeClasses.background.primarySemiTransparentHover} transition-colors flex items-center justify-center`}
                     aria-label={t('support.chat.cancelEdit', 'Отменить редактирование')}
                   >
                     {React.createElement(getServiceIcon('x'), { size: 18, className: 'text-current' })}

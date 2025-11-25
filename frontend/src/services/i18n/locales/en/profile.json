@@ -206,7 +206,10 @@
     "role": {
       "admin": "Admin"
     },
-    "empty": "No members",
+    "empty": {
+      "title": "No family members yet",
+      "description": "Invite your family to share subscriptions and services."
+    },
     "children": {
       "title": "Child Accounts",
       "description": "Safe internet and content for children"

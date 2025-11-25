@@ -15,6 +15,9 @@ import { DocumentsGrid } from '../components/Dashboard/DocumentsGrid';
 import { AddressesGrid } from '../components/Dashboard/AddressesGrid';
 import { FamilyMembers } from '../components/Dashboard/FamilyMembers';
 import { appQueryClient } from '../providers/RootProvider';
+import { familyApi } from '../services/api/family';
+import { useNavigate } from 'react-router-dom';
+import { useCurrentLanguage, buildPathWithLang } from '../utils/routing';
 
 // Lazy loading для тяжелых компонентов
 const MasonryGrid = lazy(() => import('../design-system/composites/MasonryGrid').then(m => ({ default: m.MasonryGrid })));
@@ -106,8 +109,10 @@ if (typeof window !== 'undefined') {
  */
 const DashboardPage: React.FC = () => {
   const { t, i18n } = useTranslation();
-  const { updateUser } = useAuthStore();
+  const { updateUser, login } = useAuthStore();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const currentLang = useCurrentLanguage();
   
   // Модалки
   const documentModal = useModal();
@@ -377,6 +382,41 @@ const DashboardPage: React.FC = () => {
     familyModal.open();
   };
 
+  const handleLoginAsFamilyMember = async (member: { id: string; name: string; avatar?: string | null }) => {
+    try {
+      // Вызываем API для входа под аккаунтом члена семьи
+      const response = await familyApi.loginAs(member.id);
+      const { user, tokens } = response.data.data;
+      
+      // Входим под аккаунтом члена семьи
+      login(
+        {
+          id: user.id,
+          name: user.name || member.name,
+          email: user.email,
+          phone: user.phone,
+          avatar: user.avatar || member.avatar || undefined,
+          role: user.role || 'user',
+          companyId: user.companyId || null,
+          permissions: user.permissions || [],
+        },
+        tokens.accessToken,
+        tokens.refreshToken
+      );
+      
+      // Переходим на дашборд
+      navigate(buildPathWithLang('/dashboard', currentLang));
+      
+      // Обновляем данные дашборда
+      queryClient.invalidateQueries({ queryKey: dashboardQueryKey });
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to login as family member:', error);
+      }
+      // TODO: Показать уведомление об ошибке
+    }
+  };
+
   const refreshDashboard = () => {
     queryClient.invalidateQueries({ queryKey: ['dashboard'] });
   };
@@ -423,7 +463,7 @@ const DashboardPage: React.FC = () => {
     >
       {/* Индикатор обновления данных (не блокирует контент) */}
       {isFetching && !isLoading && (
-        <div className="fixed top-20 right-4 z-50 bg-primary/10 border border-primary/20 rounded-lg px-3 py-2 text-xs text-primary animate-pulse">
+        <div className={`fixed top-20 right-4 z-50 ${themeClasses.background.primarySemiTransparent10} ${themeClasses.border.primarySemi20} ${themeClasses.card.rounded} ${themeClasses.spacing.p3} ${themeClasses.typographySize.bodyXSmall} ${themeClasses.text.primary} animate-pulse`}>
           {t('common.loading')}
         </div>
       )}
@@ -563,6 +603,7 @@ const DashboardPage: React.FC = () => {
                   console.log('Open member:', member);
                 }
               }}
+              onLoginAs={handleLoginAsFamilyMember}
             />
         </div>
 

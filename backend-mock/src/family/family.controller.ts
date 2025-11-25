@@ -19,4 +19,9 @@ export class FamilyController {
   createChildAccount(@Body() childDto: { name: string; birthDate: string }) {
     return this.familyService.createChildAccount(childDto);
   }
+
+  @Post('login-as')
+  loginAs(@Body() loginAsDto: { memberId: string }) {
+    return this.familyService.loginAs(loginAsDto.memberId);
+  }
 }

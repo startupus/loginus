@@ -7,6 +7,8 @@ const Sidebar = lazy(() => import('../Sidebar').then(m => ({ default: m.Sidebar 
 import type { SidebarItem } from '../Sidebar/Sidebar';
 // Lazy load Footer - не критичен для первой загрузки (оптимизация производительности)
 const Footer = lazy(() => import('../Footer').then(m => ({ default: m.Footer })));
+// Lazy load MobileBottomNav - не критичен для первой загрузки
+const MobileBottomNav = lazy(() => import('../MobileBottomNav').then(m => ({ default: m.MobileBottomNav })));
 import { Header } from '../Header';
 import { useAuthStore } from '@/store';
 import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';
@@ -258,7 +260,7 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
           onLogout={logout}
         />
 
-        <div className={`${themeClasses.page.content}`}>
+        <div className={`${themeClasses.page.content} ${shouldShowSidebar ? 'pb-20 xl:pb-0' : ''}`}>
           <div className={contentClassName}>
             {children}
           </div>
@@ -272,6 +274,16 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
           </div>
         )}
       </div>
+
+      {/* Мобильная нижняя навигация - видна только на мобильных устройствах */}
+      {shouldShowSidebar && finalSidebarItems && (
+        <Suspense fallback={null}>
+          <MobileBottomNav
+            items={finalSidebarItems}
+            onNavigate={(path) => navigate(path)}
+          />
+        </Suspense>
+      )}
     </section>
   );
 };

@@ -24,6 +24,7 @@ export interface FamilyMembersProps {
   members: FamilyMember[];
   onAddMember?: () => void;
   onMemberClick?: (member: FamilyMember) => void;
+  onLoginAs?: (member: FamilyMember) => void;
 }
 
 /**
@@ -33,6 +34,7 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
   members,
   onAddMember,
   onMemberClick,
+  onLoginAs,
 }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -179,10 +181,28 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
                   </div>
                   
                   {/* Имя */}
-                  <div className="flex flex-col items-center gap-1.5 w-full min-w-0 flex-1 justify-center">
+                  <div className="flex flex-col items-center gap-1 w-full min-w-0 flex-1 justify-center">
                     <p className={`text-xs font-medium text-center ${themeClasses.text.primary} group-hover:text-primary transition-colors duration-200 line-clamp-1 break-words w-full`}>
                       {member.name}
                     </p>
+                    
+                    {/* Кнопка "Войти" (показывается при наведении) */}
+                    {hoveredMemberId === member.id && onLoginAs && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onLoginAs(member);
+                        }}
+                        className="mt-1.5 w-full px-2 py-1.5 text-xs font-medium rounded-md !bg-primary hover:!bg-primary-hover text-white flex items-center justify-center gap-1.5 transition-all duration-200 animate-fade-in shadow-lg"
+                        style={{
+                          backgroundColor: 'rgb(var(--color-primary))',
+                        }}
+                        aria-label={t('dashboard.family.loginAs', { defaultValue: 'Войти' })}
+                      >
+                        <Icon name="log-in" size="xs" />
+                        <span>{t('dashboard.family.loginAs', { defaultValue: 'Войти' })}</span>
+                      </button>
+                    )}
                   </div>
                 </button>
                 

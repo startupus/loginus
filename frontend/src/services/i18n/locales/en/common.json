@@ -74,7 +74,8 @@
     "help": "Help",
     "loginusIdSite": "Loginus ID for Website",
     "langSwitcher": "Language switcher",
-    "brandPreset": "Toggle brand preset"
+    "brandPreset": "Toggle brand preset",
+    "more": "More"
   },
   "iframe": {
     "title": "Embedded Content",

@@ -36,22 +36,22 @@ const PersonalAddressesPage: React.FC = () => {
 
   return (
     <PageTemplate title={t('personalData.addresses.title', 'Адреса')} showSidebar={true}>
-      <div className="space-y-6">
+      <div className={themeClasses.spacing.spaceY6}>
         <DataSection
           id="addresses"
           title={t('personalData.addresses.title', 'Адреса')}
           description={t('personalData.addresses.description', 'Для заказа в один клик и чтобы не вводить в Навигаторе')}
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 ${themeClasses.spacing.gap4}`}>
             {addresses.map((address: any) => (
               <div
                 key={address.type}
-                className={`p-6 rounded-lg ${themeClasses.border.default} ${themeClasses.background.surface} hover:shadow-md transition-shadow`}
+                className={`${themeClasses.spacing.p6} ${themeClasses.card.rounded} ${themeClasses.border.default} ${themeClasses.background.surface} hover:shadow-md transition-shadow`}
               >
-                <div className="flex flex-col items-center gap-4">
+                <div className={`flex flex-col items-center ${themeClasses.spacing.gap4}`}>
                   <Icon name={address.icon || 'map-pin'} size="xl" className="text-primary" />
                   <div className="text-center">
-                    <h3 className={`font-semibold ${themeClasses.text.primary} mb-1`}>
+                    <h3 className={`font-semibold ${themeClasses.text.primary} ${themeClasses.spacing.mb1}`}>
                       {address.label || address.type}
                     </h3>
                     {address.added ? (
@@ -62,7 +62,7 @@ const PersonalAddressesPage: React.FC = () => {
                       <Button
                         variant="primary"
                         size="sm"
-                        className="mt-2"
+                        className={themeClasses.spacing.mt2}
                       >
                         {t('personalData.addresses.addAddress', 'Добавить адрес')}
                       </Button>

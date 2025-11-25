@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { preloadModule } from '../../services/i18n/config';
@@ -343,7 +343,7 @@ const MenuSettingsPage: React.FC = () => {
   };
 
   // Открытие модального окна для добавления
-  const handleAdd = () => {
+  const handleAdd = useCallback(() => {
     setEditingItem(null);
     setNewItem({
       type: 'external',
@@ -362,7 +362,7 @@ const MenuSettingsPage: React.FC = () => {
       embeddedAppUrl: undefined,
     });
     setIsAddModalOpen(true);
-  };
+  }, [items.length]);
 
   // Сохранение пункта меню
   const handleSave = () => {
@@ -504,9 +504,14 @@ const MenuSettingsPage: React.FC = () => {
             </p>
             <div className="flex-shrink-0">
               <Button
+                type="button"
                 variant="primary"
                 leftIcon={<Icon name="plus" size="sm" />}
-                onClick={handleAdd}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleAdd();
+                }}
                 className="w-full sm:w-auto"
               >
                 {t('admin.menuSettings.addItem')}

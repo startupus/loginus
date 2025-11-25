@@ -95,6 +95,7 @@ export const KEY_TO_MODULE_MAP: Record<string, ModuleName> = {
   security: 'profile',
   personalData: 'profile',
   personal: 'profile',
+  family: 'profile',
   data: 'data',
   landing: 'landing',
   about: 'about',

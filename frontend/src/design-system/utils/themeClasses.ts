@@ -138,6 +138,10 @@ export const backgroundClasses = {
   error: 'bg-error',
   // Primary фон полупрозрачный
   primarySemiTransparent: 'bg-primary/5 dark:bg-primary/10',
+  // Primary фон полупрозрачный 10%
+  primarySemiTransparent10: 'bg-primary/10 dark:bg-primary/20',
+  // Primary фон полупрозрачный 20%
+  primarySemiTransparent20: 'bg-primary/20 dark:bg-primary/30',
   // Primary фон полупрозрачный (hover)
   primarySemiTransparentHover: 'hover:bg-primary/10 dark:hover:bg-primary/20',
   // Primary фон для редактирования
@@ -167,6 +171,10 @@ export const borderClasses = {
   primary: 'border border-primary',
   // Граница с primary цветом полупрозрачная (для карточек, уведомлений)
   primarySemiTransparent: 'border border-primary/20 dark:border-primary/30',
+  // Primary граница полупрозрачная 20%
+  primarySemi20: 'border border-primary/20',
+  // Primary граница полупрозрачная 30%
+  primarySemi30: 'border border-primary/30',
   // Граница с error цветом полупрозрачная (для ошибок)
   errorSemiTransparent: 'border border-error/20',
   // Граница с темным вариантом (еще более мягкая с прозрачностью)
@@ -397,6 +405,7 @@ export const spacingClasses = {
   pl4: 'pl-4',
   // Gap
   gap2: 'gap-2',
+  gap2: 'gap-2',
   gap3: 'gap-3',
   gap4: 'gap-4',
   gap6: 'gap-6',
@@ -408,15 +417,26 @@ export const spacingClasses = {
   spaceY4: 'space-y-4',
   spaceY6: 'space-y-6',
   spaceY8: 'space-y-8',
+  // Padding
+  p3: 'px-3 py-2',
+  p4: 'p-4',
+  p6: 'p-6',
+  // Padding X
+  px3: 'px-3',
+  px4: 'px-4',
+  // Padding Y
+  py2: 'py-2',
+  py2_5: 'py-2.5',
   // Padding top
   pt4: 'pt-4',
   pt6: 'pt-6',
-  // Padding
-  p4: 'p-4',
-  p6: 'p-6',
   // Padding bottom
   pb24: 'pb-24',
   pb6: 'pb-6',
+  // Margin bottom
+  mb1: 'mb-1',
+  // Margin top
+  mt2: 'mt-2',
 };
 
 /**
