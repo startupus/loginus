@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -12,6 +12,7 @@ import { LoadingState } from '../../design-system/composites/LoadingState';
 import { ErrorState } from '../../design-system/composites/ErrorState';
 import { EmptyState } from '../../design-system/composites/EmptyState';
 import { adminApi, AdminCompany } from '../../services/api/admin';
+import { organizationsApi, Organization } from '../../services/api/organizations';
 import { themeClasses } from '../../design-system/utils/themeClasses';
 import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
 import { formatDate } from '../../utils/intl/formatters';
@@ -33,25 +34,44 @@ const CompaniesManagementPage: React.FC = () => {
   const [selectedCompany, setSelectedCompany] = useState<AdminCompany | null>(null);
   const [isCreateMode, setIsCreateMode] = useState(false);
 
-  // Запрос компаний
-  const { data: companiesData, isLoading, error, refetch } = useQuery({
-    queryKey: ['companies'],
-    queryFn: () => adminApi.getCompanies(),
+  // Адаптер для преобразования Organization в AdminCompany
+  const adaptOrganizationToCompany = (org: Organization): AdminCompany => {
+    return {
+      id: org.id,
+      name: org.name,
+      domain: org.settings?.domain || '',
+      subscriptionPlan: (org.settings?.subscriptionPlan || 'basic') as 'basic' | 'premium' | 'enterprise',
+      services: org.settings?.services || [],
+      userCount: org.settings?.userCount || 0,
+      servicesCount: org.settings?.servicesCount || (org.settings?.services?.length || 0),
+      lastActivity: org.updatedAt,
+      createdAt: org.createdAt,
+      updatedAt: org.updatedAt,
+      settings: org.settings || {},
+    };
+  };
+
+  // Запрос организаций (компаний)
+  const { data: organizationsData, isLoading, error, refetch } = useQuery({
+    queryKey: ['organizations'],
+    queryFn: () => organizationsApi.getOrganizations(),
   });
 
   // Мутации
   const deleteMutation = useMutation({
-    mutationFn: (companyId: string) => adminApi.deleteCompany(companyId),
+    mutationFn: (companyId: string) => organizationsApi.deleteOrganization(companyId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['companies'] });
+      queryClient.invalidateQueries({ queryKey: ['organizations'] });
+      queryClient.invalidateQueries({ queryKey: ['companies'] }); // Также инвалидируем старый ключ для совместимости
     },
   });
 
   // Фильтрация компаний
   const companies = useMemo(() => {
-    if (!companiesData?.data?.data?.companies) return [];
+    if (!organizationsData?.data?.data) return [];
     
-    let filtered = companiesData.data.data.companies;
+    // Преобразуем организации в формат компаний
+    let filtered = organizationsData.data.data.map(adaptOrganizationToCompany);
 
     // Поиск по названию
     if (searchQuery) {
@@ -68,7 +88,7 @@ const CompaniesManagementPage: React.FC = () => {
     }
 
     return filtered;
-  }, [companiesData, searchQuery, planFilter]);
+  }, [organizationsData, searchQuery, planFilter]);
 
   // Обработчики
   const handleViewCompany = (companyId: string) => {
@@ -76,9 +96,15 @@ const CompaniesManagementPage: React.FC = () => {
   };
 
   const handleCreateCompany = () => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[CompaniesManagementPage] handleCreateCompany called');
+    }
     setIsCreateMode(true);
     setSelectedCompany(null);
     setIsEditModalOpen(true);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[CompaniesManagementPage] isEditModalOpen set to true');
+    }
   };
 
   const handleEditCompany = (company: AdminCompany) => {
@@ -312,17 +338,15 @@ const CompaniesManagementPage: React.FC = () => {
       </div>
 
       {/* Модальное окно редактирования/создания */}
-      {isEditModalOpen && (
-        <CompanyEditModal
-          isOpen={isEditModalOpen}
-          onClose={() => {
-            setIsEditModalOpen(false);
-            setSelectedCompany(null);
-          }}
-          company={selectedCompany}
-          isCreateMode={isCreateMode}
-        />
-      )}
+      <CompanyEditModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedCompany(null);
+        }}
+        company={selectedCompany}
+        isCreateMode={isCreateMode}
+      />
 
       {/* Модальное окно подтверждения удаления */}
       <Modal
@@ -372,18 +396,59 @@ const CompanyEditModal: React.FC<CompanyEditModalProps> = ({
     subscriptionPlan: company?.subscriptionPlan || 'basic' as 'basic' | 'premium' | 'enterprise',
   });
 
+  // Сбрасываем форму при открытии модального окна или изменении режима
+  React.useEffect(() => {
+    if (isOpen) {
+      if (isCreateMode) {
+        setFormData({
+          name: '',
+          domain: '',
+          subscriptionPlan: 'basic',
+        });
+      } else if (company) {
+        setFormData({
+          name: company.name || '',
+          domain: company.domain || '',
+          subscriptionPlan: company.subscriptionPlan || 'basic',
+        });
+      }
+    }
+  }, [isOpen, isCreateMode, company]);
+
   const createMutation = useMutation({
-    mutationFn: (data: any) => adminApi.createCompany(data),
+    mutationFn: (data: any) => {
+      // Преобразуем данные из формата компании в формат организации
+      return organizationsApi.createOrganization({
+        name: data.name,
+        settings: {
+          domain: data.domain,
+          subscriptionPlan: data.subscriptionPlan || 'basic',
+          ...(data.settings || {}),
+        },
+      });
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['companies'] });
+      queryClient.invalidateQueries({ queryKey: ['organizations'] });
+      queryClient.invalidateQueries({ queryKey: ['companies'] }); // Также инвалидируем старый ключ для совместимости
       onClose();
     },
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data: any) => adminApi.updateCompany(company!.id, data),
+    mutationFn: (data: any) => {
+      // Преобразуем данные из формата компании в формат организации
+      return organizationsApi.updateOrganization(company!.id, {
+        name: data.name,
+        settings: {
+          domain: data.domain,
+          subscriptionPlan: data.subscriptionPlan || 'basic',
+          ...(data.settings || {}),
+        },
+      });
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['companies'] });
+      queryClient.invalidateQueries({ queryKey: ['organizations'] });
+      queryClient.invalidateQueries({ queryKey: ['companies'] }); // Также инвалидируем старый ключ для совместимости
       queryClient.invalidateQueries({ queryKey: ['company', company!.id] });
       onClose();
     },

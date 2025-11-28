@@ -1,0 +1,177 @@
+{
+  "dashboard": {
+    "title": "Profile",
+    "quickAccess": "Quick Access",
+    "recentActivity": "Recent Activity",
+    "activeDevices": "Active Devices",
+    "documentsCount": "Documents",
+    "connectedApps": "Connected Apps",
+    "mergeAccounts": "Merge Accounts",
+    "family": {
+      "title": "Family",
+      "description": "Manage family members",
+      "add": "Add member",
+      "member": "Family Member",
+      "owner": "Owner",
+      "manage": "Manage",
+      "loginAs": "Login",
+      "empty": {
+        "title": "No members yet",
+        "description": "Invite your family to share subscriptions and services."
+      }
+    },
+    "mail": {
+      "title": "Mail",
+      "description": "Unread letters",
+      "noUnread": "No unread",
+      "unreadOne": "unread message",
+      "unreadFew": "unread messages",
+      "unreadMany": "unread messages"
+    },
+    "pay": {
+      "title": "Yandex Pay",
+      "description": "Balance and limits",
+      "openCard": "Open Pay Card",
+      "spendUpTo": "Spend up to"
+    },
+    "plus": {
+      "title": "Yandex Plus",
+      "description": "Subscription status and points",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "points": "Points",
+      "tasks": "Tasks",
+      "complete": "Complete"
+    },
+    "work": {
+      "title": "Work",
+      "description": "Your work groups and teams",
+      "addGroup": "Add Group",
+      "allGroups": "All Groups",
+      "owner": "Owner",
+      "admin": "Admin",
+      "member": "Member"
+    },
+    "courses": {
+      "title": "My Learning Courses",
+      "description": "Track your course progress",
+      "viewAll": "View All",
+      "progress": "Progress",
+      "empty": "You don't have any active courses yet",
+      "browse": "Browse Courses",
+      "items": {
+        "programmingBasics": "Programming Basics",
+        "interfaceDesign": "Interface Design",
+        "englishLanguage": "English Language",
+        "marketing": "Marketing",
+        "projectManagement": "Project Management"
+      }
+    },
+    "events": {
+      "title": "Events",
+      "description": "Latest events and notifications",
+      "empty": "No new events",
+      "items": {
+        "coursePaid": "Course payment completed",
+        "achievement": "New achievement unlocked",
+        "milestone": "Learning milestone reached",
+        "reward": "Reward received",
+        "other": "New activity"
+      },
+      "descriptions": {
+        "coursePaid": "A course payment was processed successfully",
+        "achievement": "Your family member earned a new achievement",
+        "milestone": "Progress milestone achieved in a course",
+        "reward": "Additional points have been credited",
+        "other": "Check details in your activity feed"
+      }
+    },
+    "roadmap": {
+      "title": "My Roadmap",
+      "description": "Upcoming learning steps",
+      "viewFull": "Full Version",
+      "empty": "All steps completed!",
+      "emptyDescription": "Great job!",
+      "items": {
+        "reactHooks": "Introduction to React Hooks",
+        "responsiveDesign": "Responsive Layout Basics",
+        "presentPerfect": "Present Perfect Practice",
+        "competitorAnalysis": "Competitor Analysis",
+        "riskManagement": "Risk Management"
+      }
+    },
+    "profile": {
+      "balance": "Balance",
+      "gamePoints": "Game Points",
+      "achievements": "Achievements",
+      "achievementsCount": "{{count}} achievements"
+    },
+    "widgets": {
+      "title": "Add Widget",
+      "add": "Add Widget",
+      "description": "Select widgets to display on the main page",
+      "drag": "Drag widget",
+      "remove": "Remove widget"
+    },
+    "subscriptions": {
+      "title": "Subscriptions",
+      "active": "Active",
+      "inactive": "Inactive",
+      "details": "Details",
+      "activeUntil": "Active until {{date}}",
+      "subscribe": "Subscribe",
+      "includes": "Included in subscription:",
+      "badge": {
+        "annual": "−17%",
+        "premium": "Exclusive"
+      },
+      "plan": {
+        "monthly": "Monthly",
+        "annual": "Annual",
+        "premium": "Premium",
+        "free": "Free"
+      },
+      "pricing": {
+        "monthly": {
+          "price": "3,000 ₽/month",
+          "perMonth": "(3,000 ₽/mo)"
+        },
+        "annual": {
+          "price": "35,000 ₽/year",
+          "perMonth": "(2,917 ₽/mo)"
+        },
+        "premium": {
+          "price": "From 150,000 ₽/year",
+          "perMonth": "(from 12,500 ₽/mo)"
+        },
+        "free": {
+          "price": "Free",
+          "perMonth": ""
+        }
+      },
+      "features": {
+        "monthly": {
+          "0": "Access to all paid content",
+          "1": "Invitation to a private Slack community"
+        },
+        "annual": {
+          "0": "Access to all paid content",
+          "1": "Invitation to a private Slack community",
+          "2": "Free year of 15+ premium products"
+        },
+        "premium": {
+          "0": "Access to all paid content",
+          "1": "Invitation to a private Slack community",
+          "2": "Free year of 15+ premium products",
+          "3": "Guaranteed access to premium offers",
+          "4": "Exclusive premium partners"
+        },
+        "free": {
+          "0": "Occasional free newsletter"
+        }
+      }
+    }
+  }
+}
+

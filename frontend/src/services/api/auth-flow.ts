@@ -36,6 +36,11 @@ export const authFlowApi = {
     apiClient.put<AuthFlowResponse>('/admin/auth-flow', { methods }),
 
   /**
+   * Получить алгоритм авторизации для клиентских форм (страницы входа/регистрации)
+   */
+  getPublicAuthFlow: () => apiClient.get<AuthFlowResponse>('/auth/flow'),
+
+  /**
    * Тестировать алгоритм авторизации
    */
   testAuthFlow: () => apiClient.post<{ success: boolean; data: { result: string } }>('/admin/auth-flow/test'),

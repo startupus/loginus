@@ -57,7 +57,7 @@ export class MenuSettingsService {
         order: 2,
         systemId: 'data',
         label: 'Данные',
-        icon: 'document',
+        icon: 'database',
         path: '/data',
         children: [
           {
@@ -67,6 +67,7 @@ export class MenuSettingsService {
             order: 1,
             systemId: 'data-documents',
             label: 'Документы',
+            icon: 'document',
             path: '/data/documents',
           },
           {
@@ -76,6 +77,7 @@ export class MenuSettingsService {
             order: 2,
             systemId: 'data-addresses',
             label: 'Адреса',
+            icon: 'map-pin',
             path: '/data/addresses',
           },
         ],

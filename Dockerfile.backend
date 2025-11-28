@@ -1,0 +1,38 @@
+# Backend Dockerfile
+FROM node:18-alpine AS base
+
+# Установка pnpm
+RUN npm install -g pnpm@9
+
+# Установка зависимостей
+FROM base AS deps
+WORKDIR /app
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
+COPY backend-mock/package.json ./backend-mock/
+RUN pnpm install --frozen-lockfile
+
+# Сборка приложения
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/backend-mock/node_modules ./backend-mock/node_modules
+COPY . .
+RUN pnpm --filter backend-mock build
+
+# Production образ
+FROM base AS runner
+WORKDIR /app
+
+# Копирование зависимостей и собранного приложения
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/backend-mock/node_modules ./backend-mock/node_modules
+COPY --from=builder /app/backend-mock/dist ./backend-mock/dist
+COPY backend-mock/data ./backend-mock/data
+COPY backend-mock/package.json ./backend-mock/
+
+WORKDIR /app/backend-mock
+
+EXPOSE 3001
+
+CMD ["node", "dist/main.js"]
+

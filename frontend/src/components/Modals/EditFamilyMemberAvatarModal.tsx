@@ -6,6 +6,7 @@ import { themeClasses } from '../../design-system/utils/themeClasses';
 import { getInitials } from '../../utils/stringUtils';
 import { PREDEFINED_AVATARS } from '../../utils/avatars';
 import { preloadModule } from '../../services/i18n/config';
+import { familyApi } from '../../services/api/family';
 
 /**
  * Интерфейс пропсов модального окна
@@ -19,6 +20,8 @@ export interface EditFamilyMemberAvatarModalProps {
   onSuccess?: (avatarUrl: string) => void;
   /** Начальные данные члена семьи */
   initialData?: {
+    /** ID члена семьи */
+    id?: string;
     /** Имя члена семьи */
     name: string;
     /** URL текущего аватара */
@@ -63,20 +66,25 @@ export const EditFamilyMemberAvatarModal: React.FC<EditFamilyMemberAvatarModalPr
       return;
     }
 
+    if (!initialData?.id) {
+      console.error('Member ID is required to update avatar');
+      return;
+    }
+
     setIsLoading(true);
     try {
-      // TODO: Реализовать сохранение аватара через API
+      // Сохраняем аватар через API
+      await familyApi.updateMemberAvatar(initialData.id, selectedAvatar);
+      
       if (process.env.NODE_ENV === 'development') {
-        console.log('Save member avatar:', selectedAvatar);
+        console.log('Avatar saved for member:', initialData.id, 'url:', selectedAvatar);
       }
-
-      // Временная заглушка - просто закрываем модалку
-      await new Promise(resolve => setTimeout(resolve, 300));
       
       onSuccess?.(selectedAvatar);
       handleClose();
     } catch (error: any) {
       console.error('Error saving avatar:', error);
+      // TODO: Показать уведомление об ошибке пользователю
     } finally {
       setIsLoading(false);
     }

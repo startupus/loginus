@@ -13,7 +13,7 @@ import { DataPreloaderModule } from '../data/data-preloader.module';
   imports: [DataPreloaderModule],
   controllers: [AdminController, BackupController, MenuSettingsController, AuthFlowController],
   providers: [AdminService, BackupService, MenuSettingsService, AuthFlowService],
-  exports: [MenuSettingsService],
+  exports: [MenuSettingsService, AuthFlowService],
 })
 export class AdminModule {}
 

@@ -1,6 +1,6 @@
-import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Navigate, useLocation } from 'react-router-dom';
 import { Suspense } from 'react';
-import { LandingPage, AboutPage, FeaturesPage, AuthPage, VerifyCodePage, RegisterPage, OnboardingPage, DashboardPage, PersonalDocumentsPage, PersonalAddressesPage, FamilyPage, WorkPage, SecurityPage, DataPage, PayPage, SupportPage, HelpPage, AuthorizationHelpPage, RegistrationHelpPage, SecurityHelpPage, RecoveryHelpPage, KeyHelpPage, FamilyHelpPage, DataHelpPage, PaymentsHelpPage, AdminDashboardPage, UsersManagementPage, CompaniesManagementPage, CompanyDetailPage, AuthFlowBuilderPage, BackupSettingsPage, MenuSettingsPage, PaymentMethodsPage, IframePage, EmbeddedAppPage, ErrorPage } from './routes';
+import { LandingPage, AboutPage, FeaturesPage, AuthPage, VerifyCodePage, RegisterPage, OnboardingPage, DashboardPage, PersonalDocumentsPage, PersonalAddressesPage, FamilyPage, WorkPage, SecurityPage, DataPage, PayPage, SupportPage, HelpPage, AuthorizationHelpPage, RegistrationHelpPage, SecurityHelpPage, RecoveryHelpPage, KeyHelpPage, FamilyHelpPage, DataHelpPage, PaymentsHelpPage, AdminDashboardPage, UsersManagementPage, CompaniesManagementPage, CompanyDetailPage, AuthFlowBuilderPage, BackupSettingsPage, MenuSettingsPage, PaymentMethodsPage, IframePage, EmbeddedAppPage, ErrorPage, FamilyInvitePage } from './routes';
 import { LanguageRoute } from './LanguageRoute';
 import { AdminRoute } from './AdminRoute';
 import { themeClasses } from '../design-system/utils/themeClasses';
@@ -10,6 +10,15 @@ const LoadingFallback = () => (
     Loading...
   </div>
 );
+
+// Компонент для редиректа с сохранением query параметров
+const InvitationRedirect: React.FC = () => {
+  const location = useLocation();
+  const search = location.search || '';
+  console.log('[InvitationRedirect] Redirecting from:', location.pathname + location.search);
+  console.log('[InvitationRedirect] Redirecting to:', `/ru/invitation${search}`);
+  return <Navigate to={`/ru/invitation${search}`} replace />;
+};
 
 const router = createBrowserRouter([
   // Редирект с корня на язык по умолчанию
@@ -162,6 +171,32 @@ const router = createBrowserRouter([
       </LanguageRoute>
     ),
     errorElement: <ErrorPage />,
+  },
+  {
+    path: '/:lang/family/invite',
+    element: (
+      <LanguageRoute>
+        <Suspense fallback={<LoadingFallback />}>
+          <FamilyInvitePage />
+        </Suspense>
+      </LanguageRoute>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/:lang/invitation',
+    element: (
+      <LanguageRoute>
+        <Suspense fallback={<LoadingFallback />}>
+          <FamilyInvitePage />
+        </Suspense>
+      </LanguageRoute>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/invitation',
+    element: <InvitationRedirect />,
   },
   {
     path: '/:lang/work',
@@ -433,6 +468,18 @@ const router = createBrowserRouter([
     ),
     errorElement: <ErrorPage />,
   },
+  {
+    // Новый маршрут для embedded web_app плагинов по slug (id пункта меню)
+    path: '/:lang/plugins/:slug',
+    element: (
+      <LanguageRoute>
+        <Suspense fallback={<LoadingFallback />}>
+          <EmbeddedAppPage />
+        </Suspense>
+      </LanguageRoute>
+    ),
+    errorElement: <ErrorPage />,
+  },
   // Редирект старых маршрутов без языка
   {
     path: '/about',
@@ -486,6 +533,10 @@ const router = createBrowserRouter([
   {
     path: '/family',
     element: <Navigate to="/ru/family" replace />,
+  },
+  {
+    path: '/family/invite',
+    element: <Navigate to="/ru/family/invite" replace />,
   },
   {
     path: '/work',

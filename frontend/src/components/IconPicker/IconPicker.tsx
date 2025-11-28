@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Icon } from '../../design-system/primitives/Icon';
 import { themeClasses } from '../../design-system/utils/themeClasses';
@@ -79,6 +80,7 @@ export const IconPicker: React.FC<IconPickerProps> = ({ value, onChange, label }
   const [searchQuery, setSearchQuery] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
 
   // Фильтрация иконок по поисковому запросу
   const filteredIcons = AVAILABLE_ICONS.filter((icon) =>
@@ -91,26 +93,30 @@ export const IconPicker: React.FC<IconPickerProps> = ({ value, onChange, label }
     setSearchQuery('');
   };
 
-  // Закрытие при клике вне компонента
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsExpanded(false);
-        setSearchQuery('');
+  const handleToggle = () => {
+    setIsExpanded((prev) => {
+      const next = !prev;
+      if (next && containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+        const maxHeight = Math.min(384, viewportHeight - rect.bottom - 16);
+
+        setDropdownStyle({
+          position: 'fixed',
+          top: Math.min(rect.bottom + 8, viewportHeight - 16 - (maxHeight || 0)),
+          left: rect.left,
+          width: rect.width,
+          maxHeight: maxHeight > 0 ? maxHeight : 384,
+        });
       }
-    };
+      return next;
+    });
+  };
 
-    if (isExpanded) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isExpanded]);
+  // Закрытие по клику вне сейчас не используем, чтобы не ломать выбор через портал
 
   return (
-    <div className={themeClasses.spacing.spaceY2} ref={containerRef}>
+    <div className={`${themeClasses.spacing.spaceY2} relative`} ref={containerRef}>
       {label && (
         <label className={`block text-sm font-medium ${themeClasses.text.primary}`}>
           {label}
@@ -121,7 +127,7 @@ export const IconPicker: React.FC<IconPickerProps> = ({ value, onChange, label }
       <div className="relative">
         <button
           type="button"
-          onClick={() => setIsExpanded(!isExpanded)}
+          onClick={handleToggle}
           className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg border ${themeClasses.border.default} ${themeClasses.background.surface} ${themeClasses.text.primary} hover:border-primary transition-colors`}
         >
           {value ? (
@@ -141,9 +147,13 @@ export const IconPicker: React.FC<IconPickerProps> = ({ value, onChange, label }
           />
         </button>
 
-        {/* Выпадающий список с иконками */}
-        {isExpanded && (
-          <div className={`absolute z-50 w-full mt-2 rounded-lg border ${themeClasses.border.default} ${themeClasses.background.surface} shadow-lg max-h-96 overflow-hidden flex flex-col`}>
+        {/* Выпадающий список с иконками (через портал в body, чтобы не резался overflow модалки) */}
+        {isExpanded && typeof document !== 'undefined' &&
+          createPortal(
+          <div
+            className={`z-[120000] rounded-lg border ${themeClasses.border.default} ${themeClasses.background.surface} shadow-lg overflow-hidden flex flex-col`}
+            style={dropdownStyle}
+          >
             {/* Поиск */}
             <div className="p-3 border-b border-border">
               <Input
@@ -189,7 +199,8 @@ export const IconPicker: React.FC<IconPickerProps> = ({ value, onChange, label }
                 </div>
               )}
             </div>
-          </div>
+          </div>,
+          document.body,
         )}
       </div>
     </div>

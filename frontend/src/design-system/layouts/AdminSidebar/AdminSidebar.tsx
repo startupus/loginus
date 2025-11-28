@@ -88,11 +88,11 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   return (
     <>
       <div
-        className={`${themeClasses.admin.sidebarBackground} shadow-[0_2px_8px_rgba(0,0,0,0.2)] fixed top-0 left-0 z-40 flex h-screen w-full max-w-[300px] flex-col justify-between overflow-y-scroll duration-200 xl:translate-x-0 ${
+        className={`${themeClasses.admin.sidebarBackground} shadow-[0_2px_8px_rgba(0,0,0,0.2)] fixed top-0 left-0 z-40 flex h-screen w-full max-w-[300px] flex-col justify-between overflow-hidden duration-200 xl:translate-x-0 ${
           isOpen ? '-translate-x-full' : 'translate-x-0'
         } ${className}`}
       >
-        <div>
+        <div className="flex-1 overflow-y-auto">
           {showLogo && (
             <div className="px-10 pt-10 pb-6">
               <button 
@@ -148,7 +148,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                         }
                       }
                     }}
-                    className={`${themeClasses.admin.sidebarText} ${themeClasses.admin.sidebarHover} relative flex w-full items-center border-l-4 border-transparent py-[10px] pr-4 pl-9 text-base font-medium duration-200 transition-all hover:translate-x-1 text-left ${
+                    className={`${themeClasses.admin.sidebarText} ${themeClasses.admin.sidebarHover} relative flex w-full items-center border-l-4 border-transparent py-[10px] pr-4 pl-9 text-base font-medium duration-200 transition-all text-left ${
                       item.active ? `${themeClasses.admin.sidebarActive} border-l-4 ${themeClasses.admin.sidebarActiveBorder} ${themeClasses.admin.sidebarTextActive}` : ''
                     } ${
                       item.children && openDropdown === item.path && !item.active ? themeClasses.admin.sidebarHover : ''
@@ -188,6 +188,13 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                               child.active ? `${themeClasses.admin.sidebarActive} border-l-4 ${themeClasses.admin.sidebarActiveBorder} ${themeClasses.admin.sidebarTextActive}` : ''
                             }`}
                           >
+                            {child.icon && (
+                              <Icon 
+                                name={child.icon} 
+                                size="sm" 
+                                className={`mr-3 flex-shrink-0 ${child.active ? themeClasses.admin.sidebarTextActive : themeClasses.admin.sidebarText}`}
+                              />
+                            )}
                             <span className={child.active ? themeClasses.admin.sidebarTextActive : ''}>{child.label}</span>
                           </button>
                         </li>

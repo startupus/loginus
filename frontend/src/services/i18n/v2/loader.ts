@@ -61,26 +61,39 @@ export async function loadModule(
   if (useAPI && isDynamicMode()) {
     try {
       const response = await translationsAPI.getModule(locale, module);
-      
-      // Сохраняем в кэш
-      if (useCache) {
-        await translationCache.set(
-          locale,
-          module,
-          response.data,
-          response.version,
-          response.checksum,
-          response.timestamp,
-        ).catch(() => {
-          // Игнорируем ошибки кэширования
-        });
+      const payload = response.data || response;
+      const moduleData = payload?.data || payload;
+      const localeName = payload?.locale || locale;
+      const moduleName = payload?.module || module;
+
+      if (moduleData && typeof moduleData === 'object' && Object.keys(moduleData).length > 0) {
+        if (useCache) {
+          await translationCache
+            .set(
+              localeName as Locale,
+              moduleName as ModuleName,
+              moduleData,
+              payload?.version,
+              payload?.checksum,
+              payload?.timestamp,
+            )
+            .catch(() => {
+              // Игнорируем ошибки кэширования
+            });
+        }
+
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`[i18n-v2] Loaded ${locale}/${module} from API`);
+        }
+
+        return moduleData;
       }
 
       if (process.env.NODE_ENV === 'development') {
-        console.log(`[i18n-v2] Loaded ${locale}/${module} from API`);
+        console.warn(
+          `[i18n-v2] API returned empty data for ${locale}/${module}, falling back to static files`,
+        );
       }
-
-      return response.data;
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
         console.warn(`[i18n-v2] API load failed for ${locale}/${module}:`, error);
@@ -89,9 +102,9 @@ export async function loadModule(
     }
   }
 
-  // Level 3: Используем статические файлы (только если режим не dynamic)
-  // В dynamic режиме все данные должны идти только через API
-  if (useStatic && useStaticFallback() && !isDynamicMode()) {
+  // Level 3: Используем статические файлы как fallback
+  // В dynamic режиме используем статические файлы, если API вернул пустые данные
+  if (useStatic && (useStaticFallback() || (isDynamicMode() && useAPI))) {
     try {
       const data = await import(
         /* @vite-ignore */ `../locales/${locale}/${module}.json`
@@ -155,20 +168,19 @@ export async function loadModules(
       const result: Record<string, any> = {};
 
       for (const response of responses) {
-        result[response.module] = response.data;
+        const payload = response.data ? response : (response as any);
+        const moduleData = payload?.data || payload;
+        const moduleName = (payload?.module || '') as ModuleName;
+        const localeName = (payload?.locale || locale) as Locale;
 
-        // Сохраняем в кэш
+        result[moduleName] = moduleData;
+
         if (useCache) {
-          await translationCache.set(
-            response.locale as Locale,
-            response.module as ModuleName,
-            response.data,
-            response.version,
-            response.checksum,
-            response.timestamp,
-          ).catch(() => {
-            // Игнорируем ошибки кэширования
-          });
+          await translationCache
+            .set(localeName, moduleName, moduleData, payload?.version, payload?.checksum, payload?.timestamp)
+            .catch(() => {
+              // Игнорируем ошибки кэширования
+            });
         }
       }
 

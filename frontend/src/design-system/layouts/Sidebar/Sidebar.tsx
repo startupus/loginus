@@ -68,6 +68,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const { setThemeMode, isDark } = useTheme();
   const { isOpen, toggleSidebar, openDropdown, toggleDropdown } = useSidebar();
   
+  // Автоматическое открытие дропдауна, если один из дочерних пунктов активен
+  useEffect(() => {
+    const activeParentItem = items.find(item => 
+      item.children && item.children.some(child => child.active)
+    );
+    if (activeParentItem && activeParentItem.path && openDropdown !== activeParentItem.path) {
+      // Используем setTimeout чтобы избежать конфликта с инициализацией
+      setTimeout(() => {
+        toggleDropdown(activeParentItem.path);
+      }, 0);
+    }
+  }, [items, openDropdown, toggleDropdown]);
+  
   // Блокировка скролла body когда сайдбар открыт на мобильных
   useEffect(() => {
     if (!isOpen) {
@@ -90,11 +103,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <>
       <div
-        className={`${themeClasses.card.shadow} shadow-[0_2px_8px_rgba(0,0,0,0.08)] fixed top-0 left-0 z-40 flex h-screen w-full max-w-[300px] flex-col justify-between overflow-y-scroll duration-200 xl:translate-x-0 ${
+        className={`${themeClasses.card.shadow} shadow-[0_2px_8px_rgba(0,0,0,0.08)] fixed top-0 left-0 z-40 flex h-screen w-full max-w-[300px] flex-col justify-between overflow-hidden duration-200 xl:translate-x-0 ${
           isOpen ? '-translate-x-full' : 'translate-x-0'
         } ${className}`}
       >
-        <div>
+        <div className="flex-1 overflow-y-auto">
           {showLogo && (
             <div className="px-10 pt-10 pb-6">
               <button 
@@ -119,18 +132,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <ul>
               {items.map((item, index) => (
                 <li key={item.path || index} className={item.children ? 'relative' : ''}>
-                  <button
-                    onClick={() => {
-                      // Если есть children, сначала делаем переход, потом раскрываем подменю
-                      if (item.children) {
-                        // Переход на страницу родительского элемента
-                        if (item.path) {
-                          onNavigate ? onNavigate(item.path) : navigate(item.path);
-                        }
-                        // Раскрытие/закрытие подменю
-                        toggleDropdown(item.path);
-                      } else {
-                        // Обработка кастомных типов
+                  <div className={`flex w-full items-center group hover:border-primary hover:bg-primary/5 border-r-4 border-transparent transition-all duration-200 ${
+                    // Активный пункт - синяя полоска справа
+                    item.active ? '!border-primary bg-primary/5' : ''
+                  } ${
+                    // Развернутый пункт (с подменю) - только фон, без синей полоски если не активный
+                    item.children && openDropdown === item.path && !item.active ? '!bg-primary/10 dark:!bg-primary/20' : ''
+                  } ${
+                    // Развернутый И активный - и фон, и синяя полоска
+                    item.children && openDropdown === item.path && item.active ? '!bg-primary/10 dark:!bg-primary/20' : ''
+                  }`}>
+                    <button
+                      onClick={() => {
+                        // При клике на кнопку всегда делаем переход (если есть path)
+                        // Дропдаун открывается только при клике на стрелочку
                         if (item.type === 'external' && item.externalUrl) {
                           if (item.openInNewTab) {
                             window.open(item.externalUrl, '_blank');
@@ -139,56 +154,63 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           }
                         } else {
                           // Обычный переход
-                        onNavigate ? onNavigate(item.path) : navigate(item.path);
+                          if (item.path) {
+                            onNavigate ? onNavigate(item.path) : navigate(item.path);
+                          }
                         }
-                      }
-                    }}
-                    className={`${themeClasses.text.secondary} dark:text-dark-6 hover:border-primary hover:bg-primary/5 relative flex w-full items-center border-r-4 border-transparent py-[10px] pr-4 pl-9 text-base font-medium duration-200 transition-all hover:translate-x-1 text-left ${
-                      // Активный пункт - синяя полоска справа
-                      item.active ? '!border-primary bg-primary/5' : ''
-                    } ${
-                      // Развернутый пункт (с подменю) - только фон, без синей полоски если не активный
-                      item.children && openDropdown === item.path && !item.active ? '!bg-primary/10 dark:!bg-primary/20' : ''
-                    } ${
-                      // Развернутый И активный - и фон, и синяя полоска
-                      item.children && openDropdown === item.path && item.active ? '!bg-primary/10 dark:!bg-primary/20' : ''
-                    }`}
-                  >
-                    {item.icon && (
-                      <Icon 
-                        name={item.icon} 
-                        size="sm" 
-                        className="mr-3 flex-shrink-0"
-                      />
-                    )}
-                    <span className="flex-1 text-left">{item.label}</span>
+                      }}
+                      className={`${themeClasses.text.secondary} dark:text-dark-6 group-hover:text-primary relative flex flex-1 items-center py-[10px] pr-2 pl-9 text-base font-medium duration-200 transition-all text-left`}
+                    >
+                      {item.icon && (
+                        <Icon 
+                          name={item.icon} 
+                          size="sm" 
+                          className="mr-3 flex-shrink-0"
+                        />
+                      )}
+                      <span className="flex-1 text-left">{item.label}</span>
+                    </button>
                     {item.children && (
-                      <span
-                        className={`flex-shrink-0 ml-2 transition-transform duration-200 ${
-                          openDropdown === item.path ? 'rotate-0' : 'rotate-180'
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // Клик на стрелочку - только раскрытие/закрытие подменю
+                          toggleDropdown(item.path);
+                        }}
+                        className={`flex-shrink-0 ml-1 mr-2 p-1 rounded transition-colors duration-200 group-hover:text-primary ${
+                          openDropdown === item.path 
+                            ? 'text-primary bg-primary/10' 
+                            : `${themeClasses.text.secondary} dark:text-dark-6`
                         }`}
                       >
                         <Icon 
                           name="chevron-down" 
                           size="sm" 
-                          className={`${
-                            openDropdown === item.path ? 'text-primary' : `${themeClasses.text.secondary} dark:text-dark-6`
+                          className={`transition-transform duration-200 ${
+                            openDropdown === item.path ? 'rotate-0' : 'rotate-180'
                           }`}
                         />
-                      </span>
+                      </button>
                     )}
-                  </button>
+                  </div>
                   {item.children && openDropdown === item.path && (
-                    <ul className={`py-[6px] pr-10 pl-[50px] ${themeClasses.background.gray2} border-l-2 border-primary/30 dark:border-primary/40 ml-2`}>
+                    <ul className={`py-[6px] pr-0 pl-0 ml-0 ${themeClasses.background.gray2}`}>
                       {item.children.map((child, childIndex) => (
-                        <li key={child.path || childIndex}>
+                        <li key={child.path || childIndex} className="w-full">
                           <button
                             onClick={() => onNavigate ? onNavigate(child.path) : navigate(child.path)}
-                            className={`${themeClasses.text.secondary} dark:text-dark-6 hover:text-primary hover:bg-primary/10 dark:hover:bg-primary/20 flex w-full items-center border-r-4 border-transparent py-[9px] pl-2 pr-2 text-base font-medium duration-200 transition-all rounded-r-lg text-left ${
-                              child.active ? '!border-primary bg-primary/10 dark:bg-primary/20' : ''
+                            className={`${themeClasses.text.secondary} dark:text-dark-6 hover:border-primary hover:bg-primary/5 hover:text-primary flex w-full items-center border-r-4 border-transparent py-[10px] pl-9 pr-2 text-base font-medium duration-200 transition-all text-left ${
+                              child.active ? '!border-primary bg-primary/5' : ''
                             }`}
                           >
-                            <span className="text-left">{child.label}</span>
+                            {child.icon && (
+                              <Icon 
+                                name={child.icon} 
+                                size="sm" 
+                                className="mr-3 flex-shrink-0"
+                              />
+                            )}
+                            <span className="flex-1 text-left">{child.label}</span>
                           </button>
                         </li>
                       ))}

@@ -94,7 +94,20 @@ class TranslationsAPI {
     }
 
     const result = await response.json();
-    return result.data || [];
+
+    if (Array.isArray(result)) {
+      return result;
+    }
+
+    if (Array.isArray(result?.data)) {
+      return result.data;
+    }
+
+    if (Array.isArray(result?.data?.modules)) {
+      return result.data.modules;
+    }
+
+    return [];
   }
 
   /**

@@ -31,7 +31,7 @@ import { LoadingState } from '../../design-system/composites/LoadingState';
 import { EmptyState } from '../../design-system/composites/EmptyState';
 import { menuSettingsApi, MenuItemConfig } from '../../services/api/menu-settings';
 import { themeClasses } from '../../design-system/utils/themeClasses';
-import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
+import { useCurrentLanguage } from '../../utils/routing';
 import { IconPicker } from '../../components/IconPicker/IconPicker';
 import { Tabs } from '../../design-system/composites/Tabs';
 
@@ -45,7 +45,6 @@ interface MenuItemProps {
 
 const MenuItem: React.FC<MenuItemProps> = ({ item, onToggle, onEdit, onDelete }) => {
   const { t } = useTranslation();
-  const currentLang = useCurrentLanguage();
   const {
     attributes,
     listeners,
@@ -102,7 +101,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ item, onToggle, onEdit, onDelete })
           {item.label || item.id}
         </div>
         <div className={`${themeClasses.typographySize.bodySmall} ${item.enabled ? themeClasses.text.secondary : themeClasses.utility.opacity50}`}>
-          {item.type === 'default' && t('admin.menuSettings.type.default')}
+          {item.type === 'default' && t('admin.menuSettings.type.default') + ' (Плагин)'}
           {item.type === 'external' && t('admin.menuSettings.type.external')}
           {item.type === 'iframe' && t('admin.menuSettings.type.iframe')}
           {item.type === 'embedded' && t('admin.menuSettings.type.embedded')}
@@ -144,7 +143,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ item, onToggle, onEdit, onDelete })
       </div>
 
       {/* Тумблер включения/выключения - всегда справа, последний элемент */}
-      <div className="ml-auto" onClick={(e) => e.stopPropagation()}>
+      <div className="ml-auto" onClick={(e) => e.stopPropagation()} style={{ pointerEvents: 'auto', zIndex: 10 }}>
         <Switch
           checked={item.enabled}
           onChange={() => onToggle(item.id)}
@@ -230,6 +229,31 @@ const MenuSettingsPage: React.FC = () => {
   const settings = settingsData?.data?.data;
   const items = settings?.items || [];
 
+  // Вспомогательная функция для синхронизации изменений с backend
+  const persistMenu = useCallback(
+    async (updatedItems: MenuItemConfig[]) => {
+      try {
+        const response = await menuSettingsApi.updateMenuSettings({ items: updatedItems });
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[MenuSettingsPage] Menu settings updated successfully:', response);
+        }
+        // После успешного сохранения настроек меню инвалидируем кэш пользовательского меню,
+        // чтобы левая панель в личном кабинете подтянула актуальные пункты
+        await queryClient.invalidateQueries({ queryKey: ['user-menu'] });
+        // Также инвалидируем кэш настроек меню для админки
+        await queryClient.invalidateQueries({ queryKey: ['menu-settings'] });
+        // Принудительно обновляем данные
+        await queryClient.refetchQueries({ queryKey: ['user-menu'] });
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.error('[MenuSettingsPage] Failed to persist menu settings:', error);
+        }
+        throw error; // Пробрасываем ошибку, чтобы можно было обработать её в вызывающем коде
+      }
+    },
+    [queryClient],
+  );
+
   // Обработка drag & drop (локальное обновление без запроса на сервер)
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -249,10 +273,9 @@ const MenuSettingsPage: React.FC = () => {
         order: index + 1,
       }));
 
-      // Обновляем локальное состояние через React Query без запроса на сервер
+      // Оптимистично обновляем локальное состояние
       queryClient.setQueryData(['menu-settings'], (oldData: any) => {
         if (!oldData) return oldData;
-        
         return {
           ...oldData,
           data: {
@@ -263,19 +286,21 @@ const MenuSettingsPage: React.FC = () => {
           },
         };
       });
+
+      // Сохраняем изменения на бэкенде (фоново)
+      void persistMenu(updatedItems);
     }
   };
 
   // Переключение включения/выключения пункта (локальное обновление без запроса на сервер)
   const handleToggle = (id: string) => {
     const updatedItems = items.map((item) =>
-      item.id === id ? { ...item, enabled: !item.enabled } : item
+      item.id === id ? { ...item, enabled: !item.enabled } : item,
     );
-    
-    // Обновляем локальное состояние через React Query без запроса на сервер
+
+    // Оптимистично обновляем локальное состояние
     queryClient.setQueryData(['menu-settings'], (oldData: any) => {
       if (!oldData) return oldData;
-      
       return {
         ...oldData,
         data: {
@@ -286,6 +311,9 @@ const MenuSettingsPage: React.FC = () => {
         },
       };
     });
+
+    // Сохраняем изменения на бэкенде (фоново)
+    void persistMenu(updatedItems);
   };
 
   // Открытие модального окна подтверждения удаления
@@ -309,11 +337,10 @@ const MenuSettingsPage: React.FC = () => {
       ...item,
       order: index + 1,
     }));
-    
-    // Обновляем локальное состояние через React Query без запроса на сервер
+
+    // Оптимистично обновляем локальное состояние
     queryClient.setQueryData(['menu-settings'], (oldData: any) => {
       if (!oldData) return oldData;
-      
       return {
         ...oldData,
         data: {
@@ -324,7 +351,10 @@ const MenuSettingsPage: React.FC = () => {
         },
       };
     });
-    
+
+    // Сохраняем изменения на бэкенде (фоново)
+    void persistMenu(reorderedItems);
+
     setIsDeleteModalOpen(false);
     setItemToDelete(null);
   };
@@ -355,7 +385,7 @@ const MenuSettingsPage: React.FC = () => {
       labelEn: '',
       icon: '',
       path: undefined,
-      externalUrl: '',
+      externalUrl: undefined,
       openInNewTab: false,
       iframeUrl: undefined,
       iframeCode: undefined,
@@ -420,6 +450,7 @@ const MenuSettingsPage: React.FC = () => {
 
     // Формируем полный объект пункта меню
     // Для системных пунктов сохраняем оригинальные id и type
+    // ВАЖНО: Для системных элементов сохраняем оригинальный путь, если новый путь не указан
     const menuItem: MenuItemConfig & { labelRu?: string; labelEn?: string } = {
       id: isSystemItem ? editingItem.id : (newItem.id || `custom-${Date.now()}`),
       type: isSystemItem ? editingItem.type : (newItem.type || 'external'),
@@ -429,13 +460,19 @@ const MenuSettingsPage: React.FC = () => {
       labelRu: labelRu.trim() || undefined,
       labelEn: labelEn.trim() || undefined,
       icon: newItem.icon || undefined,
-      path: newItem.path || undefined,
+      // ВАЖНО: Для системных элементов сохраняем оригинальный путь, если новый путь не указан
+      // Для кастомных элементов используем новый путь или undefined
+      path: isSystemItem 
+        ? (newItem.path && newItem.path.trim() ? newItem.path.trim() : editingItem?.path)
+        : (newItem.path && newItem.path.trim() ? newItem.path.trim() : undefined),
       systemId: isSystemItem ? editingItem.systemId : undefined,
       externalUrl: newItem.externalUrl || undefined,
       openInNewTab: newItem.openInNewTab || false,
       iframeUrl: newItem.iframeUrl || undefined,
       iframeCode: newItem.iframeCode || undefined,
       embeddedAppUrl: newItem.embeddedAppUrl || undefined,
+      // ВАЖНО: Сохраняем children для системных элементов, если они есть
+      children: isSystemItem && editingItem?.children ? editingItem.children : undefined,
     };
 
     let updatedItems: MenuItemConfig[];
@@ -455,10 +492,9 @@ const MenuSettingsPage: React.FC = () => {
       }));
     }
 
-    // Обновляем локальное состояние через React Query без запроса на сервер (мок-данные)
+    // Оптимистично обновляем локальное состояние
     queryClient.setQueryData(['menu-settings'], (oldData: any) => {
       if (!oldData) return oldData;
-      
       return {
         ...oldData,
         data: {
@@ -469,6 +505,9 @@ const MenuSettingsPage: React.FC = () => {
         },
       };
     });
+
+    // Сохраняем изменения на бэкенде (фоново)
+    void persistMenu(updatedItems);
 
     // Обновляем UI состояние
     setIsAddModalOpen(false);
@@ -744,7 +783,7 @@ const MenuSettingsPage: React.FC = () => {
                 label={t('admin.menuSettings.form.embeddedAppUrl')}
                 value={newItem.embeddedAppUrl || ''}
                 onChange={(e) => setNewItem({ ...newItem, embeddedAppUrl: e.target.value })}
-                placeholder="https://app.example.com"
+                placeholder="https://example.com"
                 required
               />
               <Input

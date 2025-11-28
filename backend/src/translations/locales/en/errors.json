@@ -1,0 +1,21 @@
+{
+  "errors": {
+    "somethingWentWrong": "Something went wrong",
+    "unexpectedError": "An unexpected error occurred",
+    "404Title": "Page not found",
+    "404Description": "The requested page does not exist or has been removed",
+    "403Title": "Access denied",
+    "403Description": "You do not have permission to view this page",
+    "500Title": "Server error",
+    "500Description": "Something went wrong. We are already working on fixing it.",
+    "401Title": "Authorization required",
+    "401Description": "You need to sign in to access this page",
+    "503Title": "Service temporarily unavailable",
+    "503Description": "Maintenance in progress. Everything will be back soon.",
+    "goHome": "Go to Home",
+    "reload": "Reload Page",
+    "helpText": "If the problem persists, contact support",
+    "technicalDetails": "Technical Details"
+  }
+}
+

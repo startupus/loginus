@@ -1,0 +1,43 @@
+{
+  "support": {
+    "chat": {
+      "title": "Loginus ID Support",
+      "welcome": "Hello! I will help you with questions about Loginus ID.",
+      "online": "Online",
+      "selectTopic": "Select your question topic:",
+      "placeholder": "Write your question...",
+      "inputLabel": "Message input field",
+      "messageForm": "Message sending form",
+      "attachFile": "Attach file",
+      "sendMessage": "Send message",
+      "voiceMessage": "Voice message",
+      "showHistory": "Show chat history",
+      "edited": "edited",
+      "edit": "Edit",
+      "editingPlaceholder": "Editing message...",
+    "saveEdit": "Save changes",
+    "cancelEdit": "Cancel editing",
+    "agentName": "Loginus Support",
+    "agentInitials": "LS",
+    "userName": "You"
+    },
+    "history": {
+      "title": "Support History",
+      "closed": "Closed",
+      "online": "Online"
+    },
+    "selectService": "Select service",
+    "empty": "No available chats",
+    "services": {
+      "mail": "Mail",
+      "disk": "Disk",
+      "other": "Other service"
+    },
+    "carousel": {
+      "all": "All",
+      "scrollLeft": "Scroll left",
+      "scrollRight": "Scroll right"
+    }
+  }
+}
+

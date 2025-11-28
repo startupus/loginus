@@ -77,6 +77,7 @@ export const Modal: React.FC<ModalProps> = ({
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
   const [positionStyles, setPositionStyles] = useState<React.CSSProperties>({});
+  const openTimeRef = useRef<number>(0);
   
   // Вычисление позиции относительно anchor элемента
   useEffect(() => {
@@ -158,18 +159,43 @@ export const Modal: React.FC<ModalProps> = ({
     return () => clearTimeout(timeoutId);
   }, [isOpen, position, anchorRef]);
 
+  // Отслеживаем время открытия модалки
+  useEffect(() => {
+    if (isOpen) {
+      openTimeRef.current = Date.now();
+    }
+  }, [isOpen]);
+
   // Закрытие по клику вне модального окна - из TailGrids Modal1.jsx
   useEffect(() => {
+    if (!isOpen) return;
+    
     const clickHandler = (event: MouseEvent) => {
       if (!modalRef.current) return;
-      if (!isOpen || modalRef.current.contains(event.target as Node)) return;
+      // Не закрывать, если клик внутри модального окна
+      if (modalRef.current.contains(event.target as Node)) return;
       // Не закрывать при клике на anchor элемент
       if (anchorRef?.current && anchorRef.current.contains(event.target as Node)) return;
+      // Не закрывать, если модалка только что открылась (защита от клика, который открыл модалку)
+      const timeSinceOpen = Date.now() - openTimeRef.current;
+      if (timeSinceOpen < 300) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[Modal] Ignoring click outside - modal just opened', timeSinceOpen, 'ms ago');
+        }
+        return;
+      }
       onClose();
     };
     
-    document.addEventListener('click', clickHandler);
-    return () => document.removeEventListener('click', clickHandler);
+    // Используем небольшую задержку перед установкой обработчика, чтобы клик, который открыл модалку, не закрыл её
+    const timeoutId = setTimeout(() => {
+      document.addEventListener('click', clickHandler);
+    }, 300);
+    
+    return () => {
+      clearTimeout(timeoutId);
+      document.removeEventListener('click', clickHandler);
+    };
   }, [isOpen, onClose, anchorRef]);
 
   // Закрытие по ESC - из TailGrids Modal1.jsx

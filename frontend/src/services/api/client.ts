@@ -15,6 +15,13 @@ apiClient.interceptors.request.use(
     const { accessToken } = useAuthStore.getState();
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[API Client] Adding Authorization header for ${config.method?.toUpperCase()} ${config.url}`);
+      }
+    } else {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn(`[API Client] No accessToken found for ${config.method?.toUpperCase()} ${config.url}`);
+      }
     }
     // Добавляем метку времени для измерения задержки
     if (process.env.NODE_ENV === 'development') {

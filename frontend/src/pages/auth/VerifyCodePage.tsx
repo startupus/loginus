@@ -292,13 +292,15 @@ export const VerifyCodePage: React.FC = () => {
               {t('auth.verifyCode.description', 'Мы отправили 6-значный код подтверждения')}
             </p>
             <div className={`flex items-center gap-2 text-sm ${themeClasses.text.secondary}`}>
-              <Icon name="phone" size="sm" color="rgb(var(--color-primary))" />
+              <Icon name={contactType === 'email' ? 'mail' : 'phone'} size="sm" color="rgb(var(--color-primary))" />
               <span>
                 {t('auth.verifyCode.subtitle', 'на')} <span className={`font-semibold ${themeClasses.text.primary}`}>{masked}</span>
               </span>
             </div>
             <p className={`text-sm ${themeClasses.text.secondary}`}>
-              {t('auth.verifyCode.hint', 'Введите код из SMS сообщения')}
+              {contactType === 'email' 
+                ? t('auth.verifyCode.hintEmail', 'Введите код из письма')
+                : t('auth.verifyCode.hint', 'Введите код из SMS сообщения')}
             </p>
           </div>
         </div>

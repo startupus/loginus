@@ -8,4 +8,5 @@ export * from './support';
 export * from './family';
 export * from './payment';
 export * from './help';
+export * from './plugins';
 

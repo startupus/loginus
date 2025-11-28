@@ -21,6 +21,7 @@ const DataPage = lazy(() => import('@/pages/DataPage'));
 const PersonalDocumentsPage = lazy(() => import('@/pages/PersonalDocumentsPage'));
 const PersonalAddressesPage = lazy(() => import('@/pages/PersonalAddressesPage'));
 const FamilyPage = lazy(() => import('@/pages/FamilyPage'));
+const FamilyInvitePage = lazy(() => import('@/pages/FamilyInvitePage'));
 const WorkPage = lazy(() => import('@/pages/WorkPage'));
 const SecurityPage = lazy(() => import('@/pages/SecurityPage'));
 
@@ -71,6 +72,7 @@ export {
   PersonalDocumentsPage,
   PersonalAddressesPage,
   FamilyPage,
+  FamilyInvitePage,
   WorkPage,
   SecurityPage,
   PayPage,

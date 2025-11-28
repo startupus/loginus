@@ -1,12 +1,14 @@
 import React, { useRef, useState, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { Avatar, Icon, ScrollButton, Button } from '../../design-system/primitives';
 import { DataSection, AddButton } from '../../design-system/composites';
 import { getInitials } from '../../utils/stringUtils';
 import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
 import { themeClasses } from '../../design-system/utils/themeClasses';
 import { useModal } from '../../hooks/useModal';
+import { useAuthStore } from '../../store';
 
 // Lazy loading модального окна
 const EditFamilyMemberAvatarModal = lazy(() => 
@@ -25,6 +27,7 @@ export interface FamilyMembersProps {
   onAddMember?: () => void;
   onMemberClick?: (member: FamilyMember) => void;
   onLoginAs?: (member: FamilyMember) => void;
+  isCreator?: boolean;
 }
 
 /**
@@ -35,14 +38,28 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
   onAddMember,
   onMemberClick,
   onLoginAs,
+  isCreator = false,
 }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const currentLang = useCurrentLanguage();
+  const { user: currentUser } = useAuthStore();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   const editAvatarModal = useModal();
+
+  // Логирование для отладки
+  React.useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[FamilyMembers] Props:', {
+        membersCount: members.length,
+        hasOnAddMember: !!onAddMember,
+        isCreator,
+        onAddMemberType: typeof onAddMember,
+      });
+    }
+  }, [members.length, onAddMember, isCreator]);
   const [selectedMember, setSelectedMember] = useState<FamilyMember | null>(null);
   const [hoveredMemberId, setHoveredMemberId] = useState<string | null>(null);
   
@@ -83,11 +100,17 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
     editAvatarModal.open();
   };
 
-  const handleAvatarSaved = (avatarUrl: string) => {
+  const queryClient = useQueryClient();
+  
+  const handleAvatarSaved = async (avatarUrl: string) => {
     if (process.env.NODE_ENV === 'development') {
       console.log('Avatar saved for member:', selectedMember?.id, 'url:', avatarUrl);
     }
-    // TODO: Обновить аватар члена семьи через API
+    // Инвалидируем запросы для обновления списка участников
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+      queryClient.invalidateQueries({ queryKey: ['family-members'] }),
+    ]);
     editAvatarModal.close();
   };
   
@@ -106,7 +129,7 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
         </button>
       }
     >
-      {members.length === 0 && onAddMember ? (
+      {members.length === 0 && onAddMember && isCreator ? (
         // Пустое состояние с кнопкой добавления
         <div className={themeClasses.state.emptyDark}>
           <div className={themeClasses.iconCircle.info + ' mb-4'}>
@@ -186,8 +209,8 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
                       {member.name}
                     </p>
                     
-                    {/* Кнопка "Войти" (показывается при наведении) */}
-                    {hoveredMemberId === member.id && onLoginAs && (
+                    {/* Кнопка "Войти" (показывается при наведении, только для детей, и не для текущего пользователя) */}
+                    {hoveredMemberId === member.id && onLoginAs && member.role === 'child' && member.id !== currentUser?.id && (
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -220,11 +243,19 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
             ))}
             
             {/* Кнопка добавить */}
-            {onAddMember && (
+            {onAddMember && isCreator && (
               <div className="flex-shrink-0">
                 <AddButton
                   label={t('dashboard.family.add', { defaultValue: 'Add member' })}
-                  onClick={onAddMember}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (process.env.NODE_ENV === 'development') {
+                      console.log('[FamilyMembers] AddButton clicked, onAddMember:', typeof onAddMember);
+                    }
+                    if (onAddMember) {
+                      onAddMember();
+                    }
+                  }}
                   variant="vertical"
                   size="md"
                   borderStyle="solid"
@@ -255,6 +286,7 @@ export const FamilyMembers: React.FC<FamilyMembersProps> = ({
             onClose={editAvatarModal.close}
             onSuccess={handleAvatarSaved}
             initialData={{
+              id: selectedMember.id,
               name: selectedMember.name,
               avatar: selectedMember.avatar,
             }}

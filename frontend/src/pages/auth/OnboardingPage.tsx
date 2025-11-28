@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
 import { AuthPageLayout } from '../../design-system/composites/AuthPageLayout';
 import { Input } from '../../design-system/primitives/Input';
 import { Button } from '../../design-system/primitives/Button';
@@ -10,6 +11,7 @@ import { Logo } from '../../design-system/primitives/Logo';
 import { useLanguageStore } from '../../store';
 import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
 import { themeClasses } from '../../design-system/utils/themeClasses';
+import { authFlowApi, AuthMethod } from '../../services/api/auth-flow';
 
 interface LocationState {
   contact: string;
@@ -40,6 +42,38 @@ export const OnboardingPage: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [skipPassword, setSkipPassword] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
+
+  const { data: publicAuthFlow } = useQuery({
+    queryKey: ['auth-flow-public'],
+    queryFn: async () => {
+      try {
+        const response = await authFlowApi.getPublicAuthFlow();
+        return (response.data as any)?.data || response.data;
+      } catch (e) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('[OnboardingPage] Failed to load public auth flow config:', e);
+        }
+        return null;
+      }
+    },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 1,
+  });
+
+  const registrationConfig = (publicAuthFlow?.registration || []) as AuthMethod[] | undefined;
+  const registrationFields = (registrationConfig || []).filter(
+    (m) => m.stepType === 'field' && m.enabled !== false,
+  );
+  const hasCustomRegistrationConfig = !!registrationConfig && registrationConfig.length > 0;
+
+  const showFirstNameField =
+    !hasCustomRegistrationConfig ||
+    registrationFields.some((f) => f.fieldType === 'name' || f.id === 'name');
+
+  const showLastNameField =
+    !hasCustomRegistrationConfig ||
+    registrationFields.some((f) => f.fieldType === 'surname' || f.id === 'surname');
 
   // Refs для автофокуса и навигации
   const firstNameRef = useRef<HTMLInputElement>(null);
@@ -79,7 +113,9 @@ export const OnboardingPage: React.FC = () => {
 
   const isStepValid = () => {
     if (currentStep === 1) {
-      return firstName.trim().length > 0 && lastName.trim().length > 0;
+      const firstOk = !showFirstNameField || firstName.trim().length > 0;
+      const lastOk = !showLastNameField || lastName.trim().length > 0;
+      return firstOk && lastOk;
     }
     if (currentStep === 2) {
       if (skipPassword) return true;
@@ -182,7 +218,7 @@ export const OnboardingPage: React.FC = () => {
         {/* Progress Bar */}
         <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
 
-        {/* Step 1: Имя и фамилия */}
+        {/* Step 1: Имя и фамилия (динамически в зависимости от конфигурации auth flow) */}
         {currentStep === 1 && (
           <>
             <div className="text-center">
@@ -195,32 +231,40 @@ export const OnboardingPage: React.FC = () => {
             </div>
 
             <div className="space-y-4">
-              <Input
-                ref={firstNameRef}
-                label={t('onboarding.step1.firstName', 'Имя')}
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                required
-                autoFocus
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && firstName.trim()) {
-                    lastNameRef.current?.focus();
-                  }
-                }}
-              />
+              {showFirstNameField && (
+                <Input
+                  ref={firstNameRef}
+                  label={t('onboarding.step1.firstName', 'Имя')}
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  required
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && firstName.trim()) {
+                      if (showLastNameField) {
+                        lastNameRef.current?.focus();
+                      } else if (isStepValid()) {
+                        handleNext();
+                      }
+                    }
+                  }}
+                />
+              )}
 
-              <Input
-                ref={lastNameRef}
-                label={t('onboarding.step1.lastName', 'Фамилия')}
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                required
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && isStepValid()) {
-                    handleNext();
-                  }
-                }}
-              />
+              {showLastNameField && (
+                <Input
+                  ref={lastNameRef}
+                  label={t('onboarding.step1.lastName', 'Фамилия')}
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  required
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && isStepValid()) {
+                      handleNext();
+                    }
+                  }}
+                />
+              )}
             </div>
           </>
         )}

@@ -1,0 +1,494 @@
+{
+  "sidebar": {
+    "title": "Admin Panel",
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "companies": "Companies",
+    "settings": "Settings",
+    "authFlow": "Authorization Algorithm",
+    "backup": "Backups and Synchronization",
+    "menuSettings": "Menu Settings",
+    "paymentMethods": "Payment Methods",
+    "backToProfile": "Back to Profile"
+  },
+  "dashboard": {
+    "title": "Admin Panel"
+  },
+  "widgets": {
+    "overview": {
+      "title": "Overview",
+      "description": "Key system metrics"
+    },
+    "activities": {
+      "title": "Activities",
+      "description": "Recent user activities",
+      "viewAll": "View All",
+      "actions": {
+        "createdInvoice": "created invoice",
+        "updatedInvoice": "updated invoice",
+        "deletedInvoice": "deleted invoice",
+        "createdUser": "created user",
+        "updatedUser": "updated user",
+        "deletedUser": "deleted user",
+        "createdCompany": "created company",
+        "updatedCompany": "updated company",
+        "deletedCompany": "deleted company"
+      },
+      "relativeTime": {
+        "justNow": "Just Now",
+        "minutesAgo": "{{count}} min ago",
+        "hoursAgo": "{{count}} h ago",
+        "daysAgo": "{{count}} days ago",
+        "weeksAgo": "{{count}} weeks ago",
+        "monthsAgo": "{{count}} months ago",
+        "yearsAgo": "{{count}} years ago"
+      }
+    },
+    "churn": {
+      "title": "Churn Rate",
+      "description": "User churn percentage"
+    },
+    "growth": {
+      "title": "User Growth",
+      "description": "Registration growth"
+    },
+    "companies": {
+      "title": "Companies",
+      "description": "Company list"
+    }
+  },
+  "metrics": {
+    "totalRevenue": "Total Revenue",
+    "activeUsers": "Active Users",
+    "customerLifetimeValue": "Customer Lifetime Value",
+    "customerAcquisitionCost": "Customer Acquisition Cost"
+  },
+  "users": {
+    "title": "User Management",
+    "description": "Manage system users",
+    "create": "Create User",
+    "search": "Search by name, email or phone...",
+      "deleteConfirm": "Are you sure you want to delete this user?",
+      "deleteConfirmTitle": "Confirm deletion",
+    "edit": "Edit",
+    "delete": "Delete",
+    "createUser": "Create User",
+    "editUser": "Edit User",
+    "empty": "No users found",
+    "roles": {
+      "super_admin": "Super Admin",
+      "super_admin_staff": "Super Admin Staff",
+      "company_admin": "Company Admin",
+      "company_admin_staff": "Company Admin Staff",
+      "user": "User"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "blocked": "Blocked"
+    },
+    "filters": {
+      "allRoles": "All Roles",
+      "allStatuses": "All Statuses",
+      "allCompanies": "All Companies"
+    },
+    "table": {
+      "user": "User",
+      "role": "Role",
+      "status": "Status",
+      "company": "Company",
+      "createdAt": "Registration Date",
+      "actions": "Actions"
+    },
+    "form": {
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "phone": "Phone",
+      "role": "Role",
+      "status": "Status",
+      "company": "Company",
+      "noCompany": "No Company"
+    }
+  },
+  "companies": {
+    "title": "Company Management",
+    "description": "Manage companies using Loginus for authorization",
+    "search": "Search by name or domain...",
+    "loading": "Loading companies...",
+    "view": "View",
+    "edit": "Edit",
+    "delete": "Delete",
+    "add": "Add",
+    "createCompany": "Create Company",
+    "editCompany": "Edit Company",
+      "deleteConfirm": "Are you sure you want to delete this company?",
+      "deleteConfirmTitle": "Confirm deletion",
+    "empty": {
+      "title": "No companies found",
+      "description": "Try changing search parameters or filters"
+    },
+    "error": {
+      "title": "Error loading companies",
+      "description": "Failed to load company list"
+    },
+    "plans": {
+      "basic": "Basic",
+      "premium": "Premium",
+      "enterprise": "Enterprise"
+    },
+    "filters": {
+      "allPlans": "All Plans"
+    },
+    "table": {
+      "name": "Name",
+      "plan": "Plan",
+      "services": "Services",
+      "users": "Users",
+      "lastActivity": "Last Activity",
+      "actions": "Actions"
+    },
+    "form": {
+      "name": "Company Name",
+      "domain": "Domain",
+      "plan": "Plan"
+    },
+    "detail": {
+      "title": "Company: {{name}}",
+      "back": "Back to List",
+      "info": "Company Information",
+      "users": "Company Users",
+      "loading": "Loading company information...",
+      "plan": "Plan",
+      "servicesCount": "Services Count",
+      "usersCount": "Users Count",
+      "createdAt": "Created At",
+      "lastActivity": "Last Activity",
+      "services": "Company Services",
+      "usersLoading": "Loading users...",
+      "usersEmpty": {
+        "title": "No users found",
+        "description": "Try changing search parameters or filters"
+      },
+      "usersError": {
+        "title": "Error loading users",
+        "description": "Failed to load user list"
+      },
+      "error": {
+        "title": "Error loading company",
+        "description": "Failed to load company information"
+      }
+    }
+  },
+  "authFlow": {
+    "title": "Authorization Flow",
+    "instruction": {
+      "title": "Authorization Flow Configuration",
+      "description": "Drag methods to change order. Use toggles to enable/disable methods and set primary login methods."
+    },
+    "primaryMethod": "Primary Method",
+    "alternativeMethods": "Alternative Methods",
+    "disabledMethods": "Disabled Methods",
+    "order": "Order",
+    "primary": "Primary",
+    "primaryOnStartPage": "Primary on start page",
+    "methods": {
+      "phone-email": "Phone or Email",
+      "github": "Github",
+      "telegram": "Telegram",
+      "gosuslugi": "Government Services",
+      "tinkoff": "Tinkoff ID",
+      "yandex": "Yandex ID",
+      "saber": "Saber ID",
+      "vk": "VK ID",
+      "google": "Google",
+      "apple": "Apple ID",
+      "microsoft": "Microsoft",
+      "qr": "QR Code",
+      "password": "Password",
+      "biometric": "Biometric",
+      "sms": "SMS Code"
+    },
+    "registrationSteps": {
+      "surname": "Surname",
+      "name": "Name",
+      "passport": "Passport",
+      "inn": "Tax ID",
+      "snils": "SNILS",
+      "birthdate": "Birth Date",
+      "gender": "Gender"
+    },
+    "add": "Add"
+  },
+  "menuSettings": {
+    "title": "Menu Settings",
+    "description": "Configure the order and visibility of menu items for the dashboard page. Drag items to change order, use toggles to enable/disable.",
+    "addItem": "Add Item",
+    "editItem": "Edit Item",
+    "noItems": "No menu items",
+    "confirmDelete": "Are you sure you want to delete this menu item?",
+    "type": {
+      "default": "System Item",
+      "external": "External Link",
+      "iframe": "Iframe",
+      "embedded": "Embedded Application"
+    },
+    "form": {
+      "label": "Label",
+      "labelPlaceholder": "Введите название на русском",
+      "labelPlaceholderEn": "Enter name in English",
+      "type": "Item Type",
+      "typeReadonly": "System item type cannot be changed",
+      "externalUrl": "URL",
+      "openInNewTab": "Open in New Tab",
+      "iframeUrl": "Iframe URL",
+      "iframeCode": "HTML Code",
+      "embeddedAppUrl": "Application URL",
+      "path": "Path",
+      "icon": "Icon"
+    },
+    "errors": {
+      "requiredFields": "Please fill in all required fields",
+      "iframeRequired": "Please fill in iframe URL or HTML code",
+      "saveError": "Error saving. Please try again."
+    },
+    "confirmDeleteTitle": "Confirm Deletion",
+    "deleteItemName": "Item",
+    "openSettings": "Open Settings"
+  },
+  "backup": {
+    "title": "Backup and Synchronization Settings",
+    "create": "Create Backup",
+    "tabs": {
+      "sync": "Synchronization",
+      "backup": "Backups",
+      "history": "History"
+    },
+    "sync": {
+      "basicSettings": "Basic Settings",
+      "enable": "Enable Synchronization",
+      "enableDesc": "Automatic data synchronization with central server",
+      "enrichment": "Data Enrichment",
+      "enableEnrichment": "Enable Data Enrichment",
+      "enrichmentDesc": "Enrichment of user data from external sources",
+      "enrichmentPrivacy": "Enriched information will only be available to system administrators. Users will only see the data they entered themselves.",
+      "dataSources": "Data Sources",
+      "centralServer": "Connection to Central Server",
+      "serverUrl": "Central Server URL",
+      "apiKey": "API Key",
+      "testConnection": "Test Connection",
+      "testing": "Testing...",
+      "connected": "Connected to central server",
+      "notConnected": "Not connected",
+      "statusConnected": "Connected",
+      "statusNotConnected": "Not connected",
+      "type": "Synchronization Type",
+      "typeOneWay": "One-way (download only)",
+      "typeTwoWay": "Two-way (upload and download)",
+      "schedule": "Synchronization Schedule",
+      "scheduleHourly": "Hourly",
+      "scheduleDaily": "Daily",
+      "scheduleWeekly": "Weekly",
+      "scheduleManual": "Manual",
+      "time": "Synchronization Time",
+      "manualSync": "Manual Synchronization",
+      "manualSyncDesc": "Run synchronization manually right now",
+      "syncing": "Synchronizing...",
+      "runNow": "Run Now"
+    },
+    "backup": {
+      "autoBackup": "Automatic Backups",
+      "enableAuto": "Enable Automatic Backups",
+      "enableAutoDesc": "Automatic backup creation on schedule",
+      "schedule": "Creation Schedule",
+      "scheduleDaily": "Daily",
+      "scheduleWeekly": "Weekly",
+      "scheduleMonthly": "Monthly",
+      "time": "Creation Time",
+      "include": "What to Include in Backup",
+      "includeUsers": "User Data",
+      "includeSettings": "System Settings",
+      "includeLogs": "Logs",
+      "storage": "Storage Location",
+      "storageType": "Storage Type",
+      "storageLocal": "Local Storage (Loginus Backend)",
+      "storageYandex": "Yandex Disk",
+      "storageS3": "S3 Compatible Storage",
+      "storageCustom": "Other Cloud Storage",
+      "yandexDisk": "Yandex Disk",
+      "connected": "Connected",
+      "notConnected": "Not Connected",
+      "configure": "Configure",
+      "connect": "Connect",
+      "s3Storage": "S3 Storage",
+      "customStorage": "Custom Storage",
+      "configureStorage": "Configure connection parameters"
+    },
+    "create": {
+      "title": "Create Backup",
+      "creating": "Creating...",
+      "create": "Create",
+      "description": "Select what data to include in the backup",
+      "includeUsers": "User Data",
+      "includeUsersDesc": "All system user data",
+      "includeSettings": "System Settings",
+      "includeSettingsDesc": "System configuration and settings",
+      "includeLogs": "Logs",
+      "includeLogsDesc": "Action history and system logs"
+    },
+    "restore": {
+      "title": "Restore from Backup",
+      "restoring": "Restoring...",
+      "restore": "Restore",
+      "warning": "Warning!",
+      "warningDesc": "Restoring from backup will overwrite current data. Make sure you have an up-to-date backup before restoring.",
+      "backupInfo": "Backup Information",
+      "date": "Date:",
+      "type": "Type:",
+      "auto": "Automatic",
+      "manual": "Manual",
+      "selectData": "Select What to Restore",
+      "restoreUsers": "User Data",
+      "restoreUsersDesc": "Restore all user data",
+      "restoreSettings": "System Settings",
+      "restoreSettingsDesc": "Restore system configuration",
+      "restoreLogs": "Logs",
+      "restoreLogsDesc": "Restore action history and logs"
+    },
+    "history": {
+      "filterType": "Type",
+      "allTypes": "All Types",
+      "auto": "Automatic",
+      "manual": "Manual",
+      "filterStatus": "Status",
+      "allStatuses": "All Statuses",
+      "success": "Success",
+      "inProgress": "In Progress",
+      "error": "Error",
+      "filterDate": "Creation Date",
+      "selectDate": "Select Date",
+      "dateFrom": "From",
+      "dateTo": "To",
+      "date": "Creation Date",
+      "type": "Type",
+      "size": "Size",
+      "storage": "Storage Location",
+      "status": "Status",
+      "actions": "Actions",
+      "empty": "No backups found",
+      "download": "Download",
+      "restore": "Restore",
+      "delete": "Delete",
+      "downloadStarted": "Download started",
+      "downloadError": "Error downloading",
+      "downloadTitle": "Download",
+      "deleteConfirm": "Are you sure you want to delete this backup?",
+      "deleteConfirmTitle": "Confirm deletion",
+      "storageLocal": "Local",
+      "storageYandex": "Yandex Disk",
+      "storageS3": "S3"
+    },
+    "stats": {
+      "lastSync": "Last Synchronization",
+      "success": "Success",
+      "error": "Error",
+      "records": "records",
+      "lastBackup": "Last Backup",
+      "totalSize": "Total Size",
+      "backups": "backups",
+      "nextBackup": "Next Backup",
+      "auto": "Automatic",
+      "manual": "Manual"
+    },
+    "storage": {
+      "testSuccess": "Connection successful",
+      "yandexTitle": "Yandex Disk Configuration",
+      "s3Title": "S3 Storage Configuration",
+      "customTitle": "Storage Configuration",
+      "testing": "Testing...",
+      "test": "Test",
+      "testSuccessTitle": "Connection successful",
+      "testErrorTitle": "Connection error",
+      "testError": "Connection error",
+      "yandexToken": "OAuth Token / API Key",
+      "yandexTokenPlaceholder": "Enter Yandex Disk token",
+      "yandexTokenHint": "Get token in Yandex Disk API settings",
+      "yandexPath": "Disk Path",
+      "customType": "Storage Type",
+      "selectType": "Select Type",
+      "endpoint": "URL / Endpoint",
+      "accessKey": "Access Key",
+      "accessKeyPlaceholder": "Enter Access Key",
+      "secretKey": "Secret Key",
+      "secretKeyPlaceholder": "Enter Secret Key"
+    }
+  },
+  "authFlow": {
+    "title": "Authorization Algorithm Setup",
+    "add": "Add",
+    "login": "Login",
+    "registration": "Registration",
+    "factors": "Authorization Factors",
+    "factors.firstStep": "First step (required)",
+    "factors.required": "Required step",
+    "noMethods": "No methods",
+    "addMethod": {
+      "title": "Add Authentication Method",
+      "selectMethod": "Select Method",
+      "enabled": "Enabled",
+      "isPrimary": "Primary on start page",
+      "noAvailable": "All available methods are already added"
+    },
+    "primaryMethod": "Primary Method",
+    "oauthMethods": "OAuth Methods",
+    "alternativeMethods": "Alternative Methods",
+    "order": "Order",
+    "primary": "Primary",
+    "primaryOnStartPage": "Primary on start page",
+    "instruction": {
+      "title": "Authorization Algorithm Setup",
+      "description": "Drag methods to change order. Use toggles to enable/disable methods and set primary login methods."
+    },
+    "methods": {
+      "phone-email": "Phone or email",
+      "github": "Github",
+      "telegram": "Telegram",
+      "gosuslugi": "Gosuslugi",
+      "tinkoff": "Tinkoff ID",
+      "qr": "QR code",
+      "password": "Password",
+      "yandex": "Yandex ID",
+      "saber": "Saber ID"
+    }
+  },
+  "paymentMethods": {
+    "title": "Payment Methods",
+    "description": "Manage payment methods. Drag to change order, use toggles to enable/disable.",
+    "addMethod": "Add Payment Method",
+    "editMethod": "Edit Payment Method",
+    "noMethods": "No payment methods",
+    "confirmDeleteTitle": "Confirm Deletion",
+    "confirmDelete": "Are you sure you want to delete this payment method?",
+    "deleteMethodName": "Payment Method",
+    "type": {
+      "card": "Card",
+      "bankAccount": "Bank Account"
+    },
+    "card": "Card",
+    "bankAccount": "Bank Account",
+    "form": {
+      "type": "Payment Method Type",
+      "bankName": "Bank Name",
+      "lastFour": "Last 4 Digits",
+      "expiryDate": "Expiry Date (MM/YY)",
+      "accountNumber": "Account Number"
+    },
+    "errors": {
+      "bankNameRequired": "Please specify bank name",
+      "lastFourRequired": "Please specify last 4 digits of the card",
+      "lastFourInvalid": "Last 4 digits must consist of 4 digits",
+      "accountNumberRequired": "Please specify account number"
+    }
+  }
+}
+

@@ -1,0 +1,27 @@
+# Frontend Dockerfile (dev mode)
+FROM node:18-alpine
+
+# Установка pnpm
+RUN npm install -g pnpm@9
+
+WORKDIR /app
+
+# Копирование всех файлов конфигурации и исходного кода
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
+COPY frontend/ ./frontend/
+COPY backend/ ./backend/
+COPY backend-mock/ ./backend-mock/
+COPY docker-compose.yml ./
+COPY nginx.conf ./
+COPY .dockerignore ./
+
+# Установка зависимостей (после копирования исходного кода)
+RUN pnpm install --frozen-lockfile
+
+WORKDIR /app/frontend
+
+EXPOSE 3000
+
+# Запуск в dev режиме
+CMD ["pnpm", "dev", "--host", "0.0.0.0"]
+

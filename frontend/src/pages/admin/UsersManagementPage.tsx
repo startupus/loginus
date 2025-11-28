@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AdminPageTemplate } from '../../design-system/layouts/AdminPageTemplate';
@@ -9,12 +9,14 @@ import { Badge } from '../../design-system/primitives/Badge';
 import { Avatar } from '../../design-system/primitives/Avatar';
 import { Modal } from '../../design-system/composites/Modal';
 import { adminApi } from '../../services/api/admin';
+import { organizationsApi } from '../../services/api/organizations';
 import { useAdminPermissions } from '../../hooks/useAdminPermissions';
 import { useDebounce } from '../../hooks/useDebounce';
 import { themeClasses } from '../../design-system/utils/themeClasses';
 import { formatDate } from '../../utils/intl/formatters';
 import { useCurrentLanguage } from '../../utils/routing';
 import { getInitials } from '../../utils/stringUtils';
+import { preloadModule } from '../../services/i18n/config';
 
 interface User {
   id: string;
@@ -37,12 +39,44 @@ type EnrichedUser = User & {
 };
 
 const UsersManagementPage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { isSuperAdmin } = useAdminPermissions();
   const [deleteConfirmModal, setDeleteConfirmModal] = useState<{ userId: string | null; isOpen: boolean }>({ userId: null, isOpen: false });
   const currentLang = useCurrentLanguage();
   const locale = currentLang === 'en' ? 'en' : 'ru';
   const queryClient = useQueryClient();
+
+  // Предзагрузка модуля admin для переводов
+  useEffect(() => {
+    const loadAdminModule = async () => {
+      try {
+        await preloadModule('admin');
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('[UsersManagementPage] Failed to preload admin module:', error);
+        }
+      }
+    };
+
+    loadAdminModule();
+
+    // Перезагружаем модуль при смене языка
+    const handleLanguageChanged = async () => {
+      try {
+        await preloadModule('admin');
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('[UsersManagementPage] Failed to reload admin module on language change:', error);
+        }
+      }
+    };
+
+    i18n.on('languageChanged', handleLanguageChanged);
+
+    return () => {
+      i18n.off('languageChanged', handleLanguageChanged);
+    };
+  }, [i18n]);
 
   // Состояния фильтров
   const [searchQuery, setSearchQuery] = useState('');
@@ -120,9 +154,10 @@ const UsersManagementPage: React.FC = () => {
     },
   });
 
+  // Загружаем организации (компании) для выбора при создании пользователя
   const { data: companiesResponse } = useQuery({
-    queryKey: ['companies'],
-    queryFn: () => adminApi.getCompanies(),
+    queryKey: ['organizations'],
+    queryFn: () => organizationsApi.getOrganizations(),
     enabled: isSuperAdmin,
   });
 
@@ -147,7 +182,16 @@ const UsersManagementPage: React.FC = () => {
   const users = usersResult.users as User[];
   const meta = usersResult.meta;
 
-  const companies = companiesResponse?.data?.data?.companies || [];
+  // Преобразуем организации в формат компаний для совместимости
+  const companies = useMemo(() => {
+    if (!companiesResponse?.data?.data) return [];
+    return companiesResponse.data.data.map((org: any) => ({
+      id: org.id,
+      name: org.name,
+      domain: org.settings?.domain || '',
+      subscriptionPlan: org.settings?.subscriptionPlan || 'basic',
+    }));
+  }, [companiesResponse]);
 
   const companiesMap = useMemo(() => {
     const map = new Map<string, string>();
@@ -228,9 +272,15 @@ const UsersManagementPage: React.FC = () => {
 
   // Обработчики
   const handleCreateUser = () => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[UsersManagementPage] handleCreateUser called');
+    }
     setIsCreateMode(true);
     setSelectedUser(null);
     setIsEditModalOpen(true);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[UsersManagementPage] isEditModalOpen set to true');
+    }
   };
 
   const handleEditUser = (user: User) => {
@@ -649,19 +699,17 @@ const UsersManagementPage: React.FC = () => {
         )}
 
         {/* Модальное окно редактирования/создания */}
-        {isEditModalOpen && (
-          <UserEditModal
-            isOpen={isEditModalOpen}
-            onClose={() => {
-              setIsEditModalOpen(false);
-              setSelectedUser(null);
-            }}
-            user={selectedUser}
-            isCreateMode={isCreateMode}
-            companies={companies}
-            isSuperAdmin={isSuperAdmin}
-          />
-        )}
+        <UserEditModal
+          isOpen={isEditModalOpen}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setSelectedUser(null);
+          }}
+          user={selectedUser}
+          isCreateMode={isCreateMode}
+          companies={companies}
+          isSuperAdmin={isSuperAdmin}
+        />
       </div>
       
       {/* Мобильная кнопка создания пользователя */}
@@ -730,8 +778,33 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
     phone: user?.phone || '',
     role: user?.role || 'user',
     companyId: user?.companyId || '',
-    status: user?.status || 'active',
+    // status убран - будет вычисляться автоматически на бэкенде
   });
+
+  // Сбрасываем форму при открытии модального окна или изменении режима
+  React.useEffect(() => {
+    if (isOpen) {
+      if (isCreateMode) {
+        setFormData({
+          firstName: '',
+          lastName: '',
+          email: '',
+          phone: '',
+          role: 'user',
+          companyId: '',
+        });
+      } else if (user) {
+        setFormData({
+          firstName: user.firstName || '',
+          lastName: user.lastName || '',
+          email: user.email || '',
+          phone: user.phone || '',
+          role: user.role || 'user',
+          companyId: user.companyId || '',
+        });
+      }
+    }
+  }, [isOpen, isCreateMode, user]);
 
   const createMutation = useMutation({
     mutationFn: (data: any) => adminApi.createUser(data),
@@ -751,6 +824,7 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Статус не передается - будет вычисляться автоматически на бэкенде
     if (isCreateMode) {
       await createMutation.mutateAsync(formData);
     } else {
@@ -799,44 +873,22 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
           required
         />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className={`block text-sm font-medium ${themeClasses.text.primary} mb-2`}>
-              {t('admin.users.form.role')}
-            </label>
-            <select
-              value={formData.role}
-              onChange={(e) => setFormData({ ...formData, role: e.target.value as any })}
-              className={`${themeClasses.input.default} w-full`}
-              required
-            >
-              <option value="user">{t('admin.users.roles.user')}</option>
-              <option value="company_admin_staff">{t('admin.users.roles.company_admin_staff')}</option>
-              <option value="company_admin">{t('admin.users.roles.company_admin')}</option>
-              {isSuperAdmin && (
-                <>
-                  <option value="super_admin_staff">{t('admin.users.roles.super_admin_staff')}</option>
-                  <option value="super_admin">{t('admin.users.roles.super_admin')}</option>
-                </>
-              )}
-            </select>
-          </div>
-
-          <div>
-            <label className={`block text-sm font-medium ${themeClasses.text.primary} mb-2`}>
-              {t('admin.users.form.status', 'Статус')}
-            </label>
-            <select
-              value={formData.status}
-              onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-              className={`${themeClasses.input.default} w-full`}
-              required
-            >
-              <option value="active">{t('admin.users.status.active')}</option>
-              <option value="inactive">{t('admin.users.status.inactive')}</option>
-              <option value="blocked">{t('admin.users.status.blocked')}</option>
-            </select>
-          </div>
+        <div>
+          <label className={`block text-sm font-medium ${themeClasses.text.primary} mb-2`}>
+            {t('admin.users.form.role')}
+          </label>
+          <select
+            value={formData.role}
+            onChange={(e) => setFormData({ ...formData, role: e.target.value as any })}
+            className={`${themeClasses.input.default} w-full`}
+            required
+          >
+            <option value="user">{t('admin.users.roles.user')}</option>
+            <option value="company_admin">{t('admin.users.roles.company_admin')}</option>
+            {isSuperAdmin && (
+              <option value="super_admin">{t('admin.users.roles.super_admin')}</option>
+            )}
+          </select>
         </div>
 
         {isSuperAdmin && (

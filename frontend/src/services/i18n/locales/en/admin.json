@@ -67,6 +67,7 @@
     "title": "User Management",
     "description": "Manage system users",
     "create": "Create User",
+    "add": "Add",
     "search": "Search by name, email or phone...",
       "deleteConfirm": "Are you sure you want to delete this user?",
       "deleteConfirmTitle": "Confirm deletion",
@@ -222,7 +223,7 @@
   },
   "menuSettings": {
     "title": "Menu Settings",
-    "description": "Configure the order and visibility of menu items for the dashboard page. Drag items to change order, use toggles to enable/disable.",
+    "description": "Manage menu plugins. Each menu item is a plugin that can be enabled or disabled. Drag items to change order, use toggles to enable/disable plugins.",
     "addItem": "Add Item",
     "editItem": "Edit Item",
     "noItems": "No menu items",

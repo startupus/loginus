@@ -1,0 +1,95 @@
+{
+  "common": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "daysAgo": "{{count}} days ago",
+    "relativeTime": {
+      "justNow": "Just Now",
+      "minutesAgo": "{{count}} min ago",
+      "hoursAgo": "{{count}} h ago",
+      "weeksAgo": "{{count}} weeks ago",
+      "monthsAgo": "{{count}} months ago",
+      "yearsAgo": "{{count}} years ago"
+    },
+    "noData": "No data",
+    "close": "Close",
+    "search": "Search...",
+    "enable": "Enable",
+    "disable": "Disable",
+    "connected": "Connected",
+    "scrollLeft": "Scroll left",
+    "scrollRight": "Scroll right",
+    "back": "Back",
+    "error": "An error occurred while loading data",
+    "login": "Login",
+    "save": "Save",
+    "cancel": "Cancel",
+    "reset": "Reset",
+    "remove": "Remove",
+    "retry": "Retry",
+    "create": "Create",
+    "edit": "Edit",
+    "delete": "Delete",
+    "loading": "Loading...",
+    "selectIcon": "Select icon",
+    "searchIcon": "Search icon...",
+    "noIconsFound": "No icons found",
+    "theme": {
+      "toggle": "Current theme: {{mode}}. Click to switch",
+      "mode": {
+        "light": "light",
+        "dark": "dark",
+        "system": "system"
+      }
+    }
+  },
+  "header": {
+    "notifications": "Notifications"
+  },
+  "avatar": {
+    "status": {
+      "label": "Status: {{status}}",
+      "online": "online",
+      "offline": "offline",
+      "away": "away"
+    }
+  },
+  "footer": {
+    "copyright": "Loginus",
+    "support": "Help",
+    "oauth": "Loginus ID for Website",
+    "terms": "Terms of Service",
+    "privacy": "Privacy"
+  },
+  "sidebar": {
+    "profile": "Profile",
+    "data": "Data",
+    "documents": "Documents",
+    "addresses": "Addresses",
+    "security": "Security",
+    "family": "Family",
+    "work": "Work",
+    "payments": "Payments",
+    "support": "Support",
+    "help": "Help",
+    "loginusIdSite": "Loginus ID for Website",
+    "langSwitcher": "Language switcher",
+    "brandPreset": "Toggle brand preset",
+    "more": "More"
+  },
+  "iframe": {
+    "title": "Embedded Content",
+    "error": {
+      "title": "Error",
+      "noContent": "URL or code not specified for display"
+    }
+  },
+  "embedded": {
+    "title": "Embedded Application",
+    "error": {
+      "title": "Error",
+      "noUrl": "Application URL not specified"
+    }
+  }
+}
+

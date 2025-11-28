@@ -1,9 +1,17 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { AuthFlowService } from '../admin/auth-flow.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly authFlowService: AuthFlowService,
+  ) {
+    console.log('[AuthController] Constructor called');
+    console.log('[AuthController] authService:', this.authService ? 'exists' : 'undefined');
+    console.log('[AuthController] authFlowService:', this.authFlowService ? 'exists' : 'undefined');
+  }
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
@@ -63,6 +71,42 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   webauthnVerify(@Body() verifyDto: { credential: any; challenge: string }) {
     return this.authService.webauthnVerify(verifyDto.credential, verifyDto.challenge);
+  }
+
+  @Get('flow')
+  getPublicAuthFlow() {
+    try {
+      console.log('[AuthController] getPublicAuthFlow called');
+      console.log('[AuthController] authFlowService:', this.authFlowService ? 'exists' : 'undefined');
+      if (!this.authFlowService) {
+        console.error('❌ [AuthController] authFlowService is undefined!');
+        return {
+          success: true,
+          data: {
+            login: [],
+            registration: [],
+            factors: [],
+            updatedAt: null,
+          },
+        };
+      }
+      const result = this.authFlowService.getAuthFlow();
+      console.log('[AuthController] getAuthFlow result:', JSON.stringify(result).substring(0, 200));
+      return result;
+    } catch (error: any) {
+      console.error('❌ [AuthController] Error in getPublicAuthFlow:', error);
+      console.error('❌ [AuthController] Error stack:', error?.stack);
+      // Возвращаем дефолтную конфигурацию вместо ошибки
+      return {
+        success: true,
+        data: {
+          login: [],
+          registration: [],
+          factors: [],
+          updatedAt: null,
+        },
+      };
+    }
   }
 }
 

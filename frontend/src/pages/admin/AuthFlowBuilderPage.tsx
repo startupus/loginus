@@ -60,7 +60,8 @@ const AuthFlowBuilderPage: React.FC = () => {
     queryKey: ['authFlow'],
     queryFn: async () => {
       const response = await authFlowApi.getAuthFlow();
-      return response.data;
+      // Бэкенд оборачивает ответ в { success, data }, поэтому разворачиваем data
+      return response.data?.data || response.data;
     },
     staleTime: 0, // Данные всегда считаются устаревшими, чтобы получать свежие данные
     gcTime: 5 * 60 * 1000, // Храним в кеше 5 минут для быстрого отображения
@@ -95,6 +96,8 @@ const AuthFlowBuilderPage: React.FC = () => {
     onSuccess: () => {
       // Сбрасываем флаг несохраненных изменений
       setHasUnsavedChanges(false);
+      // Инвалидируем кэш публичного алгоритма авторизации, чтобы формы входа/регистрации обновились
+      queryClient.invalidateQueries({ queryKey: ['auth-flow-public'] });
       // Обновляем данные из API, но только после небольшой задержки, чтобы дать серверу время обработать запрос
       setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: ['authFlow'] });

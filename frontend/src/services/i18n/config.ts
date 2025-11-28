@@ -50,6 +50,26 @@ const markModuleAsLoaded = (locale: Locale, module: ModuleName) => {
   loadedModules.get(locale)!.add(module);
 };
 
+const ensureModuleNamespace = (
+  module: ModuleName,
+  rawData: Record<string, any>,
+): Record<string, any> => {
+  if (!rawData || typeof rawData !== 'object') {
+    return { [module]: {} };
+  }
+
+  const data =
+    rawData && typeof rawData === 'object' && 'data' in rawData && typeof rawData.data === 'object'
+      ? rawData.data
+      : rawData;
+
+  if (Object.prototype.hasOwnProperty.call(data, module)) {
+    return data;
+  }
+
+  return { [module]: data };
+};
+
 /**
  * Глубокое объединение объектов переводов.
  */
@@ -96,9 +116,7 @@ const loadModuleForI18n = async (
 
     if (data && Object.keys(data).length > 0) {
       markModuleAsLoaded(locale, module);
-      // Оборачиваем данные в родительский ключ модуля для правильной структуры
-      // Например, для модуля 'admin' данные будут доступны как admin.sidebar.title
-      return { [module]: data };
+      return ensureModuleNamespace(module, data);
     }
 
     return {};
@@ -125,13 +143,16 @@ const loadAllModulesForLanguage = async (locale: Locale): Promise<Record<string,
       },
     );
 
-    const merged = Object.entries(modules).reduce<Record<string, any>>((acc, [moduleName, moduleData]) => {
-      if (moduleData && typeof moduleData === 'object' && Object.keys(moduleData).length > 0) {
-        markModuleAsLoaded(locale, moduleName as ModuleName);
-        return deepMerge(acc, moduleData);
-      }
-      return acc;
-    }, {});
+    const merged = Object.entries(modules).reduce<Record<string, any>>(
+      (acc, [moduleName, moduleData]) => {
+        if (moduleData && typeof moduleData === 'object' && Object.keys(moduleData).length > 0) {
+          markModuleAsLoaded(locale, moduleName as ModuleName);
+          return deepMerge(acc, ensureModuleNamespace(moduleName as ModuleName, moduleData));
+        }
+        return acc;
+      },
+      {},
+    );
 
     if (process.env.NODE_ENV === 'development') {
       console.log(`[i18n] Loaded & merged ${Object.keys(merged).length} top-level keys for ${locale}`);
@@ -207,13 +228,16 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
       },
     );
 
-    const mergedCritical = Object.entries(criticalModules).reduce<Record<string, any>>((acc, [name, data]) => {
-      if (data && typeof data === 'object' && Object.keys(data).length > 0) {
-        markModuleAsLoaded(initialLanguage, name as ModuleName);
-        return deepMerge(acc, data);
-      }
-      return acc;
-    }, {});
+    const mergedCritical = Object.entries(criticalModules).reduce<Record<string, any>>(
+      (acc, [name, data]) => {
+        if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+          markModuleAsLoaded(initialLanguage, name as ModuleName);
+          return deepMerge(acc, ensureModuleNamespace(name as ModuleName, data));
+        }
+        return acc;
+      },
+      {},
+    );
 
     addBundle(initialLanguage, mergedCritical, 'critical');
 
@@ -232,13 +256,16 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
             useStaticFallback: true,
           },
         ).then((modules) => {
-          const merged = Object.entries(modules).reduce<Record<string, any>>((acc, [name, data]) => {
-            if (data && typeof data === 'object' && Object.keys(data).length > 0) {
-              markModuleAsLoaded(initialLanguage, name as ModuleName);
-              return deepMerge(acc, data);
-            }
-            return acc;
-          }, {});
+          const merged = Object.entries(modules).reduce<Record<string, any>>(
+            (acc, [name, data]) => {
+              if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+                markModuleAsLoaded(initialLanguage, name as ModuleName);
+                return deepMerge(acc, ensureModuleNamespace(name as ModuleName, data));
+              }
+              return acc;
+            },
+            {},
+          );
           addBundle(initialLanguage, merged, 'preload');
         });
       } catch (error) {
@@ -312,13 +339,16 @@ export const changeLanguage = async (locale: string) => {
       },
     );
 
-    const mergedCritical = Object.entries(criticalModules).reduce<Record<string, any>>((acc, [name, data]) => {
-      if (data && typeof data === 'object' && Object.keys(data).length > 0) {
-        markModuleAsLoaded(targetLocale, name as ModuleName);
-        return deepMerge(acc, data);
-      }
-      return acc;
-    }, {});
+    const mergedCritical = Object.entries(criticalModules).reduce<Record<string, any>>(
+      (acc, [name, data]) => {
+        if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+          markModuleAsLoaded(targetLocale, name as ModuleName);
+          return deepMerge(acc, ensureModuleNamespace(name as ModuleName, data));
+        }
+        return acc;
+      },
+      {},
+    );
 
     addBundle(targetLocale, mergedCritical, 'changeLanguage');
 

@@ -1,0 +1,505 @@
+{
+  "sidebar": {
+    "title": "Админ-панель",
+    "dashboard": "Дашборд",
+    "users": "Пользователи",
+    "companies": "Компании",
+    "settings": "Настройки",
+    "authFlow": "Алгоритм авторизации",
+    "backup": "Бекапы и синхронизация",
+    "menuSettings": "Настройки меню",
+    "paymentMethods": "Способы оплаты",
+    "backToProfile": "Вернуться в профиль"
+  },
+  "dashboard": {
+    "title": "Админ-панель"
+  },
+  "widgets": {
+    "overview": {
+      "title": "Обзор",
+      "description": "Основные метрики системы"
+    },
+    "activities": {
+      "title": "Активности",
+      "description": "Последние активности пользователей",
+      "viewAll": "Показать все",
+      "actions": {
+        "createdInvoice": "создал счет",
+        "updatedInvoice": "обновил счет",
+        "deletedInvoice": "удалил счет",
+        "createdUser": "создал пользователя",
+        "updatedUser": "обновил пользователя",
+        "deletedUser": "удалил пользователя",
+        "createdCompany": "создал компанию",
+        "updatedCompany": "обновил компанию",
+        "deletedCompany": "удалил компанию"
+      },
+      "relativeTime": {
+        "justNow": "Только что",
+        "minutesAgo": "{{count}} мин. назад",
+        "hoursAgo": "{{count}} ч. назад",
+        "daysAgo": "{{count}} дн. назад",
+        "weeksAgo": "{{count}} нед. назад",
+        "monthsAgo": "{{count}} мес. назад",
+        "yearsAgo": "{{count}} г. назад"
+      }
+    },
+    "churn": {
+      "title": "Отток пользователей",
+      "description": "Процент оттока пользователей"
+    },
+    "growth": {
+      "title": "Рост пользователей",
+      "description": "Рост регистраций"
+    },
+    "companies": {
+      "title": "Компании",
+      "description": "Список компаний"
+    }
+  },
+  "metrics": {
+    "totalRevenue": "Общий доход",
+    "activeUsers": "Активные пользователи",
+    "customerLifetimeValue": "Средняя ценность клиента",
+    "customerAcquisitionCost": "Стоимость привлечения клиента"
+  },
+  "users": {
+    "title": "Управление пользователями",
+    "description": "Управляйте пользователями системы",
+    "create": "Создать пользователя",
+    "add": "Добавить",
+    "search": "Поиск по имени, email или телефону...",
+      "deleteConfirm": "Вы уверены, что хотите удалить пользователя?",
+      "deleteConfirmTitle": "Подтверждение удаления",
+    "edit": "Редактировать",
+    "delete": "Удалить",
+    "createUser": "Создать пользователя",
+    "editUser": "Редактировать пользователя",
+    "empty": "Пользователи не найдены",
+    "roles": {
+      "super_admin": "Супер-админ",
+      "super_admin_staff": "Персонал супер-админа",
+      "company_admin": "Админ компании",
+      "company_admin_staff": "Персонал админа",
+      "user": "Пользователь"
+    },
+    "status": {
+      "active": "Активен",
+      "inactive": "Неактивен",
+      "blocked": "Заблокирован"
+    },
+    "filters": {
+      "allRoles": "Все роли",
+      "allStatuses": "Все статусы",
+      "allCompanies": "Все компании"
+    },
+    "table": {
+      "user": "Пользователь",
+      "role": "Роль",
+      "status": "Статус",
+      "company": "Компания",
+      "createdAt": "Дата регистрации",
+      "actions": "Действия"
+    },
+    "form": {
+      "firstName": "Имя",
+      "lastName": "Фамилия",
+      "email": "Email",
+      "phone": "Телефон",
+      "role": "Роль",
+      "status": "Статус",
+      "company": "Компания",
+      "noCompany": "Без компании"
+    }
+  },
+  "companies": {
+    "title": "Управление компаниями",
+    "description": "Управляйте компаниями, использующими Loginus для авторизации",
+    "search": "Поиск по названию или домену...",
+    "loading": "Загрузка компаний...",
+    "view": "Просмотр",
+    "edit": "Редактировать",
+    "delete": "Удалить",
+    "add": "Добавить",
+    "createCompany": "Создать компанию",
+    "editCompany": "Редактировать компанию",
+      "deleteConfirm": "Вы уверены, что хотите удалить компанию?",
+      "deleteConfirmTitle": "Подтверждение удаления",
+    "empty": {
+      "title": "Компании не найдены",
+      "description": "Попробуйте изменить параметры поиска или фильтры"
+    },
+    "error": {
+      "title": "Ошибка загрузки компаний",
+      "description": "Не удалось загрузить список компаний"
+    },
+    "plans": {
+      "basic": "Базовый",
+      "premium": "Премиум",
+      "enterprise": "Корпоративный"
+    },
+    "filters": {
+      "allPlans": "Все тарифы"
+    },
+    "table": {
+      "name": "Название",
+      "plan": "Тариф",
+      "services": "Сервисы",
+      "users": "Пользователи",
+      "lastActivity": "Последняя активность",
+      "actions": "Действия"
+    },
+    "form": {
+      "name": "Название компании",
+      "domain": "Домен",
+      "plan": "Тариф"
+    },
+    "detail": {
+      "title": "Компания: {{name}}",
+      "back": "Назад к списку",
+      "info": "Информация о компании",
+      "users": "Пользователи компании",
+      "loading": "Загрузка информации о компании...",
+      "plan": "Тариф",
+      "servicesCount": "Количество сервисов",
+      "usersCount": "Количество пользователей",
+      "createdAt": "Дата создания",
+      "lastActivity": "Последняя активность",
+      "services": "Сервисы компании",
+      "usersLoading": "Загрузка пользователей...",
+      "usersEmpty": {
+        "title": "Пользователи не найдены",
+        "description": "Попробуйте изменить параметры поиска или фильтры"
+      },
+      "usersError": {
+        "title": "Ошибка загрузки пользователей",
+        "description": "Не удалось загрузить список пользователей"
+      },
+      "error": {
+        "title": "Ошибка загрузки компании",
+        "description": "Не удалось загрузить информацию о компании"
+      }
+    }
+  },
+  "authFlow": {
+    "title": "Алгоритм авторизации",
+    "instruction": {
+      "title": "Настройка алгоритма авторизации",
+      "description": "Перетаскивайте методы для изменения порядка. Используйте переключатели для активации/деактивации методов и установки основных способов входа."
+    },
+    "primaryMethod": "Основной метод",
+    "alternativeMethods": "Альтернативные методы",
+    "disabledMethods": "Отключенные методы",
+    "order": "Порядок",
+    "primary": "Основной",
+    "primaryOnStartPage": "Основной на стартовой странице",
+    "methods": {
+      "phone-email": "Телефон или email",
+      "github": "Github",
+      "telegram": "Telegram",
+      "gosuslugi": "Гос услуги",
+      "tinkoff": "Tinkoff ID",
+      "yandex": "Yandex ID",
+      "saber": "Saber ID",
+      "vk": "VK ID",
+      "google": "Google",
+      "apple": "Apple ID",
+      "microsoft": "Microsoft",
+      "qr": "QR код",
+      "password": "Пароль",
+      "biometric": "Биометрия",
+      "sms": "SMS код"
+    },
+    "add": "Добавить"
+  },
+  "menuSettings": {
+    "title": "Настройки меню",
+    "description": "Настройте порядок и видимость пунктов меню для страницы дашборда. Перетаскивайте пункты для изменения порядка, используйте переключатели для включения/выключения.",
+    "addItem": "Добавить пункт",
+    "editItem": "Редактировать пункт",
+    "noItems": "Нет пунктов меню",
+    "confirmDelete": "Вы уверены, что хотите удалить этот пункт меню?",
+    "type": {
+      "default": "Системный пункт",
+      "external": "Внешняя ссылка",
+      "iframe": "Iframe",
+      "embedded": "Встроенное приложение"
+    },
+    "form": {
+      "label": "Название",
+      "labelPlaceholder": "Введите название на русском",
+      "labelPlaceholderEn": "Enter name in English",
+      "type": "Тип пункта",
+      "typeReadonly": "Тип системного пункта нельзя изменить",
+      "externalUrl": "URL",
+      "openInNewTab": "Открывать в новой вкладке",
+      "iframeUrl": "URL iframe",
+      "iframeCode": "HTML код",
+      "embeddedAppUrl": "URL приложения",
+      "path": "Путь",
+      "icon": "Иконка"
+    },
+    "errors": {
+      "requiredFields": "Заполните все обязательные поля",
+      "iframeRequired": "Заполните URL iframe или HTML код",
+      "saveError": "Ошибка при сохранении. Попробуйте еще раз."
+    },
+    "confirmDeleteTitle": "Подтверждение удаления",
+    "deleteItemName": "Пункт",
+    "openSettings": "Открыть настройки"
+  },
+  "backup": {
+    "title": "Настройки бекапов и синхронизации",
+    "create": "Создать бекап",
+    "tabs": {
+      "sync": "Синхронизация",
+      "backup": "Бекапы",
+      "history": "История"
+    },
+    "sync": {
+      "basicSettings": "Основные настройки",
+      "enable": "Включить синхронизацию",
+      "enableDesc": "Автоматическая синхронизация данных с центральным сервером",
+      "enrichment": "Обогащение данных",
+      "enableEnrichment": "Включить обогащение данных",
+      "enrichmentDesc": "Обогащение данных пользователей из внешних источников",
+      "enrichmentPrivacy": "Обогащенная информация будет доступна только администраторам системы. Пользователи будут видеть только данные, которые сами ввели про себя.",
+      "dataSources": "Источники данных",
+      "dataSourceDebtors": "База должников",
+      "dataSourceProblematic": "База проблемных клиентов",
+      "dataSourceOther": "Другие источники",
+      "centralServer": "Подключение к центральному серверу",
+      "serverUrl": "URL центрального сервера",
+      "apiKey": "API ключ",
+      "testConnection": "Проверить подключение",
+      "testing": "Проверка...",
+      "connected": "Подключено к центральному серверу",
+      "notConnected": "Не подключено",
+      "statusConnected": "Подключено",
+      "statusNotConnected": "Не подключено",
+      "type": "Тип синхронизации",
+      "typeOneWay": "Односторонняя (только загрузка)",
+      "typeTwoWay": "Двусторонняя (загрузка и отправка)",
+      "schedule": "Расписание синхронизации",
+      "scheduleHourly": "Ежечасно",
+      "scheduleDaily": "Ежедневно",
+      "scheduleWeekly": "Еженедельно",
+      "scheduleManual": "Вручную",
+      "time": "Время синхронизации",
+      "manualSync": "Ручной запуск синхронизации",
+      "manualSyncDesc": "Запустите синхронизацию вручную прямо сейчас",
+      "syncing": "Синхронизация...",
+      "runNow": "Запустить сейчас"
+    },
+    "backup": {
+      "autoBackup": "Автоматические бекапы",
+      "enableAuto": "Включить автоматические бекапы",
+      "enableAutoDesc": "Автоматическое создание бекапов по расписанию",
+      "schedule": "Расписание создания",
+      "scheduleDaily": "Ежедневно",
+      "scheduleWeekly": "Еженедельно",
+      "scheduleMonthly": "Ежемесячно",
+      "time": "Время создания",
+      "include": "Что включать в бекап",
+      "includeUsers": "Данные пользователей",
+      "includeSettings": "Настройки системы",
+      "includeLogs": "Логи",
+      "storage": "Место хранения",
+      "storageType": "Тип хранилища",
+      "storageLocal": "Локальное хранилище (бэкенд Loginus)",
+      "storageYandex": "Яндекс Диск",
+      "storageS3": "S3 совместимое хранилище",
+      "storageCustom": "Другое облачное хранилище",
+      "yandexDisk": "Яндекс Диск",
+      "connected": "Подключено",
+      "notConnected": "Не подключено",
+      "configure": "Настроить",
+      "connect": "Подключить",
+      "s3Storage": "S3 хранилище",
+      "customStorage": "Кастомное хранилище",
+      "configureStorage": "Настройте параметры подключения"
+    },
+    "create": {
+      "title": "Создать бекап",
+      "creating": "Создание...",
+      "create": "Создать",
+      "description": "Выберите, какие данные включить в бекап",
+      "includeUsers": "Данные пользователей",
+      "includeUsersDesc": "Все данные пользователей системы",
+      "includeSettings": "Настройки системы",
+      "includeSettingsDesc": "Конфигурация и настройки системы",
+      "includeLogs": "Логи",
+      "includeLogsDesc": "История действий и системные логи"
+    },
+    "restore": {
+      "title": "Восстановление из бекапа",
+      "restoring": "Восстановление...",
+      "restore": "Восстановить",
+      "warning": "Внимание!",
+      "warningDesc": "Восстановление из бекапа перезапишет текущие данные. Убедитесь, что у вас есть актуальный бекап перед восстановлением.",
+      "backupInfo": "Информация о бекапе",
+      "date": "Дата:",
+      "type": "Тип:",
+      "auto": "Автоматический",
+      "manual": "Ручной",
+      "selectData": "Выберите, что восстанавливать",
+      "restoreUsers": "Данные пользователей",
+      "restoreUsersDesc": "Восстановить все данные пользователей",
+      "restoreSettings": "Настройки системы",
+      "restoreSettingsDesc": "Восстановить конфигурацию системы",
+      "restoreLogs": "Логи",
+      "restoreLogsDesc": "Восстановить историю действий и логи"
+    },
+    "history": {
+      "filterType": "Тип",
+      "allTypes": "Все типы",
+      "auto": "Автоматический",
+      "manual": "Ручной",
+      "filterStatus": "Статус",
+      "allStatuses": "Все статусы",
+      "success": "Успешно",
+      "inProgress": "В процессе",
+      "error": "Ошибка",
+      "filterDate": "Дата создания",
+      "selectDate": "Выбрать дату",
+      "dateFrom": "С",
+      "dateTo": "По",
+      "date": "Дата создания",
+      "type": "Тип",
+      "size": "Размер",
+      "storage": "Место хранения",
+      "status": "Статус",
+      "actions": "Действия",
+      "empty": "Бекапы не найдены",
+      "download": "Скачать",
+      "restore": "Восстановить",
+      "delete": "Удалить",
+      "downloadStarted": "Скачивание начато",
+      "downloadError": "Ошибка при скачивании",
+      "downloadTitle": "Скачивание",
+      "deleteConfirm": "Вы уверены, что хотите удалить этот бекап?",
+      "deleteConfirmTitle": "Подтверждение удаления",
+      "storageLocal": "Локально",
+      "storageYandex": "Яндекс Диск",
+      "storageS3": "S3"
+    },
+    "stats": {
+      "lastSync": "Последняя синхронизация",
+      "success": "Успешно",
+      "error": "Ошибка",
+      "records": "записей",
+      "lastBackup": "Последний бекап",
+      "totalSize": "Общий размер",
+      "backups": "бекапов",
+      "nextBackup": "Следующий бекап",
+      "auto": "Автоматический",
+      "manual": "Ручной"
+    },
+    "storage": {
+      "testSuccess": "Подключение успешно",
+      "yandexTitle": "Настройка Яндекс Диск",
+      "s3Title": "Настройка S3 хранилища",
+      "customTitle": "Настройка хранилища",
+      "testing": "Проверка...",
+      "test": "Проверить",
+      "testSuccessTitle": "Подключение успешно",
+      "testErrorTitle": "Ошибка подключения",
+      "testError": "Ошибка подключения",
+      "yandexToken": "OAuth токен / API ключ",
+      "yandexTokenPlaceholder": "Введите токен Яндекс Диск",
+      "yandexTokenHint": "Получите токен в настройках Яндекс Диск API",
+      "yandexPath": "Путь на диске",
+      "customType": "Тип хранилища",
+      "selectType": "Выберите тип",
+      "endpoint": "URL / Endpoint",
+      "accessKey": "Access Key",
+      "accessKeyPlaceholder": "Введите Access Key",
+      "secretKey": "Secret Key",
+      "secretKeyPlaceholder": "Введите Secret Key"
+    }
+  },
+  "authFlow": {
+    "title": "Настройка алгоритма авторизации",
+    "add": "Добавить",
+    "login": "Окно входа",
+    "registration": "Регистрация",
+    "factors": "Факторы авторизации",
+    "factors.firstStep": "Первый шаг (обязательный)",
+    "factors.required": "Обязательный шаг",
+    "noMethods": "Нет методов",
+    "addMethod": {
+      "title": "Добавить метод авторизации",
+      "selectMethod": "Выберите метод",
+      "enabled": "Включен",
+      "isPrimary": "Основной на стартовой странице",
+      "noAvailable": "Все доступные методы уже добавлены"
+    },
+    "primaryMethod": "Основной метод",
+    "oauthMethods": "OAuth методы",
+    "alternativeMethods": "Альтернативные методы",
+    "order": "Порядок",
+    "primary": "Основной",
+    "primaryOnStartPage": "Основной на стартовой странице",
+    "registrationStep": "Шаг регистрации",
+    "instruction": {
+      "title": "Настройка алгоритма авторизации",
+      "description": "Перетаскивайте методы для изменения порядка. Используйте переключатели для активации/деактивации методов и установки основных способов входа."
+    },
+    "methods": {
+      "phone-email": "Телефон или email",
+      "github": "Github",
+      "telegram": "Telegram",
+      "gosuslugi": "Гос услуги",
+      "tinkoff": "Tinkoff ID",
+      "qr": "QR код",
+      "password": "Пароль",
+      "yandex": "Yandex ID",
+      "saber": "Saber ID",
+      "vk": "VK ID",
+      "google": "Google",
+      "apple": "Apple ID",
+      "microsoft": "Microsoft",
+      "biometric": "Биометрия",
+      "sms": "SMS код"
+    },
+    "registrationSteps": {
+      "surname": "Фамилия",
+      "name": "Имя",
+      "passport": "Паспорт",
+      "inn": "ИНН",
+      "snils": "СНИЛС",
+      "birthdate": "Дата рождения",
+      "gender": "Пол"
+    }
+  },
+  "paymentMethods": {
+    "title": "Способы оплаты",
+    "description": "Управляйте способами оплаты. Перетаскивайте для изменения порядка, используйте переключатели для включения/выключения.",
+    "addMethod": "Добавить способ оплаты",
+    "editMethod": "Редактировать способ оплаты",
+    "noMethods": "Нет способов оплаты",
+    "confirmDeleteTitle": "Подтверждение удаления",
+    "confirmDelete": "Вы уверены, что хотите удалить этот способ оплаты?",
+    "deleteMethodName": "Способ оплаты",
+    "type": {
+      "card": "Карта",
+      "bankAccount": "Банковский счет"
+    },
+    "card": "Карта",
+    "bankAccount": "Банковский счет",
+    "form": {
+      "type": "Тип способа оплаты",
+      "bankName": "Название банка",
+      "lastFour": "Последние 4 цифры",
+      "expiryDate": "Срок действия (MM/YY)",
+      "accountNumber": "Номер счета"
+    },
+    "errors": {
+      "bankNameRequired": "Укажите название банка",
+      "lastFourRequired": "Укажите последние 4 цифры карты",
+      "lastFourInvalid": "Последние 4 цифры должны состоять из 4 цифр",
+      "accountNumberRequired": "Укажите номер счета"
+    }
+  }
+}
+

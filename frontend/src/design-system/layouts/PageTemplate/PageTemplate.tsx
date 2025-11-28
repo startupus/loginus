@@ -73,8 +73,10 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
   const { data: userMenuData } = useQuery({
     queryKey: ['user-menu'],
     queryFn: () => menuSettingsApi.getUserMenu(),
-    staleTime: 5 * 60 * 1000, // 5 минут
-    gcTime: 30 * 60 * 1000, // 30 минут
+    staleTime: 0, // Всегда считаем данные устаревшими, чтобы получать свежие данные
+    gcTime: 5 * 60 * 1000, // 5 минут
+    refetchOnMount: true, // Всегда загружаем свежие данные при монтировании
+    refetchOnWindowFocus: true, // Обновляем при фокусе окна
   });
 
   // Ключи переводов для пунктов меню, приходящих из API с systemId
@@ -90,7 +92,7 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
     support: 'sidebar.support',
   };
 
-  const resolveMenuItemLabel = (item: MenuItemConfig): string => {
+  const resolveMenuItemLabel = React.useCallback((item: MenuItemConfig): string => {
     const fallbackLabel = item.label || item.id;
     if (!item.systemId) {
       return fallbackLabel;
@@ -100,10 +102,15 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
       sidebarTranslationKeys[item.systemId] || `sidebar.${item.systemId}`;
 
     return t(translationKey, { defaultValue: fallbackLabel });
-  };
+  }, [t]);
 
   // Функция для преобразования MenuItemConfig в SidebarItem с локализацией
-  const convertMenuItemToSidebarItem = (item: MenuItemConfig): SidebarItem => {
+  const convertMenuItemToSidebarItem = React.useCallback((item: MenuItemConfig): SidebarItem | null => {
+    // Пропускаем выключенные элементы
+    if (item.enabled === false) {
+      return null;
+    }
+    
     let path = item.path || '';
     
     // Для кастомных типов формируем путь
@@ -115,10 +122,9 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
         path += `?code=${encodeURIComponent(item.iframeCode)}`;
       }
     } else if (item.type === 'embedded') {
-      path = buildPathWithLang('/embedded', currentLang);
-      if (item.embeddedAppUrl) {
-        path += `?url=${encodeURIComponent(item.embeddedAppUrl)}`;
-      }
+      // Встроенные web_app-плагины: используем slug/id как часть маршрута
+      // Дальше EmbeddedAppPage вызовет /plugins/:slug/launch для получения launchUrl и initData
+      path = buildPathWithLang(`/plugins/${item.id}`, currentLang);
     } else if (item.type === 'external') {
       // Для внешних ссылок используем специальный путь или externalUrl
       path = item.path || item.externalUrl || '#';
@@ -127,29 +133,66 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
       path = buildPathWithLang(item.path, currentLang);
     }
 
+    // Применяем дефолтные иконки для системных пунктов, если иконка отсутствует
+    const defaultIcons: Record<string, string> = {
+      'profile': 'home',
+      'data': 'database',
+      'data-documents': 'document',
+      'data-addresses': 'map-pin',
+      'security': 'shield',
+      'family': 'users',
+      'work': 'briefcase',
+      'payments': 'credit-card',
+      'support': 'help-circle',
+    };
+    
+    const systemKey = item.systemId || item.id;
+    // Всегда применяем дефолтную иконку для системных пунктов, если иконка не указана или пустая
+    const hasValidIcon = item.icon && typeof item.icon === 'string' && item.icon.trim() !== '';
+    const finalIcon = hasValidIcon ? item.icon : (defaultIcons[systemKey] || undefined);
+
+    // Сначала обрабатываем children, чтобы знать, есть ли активные дочерние элементы
+    let hasActiveChild = false;
+    let filteredChildren: SidebarItem[] = [];
+    
+    if (item.children && item.children.length > 0) {
+      filteredChildren = item.children
+        .map(convertMenuItemToSidebarItem)
+        .filter((child): child is SidebarItem => child !== null);
+      
+      hasActiveChild = filteredChildren.some(child => child.active);
+    }
+
+    // Определяем активность родительского элемента
+    // Если есть активный дочерний элемент, родительский не должен быть активным
+    // Иначе проверяем активность родительского элемента
+    const isParentActive = !hasActiveChild && (
+      location.pathname === path || 
+      (item.path && location.pathname.includes(item.path) && !hasActiveChild) ||
+      (item.type === 'iframe' && location.pathname.includes('/iframe')) ||
+      (item.type === 'embedded' && location.pathname.includes('/embedded'))
+    );
+
     const sidebarItem: SidebarItem = {
       label: resolveMenuItemLabel(item),
       path,
-      icon: item.icon,
+      icon: finalIcon,
       type: item.type,
       externalUrl: item.externalUrl,
       openInNewTab: item.openInNewTab,
       iframeUrl: item.iframeUrl,
       iframeCode: item.iframeCode,
       embeddedAppUrl: item.embeddedAppUrl,
-      active: location.pathname === path || 
-              (item.path && location.pathname.includes(item.path)) ||
-              (item.type === 'iframe' && location.pathname.includes('/iframe')) ||
-              (item.type === 'embedded' && location.pathname.includes('/embedded')),
+      active: isParentActive,
     };
 
-    // Обрабатываем children
-    if (item.children && item.children.length > 0) {
-      sidebarItem.children = item.children.map(convertMenuItemToSidebarItem);
+    // Добавляем children, если они есть
+    if (filteredChildren.length > 0) {
+      sidebarItem.children = filteredChildren;
     }
 
     return sidebarItem;
-  };
+  }, [currentLang, location.pathname, resolveMenuItemLabel]);
 
   // Дефолтные пункты меню (fallback)
   // Оптимизировано: пересобираем только при изменении языка (currentLang) или пути (location.pathname)
@@ -164,16 +207,20 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
     { 
       label: t('sidebar.data'), 
       path: buildPathWithLang('/data', currentLang), 
-      icon: 'document', 
-      active: location.pathname.includes('/data'),
+      icon: 'database', 
+      active: location.pathname.includes('/data') && !location.pathname.includes('/data/documents') && !location.pathname.includes('/data/addresses'),
       children: [
         {
           label: t('sidebar.documents'),
           path: buildPathWithLang('/data/documents', currentLang),
+          icon: 'document',
+          active: location.pathname.includes('/data/documents'),
         },
         {
           label: t('sidebar.addresses'),
           path: buildPathWithLang('/data/addresses', currentLang),
+          icon: 'map-pin',
+          active: location.pathname.includes('/data/addresses'),
         },
       ]
     },
@@ -204,19 +251,202 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
     { 
       label: t('sidebar.support'), 
       path: buildPathWithLang('/support', currentLang), 
-      icon: 'help-circle', 
+      icon: 'headset', 
       active: location.pathname.includes('/support') 
     },
   ], [t, currentLang, location.pathname]);
 
+  /**
+   * Универсальная функция для автоматического определения вложенности на основе путей
+   * Анализирует пути элементов и строит иерархию: если путь одного элемента начинается
+   * с пути другого элемента + "/", то первый является дочерним для второго
+   * ВАЖНО: Сохраняет порядок элементов из API (не меняет порядок родительских элементов)
+   */
+  const buildNestedStructure = React.useCallback((items: SidebarItem[]): SidebarItem[] => {
+    // Нормализуем пути: убираем языковой префикс и query параметры для сравнения
+    const normalizePath = (path: string | undefined): string => {
+      if (!path) return '';
+      // Убираем языковой префикс (например, /ru/ или /en/)
+      let normalized = path.replace(/^\/[a-z]{2}\//, '/');
+      // Убираем query параметры
+      normalized = normalized.split('?')[0];
+      // Убираем trailing slash (кроме корня)
+      normalized = normalized === '/' ? '/' : normalized.replace(/\/$/, '');
+      return normalized;
+    };
+
+    if (process.env.NODE_ENV === 'development' && items.length > 0) {
+      console.log('[PageTemplate] buildNestedStructure input:', items.map(item => ({
+        label: item.label,
+        path: item.path,
+        normalized: normalizePath(item.path),
+        hasChildren: !!item.children,
+      })));
+    }
+
+    // Создаем копию массива для работы (СОХРАНЯЕМ ПОРЯДОК из API)
+    const itemsCopy = items.map(item => ({ ...item }));
+    
+    // НЕ сортируем по длине пути - сохраняем порядок из админ-панели!
+    // Вместо этого проходим по элементам в исходном порядке и строим иерархию
+
+    // Строим иерархию, сохраняя порядок родительских элементов
+    const rootItems: SidebarItem[] = [];
+    const processedItems = new Set<string>();
+
+    // Рекурсивная функция для поиска родителя в дереве (включая уже добавленные children)
+    const findParentInTree = (items: SidebarItem[], itemPath: string): SidebarItem | null => {
+      for (const rootItem of items) {
+        const rootPath = normalizePath(rootItem.path);
+        
+        // Проверяем, является ли rootItem родителем для itemPath
+        // Путь дочернего элемента должен начинаться с пути родителя + "/"
+        // Например: /1/2 начинается с /1/
+        if (rootPath && rootPath !== itemPath) {
+          // Проверяем точное совпадение: itemPath должен начинаться с rootPath + "/"
+          const parentPathWithSlash = rootPath + '/';
+          if (itemPath.startsWith(parentPathWithSlash)) {
+            if (process.env.NODE_ENV === 'development') {
+              console.log('[PageTemplate] Found parent:', {
+                childPath: itemPath,
+                parentPath: rootPath,
+                parentPathWithSlash,
+                parentLabel: rootItem.label,
+                childLabel: items.find(i => normalizePath(i.path) === itemPath)?.label,
+              });
+            }
+            // Проверяем, не является ли этот элемент уже дочерним для другого элемента
+            // Если у rootItem есть children, проверяем их тоже (для глубокой вложенности)
+            if (rootItem.children && rootItem.children.length > 0) {
+              const childParent = findParentInTree(rootItem.children, itemPath);
+              if (childParent) {
+                return childParent;
+              }
+            }
+            return rootItem;
+          }
+        }
+        // Рекурсивно проверяем children для глубокой вложенности
+        if (rootItem.children && rootItem.children.length > 0) {
+          const childParent = findParentInTree(rootItem.children, itemPath);
+          if (childParent) {
+            return childParent;
+          }
+        }
+      }
+      return null;
+    };
+
+    // Первый проход: добавляем все элементы в корень в исходном порядке (СОХРАНЯЕМ ПОРЯДОК из админ-панели)
+    for (const item of itemsCopy) {
+      const itemPath = normalizePath(item.path);
+      
+      // Пропускаем элементы без пути
+      if (!itemPath || itemPath === '/') {
+        rootItems.push(item);
+        continue;
+      }
+
+      // Добавляем элемент в корень (в исходном порядке из API)
+      rootItems.push(item);
+    }
+
+    // Второй проход: перемещаем дочерние элементы к родителям на основе путей
+    // Проходим в обратном порядке, чтобы не нарушить индексы при удалении из rootItems
+    for (let i = itemsCopy.length - 1; i >= 0; i--) {
+      const item = itemsCopy[i];
+      const itemPath = normalizePath(item.path);
+      
+      // Пропускаем элементы без пути или уже обработанные
+      if (!itemPath || itemPath === '/' || processedItems.has(itemPath)) {
+        continue;
+      }
+
+      // Ищем родительский элемент в дереве на основе пути
+      // ВАЖНО: Проверяем вложенность на основе путей независимо от того,
+      // есть ли у элементов уже children (из бэкенда через parentId)
+      // Если путь одного элемента начинается с пути другого + "/",
+      // то первый является дочерним для второго
+      const parent = findParentInTree(rootItems, itemPath);
+      
+      if (parent) {
+        // Найден родитель на основе пути - перемещаем элемент из корня к родителю
+        const rootIndex = rootItems.findIndex(rootItem => {
+          const rootPath = normalizePath(rootItem.path);
+          return rootPath === itemPath;
+        });
+        
+        if (rootIndex !== -1) {
+          // Удаляем из корня
+          const itemToMove = rootItems.splice(rootIndex, 1)[0];
+          
+          // Добавляем к родителю
+          if (!parent.children) {
+            parent.children = [];
+          }
+          // Сохраняем существующие children элемента, если они есть (из бэкенда)
+          // Это позволяет комбинировать вложенность из parentId и вложенность из путей
+          parent.children.push(itemToMove);
+          
+          if (process.env.NODE_ENV === 'development') {
+            console.log('[PageTemplate] Nested item:', {
+              parent: { label: parent.label, path: parent.path, normalized: normalizePath(parent.path) },
+              child: { label: itemToMove.label, path: itemToMove.path, normalized: itemPath },
+            });
+          }
+        }
+      }
+      
+      processedItems.add(itemPath);
+    }
+
+    return rootItems;
+  }, []);
+
   // Используем меню из API, если оно загружено, иначе дефолтное
   // Оптимизировано: пересобираем только при изменении данных меню или языка
   const configuredSidebarItems = React.useMemo(() => {
-    const menuItemsFromApi = userMenuData?.data?.data || [];
-    return menuItemsFromApi.length > 0
-      ? menuItemsFromApi.map(convertMenuItemToSidebarItem)
-      : defaultSidebarItems;
-  }, [userMenuData, defaultSidebarItems, currentLang, t]);
+    // API возвращает { success: true, data: [...] }, axios оборачивает в { data: { success: true, data: [...] } }
+    // Поэтому используем userMenuData?.data?.data
+    const apiResponse = userMenuData?.data;
+    const menuItemsFromApi = apiResponse?.data || apiResponse || [];
+    
+    if (process.env.NODE_ENV === 'development' && menuItemsFromApi.length > 0) {
+      console.log('[PageTemplate] Menu items from API:', menuItemsFromApi.map(item => ({ id: item.id, icon: item.icon, systemId: item.systemId, enabled: item.enabled, hasChildren: !!item.children, path: item.path })));
+    }
+    
+    // Если API вернул данные (даже пустой массив), используем их
+    // Fallback на defaultSidebarItems только если API еще не загрузился (userMenuData === undefined)
+    if (userMenuData !== undefined) {
+      // API загружен, используем данные из API (даже если пустой массив - все плагины выключены)
+      const filteredItems = menuItemsFromApi
+        .map(convertMenuItemToSidebarItem)
+        .filter((item): item is SidebarItem => item !== null);
+      
+      // Применяем универсальную функцию для автоматического построения вложенности на основе путей
+      const nestedItems = buildNestedStructure(filteredItems);
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[PageTemplate] Built nested structure:', {
+          before: filteredItems.length,
+          after: nestedItems.length,
+          itemsBefore: filteredItems.map(item => ({ label: item.label, path: item.path })),
+          itemsAfter: nestedItems.map(item => ({
+            label: item.label,
+            path: item.path,
+            hasChildren: !!item.children,
+            childrenCount: item.children?.length || 0,
+            children: item.children?.map(c => ({ label: c.label, path: c.path })) || [],
+          })),
+        });
+      }
+      
+      return nestedItems;
+    }
+    
+    // API еще не загрузился, используем fallback
+    return defaultSidebarItems;
+  }, [userMenuData, defaultSidebarItems, buildNestedStructure, convertMenuItemToSidebarItem]);
 
   const finalSidebarItems = sidebarItems || (shouldShowSidebar ? configuredSidebarItems : undefined);
 

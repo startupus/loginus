@@ -55,22 +55,40 @@ export const Switch: React.FC<SwitchProps> = ({
 
   const { track, thumb, translate } = sizes[size];
 
+  const handleToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (!disabled) {
+      onChange(!checked);
+    }
+  };
+
   return (
-    <label className="flex items-center gap-3 cursor-pointer">
-      <div className="relative">
+    <label 
+      className="flex items-center gap-3 cursor-pointer" 
+      onClick={handleToggle}
+      onMouseDown={(e) => e.stopPropagation()}
+    >
+      <div className="relative" style={{ pointerEvents: 'auto' }}>
         <input
           type="checkbox"
           className="sr-only"
           checked={checked}
-          onChange={(e) => onChange(e.target.checked)}
+          onChange={(e) => {
+            e.stopPropagation();
+            onChange(e.target.checked);
+          }}
           disabled={disabled}
+          onClick={(e) => e.stopPropagation()}
         />
         <div
           className={`${track} ${
             checked ? 'bg-primary' : themeClasses.background.gray2
           } rounded-full transition-colors ${
-            disabled ? 'opacity-50 cursor-not-allowed' : ''
+            disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
           }`}
+          onClick={handleToggle}
+          onMouseDown={(e) => e.stopPropagation()}
         >
           <div
             className={`${thumb} ${translate} ${themeClasses.background.surface} rounded-full shadow-md transform transition-transform absolute top-0.5`}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Input, Icon } from '../../design-system/primitives';
 import { Modal } from '../../design-system/composites';
@@ -32,6 +32,13 @@ export const InviteFamilyMemberModal: React.FC<InviteFamilyMemberModalProps> = (
 }) => {
   const { t } = useTranslation();
   
+  // Логирование для отладки
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[InviteFamilyMemberModal] isOpen changed:', isOpen);
+    }
+  }, [isOpen]);
+  
   // Состояние шага
   const [currentStep, setCurrentStep] = useState<InviteStep>('relation');
   
@@ -50,20 +57,64 @@ export const InviteFamilyMemberModal: React.FC<InviteFamilyMemberModalProps> = (
   const [linkCopied, setLinkCopied] = useState(false);
 
   /**
-   * Генерирует ссылку приглашения
+   * Генерирует ссылку приглашения через API
    */
   const generateInviteLink = async (relation: RelationType | null): Promise<string> => {
     try {
-      // TODO: Интеграция с API для генерации реальной ссылки
-      const inviteId = Math.random().toString(36).substring(2, 15);
-      const link = `${window.location.origin}/family/invite?invite-id=${inviteId}${relation ? `&relation=${relation}` : ''}`;
+      // Для семейных групп email не нужен - кто перешел по ссылке, тот и присоединяется
+      const response = await familyApi.inviteMember({
+        role: relation === 'child' ? 'child' : 'member',
+      });
+      if (process.env.NODE_ENV === 'development') {
+        // Логируем реальный ответ бэкенда, чтобы понимать структуру
+        // и избежать проблем с парсингом поля invitationLink/token
+        // eslint-disable-next-line no-console
+        console.log('[InviteFamilyMemberModal] inviteMember response', response);
+        console.log('[InviteFamilyMemberModal] inviteMember response.data', response.data);
+        console.log('[InviteFamilyMemberModal] inviteMember response.data.data', response.data?.data);
+        console.log('[InviteFamilyMemberModal] Full response structure:', JSON.stringify(response.data, null, 2));
+      }
+
+      // Получаем реальную ссылку из ответа API
+      // Структура: { success: true, data: { token: '...', invitationLink: '...', ... } }
+      const responseData = response.data?.data || response.data;
+      console.log('[InviteFamilyMemberModal] responseData:', responseData);
+      console.log('[InviteFamilyMemberModal] responseData keys:', responseData ? Object.keys(responseData) : 'null');
       
-      // Имитация API запроса
-      await new Promise(resolve => setTimeout(resolve, 300));
+      const invitationLink = responseData?.invitationLink;
+      const token = responseData?.token;
       
-      return link;
-    } catch (err) {
-      throw new Error(t('family.invite.error', 'Ошибка при генерации ссылки'));
+      console.log('[InviteFamilyMemberModal] invitationLink:', invitationLink);
+      console.log('[InviteFamilyMemberModal] token:', token ? token.substring(0, 20) + '...' : 'null');
+      
+      if (invitationLink) {
+        // Добавляем relation к ссылке, если оно было выбрано
+        try {
+          const url = new URL(invitationLink);
+          if (relation) {
+            url.searchParams.set('relation', relation);
+          }
+          const finalLink = url.toString();
+          console.log('[InviteFamilyMemberModal] Final invitationLink:', finalLink);
+          return finalLink;
+        } catch (e) {
+          console.error('[InviteFamilyMemberModal] Error parsing invitationLink:', e);
+          // Если ошибка парсинга URL, используем как есть
+          return invitationLink;
+        }
+      }
+      
+      // Fallback: формируем ссылку из token, если он есть в ответе
+      if (token) {
+        const baseUrl = window.location.origin;
+        const link = `${baseUrl}/invitation?token=${token}${relation ? `&relation=${relation}` : ''}`;
+        console.log('[InviteFamilyMemberModal] Generated link from token:', link);
+        return link;
+      }
+      
+      throw new Error(t('family.invite.error', 'Не удалось получить ссылку приглашения'));
+    } catch (err: any) {
+      throw new Error(err?.response?.data?.message || err?.message || t('family.invite.error', 'Ошибка при генерации ссылки'));
     }
   };
 
@@ -126,24 +177,38 @@ export const InviteFamilyMemberModal: React.FC<InviteFamilyMemberModalProps> = (
    */
   const handleSendInvite = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!phoneOrEmail.trim()) {
-      setError(t('family.invite.emailRequired', 'Введите телефон или email'));
-      return;
-    }
 
     setIsLoading(true);
     try {
-      // TODO: Интеграция с API для отправки SMS/email
-      await familyApi.inviteMember({
-        email: phoneOrEmail.trim(),
-        role: 'member',
+      const response = await familyApi.inviteMember({
+        role: selectedRelation === 'child' ? 'child' : 'member',
       });
       
+      // Получаем ссылку из ответа и обновляем inviteLink
+      const invitationLink = (response.data as any)?.data?.invitationLink || 
+                            (response.data as any)?.invitationLink;
+      const token = (response.data as any)?.data?.token || (response.data as any)?.token;
+      
+      console.log('[InviteFamilyMemberModal] invitationLink from response:', invitationLink);
+      console.log('[InviteFamilyMemberModal] token from response:', token ? token.substring(0, 20) + '...' : 'null');
+      
+      if (invitationLink) {
+        console.log('[InviteFamilyMemberModal] Using invitationLink from response:', invitationLink);
+        setInviteLink(invitationLink);
+      } else if (token) {
+        const baseUrl = window.location.origin;
+        const link = `${baseUrl}/invitation?token=${token}${selectedRelation ? `&relation=${selectedRelation}` : ''}`;
+        console.log('[InviteFamilyMemberModal] Generated link from token:', link);
+        setInviteLink(link);
+      } else {
+        console.error('[InviteFamilyMemberModal] No invitationLink or token in response:', response.data);
+      }
+      
+      // Переходим на шаг с ссылкой
+      setCurrentStep('invite');
       onSuccess?.();
-      handleClose();
     } catch (err: any) {
-      setError(err.message || t('family.invite.error', 'Ошибка при отправке приглашения'));
+      setError(err?.response?.data?.message || err?.message || t('family.invite.error', 'Ошибка при отправке приглашения'));
     } finally {
       setIsLoading(false);
     }

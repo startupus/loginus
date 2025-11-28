@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class FamilyService {
@@ -75,23 +76,36 @@ export class FamilyService {
   }
 
   inviteMember(inviteDto: { email: string; role: 'member' | 'child' }) {
+    const createdAt = new Date().toISOString();
+
+    // Генерируем токен приглашения и ссылку
+    const token = randomUUID();
+    const frontendUrl =
+      process.env.FRONTEND_URL || 'http://localhost:3002';
+    const invitationLink = `${frontendUrl}/invitation?token=${token}`;
+
     const newMember = {
       id: String(this.members.length + 1),
       email: inviteDto.email,
       role: inviteDto.role,
       name: inviteDto.email.split('@')[0], // Используем часть email как имя для демо
       avatar: null,
-      joinedAt: new Date().toISOString(),
+      joinedAt: createdAt,
       isOnline: false,
     };
-    
+
     // Добавляем нового члена в список для отображения
     this.members.push(newMember);
-    
+
     return {
       success: true,
       message: 'Invitation sent successfully',
-      data: newMember,
+      data: {
+        ...newMember,
+        token,
+        invitationLink,
+        status: 'pending' as const,
+      },
     };
   }
 

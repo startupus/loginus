@@ -1,0 +1,99 @@
+
+services:
+  loginus-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: loginus-backend-new
+    ports:
+      - "3003:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+    volumes:
+      - ./backend-mock/data:/app/backend-mock/data:ro
+    restart: unless-stopped
+    networks:
+      - loginus-network
+
+  loginus-db:
+    image: postgres:15-alpine
+    container_name: loginus-db
+    environment:
+      - POSTGRES_DB=loginus_dev
+      - POSTGRES_USER=loginus
+      - POSTGRES_PASSWORD=loginus_secret
+    volumes:
+      - loginus_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - loginus-network
+
+  loginus-api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+    container_name: loginus-api-new
+    ports:
+      - "3004:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - FRONTEND_URL=http://localhost:3002
+      - MOCK_BACKEND_URL=http://loginus-backend:3001
+      - DB_HOST=loginus-db
+      - DB_PORT=5432
+      - DB_USERNAME=loginus
+      - DB_PASSWORD=loginus_secret
+      - DB_DATABASE=loginus_dev
+      - SMTP_HOST=smtp.yandex.ru
+      - SMTP_PORT=465
+      - SMTP_USER=KazakovVladislav2005@yandex.ru
+      - SMTP_PASSWORD=bvdjbeygikzrwmnu
+      - SMTP_FROM=KazakovVladislav2005@yandex.ru
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/package.json:/app/package.json
+      - ./backend/tsconfig.json:/app/tsconfig.json
+      - ./backend/nest-cli.json:/app/nest-cli.json
+      - /app/node_modules
+    depends_on:
+      - loginus-db
+      - loginus-backend
+    restart: unless-stopped
+    networks:
+      - loginus-network
+
+  loginus-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: loginus-frontend-new
+    ports:
+      - "3002:3000"
+    depends_on:
+      - loginus-api
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./frontend/src:/app/frontend/src
+      - ./frontend/public:/app/frontend/public
+      - ./frontend/index.html:/app/frontend/index.html
+      - ./frontend/package.json:/app/frontend/package.json
+      - ./frontend/vite.config.ts:/app/frontend/vite.config.ts
+      - ./frontend/tsconfig.json:/app/frontend/tsconfig.json
+      - ./frontend/tsconfig.node.json:/app/frontend/tsconfig.node.json
+      - /app/frontend/node_modules
+      - /app/frontend/dist
+    restart: unless-stopped
+    networks:
+      - loginus-network
+
+networks:
+  loginus-network:
+    driver: bridge
+
+volumes:
+  loginus_db_data:
+

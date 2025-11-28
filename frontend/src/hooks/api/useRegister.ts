@@ -11,14 +11,16 @@ export const useRegister = () => {
 
   return useMutation({
     mutationFn: ({
-      phone,
       email,
       password,
+      firstName,
+      lastName,
     }: {
-      phone: string;
       email: string;
       password: string;
-    }) => authApi.register(phone, email, password),
+      firstName?: string;
+      lastName?: string;
+    }) => authApi.register(email, password, { firstName, lastName }),
     onSuccess: (response) => {
       const { user, tokens } = response.data.data;
       login(user, tokens.accessToken, tokens.refreshToken);

@@ -379,7 +379,19 @@ const DashboardPage: React.FC = () => {
   };
 
   const handleAddFamilyMember = () => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[DashboardPage] handleAddFamilyMember called');
+      console.log('[DashboardPage] familyModal:', familyModal);
+      console.log('[DashboardPage] familyModal.isOpen before:', familyModal.isOpen);
+    }
     familyModal.open();
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[DashboardPage] familyModal.open() called');
+      // Проверяем состояние после небольшой задержки
+      setTimeout(() => {
+        console.log('[DashboardPage] familyModal.isOpen after:', familyModal.isOpen);
+      }, 100);
+    }
   };
 
   const handleLoginAsFamilyMember = async (member: { id: string; name: string; avatar?: string | null }) => {
@@ -596,7 +608,7 @@ const DashboardPage: React.FC = () => {
           <div className="w-full mb-6">
             <FamilyMembers
               members={dashboard.family || []}
-              onAddMember={handleAddFamilyMember}
+              onAddMember={dashboard.familyIsCreator ? handleAddFamilyMember : undefined}
               onMemberClick={(member) => {
                 // TODO: открыть профиль члена семьи
                 if (process.env.NODE_ENV === 'development') {
@@ -604,6 +616,7 @@ const DashboardPage: React.FC = () => {
                 }
               }}
               onLoginAs={handleLoginAsFamilyMember}
+              isCreator={dashboard.familyIsCreator || false}
             />
         </div>
 
@@ -654,8 +667,18 @@ const DashboardPage: React.FC = () => {
 
         <InviteFamilyMemberModal
           isOpen={familyModal.isOpen}
-          onClose={familyModal.close}
-          onSuccess={refreshDashboard}
+          onClose={() => {
+            if (process.env.NODE_ENV === 'development') {
+              console.log('[DashboardPage] InviteFamilyMemberModal onClose called');
+            }
+            familyModal.close();
+          }}
+          onSuccess={() => {
+            if (process.env.NODE_ENV === 'development') {
+              console.log('[DashboardPage] InviteFamilyMemberModal onSuccess called');
+            }
+            refreshDashboard();
+          }}
         />
 
         <EditProfileModal

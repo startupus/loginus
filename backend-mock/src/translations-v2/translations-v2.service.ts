@@ -67,7 +67,34 @@ export class TranslationsV2Service {
       this.translationsVersion = '1.0.0';
     }
 
-    this.v2DataPath = path.join(__dirname, '../../data/translations/v2');
+    // В Docker контейнере файлы находятся в /app/backend-mock/data/translations/v2
+    // __dirname в скомпилированном коде указывает на dist/src/translations-v2
+    // Поэтому нужно подняться на 3 уровня вверх: ../../../data/translations/v2
+    // Или использовать абсолютный путь от корня проекта
+    const possiblePaths = [
+      path.join(__dirname, '../../../data/translations/v2'), // Для скомпилированного кода в dist/
+      path.join(__dirname, '../../data/translations/v2'), // Для исходного кода
+      '/app/backend-mock/data/translations/v2', // Абсолютный путь в Docker
+    ];
+    
+    let foundPath: string | null = null;
+    // Проверяем, какой путь существует
+    for (const possiblePath of possiblePaths) {
+      if (fs.existsSync(possiblePath)) {
+        foundPath = possiblePath;
+        this.logger.log(`[TranslationsV2Service] v2DataPath initialized: ${foundPath}`);
+        break;
+      }
+    }
+    
+    if (!foundPath) {
+      this.logger.error(`[TranslationsV2Service] Could not find translations directory. Tried paths: ${possiblePaths.join(', ')}`);
+      // Используем последний путь как fallback
+      foundPath = possiblePaths[possiblePaths.length - 1];
+      this.logger.warn(`[TranslationsV2Service] Using fallback path: ${foundPath}`);
+    }
+    
+    this.v2DataPath = foundPath;
   }
 
   /**
@@ -77,6 +104,7 @@ export class TranslationsV2Service {
     locale: 'ru' | 'en',
     module: string,
   ): TranslationModuleResponse {
+    this.logger.debug(`[TranslationsV2Service] getModule called: locale=${locale}, module=${module}`);
     const normalizedLocale = locale === 'en' ? 'en' : 'ru';
     const normalizedModule = module.toLowerCase();
 
@@ -99,20 +127,34 @@ export class TranslationsV2Service {
 
     // Если не найдено в предзагрузке, читаем с диска
     if (!moduleData) {
+      if (!this.v2DataPath) {
+        this.logger.error(`[TranslationsV2Service] v2DataPath is not initialized!`);
+        throw new Error('Translations data path is not initialized');
+      }
+
       const filePath = path.join(
         this.v2DataPath,
         normalizedLocale,
         `${normalizedModule}.json`,
       );
 
-      if (!fs.existsSync(filePath)) {
-        throw new Error(
-          `Translation file not found: ${normalizedLocale}/${normalizedModule}.json`,
-        );
-      }
+      try {
+        if (!fs.existsSync(filePath)) {
+          this.logger.error(`[TranslationsV2Service] Translation file not found: ${filePath}`);
+          this.logger.error(`[TranslationsV2Service] v2DataPath: ${this.v2DataPath}`);
+          this.logger.error(`[TranslationsV2Service] Checking if directory exists: ${fs.existsSync(this.v2DataPath)}`);
+          throw new Error(
+            `Translation file not found: ${normalizedLocale}/${normalizedModule}.json`,
+          );
+        }
 
-      const content = fs.readFileSync(filePath, 'utf-8');
-      moduleData = JSON.parse(content);
+        const content = fs.readFileSync(filePath, 'utf-8');
+        moduleData = JSON.parse(content);
+      } catch (error: any) {
+        this.logger.error(`[TranslationsV2Service] Error reading translation file ${filePath}:`, error);
+        this.logger.error(`[TranslationsV2Service] Error stack:`, error?.stack);
+        throw error;
+      }
     }
 
     // Вычисляем checksum для проверки целостности
@@ -139,6 +181,7 @@ export class TranslationsV2Service {
     locale: 'ru' | 'en',
     modules: string[],
   ): TranslationModuleResponse[] {
+    this.logger.debug(`[TranslationsV2Service] getModules called: locale=${locale}, modules=${modules.join(',')}`);
     const normalizedLocale = locale === 'en' ? 'en' : 'ru';
     const normalizedModules = modules.map((m) => m.toLowerCase());
 
@@ -151,7 +194,24 @@ export class TranslationsV2Service {
       throw new Error('No valid modules provided');
     }
 
-    return validModules.map((module) => this.getModule(normalizedLocale, module));
+    const results: TranslationModuleResponse[] = [];
+    for (const module of validModules) {
+      try {
+        results.push(this.getModule(normalizedLocale, module));
+      } catch (error) {
+        this.logger.error(
+          `Failed to load module ${module} for locale ${normalizedLocale}:`,
+          error,
+        );
+        // Продолжаем загрузку других модулей даже при ошибке
+      }
+    }
+
+    if (results.length === 0) {
+      throw new Error(`Failed to load any modules for locale ${normalizedLocale}`);
+    }
+
+    return results;
   }
 
   /**

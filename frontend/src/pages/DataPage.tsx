@@ -1,10 +1,13 @@
-import React, { Suspense, lazy, useState, useEffect } from 'react';
+import React, { Suspense, lazy, useState, useEffect, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { PageTemplate } from '@/design-system/layouts/PageTemplate';
 import { profileApi } from '@/services/api/profile';
 import { personalApi } from '@/services/api/personal';
+import { familyApi } from '@/services/api/family';
 import { useAuthStore } from '@/store';
+import { useNavigate } from 'react-router-dom';
+import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';
 import { useModal } from '@/hooks/useModal';
 import type { DocumentType, AddressType } from '@/components/Modals';
 import { 
@@ -17,6 +20,7 @@ import {
   ExternalAccountsSection,
   PublicDataSection,
   DataManagementSection,
+  FamilyMembers,
 } from '@/components/Dashboard';
 import { appQueryClient } from '@/providers/RootProvider';
 import { themeClasses } from '@/design-system/utils/themeClasses';
@@ -30,6 +34,7 @@ const AddPetModal = lazy(() => import('@/components/Modals/AddPetModal').then(m 
 const EditProfileModal = lazy(() => import('@/components/Modals/EditProfileModal').then(m => ({ default: m.EditProfileModal })));
 const EditAvatarModal = lazy(() => import('@/components/Modals/EditAvatarModal').then(m => ({ default: m.EditAvatarModal })));
 const DeleteProfileModal = lazy(() => import('@/components/Modals/DeleteProfileModal').then(m => ({ default: m.DeleteProfileModal })));
+const InviteFamilyMemberModal = lazy(() => import('@/components/Modals/InviteFamilyMemberModal').then(m => ({ default: m.InviteFamilyMemberModal })));
 
 // Компонент скелетона для Suspense fallback
 const SectionSkeleton: React.FC = () => (
@@ -83,6 +88,9 @@ const fetchPersonalData = async () => {
           gamePoints: dashboardInfo.gamePoints,
           achievements: dashboardInfo.achievements,
         },
+        // Добавляем данные о семейной группе
+        family: dashboardInfo.family || [],
+        familyIsCreator: dashboardInfo.familyIsCreator || false,
       }
     };
   } catch (err) {
@@ -108,9 +116,43 @@ if (typeof window !== 'undefined') {
  * Стиль и структура соответствуют DashboardPage для единообразия
  */
 const DataPage: React.FC = () => {
+  // ВСЕ ХУКИ ДОЛЖНЫ БЫТЬ ВЫЗВАНЫ В НАЧАЛЕ, ДО ЛЮБЫХ УСЛОВНЫХ ВОЗВРАТОВ
   const { t, i18n } = useTranslation();
-  const { updateUser } = useAuthStore();
+  const { updateUser, login } = useAuthStore();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const currentLang = useCurrentLanguage();
+  
+  // Модалки - все хуки должны быть вызваны до условных возвратов
+  const documentModal = useModal();
+  const addressModal = useModal();
+  const vehicleModal = useModal();
+  const petModal = useModal();
+  const editProfileModal = useModal();
+  const editAvatarModal = useModal();
+  const deleteProfileModal = useModal();
+  const familyModal = useModal();
+  
+  const [selectedDocumentType, setSelectedDocumentType] = useState<DocumentType | undefined>();
+  const [selectedAddressType, setSelectedAddressType] = useState<AddressType | undefined>();
+
+  // Оптимизация: используем initialData и placeholderData для мгновенного отображения контента
+  const { data, isLoading, error, isFetching } = useQuery({
+    queryKey: personalDataQueryKey,
+    queryFn: fetchPersonalData,
+    staleTime: 5 * 60 * 1000, // 5 минут - данные считаются свежими
+    gcTime: 30 * 60 * 1000, // 30 минут в кэше
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    retry: 1,
+    retryDelay: 1000,
+    placeholderData: (previousData) => previousData,
+    initialData: () => {
+      const cachedData = queryClient.getQueryData(personalDataQueryKey);
+      return cachedData || undefined;
+    },
+  });
 
   // Предзагрузка и перезагрузка модулей переводов при смене языка
   useEffect(() => {
@@ -151,18 +193,6 @@ const DataPage: React.FC = () => {
       i18n.off('languageChanged', handleLanguageChanged);
     };
   }, [i18n]);
-  
-  // Модалки
-  const documentModal = useModal();
-  const addressModal = useModal();
-  const vehicleModal = useModal();
-  const petModal = useModal();
-  const editProfileModal = useModal();
-  const editAvatarModal = useModal();
-  const deleteProfileModal = useModal();
-  
-  const [selectedDocumentType, setSelectedDocumentType] = useState<DocumentType | undefined>();
-  const [selectedAddressType, setSelectedAddressType] = useState<AddressType | undefined>();
 
   // Логирование времени рендеринга компонента (только в dev)
   useEffect(() => {
@@ -176,29 +206,11 @@ const DataPage: React.FC = () => {
     }
   });
 
-  // Оптимизация: используем initialData и placeholderData для мгновенного отображения контента
-  const { data, isLoading, error, isFetching } = useQuery({
-    queryKey: personalDataQueryKey,
-    queryFn: fetchPersonalData,
-    staleTime: 5 * 60 * 1000, // 5 минут - данные считаются свежими
-    gcTime: 30 * 60 * 1000, // 30 минут в кэше
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-    retry: 1,
-    retryDelay: 1000,
-    placeholderData: (previousData) => previousData,
-    initialData: () => {
-      const cachedData = queryClient.getQueryData(personalDataQueryKey);
-      return cachedData || undefined;
-    },
-  });
-
   // Синхронизируем данные пользователя из API с authStore
   // ВАЖНО: Сохраняем роль и права при обновлении, чтобы не потерять их
   useEffect(() => {
-    if (data?.data?.user) {
-      const apiUser = data.data.user;
+    if (data && typeof data === 'object' && 'data' in data && data.data && typeof data.data === 'object' && 'user' in data.data) {
+      const apiUser = (data as any).data.user;
       const currentUser = useAuthStore.getState().user;
       updateUser({
         id: apiUser.id,
@@ -214,7 +226,96 @@ const DataPage: React.FC = () => {
     }
   }, [data, updateUser]);
 
-  // Оптимизация: показываем skeleton сразу при первой загрузке для мгновенного отображения
+  // Обработчики для модалок - должны быть определены до условных возвратов
+  const refreshData = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: personalDataQueryKey });
+    queryClient.invalidateQueries({ queryKey: ['profile'] });
+  }, [queryClient]);
+
+  const handleAddDocument = useCallback((type?: string | DocumentType) => {
+    const docType = typeof type === 'string' ? type as DocumentType : type;
+    setSelectedDocumentType(docType);
+    documentModal.open();
+  }, [documentModal]);
+
+  const handleAddAddress = useCallback((type?: string | AddressType) => {
+    const addrType = typeof type === 'string' ? type as AddressType : type;
+    setSelectedAddressType(addrType);
+    addressModal.open();
+  }, [addressModal]);
+
+  const handleDeleteProfile = useCallback(async (password: string) => {
+    try {
+      await profileApi.deleteProfile(password);
+      window.location.href = '/auth/login';
+    } catch (error: any) {
+      throw error;
+    }
+  }, []);
+
+  const handleAddFamilyMember = useCallback(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[DataPage] handleAddFamilyMember called');
+      console.log('[DataPage] familyModal:', familyModal);
+    }
+    familyModal.open();
+  }, [familyModal]);
+
+  const handleLoginAsFamilyMember = useCallback(async (member: { id: string; name: string; avatar?: string | null }) => {
+    try {
+      const response = await familyApi.loginAs(member.id);
+      const { user, tokens } = response.data.data;
+      
+      login(
+        {
+          id: user.id,
+          name: user.name || member.name,
+          email: user.email,
+          phone: user.phone,
+          avatar: user.avatar || member.avatar || undefined,
+          role: user.role || 'user',
+          companyId: user.companyId || null,
+          permissions: user.permissions || [],
+        },
+        tokens.accessToken,
+        tokens.refreshToken
+      );
+      
+      navigate(buildPathWithLang('/dashboard', currentLang));
+      
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['personal-data'] });
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to login as family member:', error);
+      }
+    }
+  }, [login, navigate, currentLang, queryClient]);
+
+  const handleFamilyInviteSuccess = useCallback(async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+      queryClient.invalidateQueries({ queryKey: ['personal-data'] }),
+    ]);
+    familyModal.close();
+  }, [queryClient, familyModal]);
+
+  // Логирование для отладки
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development' && data) {
+      const personalData = data && typeof data === 'object' && 'data' in data ? (data as any).data : undefined;
+      if (personalData) {
+        console.log('[DataPage] personalData:', {
+          familyCount: personalData?.family?.length || 0,
+          familyIsCreator: personalData?.familyIsCreator,
+        });
+      }
+    }
+  }, [data]);
+
+  // ТЕПЕРЬ МОЖЕМ ДЕЛАТЬ УСЛОВНЫЕ ВОЗВРАТЫ - ВСЕ ХУКИ УЖЕ ВЫЗВАНЫ
+  const personalData = data && typeof data === 'object' && 'data' in data ? (data as any).data : undefined;
+  const user = personalData?.user;
   const showSkeleton = !data && (isLoading || isFetching);
 
   if (error) {
@@ -230,9 +331,6 @@ const DataPage: React.FC = () => {
       </PageTemplate>
     );
   }
-
-  const personalData = data?.data;
-  const user = personalData?.user;
 
   // Если нет данных после загрузки - показываем сообщение
   if (!personalData || !user) {
@@ -255,33 +353,6 @@ const DataPage: React.FC = () => {
       </PageTemplate>
     );
   }
-
-  const refreshData = () => {
-    queryClient.invalidateQueries({ queryKey: personalDataQueryKey });
-    queryClient.invalidateQueries({ queryKey: ['profile'] });
-  };
-
-  // Обработчики для модалок
-  const handleAddDocument = (type?: string | DocumentType) => {
-    const docType = typeof type === 'string' ? type as DocumentType : type;
-    setSelectedDocumentType(docType);
-    documentModal.open();
-  };
-
-  const handleAddAddress = (type?: string | AddressType) => {
-    const addrType = typeof type === 'string' ? type as AddressType : type;
-    setSelectedAddressType(addrType);
-    addressModal.open();
-  };
-
-  const handleDeleteProfile = async (password: string) => {
-    try {
-      await profileApi.deleteProfile(password);
-      window.location.href = '/auth/login';
-    } catch (error: any) {
-      throw error;
-    }
-  };
 
   return (
     <PageTemplate 
@@ -351,6 +422,21 @@ const DataPage: React.FC = () => {
           <PetsSection
             pets={personalData?.pets || []}
             onAddPet={petModal.open}
+          />
+        </div>
+
+        {/* Family Section - полная ширина */}
+        <div className="w-full mb-6">
+          <FamilyMembers
+            members={personalData?.family || []}
+            onAddMember={personalData?.familyIsCreator ? handleAddFamilyMember : undefined}
+            onMemberClick={(member) => {
+              if (process.env.NODE_ENV === 'development') {
+                console.log('Open member:', member);
+              }
+            }}
+            onLoginAs={handleLoginAsFamilyMember}
+            isCreator={personalData?.familyIsCreator || false}
           />
         </div>
 
@@ -515,6 +601,12 @@ const DataPage: React.FC = () => {
           isOpen={deleteProfileModal.isOpen}
           onClose={deleteProfileModal.close}
           onDelete={handleDeleteProfile}
+        />
+
+        <InviteFamilyMemberModal
+          isOpen={familyModal.isOpen}
+          onClose={familyModal.close}
+          onSuccess={handleFamilyInviteSuccess}
         />
       </Suspense>
     </PageTemplate>

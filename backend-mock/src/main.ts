@@ -9,7 +9,7 @@ async function bootstrap() {
   
   // CORS configuration
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
+    origin: ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:3002', 'http://loginus-frontend:3000'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
@@ -41,9 +41,15 @@ async function bootstrap() {
   expressApp.get('/api/v2/translations/:locale/:module', (req, res) => {
     const locale = req.params.locale === 'en' ? 'en' : 'ru';
     try {
-      res.json(translationsV2Service.getModule(locale, req.params.module));
+      console.log(`[Translations] Request: GET /api/v2/translations/${locale}/${req.params.module}`);
+      const result = translationsV2Service.getModule(locale, req.params.module);
+      console.log(`[Translations] Success: module ${req.params.module} loaded`);
+      res.json(result);
     } catch (error: any) {
-      res.status(500).json({ error: error.message });
+      console.error(`❌ [Translations] Error loading module ${req.params.module} for locale ${locale}:`, error);
+      console.error(`❌ [Translations] Error stack:`, error?.stack);
+      console.error(`❌ [Translations] Error message:`, error?.message);
+      res.status(500).json({ error: error?.message || 'Internal Server Error' });
     }
   });
   
@@ -52,22 +58,45 @@ async function bootstrap() {
     const locale = req.params.locale === 'en' ? 'en' : 'ru';
     const modules = req.query.modules as string;
     
-    if (modules) {
-      const moduleList = modules.split(',').map((m: string) => m.trim()).filter(Boolean);
-      res.json({
-        success: true,
-        data: translationsV2Service.getModules(locale, moduleList),
-      });
-    } else {
-      res.json({
-        success: true,
-        data: translationsV2Service.getAllModules(locale),
-      });
+    try {
+      console.log(`[Translations] Request: GET /api/v2/translations/${locale}?modules=${modules || 'all'}`);
+      if (modules) {
+        const moduleList = modules.split(',').map((m: string) => m.trim()).filter(Boolean);
+        const result = translationsV2Service.getModules(locale, moduleList);
+        console.log(`[Translations] Success: ${moduleList.length} modules loaded`);
+        res.json({
+          success: true,
+          data: result,
+        });
+      } else {
+        const result = translationsV2Service.getAllModules(locale);
+        console.log(`[Translations] Success: all modules loaded`);
+        res.json({
+          success: true,
+          data: result,
+        });
+      }
+    } catch (error: any) {
+      console.error('❌ [Translations] Error in /translations/:locale:', error);
+      console.error('❌ [Translations] Error stack:', error?.stack);
+      console.error('❌ [Translations] Error message:', error?.message);
+      res.status(500).json({ error: error?.message || 'Internal Server Error' });
     }
   });
 
   // Глобальная телеметрия времени обработки запросов
   app.useGlobalInterceptors(new TimingInterceptor());
+
+  // Глобальный обработчик ошибок для диагностики
+  app.use((err: any, req: any, res: any, next: any) => {
+    console.error('❌ [Global Error Handler] Error:', err);
+    console.error('❌ [Global Error Handler] Stack:', err?.stack);
+    console.error('❌ [Global Error Handler] URL:', req.url);
+    console.error('❌ [Global Error Handler] Method:', req.method);
+    if (!res.headersSent) {
+      res.status(500).json({ error: err?.message || 'Internal Server Error' });
+    }
+  });
 
   // Предзагрузка данных до старта сервера
   try {

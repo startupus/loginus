@@ -14,12 +14,21 @@ export class TimingInterceptor implements NestInterceptor {
     const url = req?.url || 'UNKNOWN';
     const start = process.hrtime.bigint();
 
+    console.log(`[TimingInterceptor] ${method} ${url} - Request received`);
+
     return next.handle().pipe(
-      tap(() => {
-        const end = process.hrtime.bigint();
-        const ms = Number(end - start) / 1_000_000;
-        // eslint-disable-next-line no-console
-        console.log(`[Timing] ${method} ${url} -> ${ms.toFixed(2)} ms`);
+      tap({
+        next: () => {
+          const end = process.hrtime.bigint();
+          const ms = Number(end - start) / 1_000_000;
+          console.log(`[TimingInterceptor] ${method} ${url} -> ${ms.toFixed(2)} ms - Success`);
+        },
+        error: (error) => {
+          const end = process.hrtime.bigint();
+          const ms = Number(end - start) / 1_000_000;
+          console.error(`[TimingInterceptor] ${method} ${url} -> ${ms.toFixed(2)} ms - ERROR:`, error);
+          console.error(`[TimingInterceptor] Error stack:`, error?.stack);
+        },
       }),
     );
   }

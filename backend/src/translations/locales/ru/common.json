@@ -1,0 +1,94 @@
+{
+  "common": {
+    "today": "Сегодня",
+    "yesterday": "Вчера",
+    "daysAgo": "{{count}} дн. назад",
+    "relativeTime": {
+      "justNow": "Только что",
+      "minutesAgo": "{{count}} мин. назад",
+      "hoursAgo": "{{count}} ч. назад",
+      "weeksAgo": "{{count}} нед. назад",
+      "monthsAgo": "{{count}} мес. назад",
+      "yearsAgo": "{{count}} г. назад"
+    },
+    "noData": "Нет данных",
+    "close": "Закрыть",
+    "search": "Поиск...",
+    "enable": "Включить",
+    "disable": "Отключить",
+    "scrollLeft": "Прокрутить влево",
+    "scrollRight": "Прокрутить вправо",
+    "back": "Назад",
+    "error": "Произошла ошибка при загрузке данных",
+    "login": "Войти",
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "reset": "Сбросить",
+    "remove": "Удалить",
+    "retry": "Повторить",
+    "create": "Создать",
+    "edit": "Редактировать",
+    "delete": "Удалить",
+    "loading": "Загрузка...",
+    "selectIcon": "Выберите иконку",
+    "searchIcon": "Поиск иконки...",
+    "noIconsFound": "Иконки не найдены",
+    "theme": {
+      "toggle": "Текущая тема: {{mode}}. Кликните для переключения",
+      "mode": {
+        "light": "светлая",
+        "dark": "тёмная",
+        "system": "системная"
+      }
+    }
+  },
+  "header": {
+    "notifications": "Уведомления"
+  },
+  "footer": {
+    "copyright": "Loginus",
+    "support": "Справка",
+    "oauth": "Loginus ID для сайта",
+    "terms": "Условия использования",
+    "privacy": "Конфиденциальность"
+  },
+  "sidebar": {
+    "profile": "Профиль",
+    "data": "Данные",
+    "documents": "Документы",
+    "addresses": "Адреса",
+    "security": "Безопасность",
+    "family": "Семья",
+    "work": "Работа",
+    "payments": "Платежи",
+    "support": "Поддержка",
+    "help": "Справка",
+    "loginusIdSite": "Loginus ID для сайта",
+    "langSwitcher": "Переключатель языка",
+    "brandPreset": "Переключить бренд‑пресет",
+    "more": "Еще"
+  },
+  "iframe": {
+    "title": "Встроенный контент",
+    "error": {
+      "title": "Ошибка",
+      "noContent": "Не указан URL или код для отображения"
+    }
+  },
+  "embedded": {
+    "title": "Встроенное приложение",
+    "error": {
+      "title": "Ошибка",
+      "noUrl": "Не указан URL приложения"
+    }
+  },
+  "avatar": {
+    "status": {
+      "label": "Статус: {{status}}",
+      "online": "онлайн",
+      "offline": "офлайн",
+      "away": "отошёл"
+    }
+  }
+}
+
