@@ -25,7 +25,28 @@ export default defineConfig({
     },
   },
   server: {
+    host: '0.0.0.0',
     port: 3000,
+    strictPort: true,
+    hmr: {
+      clientPort: 3002,
+      host: 'localhost',
+      protocol: 'ws',
+      timeout: 5000,
+    },
+    watch: {
+      usePolling: true,
+      interval: 1000,
+    },
+    fs: {
+      strict: false,
+      allow: ['..'],
+    },
+    cors: true,
+    headers: {
+      'Connection': 'keep-alive',
+      'Keep-Alive': 'timeout=600',
+    },
     proxy: {
       '/api': {
         target: process.env.VITE_API_URL || 'http://loginus-api:3001',
@@ -101,16 +122,44 @@ export default defineConfig({
   },
   // Оптимизация для dev режима
   optimizeDeps: {
+    // Максимально агрессивная пре-сборка для Docker
+    entries: ['./src/main.tsx'],
     include: [
       'react',
       'react-dom',
+      'react-dom/client',
+      'react/jsx-runtime',
+      'react/jsx-dev-runtime',
       'react-router-dom',
       'zustand',
       '@tanstack/react-query',
       'axios',
       'i18next',
       'react-i18next',
+      'react-hook-form',
+      '@hookform/resolvers',
+      '@hookform/resolvers/zod',
+      'zod',
+      'react-icons',
+      'react-icons/fa',
+      'react-icons/fi',
+      'react-icons/ai',
+      'react-icons/bi',
+      'react-icons/bs',
+      'react-icons/io',
+      'react-icons/md',
+      'react-icons/ri',
+      'react-icons/hi',
+      '@dnd-kit/core',
+      '@dnd-kit/sortable',
+      '@dnd-kit/utilities',
     ],
+    // Форсируем пересборку для обеспечения стабильности в Docker
+    force: true,
+    // Устанавливаем тайм-аут побольше
+    esbuildOptions: {
+      target: 'es2020',
+    },
   },
 });
 

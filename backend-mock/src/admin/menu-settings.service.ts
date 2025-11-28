@@ -170,6 +170,10 @@ export class MenuSettingsService {
           ...defaultItem,
           enabled: loadedItem.enabled,
           order: loadedItem.order,
+          // Сохраняем path, icon, label из загруженных данных, если они есть
+          path: loadedItem.path || defaultItem.path,
+          icon: loadedItem.icon || defaultItem.icon,
+          label: loadedItem.label || defaultItem.label,
           // Сохраняем children если они есть в загруженных данных
           children: loadedItem.children || defaultItem.children,
         };
@@ -228,10 +232,20 @@ export class MenuSettingsService {
     // Обновляем базовые пункты из переданных настроек (если они там есть)
     settings.items.forEach(item => {
       if (item.type === 'default' && defaultItemsMap.has(item.id)) {
-        // Обновляем только enabled и order для базовых пунктов
+        // Обновляем enabled, order, path, icon, label для базовых пунктов
         const existing = defaultItemsMap.get(item.id)!;
         existing.enabled = item.enabled;
         existing.order = item.order;
+        // Обновляем path, icon, label если они переданы
+        if (item.path !== undefined) {
+          existing.path = item.path;
+        }
+        if (item.icon !== undefined) {
+          existing.icon = item.icon;
+        }
+        if (item.label !== undefined) {
+          existing.label = item.label;
+        }
         // Обновляем children если они есть
         if (item.children) {
           existing.children = item.children;

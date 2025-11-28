@@ -111,26 +111,37 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
       return null;
     }
     
-    let path = item.path || '';
+    let path = '';
+    let navigationPath = ''; // Путь для фактической навигации
     
     // Для кастомных типов формируем путь
     if (item.type === 'iframe') {
-      path = buildPathWithLang('/iframe', currentLang);
+      // Генерируем реальный путь для навигации
+      navigationPath = buildPathWithLang('/iframe', currentLang);
       if (item.iframeUrl) {
-        path += `?url=${encodeURIComponent(item.iframeUrl)}`;
+        navigationPath += `?url=${encodeURIComponent(item.iframeUrl)}`;
       } else if (item.iframeCode) {
-        path += `?code=${encodeURIComponent(item.iframeCode)}`;
+        navigationPath += `?code=${encodeURIComponent(item.iframeCode)}`;
       }
+      
+      // Для построения иерархии используем кастомный path, если он задан
+      // Иначе используем тот же путь, что и для навигации
+      path = item.path ? buildPathWithLang(item.path, currentLang) : navigationPath;
     } else if (item.type === 'embedded') {
-      // Встроенные web_app-плагины: используем slug/id как часть маршрута
-      // Дальше EmbeddedAppPage вызовет /plugins/:slug/launch для получения launchUrl и initData
-      path = buildPathWithLang(`/plugins/${item.id}`, currentLang);
+      // Генерируем реальный путь для навигации
+      navigationPath = buildPathWithLang(`/plugins/${item.id}`, currentLang);
+      
+      // Для построения иерархии используем кастомный path, если он задан
+      // Иначе используем тот же путь, что и для навигации
+      path = item.path ? buildPathWithLang(item.path, currentLang) : navigationPath;
     } else if (item.type === 'external') {
       // Для внешних ссылок используем специальный путь или externalUrl
       path = item.path || item.externalUrl || '#';
+      navigationPath = path;
     } else if (item.path) {
       // Для системных пунктов добавляем язык
       path = buildPathWithLang(item.path, currentLang);
+      navigationPath = path;
     }
 
     // Применяем дефолтные иконки для системных пунктов, если иконка отсутствует
@@ -166,16 +177,26 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
     // Определяем активность родительского элемента
     // Если есть активный дочерний элемент, родительский не должен быть активным
     // Иначе проверяем активность родительского элемента
+    
+    // Для iframe/embedded с navigationPath проверяем navigationPath, а не общий тип
+    const isNavigationPathActive = navigationPath && location.pathname === navigationPath;
+    
+    // Для элементов с navigationPath (которые имеют кастомный path для иерархии)
+    // активность определяется только по navigationPath
+    const shouldCheckNavigationPath = navigationPath && navigationPath !== path;
+    
     const isParentActive = !hasActiveChild && (
       location.pathname === path || 
-      (item.path && location.pathname.includes(item.path) && !hasActiveChild) ||
-      (item.type === 'iframe' && location.pathname.includes('/iframe')) ||
-      (item.type === 'embedded' && location.pathname.includes('/embedded'))
+      (shouldCheckNavigationPath && isNavigationPathActive) ||
+      (!shouldCheckNavigationPath && item.path && location.pathname.includes(item.path) && !hasActiveChild) ||
+      (!shouldCheckNavigationPath && item.type === 'iframe' && location.pathname.includes('/iframe')) ||
+      (!shouldCheckNavigationPath && item.type === 'embedded' && location.pathname.includes('/embedded'))
     );
 
     const sidebarItem: SidebarItem = {
       label: resolveMenuItemLabel(item),
       path,
+      navigationPath: navigationPath !== path ? navigationPath : undefined, // Добавляем только если отличается
       icon: finalIcon,
       type: item.type,
       externalUrl: item.externalUrl,
@@ -275,7 +296,8 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
       return normalized;
     };
 
-    if (process.env.NODE_ENV === 'development' && items.length > 0) {
+    // Всегда логируем для отладки
+    if (items.length > 0) {
       console.log('[PageTemplate] buildNestedStructure input:', items.map(item => ({
         label: item.label,
         path: item.path,
@@ -306,15 +328,14 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
           // Проверяем точное совпадение: itemPath должен начинаться с rootPath + "/"
           const parentPathWithSlash = rootPath + '/';
           if (itemPath.startsWith(parentPathWithSlash)) {
-            if (process.env.NODE_ENV === 'development') {
-              console.log('[PageTemplate] Found parent:', {
-                childPath: itemPath,
-                parentPath: rootPath,
-                parentPathWithSlash,
-                parentLabel: rootItem.label,
-                childLabel: items.find(i => normalizePath(i.path) === itemPath)?.label,
-              });
-            }
+            // Всегда логируем для отладки
+            console.log('[PageTemplate] Found parent:', {
+              childPath: itemPath,
+              parentPath: rootPath,
+              parentPathWithSlash,
+              parentLabel: rootItem.label,
+              childLabel: items.find(i => normalizePath(i.path) === itemPath)?.label,
+            });
             // Проверяем, не является ли этот элемент уже дочерним для другого элемента
             // Если у rootItem есть children, проверяем их тоже (для глубокой вложенности)
             if (rootItem.children && rootItem.children.length > 0) {
@@ -388,12 +409,11 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
           // Это позволяет комбинировать вложенность из parentId и вложенность из путей
           parent.children.push(itemToMove);
           
-          if (process.env.NODE_ENV === 'development') {
-            console.log('[PageTemplate] Nested item:', {
-              parent: { label: parent.label, path: parent.path, normalized: normalizePath(parent.path) },
-              child: { label: itemToMove.label, path: itemToMove.path, normalized: itemPath },
-            });
-          }
+          // Всегда логируем для отладки
+          console.log('[PageTemplate] Nested item:', {
+            parent: { label: parent.label, path: parent.path, normalized: normalizePath(parent.path) },
+            child: { label: itemToMove.label, path: itemToMove.path, normalized: itemPath },
+          });
         }
       }
       
@@ -411,8 +431,9 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
     const apiResponse = userMenuData?.data;
     const menuItemsFromApi = apiResponse?.data || apiResponse || [];
     
-    if (process.env.NODE_ENV === 'development' && menuItemsFromApi.length > 0) {
-      console.log('[PageTemplate] Menu items from API:', menuItemsFromApi.map(item => ({ id: item.id, icon: item.icon, systemId: item.systemId, enabled: item.enabled, hasChildren: !!item.children, path: item.path })));
+    // Всегда логируем для отладки
+    if (menuItemsFromApi.length > 0) {
+      console.log('[PageTemplate] Menu items from API:', menuItemsFromApi.map(item => ({ id: item.id, icon: item.icon, systemId: item.systemId, enabled: item.enabled, hasChildren: !!item.children, path: item.path, order: item.order })));
     }
     
     // Если API вернул данные (даже пустой массив), используем их
@@ -426,20 +447,19 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
       // Применяем универсальную функцию для автоматического построения вложенности на основе путей
       const nestedItems = buildNestedStructure(filteredItems);
       
-      if (process.env.NODE_ENV === 'development') {
-        console.log('[PageTemplate] Built nested structure:', {
-          before: filteredItems.length,
-          after: nestedItems.length,
-          itemsBefore: filteredItems.map(item => ({ label: item.label, path: item.path })),
-          itemsAfter: nestedItems.map(item => ({
-            label: item.label,
-            path: item.path,
-            hasChildren: !!item.children,
-            childrenCount: item.children?.length || 0,
-            children: item.children?.map(c => ({ label: c.label, path: c.path })) || [],
-          })),
-        });
-      }
+    // Всегда логируем для отладки
+    console.log('[PageTemplate] Built nested structure:', {
+      before: filteredItems.length,
+      after: nestedItems.length,
+      itemsBefore: filteredItems.map(item => ({ label: item.label, path: item.path })),
+      itemsAfter: nestedItems.map(item => ({
+        label: item.label,
+        path: item.path,
+        hasChildren: !!item.children,
+        childrenCount: item.children?.length || 0,
+        children: item.children?.map(c => ({ label: c.label, path: c.path })) || [],
+      })),
+    });
       
       return nestedItems;
     }

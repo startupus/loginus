@@ -76,6 +76,7 @@ services:
       - loginus-api
     environment:
       - NODE_ENV=development
+      - VITE_HMR_TIMEOUT=10000
     volumes:
       - ./frontend/src:/app/frontend/src
       - ./frontend/public:/app/frontend/public
@@ -87,6 +88,10 @@ services:
       - /app/frontend/node_modules
       - /app/frontend/dist
     restart: unless-stopped
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
     networks:
       - loginus-network
 

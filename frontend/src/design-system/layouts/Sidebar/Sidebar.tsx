@@ -15,6 +15,7 @@ import { LanguageSwitcher } from '../../composites/LanguageSwitcher';
 export interface SidebarItem {
   label: string;
   path: string;
+  navigationPath?: string; // Путь для фактической навигации (если отличается от path для иерархии)
   icon?: string;
   active?: boolean;
   children?: SidebarItem[];
@@ -153,9 +154,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             window.location.href = item.externalUrl;
                           }
                         } else {
-                          // Обычный переход
-                          if (item.path) {
-                            onNavigate ? onNavigate(item.path) : navigate(item.path);
+                          // Обычный переход - используем navigationPath, если есть, иначе path
+                          const targetPath = item.navigationPath || item.path;
+                          if (targetPath) {
+                            onNavigate ? onNavigate(targetPath) : navigate(targetPath);
                           }
                         }
                       }}
@@ -198,7 +200,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       {item.children.map((child, childIndex) => (
                         <li key={child.path || childIndex} className="w-full">
                           <button
-                            onClick={() => onNavigate ? onNavigate(child.path) : navigate(child.path)}
+                            onClick={() => {
+                              // Используем navigationPath, если есть, иначе path
+                              const targetPath = child.navigationPath || child.path;
+                              onNavigate ? onNavigate(targetPath) : navigate(targetPath);
+                            }}
                             className={`${themeClasses.text.secondary} dark:text-dark-6 hover:border-primary hover:bg-primary/5 hover:text-primary flex w-full items-center border-r-4 border-transparent py-[10px] pl-9 pr-2 text-base font-medium duration-200 transition-all text-left ${
                               child.active ? '!border-primary bg-primary/5' : ''
                             }`}

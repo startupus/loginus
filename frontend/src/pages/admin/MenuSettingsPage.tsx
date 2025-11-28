@@ -367,6 +367,7 @@ const MenuSettingsPage: React.FC = () => {
       ...item,
       labelRu: (item as any).labelRu || item.label || '',
       labelEn: (item as any).labelEn || item.label || '',
+      path: item.path || '', // Извлекаем path
     };
     setNewItem(itemWithTranslations);
     setIsAddModalOpen(true);
@@ -687,17 +688,27 @@ const MenuSettingsPage: React.FC = () => {
 
           {/* Для системных пунктов тип и id нельзя менять */}
           {editingItem && editingItem.type === 'default' ? (
-            <div>
-              <label className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>
-                {t('admin.menuSettings.form.type')}
-              </label>
-              <div className={`px-4 py-2 rounded-lg border ${themeClasses.border.default} ${themeClasses.background.gray2} ${themeClasses.text.secondary}`}>
-                {t('admin.menuSettings.type.default')}
+            <>
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>
+                  {t('admin.menuSettings.form.type')}
+                </label>
+                <div className={`px-4 py-2 rounded-lg border ${themeClasses.border.default} ${themeClasses.background.gray2} ${themeClasses.text.secondary}`}>
+                  {t('admin.menuSettings.type.default')}
+                </div>
+                <p className={`text-xs mt-1 ${themeClasses.text.secondary}`}>
+                  {t('admin.menuSettings.form.typeReadonly')}
+                </p>
               </div>
-              <p className={`text-xs mt-1 ${themeClasses.text.secondary}`}>
-                {t('admin.menuSettings.form.typeReadonly')}
-              </p>
-            </div>
+              {/* Поле пути для плагинов */}
+              <Input
+                label={t('admin.menuSettings.form.path')}
+                value={newItem.path || ''}
+                onChange={(e) => setNewItem({ ...newItem, path: e.target.value })}
+                placeholder="/plugin/custom"
+                helperText={t('admin.menuSettings.form.pathHelperText', 'Путь в меню (например: /plugin/analytics)')}
+              />
+            </>
           ) : (
             <div>
               <label className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>

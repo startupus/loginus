@@ -22,6 +22,9 @@ WORKDIR /app/frontend
 
 EXPOSE 3000
 
-# Запуск в dev режиме
-CMD ["pnpm", "dev", "--host", "0.0.0.0"]
+# Увеличиваем лимиты Node.js для работы в Docker
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
+# Запуск в dev режиме без проверки TypeScript
+CMD ["pnpm", "run", "dev:no-ts", "--host", "0.0.0.0"]
 

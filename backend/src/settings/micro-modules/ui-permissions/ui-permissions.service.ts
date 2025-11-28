@@ -863,6 +863,7 @@ export class UIPermissionsService {
       const config = {
         url: item.iframeUrl || null,
         iframeCode: item.iframeCode || null,
+        path: item.path || null, // Сохраняем path в config
       };
       await this.upsertPluginFromMenuItem(slug, {
         ...basePayload,
@@ -873,6 +874,7 @@ export class UIPermissionsService {
       const config = {
         entryUrl: item.embeddedAppUrl || null,
         launchMode: 'remote_url',
+        path: item.path || null, // Сохраняем path в config
       };
       await this.upsertPluginFromMenuItem(slug, {
         ...basePayload,
@@ -964,6 +966,7 @@ export class UIPermissionsService {
     } else if (plugin.type === PluginType.WEB_APP) {
       const config = plugin.config || {};
       baseItem.embeddedAppUrl = config.entryUrl || undefined;
+      baseItem.path = config.path || undefined; // Читаем path из config
     }
 
     return baseItem;
