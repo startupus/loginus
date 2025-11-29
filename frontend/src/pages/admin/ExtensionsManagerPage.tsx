@@ -82,7 +82,7 @@ const ExtensionsManagerPage: React.FC = () => {
       if (filterStatus === 'disabled') params.append('enabled', 'false');
 
       const response = await apiClient.get(`/admin/extensions?${params.toString()}`);
-      return response.data;
+      return Array.isArray(response.data) ? response.data : (response.data.data || []);
     },
   });
 
