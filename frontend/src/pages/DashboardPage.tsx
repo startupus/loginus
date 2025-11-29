@@ -283,8 +283,9 @@ const DashboardPage: React.FC = () => {
     queryKey: ['extensions', 'widgets', 'enabled'],
     queryFn: async () => {
       try {
-        const response = await apiClient.get('/admin/extensions?extensionType=widget&enabled=true');
-        return Array.isArray(response.data) ? response.data : [];
+        const response = await apiClient.get('/admin/extensions?type=widget&enabled=true');
+        // API возвращает { success: true, data: [...] }
+        return Array.isArray(response.data?.data) ? response.data.data : [];
       } catch (error) {
         console.error('[DashboardPage] Failed to fetch extension widgets:', error);
         return [];
@@ -634,6 +635,7 @@ const DashboardPage: React.FC = () => {
                         <PluginWidget
                           key={widgetId}
                           widgetId={widgetId}
+                          slug={extensionWidget.slug}
                           title={extensionWidget.name}
                           description={extensionWidget.description}
                           uiType={extensionWidget.uiType}

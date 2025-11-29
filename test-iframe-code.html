@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тестовый виджет</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .widget {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .info {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .info p {
+            margin: 8px 0;
+            color: #4a5568;
+            font-size: 14px;
+        }
+
+        .info strong {
+            color: #2d3748;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: #edf2f7;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #48bb78;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+        }
+
+        .log {
+            margin-top: 20px;
+            padding: 15px;
+            background: #1a202c;
+            color: #48bb78;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            margin: 4px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="widget">
+        <h1>🧪 Тестовый виджет</h1>
+        
+        <div class="info">
+            <p><strong>Тип:</strong> Iframe с HTML кодом</p>
+            <p><strong>Статус:</strong> Загружен через iframeCode</p>
+            <p><strong>Время загрузки:</strong> <span id="loadTime"></span></p>
+        </div>
+
+        <div class="status">
+            <div class="status-dot"></div>
+            <span>Виджет активен</span>
+        </div>
+
+        <button class="button" onclick="sendMessage()">
+            Отправить сообщение родителю
+        </button>
+
+        <div class="log" id="log">
+            <div class="log-entry">[Инициализация] Виджет загружен</div>
+        </div>
+    </div>
+
+    <script>
+        // Логирование
+        function log(message) {
+            const logEl = document.getElementById('log');
+            const time = new Date().toLocaleTimeString('ru-RU');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.textContent = `[${time}] ${message}`;
+            logEl.insertBefore(entry, logEl.firstChild);
+            
+            // Ограничиваем количество записей
+            while (logEl.children.length > 10) {
+                logEl.removeChild(logEl.lastChild);
+            }
+        }
+
+        // Отправка сообщения родительскому окну
+        function sendMessage() {
+            try {
+                window.parent.postMessage({
+                    type: 'WIDGET_RESIZE',
+                    widgetId: 'test-widget',
+                    height: document.body.scrollHeight,
+                    message: 'Привет от виджета!',
+                    timestamp: Date.now()
+                }, '*');
+                log('✅ Сообщение отправлено родителю');
+            } catch (error) {
+                log('❌ Ошибка отправки: ' + error.message);
+            }
+        }
+
+        // Слушаем сообщения от родителя
+        window.addEventListener('message', (event) => {
+            if (event.data.type === 'LOGINUS_AUTH_TOKEN') {
+                log('🔑 Получен токен от родителя');
+                log('Токен: ' + event.data.token.substring(0, 20) + '...');
+            } else {
+                log('📨 Получено сообщение: ' + JSON.stringify(event.data));
+            }
+        });
+
+        // Отправка размера при изменении
+        function sendSize() {
+            try {
+                window.parent.postMessage({
+                    type: 'WIDGET_RESIZE',
+                    widgetId: 'test-widget',
+                    height: document.body.scrollHeight
+                }, '*');
+            } catch (error) {
+                console.error('Error sending size:', error);
+            }
+        }
+
+        // Инициализация
+        window.addEventListener('DOMContentLoaded', () => {
+            const loadTime = new Date().toLocaleTimeString('ru-RU');
+            document.getElementById('loadTime').textContent = loadTime;
+            log('🚀 Виджет инициализирован');
+            
+            // Отправляем размер после загрузки
+            setTimeout(sendSize, 100);
+            
+            // Наблюдаем за изменениями размера
+            const resizeObserver = new ResizeObserver(() => {
+                sendSize();
+            });
+            resizeObserver.observe(document.body);
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,49 @@
+{
+  "name": "calculator-advanced",
+  "version": "2.0.0",
+  "displayName": "Умный калькулятор",
+  "displayNameEn": "Smart Calculator",
+  "description": "Калькулятор с интеграцией backend: логирование, история, события",
+  "descriptionEn": "Calculator with backend integration: logging, history, events",
+  "author": "Loginus Team",
+  "type": "menu_item",
+  "icon": "calculator",
+  "scope": "user",
+  "config": {
+    "renderType": "iframe",
+    "entrypoint": "index.html",
+    "baseUrl": "/uploads/plugins/calculator-advanced"
+  },
+  "backend": {
+    "enabled": true,
+    "modulePath": "backend/calculator.module.ts",
+    "controllerPath": "backend/calculator.controller.ts",
+    "moduleName": "CalculatorModule",
+    "controllerName": "CalculatorController",
+    "routes": [
+      {
+        "path": "/calculator/calculate",
+        "method": "POST",
+        "description": "Выполнить вычисление"
+      },
+      {
+        "path": "/calculator/history",
+        "method": "GET",
+        "description": "Получить историю вычислений"
+      }
+    ]
+  },
+  "events": {
+    "subscribes": ["USER_SETTINGS_UPDATED"],
+    "emits": [
+      "CALCULATOR_CALCULATION_DONE",
+      "CALCULATOR_HISTORY_SAVED",
+      "CALCULATOR_ERROR"
+    ]
+  },
+  "permissions": {
+    "api": ["read:user", "write:events"],
+    "storage": ["localStorage"]
+  }
+}
+

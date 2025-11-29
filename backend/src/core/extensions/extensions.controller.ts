@@ -51,27 +51,60 @@ export class ExtensionsController {
    */
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: false }))
+  // Убираем ValidationPipe - FormData с файлами не работает с class-validator
   async uploadExtension(
     @UploadedFile() file: any, // Express.Multer.File
-    @Body() dto: UploadExtensionDto,
+    @Body() body: any,  // Получаем сырой body
   ) {
+    console.log('[ExtensionsController] uploadExtension called');
+    console.log('[ExtensionsController] file:', file ? { 
+      originalname: file.originalname, 
+      mimetype: file.mimetype, 
+      size: file.size,
+      hasBuffer: !!file.buffer,
+      bufferLength: file.buffer?.length,
+    } : 'NO FILE');
+    console.log('[ExtensionsController] body:', body);
+    console.log('[ExtensionsController] body.extensionType type:', typeof body.extensionType);
+    console.log('[ExtensionsController] body.enabled type:', typeof body.enabled);
+
+    // Ручная валидация
     if (!file) {
       throw new BadRequestException('No file uploaded');
+    }
+
+    if (!file.buffer || !Buffer.isBuffer(file.buffer)) {
+      console.error('[ExtensionsController] file.buffer is missing or invalid!', {
+        hasBuffer: !!file.buffer,
+        bufferType: typeof file.buffer,
+        fileKeys: Object.keys(file),
+      });
+      throw new BadRequestException('File buffer is missing or invalid');
     }
 
     if (!file.originalname.endsWith('.zip')) {
       throw new BadRequestException('File must be a .zip archive');
     }
 
+    if (!body.name || typeof body.name !== 'string') {
+      throw new BadRequestException('Name is required and must be a string');
+    }
+
+    if (!body.extensionType || typeof body.extensionType !== 'string') {
+      throw new BadRequestException('Extension type is required');
+    }
+
+    // Преобразуем enabled из string в boolean
+    const enabled = body.enabled === 'true' || body.enabled === true;
+
     // Маппинг 'plugin' -> 'menu_item' для обратной совместимости
-    const extensionType = dto.extensionType === 'plugin' ? 'menu_item' : dto.extensionType;
+    const extensionType = body.extensionType === 'plugin' ? 'menu_item' : body.extensionType;
 
     const result = await this.uploadService.uploadExtension(
       file.buffer,
-      dto.name,
+      body.name,
       extensionType,
-      dto.config,
+      body.config,
     );
 
     if (!result.success) {
@@ -81,8 +114,8 @@ export class ExtensionsController {
     }
 
     // Если enabled передан и установка успешна, устанавливаем его после установки
-    if (dto.enabled !== undefined && result.success && result.extensionId) {
-      await this.registry.update(result.extensionId, { enabled: dto.enabled });
+    if (enabled !== undefined && result.success && result.extensionId) {
+      await this.registry.update(result.extensionId, { enabled: enabled });
     }
 
     return {

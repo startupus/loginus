@@ -1,12 +1,15 @@
 import { Module, Global } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MulterModule } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 import { EventBusService } from './events/event-bus.service';
 import { EventLoggerService } from './events/event-logger.service';
+import { EventsController } from './events/events.controller';
 import { PluginRegistryService } from './extensions/plugin-registry.service';
 import { PluginLoaderService } from './extensions/plugin-loader.service';
 import { ExtensionUploadService } from './extensions/extension-upload.service';
 import { ExtensionsController } from './extensions/extensions.controller';
+import { CalculatorController } from './extensions/calculator.controller';
 import { EventLog } from './events/entities/event-log.entity';
 import { Extension } from './extensions/entities/extension.entity';
 import { MenuItemPlugin } from './extensions/entities/menu-item-plugin.entity';
@@ -26,13 +29,13 @@ import { ProfileWidget } from './extensions/entities/profile-widget.entity';
       ProfileWidget,
     ]),
     MulterModule.register({
-      dest: './uploads/plugins',
+      storage: memoryStorage(), // ✅ Используем memoryStorage для получения file.buffer
       limits: {
         fileSize: 50 * 1024 * 1024, // 50MB
       },
     }),
   ],
-  controllers: [ExtensionsController],
+  controllers: [ExtensionsController, EventsController, CalculatorController],
   providers: [
     EventBusService,
     EventLoggerService,

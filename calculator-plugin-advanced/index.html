@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Умный калькулятор</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .calculator {
+            background: #1a1a1a;
+            border: 2px solid #333;
+            border-radius: 0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header h2 {
+            color: #00ff00;
+            font-size: 1.2rem;
+            font-weight: normal;
+        }
+
+        .status {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00ff00;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 4px #00ff00;
+        }
+
+        .status-dot.disconnected {
+            background: #ff0000;
+            box-shadow: 0 0 4px #ff0000;
+        }
+
+        #statusText {
+            color: #888 !important;
+            font-size: 0.7rem !important;
+            font-family: 'Courier New', monospace;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .display {
+            background: #000000;
+            border: 2px solid #333;
+            padding: 15px;
+            border-radius: 0;
+            margin-bottom: 15px;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: flex-end;
+        }
+
+        .expression {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 5px;
+            min-height: 20px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .result {
+            font-size: 2rem;
+            color: #00ff00;
+            font-weight: normal;
+            word-wrap: break-word;
+            text-align: right;
+            font-family: 'Courier New', monospace;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        button {
+            padding: 20px;
+            font-size: 1.1rem;
+            border: 1px solid #333;
+            border-radius: 0;
+            cursor: pointer;
+            transition: all 0.1s;
+            font-weight: normal;
+            background: #2a2a2a;
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+        }
+
+        button:hover {
+            background: #3a3a3a;
+            border-color: #555;
+        }
+
+        button:active {
+            background: #1a1a1a;
+            transform: scale(0.98);
+        }
+
+        .operator {
+            background: #333;
+            color: #00ff00;
+            border-color: #555;
+        }
+
+        .operator:hover {
+            background: #444;
+        }
+
+        .equals {
+            background: #006600;
+            color: #00ff00;
+            grid-column: span 2;
+            border-color: #008800;
+        }
+
+        .equals:hover {
+            background: #007700;
+        }
+
+        .clear {
+            background: #660000;
+            color: #ff0000;
+            border-color: #880000;
+        }
+
+        .clear:hover {
+            background: #770000;
+        }
+
+        .zero {
+            grid-column: span 2;
+        }
+
+        .history {
+            margin-top: 15px;
+            padding: 10px;
+            background: #000000;
+            border: 1px solid #333;
+            border-radius: 0;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .history h3 {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 8px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .history-item {
+            padding: 6px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 0;
+            margin-bottom: 4px;
+            font-size: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+        }
+
+        .history-item .time {
+            color: #888;
+            font-size: 0.7rem;
+        }
+
+        .event-log {
+            margin-top: 10px;
+            padding: 8px;
+            background: #000000;
+            border: 1px solid #333;
+            border-radius: 0;
+            font-size: 0.7rem;
+            color: #888;
+            max-height: 80px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="header">
+            <h2>🧮 Умный калькулятор</h2>
+            <div class="status">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText" style="font-size: 0.75rem; color: #718096;">Подключение...</span>
+            </div>
+        </div>
+
+        <div class="display">
+            <div class="expression" id="expression"></div>
+            <div class="result" id="result">0</div>
+        </div>
+
+        <div class="buttons">
+            <button class="clear" onclick="clearDisplay()">C</button>
+            <button class="operator" onclick="appendOperator('/')">/</button>
+            <button class="operator" onclick="appendOperator('*')">×</button>
+            
+            <button onclick="appendNumber('7')">7</button>
+            <button onclick="appendNumber('8')">8</button>
+            <button onclick="appendNumber('9')">9</button>
+            <button class="operator" onclick="appendOperator('-')">-</button>
+            
+            <button onclick="appendNumber('4')">4</button>
+            <button onclick="appendNumber('5')">5</button>
+            <button onclick="appendNumber('6')">6</button>
+            <button class="operator" onclick="appendOperator('+')">+</button>
+            
+            <button onclick="appendNumber('1')">1</button>
+            <button onclick="appendNumber('2')">2</button>
+            <button onclick="appendNumber('3')">3</button>
+            <button class="equals" onclick="calculate()">=</button>
+            
+            <button class="zero" onclick="appendNumber('0')">0</button>
+            <button onclick="appendNumber('.')">.</button>
+        </div>
+
+        <div class="history" id="historyContainer" style="display: none;">
+            <h3>История вычислений</h3>
+            <div id="historyList"></div>
+        </div>
+
+        <div class="event-log" id="eventLog"></div>
+    </div>
+
+    <script>
+        // === КОНФИГУРАЦИЯ ===
+        const API_BASE = window.location.origin.includes('localhost:3000') 
+            ? 'http://localhost:3000/api/v2'  // Через Vite proxy
+            : 'http://localhost:3004/api/v2'; // Напрямую к backend
+        let currentExpression = '';
+        let currentResult = '0';
+        let history = [];
+        let backendConnected = false;
+
+        // === ХРАНЕНИЕ ТОКЕНА ===
+        let authToken = null;
+
+        // === ПОЛУЧЕНИЕ ТОКЕНА ИЗ LOCALSTORAGE (fallback) ===
+        function getAuthToken() {
+            // Сначала пробуем токен полученный через postMessage
+            if (authToken) {
+                return authToken;
+            }
+
+            // Fallback: пробуем получить из localStorage
+            try {
+                const authStore = localStorage.getItem('auth-store');
+                if (authStore) {
+                    const parsed = JSON.parse(authStore);
+                    return parsed?.state?.accessToken || null;
+                }
+            } catch (e) {
+                logEvent('❌ Ошибка получения токена: ' + e.message);
+            }
+            return null;
+        }
+
+        // === ПРОВЕРКА ПОДКЛЮЧЕНИЯ К BACKEND ===
+        async function checkBackendConnection() {
+            const token = getAuthToken();
+            if (!token) {
+                updateStatus(false, 'Нет токена');
+                return false;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/profile/dashboard`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const connected = response.ok;
+                updateStatus(connected, connected ? 'Подключено' : 'Ошибка');
+                backendConnected = connected;
+                return connected;
+            } catch (error) {
+                updateStatus(false, 'Офлайн');
+                logEvent('❌ Ошибка подключения: ' + error.message);
+                return false;
+            }
+        }
+
+        // === ОБНОВЛЕНИЕ СТАТУСА ПОДКЛЮЧЕНИЯ ===
+        function updateStatus(connected, text) {
+            const dot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            
+            dot.className = 'status-dot' + (connected ? '' : ' disconnected');
+            statusText.textContent = text;
+        }
+
+        // === ЛОГИРОВАНИЕ СОБЫТИЙ В UI ===
+        function logEvent(message) {
+            const eventLog = document.getElementById('eventLog');
+            const time = new Date().toLocaleTimeString('ru-RU');
+            eventLog.innerHTML = `[${time}] ${message}<br>` + eventLog.innerHTML;
+            
+            // Ограничиваем количество логов
+            const logs = eventLog.innerHTML.split('<br>').slice(0, 5);
+            eventLog.innerHTML = logs.join('<br>');
+        }
+
+        // === ОТПРАВКА СОБЫТИЯ В BACKEND (через EventBus) ===
+        async function sendEventToBackend(eventName, data) {
+            if (!backendConnected) {
+                logEvent('⚠️ Событие не отправлено (офлайн)');
+                return;
+            }
+
+            const token = getAuthToken();
+            if (!token) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/events/emit`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        eventName,
+                        data: {
+                            ...data,
+                            pluginId: 'calculator-advanced',
+                            timestamp: new Date().toISOString()
+                        }
+                    })
+                });
+
+                if (response.ok) {
+                    logEvent(`✅ Событие отправлено: ${eventName}`);
+                } else {
+                    logEvent(`❌ Ошибка отправки: ${response.status}`);
+                }
+            } catch (error) {
+                logEvent(`❌ Ошибка: ${error.message}`);
+            }
+        }
+
+        // === КОММУНИКАЦИЯ С РОДИТЕЛЬСКИМ ОКНОМ ===
+        function sendToParent(type, payload) {
+            try {
+                window.parent.postMessage({
+                    source: 'calculator-plugin',
+                    type,
+                    payload,
+                    timestamp: Date.now()
+                }, '*');
+                logEvent(`📤 Отправлено родителю: ${type}`);
+            } catch (error) {
+                logEvent(`❌ Ошибка postMessage: ${error.message}`);
+            }
+        }
+
+        // === ОСНОВНАЯ ЛОГИКА КАЛЬКУЛЯТОРА ===
+        function appendNumber(num) {
+            if (currentResult === '0' && num !== '.') {
+                currentResult = num;
+            } else {
+                currentResult += num;
+            }
+            updateDisplay();
+        }
+
+        function appendOperator(op) {
+            if (currentExpression && !currentExpression.endsWith(' ')) {
+                currentExpression += ' ' + currentResult + ' ' + op;
+                currentResult = '0';
+                updateDisplay();
+            } else if (!currentExpression) {
+                currentExpression = currentResult + ' ' + op;
+                currentResult = '0';
+                updateDisplay();
+            }
+        }
+
+        function clearDisplay() {
+            currentExpression = '';
+            currentResult = '0';
+            updateDisplay();
+            logEvent('🧹 Дисплей очищен');
+        }
+
+        async function calculate() {
+            if (!currentExpression) return;
+
+            const fullExpression = currentExpression + ' ' + currentResult;
+            const token = getAuthToken();
+            
+            if (!token) {
+                logEvent('❌ Нет токена для вычисления');
+                alert('Ошибка: нет токена авторизации');
+                return;
+            }
+
+            try {
+                // Заменяем × на * для backend
+                const safeExpression = fullExpression.replace(/×/g, '*');
+                
+                logEvent(`🔄 Отправка на backend: ${safeExpression}`);
+
+                // 🔥 ВЫЧИСЛЕНИЕ НА BACKEND
+                const response = await fetch(`${API_BASE}/calculator/calculate`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        expression: safeExpression
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Ошибка вычисления на сервере');
+                }
+
+                const result = data.data.result;
+
+                // Сохраняем в историю
+                const historyItem = {
+                    expression: fullExpression,
+                    result: result,
+                    timestamp: new Date().toISOString(),
+                    time: new Date().toLocaleTimeString('ru-RU')
+                };
+                
+                history.unshift(historyItem);
+                if (history.length > 10) history.pop();
+                
+                // Сохраняем в localStorage
+                localStorage.setItem('calculator-history', JSON.stringify(history));
+                
+                // Обновляем UI
+                currentExpression = '';
+                currentResult = result;
+                updateDisplay();
+                updateHistory();
+
+                // 🔥 ОТПРАВЛЯЕМ РОДИТЕЛЬСКОМУ ОКНУ
+                sendToParent('CALCULATION_DONE', {
+                    expression: fullExpression,
+                    result: result
+                });
+
+                logEvent(`✅ Вычисление на backend: ${fullExpression} = ${result}`);
+                
+            } catch (error) {
+                logEvent(`❌ Ошибка вычисления: ${error.message}`);
+                
+                alert('Ошибка вычисления: ' + error.message);
+            }
+        }
+
+        function updateDisplay() {
+            document.getElementById('expression').textContent = currentExpression || ' ';
+            document.getElementById('result').textContent = currentResult;
+        }
+
+        function updateHistory() {
+            const historyContainer = document.getElementById('historyContainer');
+            const historyList = document.getElementById('historyList');
+            
+            if (history.length === 0) {
+                historyContainer.style.display = 'none';
+                sendWidgetSize(); // Обновляем размер
+                return;
+            }
+
+            historyContainer.style.display = 'block';
+            historyList.innerHTML = history.map(item => `
+                <div class="history-item">
+                    <span>${item.expression} = ${item.result}</span>
+                    <span class="time">${item.time}</span>
+                </div>
+            `).join('');
+            
+            // Обновляем размер после изменения истории
+            setTimeout(() => {
+                sendWidgetSize();
+            }, 100);
+        }
+
+        // === ЗАГРУЗКА ИСТОРИИ ИЗ LOCALSTORAGE ===
+        function loadHistory() {
+            try {
+                const saved = localStorage.getItem('calculator-history');
+                if (saved) {
+                    history = JSON.parse(saved);
+                    updateHistory();
+                    logEvent(`📂 Загружено ${history.length} записей истории`);
+                }
+            } catch (error) {
+                logEvent(`❌ Ошибка загрузки истории: ${error.message}`);
+            }
+        }
+
+        // === СЛУШАТЕЛЬ СОБЫТИЙ ОТ РОДИТЕЛЬСКОГО ОКНА ===
+        window.addEventListener('message', (event) => {
+            // Получение токена от родительского окна
+            if (event.data.type === 'LOGINUS_AUTH_TOKEN') {
+                authToken = event.data.token;
+                logEvent('🔑 Токен получен от родительского окна');
+                updateStatus(true, 'Подключено');
+                backendConnected = true;
+                // Проверяем подключение с новым токеном
+                checkBackendConnection();
+            }
+            
+            // Получение настроек
+            if (event.data.type === 'USER_SETTINGS_UPDATED') {
+                logEvent('⚙️ Получены обновленные настройки');
+                // Применяем настройки (например, тему)
+                console.log('Settings:', event.data.payload);
+            }
+        });
+
+        // === ОТПРАВКА РАЗМЕРА ВИДЖЕТА РОДИТЕЛЮ ===
+        function sendWidgetSize() {
+            try {
+                const height = document.body.scrollHeight;
+                window.parent.postMessage({
+                    type: 'WIDGET_RESIZE',
+                    widgetId: 'calculator-advanced', // Можно получить из URL или параметров
+                    height: height,
+                    timestamp: Date.now()
+                }, '*');
+            } catch (error) {
+                console.error('Error sending widget size:', error);
+            }
+        }
+
+        // === ИНИЦИАЛИЗАЦИЯ ===
+        async function init() {
+            logEvent('🚀 Инициализация калькулятора...');
+            loadHistory();
+            await checkBackendConnection();
+            
+            // Периодическая проверка подключения
+            setInterval(checkBackendConnection, 30000);
+            
+            // Отправляем размер после загрузки
+            setTimeout(() => {
+                sendWidgetSize();
+            }, 500);
+            
+            // Отслеживаем изменения размера
+            const resizeObserver = new ResizeObserver(() => {
+                sendWidgetSize();
+            });
+            resizeObserver.observe(document.body);
+            
+            logEvent('✅ Калькулятор готов!');
+        }
+
+        // Запускаем при загрузке
+        init();
+    </script>
+</body>
+</html>
+

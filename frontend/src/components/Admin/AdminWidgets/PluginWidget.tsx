@@ -5,6 +5,7 @@ import { themeClasses } from '../../../design-system/utils/themeClasses';
 
 export interface PluginWidgetProps {
   widgetId: string;
+  slug?: string;
   title: string;
   description?: string;
   uiType?: string;
@@ -25,6 +26,7 @@ export interface PluginWidgetProps {
  */
 export const PluginWidget: React.FC<PluginWidgetProps> = ({
   widgetId,
+  slug,
   title,
   description,
   uiType,
@@ -39,6 +41,37 @@ export const PluginWidget: React.FC<PluginWidgetProps> = ({
   dragOverPosition,
 }) => {
   const { t } = useTranslation();
+  const [iframeHeight, setIframeHeight] = React.useState<number | null>(null);
+  const iframeRef = React.useRef<HTMLIFrameElement>(null);
+
+  // Слушаем сообщения от iframe о размере содержимого
+  React.useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      // Проверяем что сообщение от нашего iframe
+      // Может быть widgetId или slug
+      const isOurWidget = event.data.type === 'WIDGET_RESIZE' && (
+        event.data.widgetId === widgetId || 
+        event.data.widgetId === slug ||
+        event.data.widgetId === manifest?.name ||
+        (slug && event.data.widgetId?.includes(slug))
+      );
+      
+      if (isOurWidget) {
+        const height = event.data.height;
+        if (height && height > 0) {
+          setIframeHeight(height);
+          if (process.env.NODE_ENV === 'development') {
+            console.log('[PluginWidget] Resize received:', { widgetId, slug, height });
+          }
+        }
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, [widgetId, slug, manifest]);
 
   return (
     <div
@@ -85,25 +118,36 @@ export const PluginWidget: React.FC<PluginWidgetProps> = ({
 
         {/* Content */}
         <div className="p-4">
-          {uiType === 'iframe' && manifest?.ui?.entryFile ? (
+          {uiType === 'iframe' && (manifest?.ui?.entryFile || manifest?.config?.entrypoint) ? (
             <iframe
-              src={manifest.ui.entryFile}
-              className="w-full h-64 border-0 rounded-lg"
+              ref={iframeRef}
+              src={manifest?.ui?.entryFile || `/uploads/plugins/${slug}/${manifest?.config?.entrypoint}`}
+              className="w-full border-0 rounded-lg"
+              style={{ 
+                height: iframeHeight ? `${iframeHeight}px` : 'auto',
+                minHeight: '200px',
+                maxHeight: '600px',
+                overflow: 'hidden'
+              }}
               title={title}
               sandbox="allow-scripts allow-same-origin"
+              scrolling="no"
             />
-          ) : uiType === 'embedded' && manifest?.ui?.entryFile ? (
-            <div className="w-full h-64 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-lg">
-              <div className="text-center">
-                <Icon name="package" size="xl" className="text-primary mx-auto mb-2" />
-                <p className={themeClasses.text.secondary}>
-                  {t('admin.widgets.plugin.embedded', 'Встроенное приложение')}
-                </p>
-                <p className={`text-xs ${themeClasses.text.secondary} mt-1`}>
-                  {manifest.ui.entryFile}
-                </p>
-              </div>
-            </div>
+          ) : uiType === 'embedded' && (manifest?.ui?.entryFile || manifest?.config?.entrypoint) ? (
+            <iframe
+              ref={iframeRef}
+              src={manifest?.ui?.entryFile || `/uploads/plugins/${slug}/${manifest?.config?.entrypoint}`}
+              className="w-full border-0 rounded-lg"
+              style={{ 
+                height: iframeHeight ? `${iframeHeight}px` : 'auto',
+                minHeight: '200px',
+                maxHeight: '600px',
+                overflow: 'hidden'
+              }}
+              title={title}
+              sandbox="allow-scripts allow-same-origin"
+              scrolling="no"
+            />
           ) : (
             <div className="w-full h-64 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-lg">
               <div className="text-center">

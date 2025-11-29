@@ -62,6 +62,10 @@ export const PLUGIN_EVENTS = {
   // Ошибки
   ERROR: 'plugin.error',
 
+  // Калькулятор
+  CALCULATION_DONE: 'plugin.calculation_done',
+  CALCULATION_ERROR: 'plugin.calculation_error',
+
   // Wildcard
   ALL: 'plugin.*',
 } as const;

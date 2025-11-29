@@ -68,6 +68,12 @@ export default defineConfig({
           });
         },
       },
+      '/uploads': {
+        // Проксируем статические файлы плагинов к backend
+        target: process.env.VITE_API_URL || 'http://localhost:3004',
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
   build: {

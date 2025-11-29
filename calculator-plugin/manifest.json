@@ -1,0 +1,17 @@
+{
+  "name": "calculator-plugin",
+  "version": "1.0.0",
+  "displayName": "Калькулятор",
+  "displayNameEn": "Calculator",
+  "description": "Простой калькулятор для быстрых вычислений",
+  "descriptionEn": "Simple calculator for quick calculations",
+  "author": "Loginus Team",
+  "type": "menu_item",
+  "icon": "calculator",
+  "scope": "user",
+  "config": {
+    "renderType": "iframe",
+    "entrypoint": "index.html"
+  }
+}
+

@@ -180,48 +180,21 @@ export class UIPermissionsService {
         // Продолжаем работу без плагинов
       }
       
-      // Объединяем системные пункты и плагины
-      const allItems = [...systemItems, ...pluginItems];
+      // ❌ УДАЛЕНО: НЕ объединяем и НЕ перезаписываем меню автоматически!
+      // Админ полностью контролирует структуру меню через админ-панель
+      // Этот код был причиной откатов изменений меню
       
-      console.log('[UIPermissionsService] System items count:', systemItems.length);
-      console.log('[UIPermissionsService] Plugin items count:', pluginItems.length);
-      if (systemItems.length > 0) {
-        console.log('[UIPermissionsService] System items:', systemItems.map(item => ({ id: item.id, type: item.type })));
-      }
-      if (pluginItems.length > 0) {
-        console.log('[UIPermissionsService] Plugin items:', pluginItems.map(item => ({ id: item.id, type: item.type })));
-      }
+      // ВАЖНО: Используем ТОЛЬКО данные из БД, НЕ модифицируем их
+      // Плагины и системные элементы должны быть добавлены через админ-панель,
+      // а НЕ автоматически при каждом запросе к меню
       
-      if (allItems.length > 0) {
-        // Сортируем по order
-        const sortedItems = allItems
-          .filter(item => item && item.id)
-          .sort((a, b) => (a.order || 0) - (b.order || 0));
-        
-        console.log('[UIPermissionsService] Merged items count:', sortedItems.length);
-        console.log('[UIPermissionsService] Merged items:', sortedItems.map(item => ({ id: item.id, type: item.type, order: item.order })));
-        
-        // Обновляем меню с объединенной структурой
-        menu.items = sortedItems;
-        try {
-          menu = await this.navigationMenusRepo.save(menu);
-        } catch (saveError) {
-          if (process.env.NODE_ENV === 'development') {
-            console.error('[UIPermissionsService] Failed to save menu:', saveError);
-          }
-          // В случае ошибки сохранения используем существующее меню
-        }
-      } else {
-        if (process.env.NODE_ENV === 'development') {
-          console.warn('[UIPermissionsService] No items to merge, using existing menu');
-        }
-      }
+      console.log('[UIPermissionsService] Using menu from DB as-is, NOT merging with system items');
     } catch (error) {
       // В случае ошибки используем существующее меню
       if (process.env.NODE_ENV === 'development') {
-        console.error('[UIPermissionsService] Failed to merge plugins with system items:', error);
+        console.error('[UIPermissionsService] Error in menu loading:', error);
       }
-      // Если меню пустое, пытаемся загрузить из seed
+      // Если меню пустое, пытаемся загрузить из seed (только при первом запуске)
       if (!menu.items || (Array.isArray(menu.items) && menu.items.length === 0)) {
         try {
           const seed = getDefaultMenuSeed(menuId);
@@ -336,6 +309,13 @@ export class UIPermissionsService {
     if (!menu) {
       return null;
     }
+
+    // 🔵 ДИАГНОСТИКА: Что загрузили из БД
+    console.log('[UIPermissionsService] 🔵 getNavigationMenuConfig - RAW from DB:', {
+      menuId,
+      itemsCount: Array.isArray(menu.items) ? menu.items.length : 0,
+      itemIds: Array.isArray(menu.items) ? menu.items.map((item: any) => item.id) : [],
+    });
 
     // Логируем что загрузили из БД
     if (process.env.NODE_ENV === 'development') {
@@ -459,6 +439,17 @@ export class UIPermissionsService {
     userId: string,
   ): Promise<NavigationMenu> {
     await this.checkSuperAdminAccess(userId);
+
+    // 🔵 ДИАГНОСТИКА: Что получили от frontend
+    console.log('[UIPermissionsService] 🔵 updateNavigationMenuConfig - RECEIVED from frontend:', {
+      menuId,
+      itemsCount: items.length,
+      itemIds: items.map((item: any) => item.id),
+      itemsWithChildren: items.filter((item: any) => item.children?.length).map((item: any) => ({
+        id: item.id,
+        childrenCount: item.children?.length,
+      })),
+    });
 
     let menu = await this.ensureMenuExists(menuId, false);
     if (!menu) {

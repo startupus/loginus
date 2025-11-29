@@ -11,6 +11,7 @@ import {
   useSensors,
   DragEndEvent,
   DragStartEvent,
+  DragOverEvent,
   DragOverlay,
 } from '@dnd-kit/core';
 import {
@@ -36,6 +37,7 @@ import { menuSettingsApi, MenuItemConfig } from '../../services/api/menu-setting
 import { apiClient } from '../../services/api/client';
 import { themeClasses } from '../../design-system/utils/themeClasses';
 import { useCurrentLanguage } from '../../utils/routing';
+import './MenuSettingsPage.css';
 import { IconPicker } from '../../components/IconPicker/IconPicker';
 import { Tabs } from '../../design-system/composites/Tabs';
 
@@ -58,9 +60,19 @@ interface MenuItemProps {
   onEdit: (item: MenuItemConfig) => void;
   onDelete: (id: string) => void;
   depth?: number; // Уровень вложенности для отступов
+  overId?: string | null;
+  dropPosition?: 'before' | 'after' | 'inside' | null;
 }
 
-const MenuItem: React.FC<MenuItemProps> = ({ item, onToggle, onEdit, onDelete, depth = 0 }) => {
+const MenuItem: React.FC<MenuItemProps> = ({ 
+  item, 
+  onToggle, 
+  onEdit, 
+  onDelete, 
+  depth = 0,
+  overId,
+  dropPosition,
+}) => {
   const { t } = useTranslation();
   const {
     attributes,
@@ -69,6 +81,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ item, onToggle, onEdit, onDelete, d
     transform,
     transition,
     isDragging,
+    isOver,
   } = useSortable({ id: item.id });
 
   const style = {
@@ -80,19 +93,36 @@ const MenuItem: React.FC<MenuItemProps> = ({ item, onToggle, onEdit, onDelete, d
   const isDefault = item.type === 'default';
   const canDelete = !isDefault; // Базовые пункты нельзя удалять
   const leftPadding = depth * 32; // 32px отступ на каждый уровень
+  
+  // Определяем показывать ли drop indicator
+  const isDropTarget = overId === item.id;
+  const showDropBefore = isDropTarget && dropPosition === 'before';
+  const showDropAfter = isDropTarget && dropPosition === 'after';
+  const showDropInside = isDropTarget && dropPosition === 'inside';
 
   return (
     <>
+      {/* Drop indicator - линия сверху */}
+      {showDropBefore && (
+        <div 
+          className="h-1 bg-blue-500 rounded-full mx-4 my-1 shadow-lg"
+          style={{ marginLeft: `${leftPadding + 16}px` }}
+        />
+      )}
+
       <div
         ref={setNodeRef}
+        data-menu-item-id={item.id}
         style={{...style, paddingLeft: `${leftPadding + 16}px`}}
         className={`${themeClasses.utility.flexItemsCenter} ${themeClasses.spacing.gap4} ${themeClasses.spacing.p4} ${themeClasses.utility.roundedLg} ${themeClasses.border.default} ${
           isDragging ? `${themeClasses.border.primary} ${themeClasses.card.shadow}` : ''
         } ${
+          showDropInside ? 'ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-950 ml-8' : ''
+        } ${
           item.enabled
             ? themeClasses.background.surface
             : themeClasses.background.iconContainer
-        } ${themeClasses.utility.transitionAll}`}
+        } ${themeClasses.utility.transitionAll} relative`}
       >
       {/* Иконка для перетаскивания - доступна для всех пунктов */}
       <div
@@ -169,6 +199,14 @@ const MenuItem: React.FC<MenuItemProps> = ({ item, onToggle, onEdit, onDelete, d
         />
       </div>
     </div>
+
+    {/* Drop indicator - линия снизу */}
+    {showDropAfter && (
+      <div 
+        className="h-1 bg-blue-500 rounded-full mx-4 my-1 shadow-lg"
+        style={{ marginLeft: `${leftPadding + 16}px` }}
+      />
+    )}
     
     {/* Рекурсивный рендеринг вложенных элементов с отдельным SortableContext */}
     {item.children && item.children.length > 0 && (
@@ -185,6 +223,8 @@ const MenuItem: React.FC<MenuItemProps> = ({ item, onToggle, onEdit, onDelete, d
               onEdit={onEdit}
               onDelete={onDelete}
               depth={depth + 1}
+              overId={overId}
+              dropPosition={dropPosition}
             />
           ))}
         </div>
@@ -206,7 +246,8 @@ const MenuSettingsPage: React.FC = () => {
     queryFn: async () => {
       try {
         const response = await apiClient.get('/admin/extensions?enabled=true');
-        return Array.isArray(response.data) ? response.data : [];
+        // API возвращает { success: true, data: [...] }
+        return Array.isArray(response.data?.data) ? response.data.data : [];
       } catch (error) {
         console.error('[MenuSettingsPage] Failed to fetch plugins:', error);
         return [];
@@ -261,6 +302,9 @@ const MenuSettingsPage: React.FC = () => {
   });
   const [selectedPluginId, setSelectedPluginId] = useState<string>('');
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [overId, setOverId] = useState<string | null>(null);
+  const [dropPosition, setDropPosition] = useState<'before' | 'after' | 'inside' | null>(null);
+  const [dragStartX, setDragStartX] = useState<number>(0);
 
   // Настройка сенсоров для drag & drop
   const sensors = useSensors(
@@ -277,7 +321,14 @@ const MenuSettingsPage: React.FC = () => {
   // Загрузка настроек меню
   const { data: settingsData, isLoading } = useQuery({
     queryKey: ['menu-settings'],
-    queryFn: () => menuSettingsApi.getMenuSettings(),
+    queryFn: async () => {
+      const response = await menuSettingsApi.getMenuSettings();
+      console.log('[MenuSettingsPage] 🔵 Loaded menu from backend:', {
+        itemsCount: response?.data?.data?.items?.length || 0,
+        itemIds: response?.data?.data?.items?.map((item: any) => item.id) || [],
+      });
+      return response;
+    },
   });
 
   // Примечание: все операции (добавление, редактирование, удаление, переключение) 
@@ -290,7 +341,19 @@ const MenuSettingsPage: React.FC = () => {
   const persistMenu = useCallback(
     async (updatedItems: MenuItemConfig[]) => {
       try {
+        console.log('[MenuSettingsPage] 🔵 Saving menu to backend:', {
+          itemsCount: updatedItems.length,
+          itemIds: updatedItems.map(item => item.id),
+          itemsWithChildren: updatedItems.filter(item => item.children?.length).map(item => ({
+            id: item.id,
+            childrenCount: item.children?.length,
+          })),
+        });
+        
         const response = await menuSettingsApi.updateMenuSettings({ items: updatedItems });
+        
+        console.log('[MenuSettingsPage] ✅ Menu saved successfully');
+        
         if (process.env.NODE_ENV === 'development') {
           console.log('[MenuSettingsPage] Menu settings updated successfully:', response);
         }
@@ -302,6 +365,7 @@ const MenuSettingsPage: React.FC = () => {
         // Принудительно обновляем данные
         await queryClient.refetchQueries({ queryKey: ['user-menu'] });
       } catch (error) {
+        console.error('[MenuSettingsPage] ❌ Failed to save menu:', error);
         if (process.env.NODE_ENV === 'development') {
           console.error('[MenuSettingsPage] Failed to persist menu settings:', error);
         }
@@ -398,6 +462,84 @@ const MenuSettingsPage: React.FC = () => {
   // Обработка начала drag & drop
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
+    
+    // Сохраняем начальную X позицию для определения горизонтального сдвига
+    const activeRect = event.active.rect.current.initial;
+    if (activeRect) {
+      setDragStartX(activeRect.left);
+    }
+  };
+
+  // Обработчик DragOver для определения позиции drop
+  const handleDragOver = (event: DragOverEvent) => {
+    const { active, over, delta } = event;
+    
+    if (!over || active.id === over.id) {
+      setOverId(null);
+      setDropPosition(null);
+      return;
+    }
+
+    setOverId(over.id as string);
+
+    // Определяем позицию курсора относительно элемента
+    const overElement = document.querySelector(`[data-menu-item-id="${over.id}"]`);
+    if (!overElement) return;
+
+    const rect = overElement.getBoundingClientRect();
+    
+    // Используем active rect для вычисления позиции
+    const activeRect = active.rect.current.translated;
+    if (!activeRect) return;
+    
+    const activeCenterY = activeRect.top + activeRect.height / 2;
+    const currentX = activeRect.left;
+    
+    const overTop = rect.top;
+    const overBottom = rect.bottom;
+    const overHeight = rect.height;
+    const overCenterY = overTop + overHeight / 2;
+    
+    // КЛЮЧЕВОЕ ИЗМЕНЕНИЕ:
+    // Считаем СДВИГ от начальной позиции, а не от левого края элемента!
+    const horizontalDelta = currentX - dragStartX;
+    const verticalOffset = activeCenterY - overCenterY;
+
+    console.log('[DnD] Position:', { 
+      horizontalDelta: horizontalDelta.toFixed(0) + 'px',  // СДВИГ вправо от начальной позиции
+      verticalOffset: verticalOffset.toFixed(0) + 'px',
+      currentX: currentX.toFixed(0),
+      dragStartX: dragStartX.toFixed(0)
+    });
+
+    // НОВАЯ ЛОГИКА:
+    // 1. ПРИОРИТЕТ: Если сдвинули ВПРАВО > 40px от начальной позиции → NEST
+    // 2. Если НЕТ сдвига вправо → вертикальное перемещение (before/after)
+
+    if (horizontalDelta > 40) {
+      // Сдвинут вправо от начальной позиции → попытка вложить
+      const allItemsFlat = getAllItemsFlat(items);
+      const activeItem = allItemsFlat.find((item) => item.id === active.id);
+      const overItem = allItemsFlat.find((item) => item.id === over.id);
+      
+      if (activeItem && overItem && canBeNested(activeItem, overItem)) {
+        setDropPosition('inside');
+        return;
+      } else {
+        // Не можем вложить → вставляем после
+        setDropPosition('after');
+        return;
+      }
+    }
+
+    // Если НЕТ горизонтального сдвига → вертикальное перемещение
+    if (activeCenterY < overCenterY) {
+      // Курсор выше центра элемента → вставить ПЕРЕД
+      setDropPosition('before');
+    } else {
+      // Курсор ниже центра элемента → вставить ПОСЛЕ
+      setDropPosition('after');
+    }
   };
 
   // Вспомогательная функция для получения плоского списка всех элементов (включая вложенные)
@@ -457,8 +599,11 @@ const MenuSettingsPage: React.FC = () => {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
-    // Сбрасываем активный элемент
+    // Сбрасываем состояние
     setActiveId(null);
+    setOverId(null);
+    setDropPosition(null);
+    setDragStartX(0);
 
     if (!over || active.id === over.id) {
       return;
@@ -472,10 +617,6 @@ const MenuSettingsPage: React.FC = () => {
       console.warn('[MenuSettingsPage] handleDragEnd: activeItem not found', { activeId: active.id });
       return;
     }
-
-    // Находим родителя активного элемента
-    const activeItemParent = findParent(activeItem.id, items);
-    const isActiveItemNested = !!activeItemParent;
 
     // Функция для рекурсивного удаления элемента из структуры
     const removeItemRecursively = (itemsList: MenuItemConfig[], itemId: string): MenuItemConfig[] => {
@@ -521,78 +662,67 @@ const MenuSettingsPage: React.FC = () => {
       });
     };
 
+    // Функция для вставки элемента до/после другого элемента
+    const insertItem = (
+      itemsList: MenuItemConfig[], 
+      targetId: string, 
+      itemToInsert: MenuItemConfig, 
+      position: 'before' | 'after'
+    ): MenuItemConfig[] => {
+      const result: MenuItemConfig[] = [];
+      
+      for (const item of itemsList) {
+        if (position === 'before' && item.id === targetId) {
+          result.push(itemToInsert);
+          result.push(item);
+        } else if (position === 'after' && item.id === targetId) {
+          result.push(item);
+          result.push(itemToInsert);
+        } else {
+          result.push(item);
+        }
+      }
+      
+      return result;
+    };
+
     let updatedItems: MenuItemConfig[];
 
-    // Если перетаскиваем на другой элемент - проверяем возможность вложения
-    if (overItem) {
-      const overItemParent = findParent(overItem.id, items);
-      const isOverItemRoot = !overItemParent;
+    // Удаляем активный элемент из текущей позиции
+    updatedItems = removeItemRecursively(items, activeItem.id);
 
-      // Если активный элемент вложен, и мы перетаскиваем его на корневой элемент - вытаскиваем
-      if (isActiveItemNested && isOverItemRoot) {
-        console.log('[MenuSettingsPage] Extracting nested item to root level');
-        
-        // 1. Удаляем из вложенности
-        updatedItems = removeItemRecursively(items, activeItem.id);
-        
-        // 2. Добавляем на корневой уровень после overItem
-        const overIndex = updatedItems.findIndex(item => item.id === overItem.id);
-        const extractedItem = {
-          ...activeItem,
-          path: generatePath(activeItem.label || activeItem.id),
-          children: undefined,
-        };
-        
-        if (overIndex !== -1) {
-          updatedItems = [
-            ...updatedItems.slice(0, overIndex + 1),
-            extractedItem,
-            ...updatedItems.slice(overIndex + 1),
-          ];
-        } else {
-          updatedItems = [...updatedItems, extractedItem];
-        }
-      }
-      // Если можно вложить - вкладываем
-      else if (canBeNested(activeItem, overItem)) {
-        console.log('[MenuSettingsPage] Nesting item');
-        
-        // Удаляем активный элемент из текущей позиции
-        updatedItems = removeItemRecursively(items, activeItem.id);
-        
-        // Добавляем в children overItem
-        updatedItems = addToParent(updatedItems, overItem.id, activeItem);
-      }
-      // Обычное горизонтальное перемещение (только для элементов одного уровня)
-      else if (!isActiveItemNested && isOverItemRoot) {
-        console.log('[MenuSettingsPage] Reordering root items');
-        const oldIndex = items.findIndex((item) => item.id === active.id);
-        const newIndex = items.findIndex((item) => item.id === over.id);
-
-        if (oldIndex !== -1 && newIndex !== -1) {
-          updatedItems = arrayMove(items, oldIndex, newIndex);
-        } else {
-          return; // Не нашли индексы
-        }
-      } else {
-        // Не можем переместить - ничего не делаем
-        return;
-      }
+    // Применяем действие в зависимости от dropPosition
+    if (dropPosition === 'inside' && overItem) {
+      // Вложить внутрь overItem
+      console.log('[MenuSettingsPage] Nesting item inside');
+      updatedItems = addToParent(updatedItems, overItem.id, activeItem);
+    } else if (dropPosition === 'before' && overItem) {
+      // Вставить перед overItem
+      console.log('[MenuSettingsPage] Inserting before');
+      const extractedItem = {
+        ...activeItem,
+        path: generatePath(activeItem.label || activeItem.id),
+        children: undefined,
+      };
+      updatedItems = insertItem(updatedItems, overItem.id, extractedItem, 'before');
+    } else if (dropPosition === 'after' && overItem) {
+      // Вставить после overItem
+      console.log('[MenuSettingsPage] Inserting after');
+      const extractedItem = {
+        ...activeItem,
+        path: generatePath(activeItem.label || activeItem.id),
+        children: undefined,
+      };
+      updatedItems = insertItem(updatedItems, overItem.id, extractedItem, 'after');
     } else {
-      // Перетаскиваем на пустое место - вытаскиваем из вложенности если был вложен
-      if (isActiveItemNested) {
-        console.log('[MenuSettingsPage] Extracting nested item to root level (dropped on empty)');
-        updatedItems = removeItemRecursively(items, activeItem.id);
-        const extractedItem = {
-          ...activeItem,
-          path: generatePath(activeItem.label || activeItem.id),
-          children: undefined,
-        };
-        updatedItems = [...updatedItems, extractedItem];
-      } else {
-        // Уже на корневом уровне, ничего не делаем
-        return;
-      }
+      // Fallback: вставляем в конец списка
+      console.log('[MenuSettingsPage] Fallback: appending to end');
+      const extractedItem = {
+        ...activeItem,
+        path: generatePath(activeItem.label || activeItem.id),
+        children: undefined,
+      };
+      updatedItems = [...updatedItems, extractedItem];
     }
 
     // Обновляем порядок для всех корневых элементов и их children
@@ -766,38 +896,63 @@ const MenuSettingsPage: React.FC = () => {
     const plugin = plugins.find(p => p.id === pluginId);
     if (!plugin) return;
 
-    // Определяем тип на основе uiType плагина
-    let type: MenuItemConfig['type'] = 'default';
-    let path = '';
-    let iframeUrl = '';
-    let embeddedAppUrl = '';
+    setNewItem(prev => {
+      // Сохраняем текущий тип, если он уже выбран (iframe или embedded)
+      // Иначе определяем тип на основе uiType плагина
+      const currentType = prev.type;
+      let type: MenuItemConfig['type'] = currentType;
+      let path = '';
+      let iframeUrl = '';
+      let embeddedAppUrl = '';
 
-    if (plugin.uiType === 'iframe') {
-      type = 'iframe';
-      // Генерируем путь на основе slug плагина
-      path = `/${plugin.slug}`;
-    } else if (plugin.uiType === 'embedded') {
-      type = 'embedded';
-      path = `/plugins/${plugin.slug}`;
-    } else if (plugin.uiType === 'external_link') {
-      type = 'external';
-    } else {
-      // Для типа 'none' или других - используем default
-      type = 'default';
-      path = `/${plugin.slug}`;
-    }
+      // Генерируем URL на основе baseUrl и entrypoint из конфигурации плагина
+      const baseUrl = plugin.config?.baseUrl || `/uploads/plugins/${plugin.slug}`;
+      const entrypoint = plugin.config?.entrypoint || 'index.html';
+      const fullUrl = `${window.location.origin}${baseUrl}/${entrypoint}`;
 
-    setNewItem(prev => ({
-      ...prev,
-      type,
-      path,
-      pluginId, // Сохраняем ID плагина
-      iframeUrl: type === 'iframe' ? iframeUrl : undefined,
-      embeddedAppUrl: type === 'embedded' ? embeddedAppUrl : undefined,
-      // Автозаполняем название из имени плагина, если еще не заполнено
-      labelRu: (prev as any).labelRu || plugin.name,
-      label: (prev as any).label || plugin.name,
-    }));
+      // Если тип еще не выбран или это default, определяем по uiType плагина
+      if (!currentType || currentType === 'default') {
+        if (plugin.uiType === 'iframe') {
+          type = 'iframe';
+          path = `/${plugin.slug}`;
+          iframeUrl = fullUrl;
+        } else if (plugin.uiType === 'embedded') {
+          type = 'embedded';
+          path = `/${plugin.slug}`;
+          embeddedAppUrl = fullUrl;
+        } else if (plugin.uiType === 'external_link') {
+          type = 'external';
+        } else {
+          type = 'default';
+          path = `/${plugin.slug}`;
+        }
+      } else {
+        // Если тип уже выбран (iframe или embedded), используем его и заполняем соответствующие поля
+        if (currentType === 'iframe') {
+          path = `/${plugin.slug}`;
+          iframeUrl = fullUrl;
+        } else if (currentType === 'embedded') {
+          path = `/${plugin.slug}`;
+          embeddedAppUrl = fullUrl;
+        } else {
+          path = `/${plugin.slug}`;
+        }
+      }
+
+      return {
+        ...prev,
+        type,
+        path,
+        pluginId, // Сохраняем ID плагина
+        icon: plugin.icon || prev.icon,
+        iframeUrl: type === 'iframe' ? iframeUrl : prev.iframeUrl, // Сохраняем существующий если тип не iframe
+        embeddedAppUrl: type === 'embedded' ? embeddedAppUrl : prev.embeddedAppUrl, // Сохраняем существующий если тип не embedded
+        // Автозаполняем название из имени плагина, если еще не заполнено
+        labelRu: (prev as any).labelRu || plugin.name,
+        labelEn: (prev as any).labelEn || plugin.manifest?.displayNameEn || plugin.name,
+        label: (prev as any).label || plugin.name,
+      };
+    });
   }, [plugins]);
 
   // Открытие модального окна для добавления
@@ -898,7 +1053,8 @@ const MenuSettingsPage: React.FC = () => {
       pluginId: newItem.pluginId || undefined, // Сохраняем ID связанного плагина
       externalUrl: newItem.externalUrl || undefined,
       openInNewTab: newItem.openInNewTab || false,
-      iframeUrl: newItem.iframeUrl || undefined,
+      // ВАЖНО: Если есть код, очищаем URL (код имеет приоритет)
+      iframeUrl: newItem.iframeCode ? undefined : (newItem.iframeUrl || undefined),
       iframeCode: newItem.iframeCode || undefined,
       embeddedAppUrl: newItem.embeddedAppUrl || undefined,
       // ВАЖНО: Сохраняем children для системных элементов, если они есть
@@ -965,6 +1121,22 @@ const MenuSettingsPage: React.FC = () => {
       showSidebar={true}
     >
       <div className={themeClasses.spacing.spaceY6}>
+        {/* Инструкция по Drag-and-Drop */}
+        <div className={`${themeClasses.spacing.p4} ${themeClasses.utility.roundedLg} ${themeClasses.card.default} ${themeClasses.border.default} bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800`}>
+          <div className={`${themeClasses.utility.flexItemsCenter} ${themeClasses.spacing.gap3}`}>
+            <Icon name="info" size="sm" className="text-blue-600 dark:text-blue-400 flex-shrink-0" />
+            <div>
+              <p className={`text-sm font-medium text-blue-900 dark:text-blue-100`}>
+                {t('admin.menuSettings.dnd.title', 'Как использовать перетаскивание:')}
+              </p>
+              <ul className={`text-xs text-blue-700 dark:text-blue-300 mt-1 space-y-1`}>
+                <li>• <strong>{t('admin.menuSettings.dnd.vertical', 'Вертикальное перетаскивание (↑↓)')}</strong> → {t('admin.menuSettings.dnd.verticalDesc', 'Поменять местами (выше/ниже)')}</li>
+                <li>• <strong>{t('admin.menuSettings.dnd.horizontal', 'Горизонтальное перетаскивание (→)')}</strong> → {t('admin.menuSettings.dnd.horizontalDesc', 'Сделать вложенным (перетащите вправо)')}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         {/* Описание с кнопкой */}
         <div className={`${themeClasses.spacing.p4} ${themeClasses.utility.roundedLg} ${themeClasses.card.default} ${themeClasses.border.default}`}>
           <div className={`${themeClasses.utility.flexColSmRow} sm:items-center sm:justify-between ${themeClasses.spacing.gap4}`}>
@@ -1001,6 +1173,7 @@ const MenuSettingsPage: React.FC = () => {
             sensors={sensors}
             collisionDetection={closestCenter}
             onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
             onDragEnd={handleDragEnd}
           >
             <SortableContext
@@ -1025,6 +1198,8 @@ const MenuSettingsPage: React.FC = () => {
                       onEdit={handleEdit}
                       onDelete={handleDeleteClick}
                       depth={0}
+                      overId={overId}
+                      dropPosition={dropPosition}
                     />
                   ))}
               </div>
@@ -1140,8 +1315,8 @@ const MenuSettingsPage: React.FC = () => {
             />
           </div>
 
-          {/* Выбор плагина (только для новых пунктов) */}
-          {!editingItem && (
+          {/* Выбор плагина (только для iframe и embedded, не для external) */}
+          {!editingItem && (newItem.type === 'iframe' || newItem.type === 'embedded') && (
             <div>
               <label className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>
                 {t('admin.menuSettings.form.plugin', 'Плагин')}
@@ -1218,16 +1393,25 @@ const MenuSettingsPage: React.FC = () => {
           {newItem.type === 'external' && (
             <>
               <Input
-                label={t('admin.menuSettings.form.externalUrl')}
+                label={t('admin.menuSettings.form.path')}
+                value={newItem.path || ''}
+                onChange={(e) => setNewItem({ ...newItem, path: e.target.value })}
+                placeholder="/external/link"
+                helperText={t('admin.menuSettings.form.pathHelperText', 'Путь в меню (например: /external/gosuslugi)')}
+                required
+              />
+              <Input
+                label={t('admin.menuSettings.form.externalUrl', 'Внешний URL')}
                 value={newItem.externalUrl || ''}
                 onChange={(e) => setNewItem({ ...newItem, externalUrl: e.target.value })}
                 placeholder="https://example.com"
+                helperText={t('admin.menuSettings.form.externalUrlHelperText', 'URL внешнего сайта для перенаправления')}
                 required
               />
               <Checkbox
                 checked={newItem.openInNewTab || false}
                 onChange={(checked) => setNewItem({ ...newItem, openInNewTab: checked })}
-                label={t('admin.menuSettings.form.openInNewTab')}
+                label={t('admin.menuSettings.form.openInNewTab', 'Открыть в новой вкладке')}
               />
             </>
           )}
@@ -1268,11 +1452,11 @@ const MenuSettingsPage: React.FC = () => {
           {newItem.type === 'embedded' && (
             <>
               <Input
-                label={t('admin.menuSettings.form.embeddedAppUrl')}
+                label={t('admin.menuSettings.form.embeddedAppUrl', 'URL приложения')}
                 value={newItem.embeddedAppUrl || ''}
                 onChange={(e) => setNewItem({ ...newItem, embeddedAppUrl: e.target.value })}
-                placeholder="https://example.com"
-                required
+                placeholder="https://example.com или /uploads/plugins/app/index.html"
+                helperText={t('admin.menuSettings.form.embeddedAppUrlHelperText', 'URL встроенного приложения (использует ту же логику что и iframe, но без поддержки HTML кода)')}
               />
               <Input
                 label={t('admin.menuSettings.form.path')}

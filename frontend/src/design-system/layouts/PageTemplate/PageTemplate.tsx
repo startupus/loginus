@@ -115,21 +115,21 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
     let navigationPath = ''; // Путь для фактической навигации
     
     // Для кастомных типов формируем путь
-    if (item.type === 'iframe') {
+    if (item.type === 'iframe' || item.type === 'embedded') {
+      // Используем ту же логику для iframe и embedded
       // Генерируем реальный путь для навигации
       navigationPath = buildPathWithLang('/iframe', currentLang);
-      if (item.iframeUrl) {
-        navigationPath += `?url=${encodeURIComponent(item.iframeUrl)}`;
-      } else if (item.iframeCode) {
-        navigationPath += `?code=${encodeURIComponent(item.iframeCode)}`;
-      }
       
-      // Для построения иерархии используем кастомный path, если он задан
-      // Иначе используем тот же путь, что и для навигации
-      path = item.path ? buildPathWithLang(item.path, currentLang) : navigationPath;
-    } else if (item.type === 'embedded') {
-      // Генерируем реальный путь для навигации
-      navigationPath = buildPathWithLang(`/plugins/${item.id}`, currentLang);
+      // Для embedded используем embeddedAppUrl, для iframe - iframeUrl
+      const url = item.type === 'embedded' ? item.embeddedAppUrl : item.iframeUrl;
+      const code = item.type === 'embedded' ? undefined : item.iframeCode; // embedded не поддерживает код
+      
+      // ВАЖНО: code имеет приоритет над url (если есть код, используем его, а не URL)
+      if (code) {
+        navigationPath += `?code=${encodeURIComponent(code)}`;
+      } else if (url) {
+        navigationPath += `?url=${encodeURIComponent(url)}`;
+      }
       
       // Для построения иерархии используем кастомный path, если он задан
       // Иначе используем тот же путь, что и для навигации
@@ -185,12 +185,11 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
     // активность определяется только по navigationPath
     const shouldCheckNavigationPath = navigationPath && navigationPath !== path;
     
+    // ИСПРАВЛЕНО: убрали агрессивные проверки на /iframe и /embedded
+    // Активность определяется только точным совпадением path или navigationPath
     const isParentActive = !hasActiveChild && (
       location.pathname === path || 
-      (shouldCheckNavigationPath && isNavigationPathActive) ||
-      (!shouldCheckNavigationPath && item.path && location.pathname.includes(item.path) && !hasActiveChild) ||
-      (!shouldCheckNavigationPath && item.type === 'iframe' && location.pathname.includes('/iframe')) ||
-      (!shouldCheckNavigationPath && item.type === 'embedded' && location.pathname.includes('/embedded'))
+      (shouldCheckNavigationPath && isNavigationPathActive)
     );
 
     const sidebarItem: SidebarItem = {

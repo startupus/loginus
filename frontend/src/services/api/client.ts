@@ -23,6 +23,15 @@ apiClient.interceptors.request.use(
         console.warn(`[API Client] No accessToken found for ${config.method?.toUpperCase()} ${config.url}`);
       }
     }
+    
+    // ВАЖНО: Удаляем Content-Type для FormData - Axios установит правильный заголовок с boundary
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[API Client] FormData detected - Content-Type removed for automatic boundary');
+      }
+    }
+    
     // Добавляем метку времени для измерения задержки
     if (process.env.NODE_ENV === 'development') {
       (config as any).metadata = { startTime: performance.now() };

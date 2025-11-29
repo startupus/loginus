@@ -97,11 +97,12 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
 
   // Global validation pipe
+  // ВАЖНО: НЕ применяем к multipart/form-data (файловым загрузкам)
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       transform: true,
-      forbidNonWhitelisted: true,
+      forbidNonWhitelisted: false, // Отключаем для поддержки файловых загрузок
       transformOptions: {
         enableImplicitConversion: true,
       },

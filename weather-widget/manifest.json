@@ -1,0 +1,19 @@
+{
+  "name": "moscow-weather-widget",
+  "version": "1.0.0",
+  "displayName": "Погода в Москве",
+  "displayNameEn": "Moscow Weather",
+  "description": "Виджет с прогнозом погоды в Москве",
+  "descriptionEn": "Weather forecast widget for Moscow",
+  "author": "Loginus Team",
+  "type": "widget",
+  "icon": "cloud",
+  "scope": "user",
+  "config": {
+    "renderType": "embedded",
+    "entrypoint": "widget.html",
+    "dashboardPosition": "top-right",
+    "refreshInterval": 600000
+  }
+}
+

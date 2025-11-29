@@ -1,4 +1,5 @@
-import { IsString, IsOptional, IsEnum, IsObject, IsBoolean, Transform } from 'class-validator';
+import { IsString, IsOptional, IsEnum, IsObject, IsBoolean } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class UploadExtensionDto {
   @IsString()

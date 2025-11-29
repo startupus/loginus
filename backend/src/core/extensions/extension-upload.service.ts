@@ -6,6 +6,7 @@ import { SYSTEM_EVENTS, PLUGIN_EVENTS } from '../events/events';
 import * as path from 'path';
 import * as fs from 'fs/promises';
 import { v4 as uuidv4 } from 'uuid';
+import AdmZip from 'adm-zip';
 
 export interface UploadResult {
   success: boolean;
@@ -29,8 +30,9 @@ export class ExtensionUploadService {
     private readonly loader: PluginLoaderService,
     private readonly eventBus: EventBusService,
   ) {
-    this.pluginsDirectory = path.join(process.cwd(), 'plugins');
-    this.uploadsDirectory = path.join(process.cwd(), 'uploads', 'plugins');
+    // Плагины распаковываются в uploads/plugins для доступа через статический endpoint
+    this.pluginsDirectory = path.join(process.cwd(), 'uploads', 'plugins');
+    this.uploadsDirectory = path.join(process.cwd(), 'uploads', 'temp');
   }
 
   /**
@@ -56,11 +58,41 @@ export class ExtensionUploadService {
 
       this.logger.debug(`Saved temporary .zip file: ${tempPath}`);
 
-      // For now, we'll skip extraction and create a simple plugin structure
-      // TODO: Implement proper .zip extraction using child_process and `unzip` command
-      // or install adm-zip package
-      
+      // Extract .zip file
       const slug = this.generateSlug(name);
+      const finalPath = path.join(this.pluginsDirectory, slug);
+      await fs.mkdir(finalPath, { recursive: true });
+      extractPath = finalPath;
+
+      this.logger.debug(`Extracting .zip to: ${finalPath}`);
+      
+      // Use adm-zip to extract
+      const zip = new AdmZip(tempPath);
+      zip.extractAllTo(finalPath, true);
+
+      this.logger.debug(`Extraction complete`);
+
+      // Read manifest.json
+      const manifestPath = path.join(finalPath, 'manifest.json');
+      let manifest: any = {
+        name,
+        version: '1.0.0',
+        description: `${name} extension`,
+      };
+
+      try {
+        const manifestContent = await fs.readFile(manifestPath, 'utf-8');
+        manifest = JSON.parse(manifestContent);
+        this.logger.debug(`Read manifest: ${JSON.stringify(manifest)}`);
+      } catch (error) {
+        this.logger.warn(`No manifest.json found or invalid, using defaults`);
+      }
+
+      // 🔥 УСТАНОВКА BACKEND КОДА (если есть)
+      if (await this.hasBackendCode(finalPath)) {
+        this.logger.log(`[ExtensionUploadService] Backend code detected, installing...`);
+        await this.installBackendCode(finalPath, slug, manifest);
+      }
 
       // Check if extension already exists
       const existing = await this.registry.findBySlug(slug);
@@ -69,38 +101,27 @@ export class ExtensionUploadService {
         return { success: false, message: 'Extension already exists', errors };
       }
 
-      // Create plugin directory
-      const finalPath = path.join(this.pluginsDirectory, slug);
-      await fs.mkdir(finalPath, { recursive: true });
-      extractPath = finalPath;
-
-      // Copy .zip to plugin directory
-      await fs.copyFile(tempPath, path.join(finalPath, 'plugin.zip'));
-
-      // Create a dummy manifest for now
-      const manifest: any = {
-        name,
-        version: '1.0.0',
-        description: `${name} extension`,
-      };
-
       this.logger.debug(`Created plugin directory: ${finalPath}`);
 
       // Register extension in database
       const extension = await this.registry.register({
         slug,
-        name: name || manifest.name,
+        name: manifest.displayName || manifest.name || name,
         description: manifest.description,
         version: manifest.version || '1.0.0',
-        author: manifest.author?.name,
-        authorEmail: manifest.author?.email,
-        authorUrl: manifest.author?.url,
-        extensionType,
-        uiType: manifest.ui?.type,
-        icon: manifest.ui?.icon,
+        author: manifest.author,
+        extensionType: manifest.type || extensionType,
+        uiType: manifest.config?.renderType,
+        icon: manifest.icon,
         pathOnDisk: finalPath,
         manifest,
-        config,
+        config: {
+          ...config,
+          ...manifest.config,
+          // URL для доступа к файлам плагина через статический endpoint
+          baseUrl: `/uploads/plugins/${slug}`,
+          entrypoint: manifest.config?.entrypoint || 'index.html',
+        },
         subscribedEvents: manifest.events?.subscribes || [],
       });
 
@@ -234,6 +255,80 @@ export class ExtensionUploadService {
   }
 
   /**
+   * Проверка наличия backend кода в плагине
+   */
+  private async hasBackendCode(pluginPath: string): Promise<boolean> {
+    try {
+      const backendPath = path.join(pluginPath, 'backend');
+      await fs.access(backendPath);
+      const entries = await fs.readdir(backendPath);
+      return entries.length > 0;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Установка backend кода плагина
+   * Копирует backend код в src/plugins/{slug}/ для динамической загрузки
+   */
+  private async installBackendCode(
+    pluginPath: string,
+    slug: string,
+    manifest: any,
+  ): Promise<void> {
+    try {
+      const backendSourcePath = path.join(pluginPath, 'backend');
+      const backendTargetPath = path.join(
+        process.cwd(),
+        'src',
+        'plugins',
+        slug,
+      );
+
+      // Создаём целевую директорию
+      await fs.mkdir(backendTargetPath, { recursive: true });
+
+      // Копируем все файлы из backend/ в src/plugins/{slug}/
+      const files = await fs.readdir(backendSourcePath);
+      for (const file of files) {
+        const sourceFile = path.join(backendSourcePath, file);
+        const targetFile = path.join(backendTargetPath, file);
+
+        const stat = await fs.stat(sourceFile);
+        if (stat.isFile()) {
+          await fs.copyFile(sourceFile, targetFile);
+          this.logger.debug(
+            `[ExtensionUploadService] Copied backend file: ${file}`,
+          );
+        }
+      }
+
+      // Сохраняем информацию о backend в манифесте
+      if (manifest.backend) {
+        manifest.backend.installedPath = backendTargetPath;
+        manifest.backend.installedAt = new Date().toISOString();
+      }
+
+      this.logger.log(
+        `[ExtensionUploadService] Backend code installed to: ${backendTargetPath}`,
+      );
+
+      // TODO: Динамическая регистрация модуля в NestJS
+      // Это требует перезапуска приложения или использования динамических модулей
+      this.logger.warn(
+        `[ExtensionUploadService] Backend code installed but module registration requires app restart`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `[ExtensionUploadService] Failed to install backend code:`,
+        error.message,
+      );
+      throw error;
+    }
+  }
+
+  /**
    * Uninstall extension (delete files)
    */
   async uninstallExtension(extensionId: string): Promise<void> {
@@ -252,6 +347,23 @@ export class ExtensionUploadService {
     try {
       await fs.rm(extension.pathOnDisk, { recursive: true, force: true });
       this.logger.log(`Deleted plugin files: ${extension.pathOnDisk}`);
+
+      // Удаляем backend код если был установлен
+      const backendPath = path.join(
+        process.cwd(),
+        'src',
+        'plugins',
+        extension.slug,
+      );
+      try {
+        await fs.rm(backendPath, { recursive: true, force: true });
+        this.logger.log(`Deleted backend code: ${backendPath}`);
+      } catch (backendError) {
+        this.logger.warn(
+          `Failed to delete backend code (may not exist):`,
+          backendError.message,
+        );
+      }
     } catch (error) {
       this.logger.error(`Failed to delete plugin files:`, error.message);
     }
