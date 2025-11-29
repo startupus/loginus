@@ -49,9 +49,13 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { AdminModule } from './admin/admin.module';
 import { PluginsModule } from './plugins/plugins.module';
 import { GatewayModule } from './gateway/gateway.module';
+import { CoreModule } from './core/core.module';
 
 @Module({
   imports: [
+    // Core infrastructure (event system, plugins)
+    CoreModule,
+
     // Configuration
     ConfigModule.forRoot({
       isGlobal: true,
