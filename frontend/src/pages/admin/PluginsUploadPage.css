@@ -56,6 +56,15 @@
   background: var(--background-hover);
 }
 
+.file-button {
+  width: 100%;
+  justify-content: flex-start !important;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .file-info {
   margin: 8px 0 0 0;
   font-size: 14px;
