@@ -329,10 +329,22 @@ export class UIPermissionsService {
    * Использует плагины для получения пунктов меню.
    */
   async getNavigationMenuConfig(menuId: string): Promise<NavigationMenu | null> {
+    // КРИТИЧНО: Загружаем меню БЕЗ автоматического сохранения
+    // ensureMenuExists больше не сохраняет меню при чтении
     let menu = await this.ensureMenuExists(menuId);
     
     if (!menu) {
       return null;
+    }
+
+    // Логируем что загрузили из БД
+    if (process.env.NODE_ENV === 'development') {
+      const loadedItems = (menu.items as MenuItemConfig[] | undefined) || [];
+      console.log('[UIPermissionsService] getNavigationMenuConfig - loaded items count:', loadedItems.length);
+      console.log('[UIPermissionsService] getNavigationMenuConfig - loaded items IDs:', loadedItems.map(item => item.id));
+      console.log('[UIPermissionsService] getNavigationMenuConfig - items with children:', loadedItems
+        .filter(item => item.children && item.children.length > 0)
+        .map(item => ({ id: item.id, childrenCount: item.children?.length })));
     }
 
     // ✅ Emit BEFORE_RENDER event
@@ -341,31 +353,44 @@ export class UIPermissionsService {
       items: menu.items,
     });
 
+    // ВАЖНО: Используем ТОЛЬКО данные из БД, НЕ добавляем плагины автоматически
+    // Плагины инициализируют меню только при первом запуске (когда меню пустое)
+    // После этого админ полностью контролирует структуру меню через админ-панель
+    
     // Проверяем, что pluginManager доступен (может быть не инициализирован при первом вызове)
     if (this.pluginManager && typeof this.pluginManager.isInitialized === 'function' && this.pluginManager.isInitialized()) {
       try {
-        // Если меню пустое или нужно обновить из плагинов, используем плагины
-        const pluginItems = this.pluginManager.getMenuItemsFromPlugins() || [];
-        
-        // Если в БД есть пункты, используем их (они могут быть изменены в админке)
-        // Но если меню пустое, используем плагины
-        if (!menu.items || (Array.isArray(menu.items) && menu.items.length === 0)) {
+        // ТОЛЬКО если меню в БД полностью пустое, инициализируем его плагинами
+        // Это происходит только при первом запуске системы
+        const menuItemsCount = Array.isArray(menu.items) ? menu.items.length : 0;
+        if (menuItemsCount === 0) {
+          const pluginItems = this.pluginManager.getMenuItemsFromPlugins() || [];
           if (pluginItems.length > 0) {
+            if (process.env.NODE_ENV === 'development') {
+              console.log('[UIPermissionsService] Initializing empty menu with plugins:', pluginItems.length);
+            }
             menu.items = pluginItems;
             menu = await this.navigationMenusRepo.save(menu);
           }
         } else {
-          // Синхронизируем плагины с данными из БД
-          const dbItems = menu.items as MenuItemConfig[];
-          for (const item of dbItems) {
-            try {
-              this.pluginManager.updatePluginFromMenuItem(item);
-            } catch (error) {
-              // Игнорируем ошибки при обновлении плагинов (плагин может не существовать)
-              if (process.env.NODE_ENV === 'development') {
-                console.warn(`[UIPermissionsService] Failed to update plugin for menu item ${item.id}:`, error);
-              }
-            }
+          // Меню уже настроено в админке - используем ТОЛЬКО данные из БД
+          // НЕ добавляем плагины, НЕ восстанавливаем удаленные пункты
+          // КРИТИЧНО: Если меню не пустое, НИКОГДА не добавляем плагины автоматически
+          if (process.env.NODE_ENV === 'development') {
+            console.log('[UIPermissionsService] Menu already configured, using DB data only. Items count:', menuItemsCount);
+            console.log('[UIPermissionsService] Menu items IDs:', (menu.items as MenuItemConfig[]).map(item => item.id));
+          }
+        }
+        
+        // Синхронизируем состояние плагинов с данными из БД (опционально, для совместимости)
+        // Это НЕ влияет на структуру меню, только на состояние плагинов
+        const dbItems = menu.items as MenuItemConfig[];
+        for (const item of dbItems) {
+          try {
+            this.pluginManager.updatePluginFromMenuItem(item);
+          } catch (error) {
+            // Игнорируем ошибки при обновлении плагинов (плагин может не существовать)
+            // Это нормально для кастомных пунктов меню
           }
         }
       } catch (error) {
@@ -376,34 +401,39 @@ export class UIPermissionsService {
       }
     }
 
-    // Применяем дефолтные метки
+    // Применяем дефолтные метки ТОЛЬКО для отображения (не сохраняем в БД)
     // ВАЖНО: applyDefaultLabels использует spread оператор, так что все поля (включая path) должны сохраняться
     const originalItems = (menu.items as MenuItemConfig[] | undefined) || [];
-    const enrichedItems = applyDefaultLabels(originalItems);
     
-    // ВАЖНО: Убеждаемся, что все пути сохраняются явно при загрузке
-    // Проходим по исходным items и сохраняем пути в enrichedItems
-    const originalItemsMap = new Map(originalItems.map(item => [item.id, item]));
-    enrichedItems.forEach((enrichedItem) => {
-      const originalItem = originalItemsMap.get(enrichedItem.id);
-      if (originalItem && originalItem.path) {
-        // Сохраняем путь из исходного элемента
-        enrichedItem.path = originalItem.path;
-      }
-      // Также сохраняем children, если они есть
-      if (originalItem && originalItem.children) {
-        enrichedItem.children = originalItem.children;
-      }
-    });
+    // Рекурсивно применяем дефолтные метки, сохраняя структуру children
+    const enrichWithDefaults = (items: MenuItemConfig[]): MenuItemConfig[] => {
+      return items.map(item => {
+        const enriched = applyDefaultLabels([item])[0];
+        // КРИТИЧНО: Сохраняем children из оригинала, не применяем applyDefaultLabels к ним
+        // чтобы не изменить структуру вложенности
+        if (item.children && item.children.length > 0) {
+          enriched.children = enrichWithDefaults(item.children);
+        }
+        return enriched;
+      });
+    };
     
-    // Логируем для диагностики потери путей при загрузке
+    const enrichedItems = enrichWithDefaults(originalItems);
+    
+    // Логируем для диагностики
     if (process.env.NODE_ENV === 'development') {
       const originalWithPaths = originalItems.filter(item => item.path);
       const enrichedWithPaths = enrichedItems.filter(item => item.path);
-      console.log('[UIPermissionsService] Loaded menu items with paths:', {
-        original: originalWithPaths.map(item => ({ id: item.id, path: item.path })),
-        enriched: enrichedWithPaths.map(item => ({ id: item.id, path: item.path })),
-        preserved: originalWithPaths.length === enrichedWithPaths.length,
+      const originalWithChildren = originalItems.filter(item => item.children && item.children.length > 0);
+      const enrichedWithChildren = enrichedItems.filter(item => item.children && item.children.length > 0);
+      console.log('[UIPermissionsService] Loaded menu items:', {
+        originalCount: originalItems.length,
+        enrichedCount: enrichedItems.length,
+        originalWithPaths: originalWithPaths.length,
+        enrichedWithPaths: enrichedWithPaths.length,
+        originalWithChildren: originalWithChildren.length,
+        enrichedWithChildren: enrichedWithChildren.length,
+        preserved: originalItems.length === enrichedItems.length && originalWithChildren.length === enrichedWithChildren.length,
       });
     }
     
@@ -467,87 +497,80 @@ export class UIPermissionsService {
       }
     }
 
-    // Применяем дефолтные метки перед сохранением
-    // ВАЖНО: applyDefaultLabels использует spread оператор, так что все поля (включая path) должны сохраняться
-    const enrichedItems = applyDefaultLabels(items as MenuItemConfig[]);
+    // КРИТИЧНО: НЕ применяем applyDefaultLabels при сохранении!
+    // Сохраняем ТОЧНО то, что пришло от админа, без изменений
+    // applyDefaultLabels применяется только при чтении для отображения
     
-    // ВАЖНО: Убеждаемся, что все пути сохраняются явно
-    // Проходим по исходным items и сохраняем пути в enrichedItems
-    const itemsMap = new Map((items as MenuItemConfig[]).map(item => [item.id, item]));
-    enrichedItems.forEach((enrichedItem, index) => {
-      const originalItem = itemsMap.get(enrichedItem.id);
-      if (originalItem) {
-        // Сохраняем путь из исходного элемента
-        if (originalItem.path !== undefined) {
-          enrichedItem.path = originalItem.path; // Сохраняем путь как есть (может быть пустой строкой)
-        }
-        // Также сохраняем children, если они есть
-        if (originalItem.children !== undefined) {
-          enrichedItem.children = originalItem.children;
-        }
-        // Сохраняем все остальные поля явно
-        if (originalItem.externalUrl !== undefined) enrichedItem.externalUrl = originalItem.externalUrl;
-        if (originalItem.iframeUrl !== undefined) enrichedItem.iframeUrl = originalItem.iframeUrl;
-        if (originalItem.iframeCode !== undefined) enrichedItem.iframeCode = originalItem.iframeCode;
-        if (originalItem.embeddedAppUrl !== undefined) enrichedItem.embeddedAppUrl = originalItem.embeddedAppUrl;
-        if (originalItem.openInNewTab !== undefined) enrichedItem.openInNewTab = originalItem.openInNewTab;
-      }
-    });
-    
-    // Удаляем undefined значения, чтобы TypeORM их не игнорировал
-    const cleanItems = enrichedItems.map(item => {
+    // Рекурсивно очищаем undefined значения и сохраняем структуру как есть
+    const cleanItem = (item: any): MenuItemConfig => {
       const clean: any = {};
       Object.keys(item).forEach(key => {
-        if (item[key as keyof MenuItemConfig] !== undefined) {
-          clean[key] = item[key as keyof MenuItemConfig];
+        const value = item[key];
+        if (value !== undefined && value !== null) {
+          if (key === 'children' && Array.isArray(value)) {
+            // Рекурсивно очищаем children, сохраняя структуру
+            clean[key] = value.map(cleanItem);
+          } else {
+            clean[key] = value;
+          }
         }
       });
       return clean as MenuItemConfig;
-    });
+    };
     
-    // Логируем для диагностики потери путей
-    if (process.env.NODE_ENV === 'development') {
-      const itemsWithPaths = (items as MenuItemConfig[]).filter(item => item.path);
-      const enrichedWithPaths = enrichedItems.filter(item => item.path);
-      const cleanWithPaths = cleanItems.filter(item => item.path);
-      console.log('[UIPermissionsService] Paths preservation check:', {
-        before: itemsWithPaths.map(item => ({ id: item.id, path: item.path })),
-        afterEnriched: enrichedWithPaths.map(item => ({ id: item.id, path: item.path })),
-        afterClean: cleanWithPaths.map(item => ({ id: item.id, path: item.path })),
-        preserved: itemsWithPaths.length === enrichedWithPaths.length && enrichedWithPaths.length === cleanWithPaths.length,
-      });
-    }
+    const cleanItems = (items as MenuItemConfig[]).map(cleanItem);
     
-    menu.items = cleanItems;
-
     // Логируем что именно сохраняем в БД
     if (process.env.NODE_ENV === 'development') {
-      console.log('[UIPermissionsService] Saving to DB - items with paths:', cleanItems
-        .filter(item => item.path)
-        .map(item => ({ id: item.id, path: item.path, type: item.type })));
-      console.log('[UIPermissionsService] Full items to save:', JSON.stringify(cleanItems, null, 2));
+      console.log('[UIPermissionsService] Saving to DB - items count:', cleanItems.length);
+      console.log('[UIPermissionsService] Items IDs to save:', cleanItems.map(item => item.id));
+      console.log('[UIPermissionsService] Items with children:', cleanItems
+        .filter(item => item.children && item.children.length > 0)
+        .map(item => ({ id: item.id, childrenCount: item.children?.length, childrenIds: item.children?.map(c => c.id) })));
+      console.log('[UIPermissionsService] Full items structure to save:', JSON.stringify(cleanItems, null, 2));
     }
-
+    
+    // Логируем что именно сохраняем в БД
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[UIPermissionsService] Saving to DB - items count:', cleanItems.length);
+      console.log('[UIPermissionsService] Items IDs to save:', cleanItems.map(item => item.id));
+      console.log('[UIPermissionsService] Items with children:', cleanItems
+        .filter(item => item.children && item.children.length > 0)
+        .map(item => ({ id: item.id, childrenCount: item.children?.length })));
+      console.log('[UIPermissionsService] Full items structure to save:', JSON.stringify(cleanItems, null, 2));
+    }
+    
+    // КРИТИЧНО: Сохраняем ТОЧНО то, что пришло от админа, без добавления плагинов
+    menu.items = cleanItems;
+    
+    // Сохраняем в БД
     const savedMenu = await this.navigationMenusRepo.save(menu);
     
-    // Проверяем, что пути сохранились после сохранения в БД
+    // Проверяем, что данные сохранились правильно
     if (process.env.NODE_ENV === 'development') {
       const savedItems = savedMenu.items as MenuItemConfig[];
-      const savedWithPaths = savedItems.filter(item => item.path);
-      console.log('[UIPermissionsService] After DB save - items with paths:', savedWithPaths.map(item => ({ id: item.id, path: item.path, type: item.type })));
-      console.log('[UIPermissionsService] Full items from DB:', JSON.stringify(savedItems, null, 2));
+      console.log('[UIPermissionsService] ✅ After DB save - items count:', savedItems.length);
+      console.log('[UIPermissionsService] ✅ After DB save - items IDs:', savedItems.map(item => item.id));
+      console.log('[UIPermissionsService] ✅ After DB save - items with children:', savedItems
+        .filter(item => item.children && item.children.length > 0)
+        .map(item => ({ id: item.id, childrenCount: item.children?.length, childrenIds: item.children?.map(c => c.id) })));
       
-      // Проверяем, не потерялись ли пути
-      const pathsBefore = cleanItems.filter(item => item.path).map(item => ({ id: item.id, path: item.path }));
-      const pathsAfter = savedItems.filter(item => item.path).map(item => ({ id: item.id, path: item.path }));
-      if (pathsBefore.length !== pathsAfter.length) {
-        console.error('[UIPermissionsService] PATHS LOST DURING DB SAVE!', {
-          before: pathsBefore,
-          after: pathsAfter,
+      // Проверяем, что структура сохранилась
+      const beforeCount = cleanItems.length;
+      const afterCount = savedItems.length;
+      const beforeWithChildren = cleanItems.filter(item => item.children && item.children.length > 0).length;
+      const afterWithChildren = savedItems.filter(item => item.children && item.children.length > 0).length;
+      
+      if (beforeCount !== afterCount || beforeWithChildren !== afterWithChildren) {
+        console.error('[UIPermissionsService] ❌ STRUCTURE LOST DURING DB SAVE!', {
+          before: { count: beforeCount, withChildren: beforeWithChildren },
+          after: { count: afterCount, withChildren: afterWithChildren },
         });
+      } else {
+        console.log('[UIPermissionsService] ✅ Structure preserved during DB save');
       }
       
-      // Проверяем напрямую через повторную загрузку, что сохранилось в БД
+      // Проверяем напрямую через повторную загрузку
       try {
         const reloadedMenu = await this.navigationMenusRepo.findOne({ 
           where: { menuId } 
@@ -555,8 +578,11 @@ export class UIPermissionsService {
         
         if (reloadedMenu && reloadedMenu.items) {
           const rawItems = reloadedMenu.items as MenuItemConfig[];
-          const rawWithPaths = rawItems.filter((item: any) => item && item.path);
-          console.log('[UIPermissionsService] Reloaded from DB - items with paths:', rawWithPaths.map((item: any) => ({ id: item.id, path: item.path, type: item.type })));
+          console.log('[UIPermissionsService] ✅ Reloaded from DB - items count:', rawItems.length);
+          console.log('[UIPermissionsService] ✅ Reloaded from DB - items IDs:', rawItems.map(item => item.id));
+          console.log('[UIPermissionsService] ✅ Reloaded from DB - items with children:', rawItems
+            .filter(item => item.children && item.children.length > 0)
+            .map(item => ({ id: item.id, childrenCount: item.children?.length })));
         }
       } catch (error) {
         console.warn('[UIPermissionsService] Failed to reload DB data:', error);
@@ -824,14 +850,11 @@ export class UIPermissionsService {
           metadata: seed?.metadata || {},
         });
         menu = await this.navigationMenusRepo.save(menu);
-      } else {
-        const enrichedItems = applyDefaultLabels((menu.items as MenuItemConfig[] | undefined) || []);
-        const needsUpdate = JSON.stringify(enrichedItems) !== JSON.stringify(menu.items);
-        if (needsUpdate) {
-          menu.items = enrichedItems;
-          menu = await this.navigationMenusRepo.save(menu);
-        }
       }
+      // КРИТИЧНО: НЕ применяем applyDefaultLabels и НЕ сохраняем меню здесь
+      // Это может перезаписать изменения пользователя
+      // applyDefaultLabels применяется только при чтении в getNavigationMenuConfig
+      // При сохранении через updateNavigationMenuConfig данные сохраняются как есть
 
       return menu;
     } catch (error) {

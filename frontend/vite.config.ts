@@ -49,17 +49,23 @@ export default defineConfig({
     },
     proxy: {
       '/api': {
-        target: process.env.VITE_API_URL || 'http://loginus-api:3001',
+        // Используем localhost:3004 для локального запуска (порт loginus-api контейнера)
+        // В Docker используйте 'http://loginus-api:3001'
+        target: process.env.VITE_API_URL || 'http://localhost:3004',
         changeOrigin: true,
         secure: false,
         timeout: 20000,
         configure: (proxy, _options) => {
           proxy.on('error', (err, _req, _res) => {
             if (process.env.NODE_ENV === 'development') {
-              console.error('proxy error', err);
+              console.error('[Vite Proxy] proxy error:', err);
             }
           });
-          // Убраны console.log для ускорения - логи только при необходимости
+          proxy.on('proxyReq', (proxyReq, req, res) => {
+            if (process.env.NODE_ENV === 'development') {
+              console.log(`[Vite Proxy] ${req.method} ${req.url} -> ${proxyReq.path}`);
+            }
+          });
         },
       },
     },

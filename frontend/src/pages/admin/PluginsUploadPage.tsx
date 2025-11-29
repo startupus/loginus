@@ -30,10 +30,8 @@ const PluginsUploadPage: React.FC = () => {
 
   const uploadMutation = useMutation({
     mutationFn: async (data: FormData) => {
+      // НЕ устанавливаем Content-Type вручную - axios сам установит правильный заголовок с boundary для FormData
       const response = await apiClient.post('/admin/extensions/upload', data, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
         onUploadProgress: (progressEvent) => {
           const percentCompleted = Math.round(
             (progressEvent.loaded * 100) / (progressEvent.total || 1),
@@ -55,8 +53,10 @@ const PluginsUploadPage: React.FC = () => {
   });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('[PluginsUploadPage] File input changed, files:', e.target.files);
     const file = e.target.files?.[0];
     if (file) {
+      console.log('[PluginsUploadPage] File selected:', file.name, file.size);
       // Проверка типа файла
       if (!file.name.endsWith('.zip')) {
         setErrors({ file: t('admin.plugins.upload.invalidFile', 'Файл должен быть .zip архивом') });
@@ -74,6 +74,8 @@ const PluginsUploadPage: React.FC = () => {
 
       setFormData({ ...formData, file });
       setErrors({});
+    } else {
+      console.log('[PluginsUploadPage] No file selected');
     }
   };
 
@@ -167,7 +169,17 @@ const PluginsUploadPage: React.FC = () => {
               <Button
                 type="button"
                 variant="secondary"
-                onClick={() => fileInputRef.current?.click()}
+                onClick={(e) => {
+                  console.log('[PluginsUploadPage] Button clicked, fileInputRef:', fileInputRef.current);
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (fileInputRef.current) {
+                    console.log('[PluginsUploadPage] Triggering file input click');
+                    fileInputRef.current.click();
+                  } else {
+                    console.error('[PluginsUploadPage] fileInputRef.current is null!');
+                  }
+                }}
                 leftIcon={<Icon name="upload" size="sm" />}
                 className="file-button"
               >

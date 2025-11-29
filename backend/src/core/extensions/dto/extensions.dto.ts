@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsEnum, IsObject } from 'class-validator';
+import { IsString, IsOptional, IsEnum, IsObject, IsBoolean, Transform } from 'class-validator';
 
 export class UploadExtensionDto {
   @IsString()
@@ -14,8 +14,19 @@ export class UploadExtensionDto {
     'system',
     'user',
     'api',
+    'plugin', // Добавляем 'plugin' для обратной совместимости
   ])
   extensionType: string;
+
+  @IsOptional()
+  @Transform(({ value }) => {
+    // Преобразуем строку в boolean для FormData
+    if (value === 'true' || value === true) return true;
+    if (value === 'false' || value === false) return false;
+    return Boolean(value);
+  })
+  @IsBoolean()
+  enabled?: boolean;
 
   @IsOptional()
   @IsObject()

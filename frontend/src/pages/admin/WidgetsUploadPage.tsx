@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -6,6 +6,7 @@ import { PageTemplate } from '../../design-system/layouts/PageTemplate/PageTempl
 import { Input } from '../../design-system/primitives/Input/Input';
 import { Button } from '../../design-system/primitives/Button/Button';
 import { Card } from '../../design-system/primitives/Card/Card';
+import { Icon } from '../../design-system/primitives/Icon';
 import { apiClient } from '../../services/api/client';
 import { ExtensionType } from './ExtensionsManagerPage';
 import './PluginsUploadPage.css'; // Используем те же стили
@@ -14,6 +15,7 @@ const WidgetsUploadPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -127,19 +129,34 @@ const WidgetsUploadPage: React.FC = () => {
               <label htmlFor="widget-file">
                 {t('admin.widgets.upload.file', 'Файл виджета (.zip)')} <span className="required">*</span>
               </label>
+              
+              {/* Hidden file input */}
               <input
+                ref={fileInputRef}
                 type="file"
                 id="widget-file"
                 accept=".zip"
                 onChange={handleFileChange}
-                className="file-input"
+                style={{ display: 'none' }}
               />
-              {formData.file && (
-                <p className="file-info">
-                  {t('admin.widgets.upload.selectedFile', 'Выбран файл')}: {formData.file.name} (
-                  {(formData.file.size / 1024 / 1024).toFixed(2)} MB)
-                </p>
-              )}
+              
+              {/* Custom button to trigger file input */}
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  fileInputRef.current?.click();
+                }}
+                leftIcon={<Icon name="upload" size="sm" />}
+                className="file-button"
+              >
+                {formData.file 
+                  ? `${formData.file.name} (${(formData.file.size / 1024 / 1024).toFixed(2)} MB)`
+                  : t('admin.widgets.upload.chooseFile', 'Выбрать файл')}
+              </Button>
+              
               {errors.file && <p className="error-message">{errors.file}</p>}
             </div>
 

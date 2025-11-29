@@ -10,6 +10,8 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
+  DragStartEvent,
+  DragOverlay,
 } from '@dnd-kit/core';
 import {
   arrayMove,
@@ -168,20 +170,25 @@ const MenuItem: React.FC<MenuItemProps> = ({ item, onToggle, onEdit, onDelete, d
       </div>
     </div>
     
-    {/* Рекурсивный рендеринг вложенных элементов */}
+    {/* Рекурсивный рендеринг вложенных элементов с отдельным SortableContext */}
     {item.children && item.children.length > 0 && (
-      <div className={themeClasses.spacing.spaceY3}>
-        {item.children.map((child) => (
-          <MenuItem
-            key={child.id}
-            item={child}
-            onToggle={onToggle}
-            onEdit={onEdit}
-            onDelete={onDelete}
-            depth={depth + 1}
-          />
-        ))}
-      </div>
+      <SortableContext
+        items={item.children.map((child) => child.id)}
+        strategy={verticalListSortingStrategy}
+      >
+        <div className={themeClasses.spacing.spaceY3} style={{ marginLeft: `${leftPadding}px` }}>
+          {item.children.map((child) => (
+            <MenuItem
+              key={child.id}
+              item={child}
+              onToggle={onToggle}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              depth={depth + 1}
+            />
+          ))}
+        </div>
+      </SortableContext>
     )}
     </>
   );
@@ -253,6 +260,7 @@ const MenuSettingsPage: React.FC = () => {
     order: 0,
   });
   const [selectedPluginId, setSelectedPluginId] = useState<string>('');
+  const [activeId, setActiveId] = useState<string | null>(null);
 
   // Настройка сенсоров для drag & drop
   const sensors = useSensors(
@@ -303,42 +311,347 @@ const MenuSettingsPage: React.FC = () => {
     [queryClient],
   );
 
-  // Обработка drag & drop (локальное обновление без запроса на сервер)
+  // Функция генерации пути на основе родителя
+  const generatePath = useCallback((label: string, parentId?: string): string => {
+    // Транслитерация и замена пробелов на дефисы
+    const transliterate = (str: string): string => {
+      const ru: Record<string, string> = {
+        'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'yo', 
+        'ж': 'zh', 'з': 'z', 'и': 'i', 'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm', 
+        'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u', 
+        'ф': 'f', 'х': 'h', 'ц': 'ts', 'ч': 'ch', 'ш': 'sh', 'щ': 'sch', 
+        'ъ': '', 'ы': 'y', 'ь': '', 'э': 'e', 'ю': 'yu', 'я': 'ya'
+      };
+      
+      return str.toLowerCase().split('').map(char => ru[char] || char).join('');
+    };
+    
+    const slug = transliterate(label)
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^\w-]/g, '');
+    
+    if (parentId) {
+      const parent = items.find(m => m.id === parentId);
+      if (parent && parent.path) {
+        return `${parent.path}/${slug}`;
+      }
+    }
+    
+    return `/${slug}`;
+  }, [items]);
+
+  // Рекурсивно обновляем пути детей при изменении родителя
+  const updateChildrenPaths = useCallback((parentId: string, itemsList: MenuItemConfig[]): MenuItemConfig[] => {
+    return itemsList.map((item) => {
+      // Проверяем, является ли данный пункт дочерним для parentId
+      const isChild = item.children?.some((child: MenuItemConfig) => child.id === parentId);
+      
+      if (isChild && item.children) {
+        // Обновляем детей рекурсивно
+        const updatedChildren = item.children.map((child: MenuItemConfig) => {
+          if (child.id === parentId) {
+            // Пересчитываем путь
+            const newPath = generatePath(child.label || child.id, item.id);
+            return {
+              ...child,
+              path: newPath,
+            };
+          }
+          return child;
+        });
+        
+        return {
+          ...item,
+          children: updatedChildren,
+        };
+      }
+      
+      return item;
+    });
+  }, [generatePath]);
+
+  // Функция проверки, можно ли вложить один пункт в другой
+  const canBeNested = useCallback((draggedItem: MenuItemConfig, targetItem: MenuItemConfig): boolean => {
+    // Нельзя вложить в себя
+    if (draggedItem.id === targetItem.id) return false;
+    
+    // Нельзя вложить родителя в своего ребенка
+    if (targetItem.children?.some((child: MenuItemConfig) => child.id === draggedItem.id)) {
+      return false;
+    }
+    
+    // Нельзя вложить, если target уже имеет родителя (ограничение глубины = 1)
+    const targetHasParent = items.some((item) => 
+      item.children?.some((child: MenuItemConfig) => child.id === targetItem.id)
+    );
+    if (targetHasParent) return false;
+    
+    // Нельзя вложить, если элемент уже имеет детей (ограничение: не больше 2 уровней)
+    if (draggedItem.children && draggedItem.children.length > 0) {
+      return false;
+    }
+    
+    return true;
+  }, [items]);
+
+  // Обработка начала drag & drop
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  };
+
+  // Вспомогательная функция для получения плоского списка всех элементов (включая вложенные)
+  const getAllItemsFlat = useCallback((itemsList: MenuItemConfig[]): MenuItemConfig[] => {
+    const result: MenuItemConfig[] = [];
+    const traverse = (items: MenuItemConfig[]) => {
+      for (const item of items) {
+        result.push(item);
+        if (item.children && item.children.length > 0) {
+          traverse(item.children);
+        }
+      }
+    };
+    traverse(itemsList);
+    return result;
+  }, []);
+
+  // Вспомогательная функция для поиска родителя элемента
+  const findParent = useCallback((itemId: string, itemsList: MenuItemConfig[]): MenuItemConfig | null => {
+    for (const item of itemsList) {
+      if (item.children) {
+        if (item.children.some(child => child.id === itemId)) {
+          return item;
+        }
+        const found = findParent(itemId, item.children);
+        if (found) return found;
+      }
+    }
+    return null;
+  }, []);
+
+  // Вспомогательная функция для удаления элемента из вложенности
+  const removeFromNesting = useCallback((itemId: string, itemsList: MenuItemConfig[]): MenuItemConfig[] => {
+    return itemsList.map(item => {
+      if (item.children) {
+        const childIndex = item.children.findIndex(child => child.id === itemId);
+        if (childIndex !== -1) {
+          // Найден элемент в children - удаляем его
+          const removedChild = item.children[childIndex];
+          const newChildren = item.children.filter(child => child.id !== itemId);
+          return {
+            ...item,
+            children: newChildren.length > 0 ? newChildren : undefined,
+          };
+        }
+        // Рекурсивно ищем в children
+        return {
+          ...item,
+          children: removeFromNesting(itemId, item.children),
+        };
+      }
+      return item;
+    });
+  }, []);
+
+  // Обработка drag & drop с поддержкой вложенности
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+
+    // Сбрасываем активный элемент
+    setActiveId(null);
 
     if (!over || active.id === over.id) {
       return;
     }
 
-    const oldIndex = items.findIndex((item) => item.id === active.id);
-    const newIndex = items.findIndex((item) => item.id === over.id);
+    const allItemsFlat = getAllItemsFlat(items);
+    const activeItem = allItemsFlat.find((item) => item.id === active.id);
+    const overItem = allItemsFlat.find((item) => item.id === over.id);
 
-    if (oldIndex !== -1 && newIndex !== -1) {
-      const newItems = arrayMove(items, oldIndex, newIndex);
-      // Обновляем порядок
-      const updatedItems = newItems.map((item, index) => ({
-        ...item,
-        order: index + 1,
-      }));
-
-      // Оптимистично обновляем локальное состояние
-      queryClient.setQueryData(['menu-settings'], (oldData: any) => {
-        if (!oldData) return oldData;
-        return {
-          ...oldData,
-          data: {
-            ...oldData.data,
-            data: {
-              items: updatedItems,
-            },
-          },
-        };
-      });
-
-      // Сохраняем изменения на бэкенде (фоново)
-      void persistMenu(updatedItems);
+    if (!activeItem) {
+      console.warn('[MenuSettingsPage] handleDragEnd: activeItem not found', { activeId: active.id });
+      return;
     }
+
+    // Находим родителя активного элемента
+    const activeItemParent = findParent(activeItem.id, items);
+    const isActiveItemNested = !!activeItemParent;
+
+    // Функция для рекурсивного удаления элемента из структуры
+    const removeItemRecursively = (itemsList: MenuItemConfig[], itemId: string): MenuItemConfig[] => {
+      return itemsList
+        .filter(item => item.id !== itemId)
+        .map(item => {
+          if (item.children && item.children.length > 0) {
+            return {
+              ...item,
+              children: removeItemRecursively(item.children, itemId),
+            };
+          }
+          return item;
+        });
+    };
+
+    // Функция для добавления элемента в children родителя
+    const addToParent = (itemsList: MenuItemConfig[], parentId: string, childItem: MenuItemConfig): MenuItemConfig[] => {
+      return itemsList.map(item => {
+        if (item.id === parentId) {
+          const existingChildren = item.children || [];
+          const newPath = generatePath(childItem.label || childItem.id, parentId);
+          return {
+            ...item,
+            children: [
+              ...existingChildren,
+              {
+                ...childItem,
+                path: newPath,
+                order: existingChildren.length + 1,
+                children: undefined, // Убираем children при вложении
+              },
+            ],
+          };
+        }
+        if (item.children && item.children.length > 0) {
+          return {
+            ...item,
+            children: addToParent(item.children, parentId, childItem),
+          };
+        }
+        return item;
+      });
+    };
+
+    let updatedItems: MenuItemConfig[];
+
+    // Если перетаскиваем на другой элемент - проверяем возможность вложения
+    if (overItem) {
+      const overItemParent = findParent(overItem.id, items);
+      const isOverItemRoot = !overItemParent;
+
+      // Если активный элемент вложен, и мы перетаскиваем его на корневой элемент - вытаскиваем
+      if (isActiveItemNested && isOverItemRoot) {
+        console.log('[MenuSettingsPage] Extracting nested item to root level');
+        
+        // 1. Удаляем из вложенности
+        updatedItems = removeItemRecursively(items, activeItem.id);
+        
+        // 2. Добавляем на корневой уровень после overItem
+        const overIndex = updatedItems.findIndex(item => item.id === overItem.id);
+        const extractedItem = {
+          ...activeItem,
+          path: generatePath(activeItem.label || activeItem.id),
+          children: undefined,
+        };
+        
+        if (overIndex !== -1) {
+          updatedItems = [
+            ...updatedItems.slice(0, overIndex + 1),
+            extractedItem,
+            ...updatedItems.slice(overIndex + 1),
+          ];
+        } else {
+          updatedItems = [...updatedItems, extractedItem];
+        }
+      }
+      // Если можно вложить - вкладываем
+      else if (canBeNested(activeItem, overItem)) {
+        console.log('[MenuSettingsPage] Nesting item');
+        
+        // Удаляем активный элемент из текущей позиции
+        updatedItems = removeItemRecursively(items, activeItem.id);
+        
+        // Добавляем в children overItem
+        updatedItems = addToParent(updatedItems, overItem.id, activeItem);
+      }
+      // Обычное горизонтальное перемещение (только для элементов одного уровня)
+      else if (!isActiveItemNested && isOverItemRoot) {
+        console.log('[MenuSettingsPage] Reordering root items');
+        const oldIndex = items.findIndex((item) => item.id === active.id);
+        const newIndex = items.findIndex((item) => item.id === over.id);
+
+        if (oldIndex !== -1 && newIndex !== -1) {
+          updatedItems = arrayMove(items, oldIndex, newIndex);
+        } else {
+          return; // Не нашли индексы
+        }
+      } else {
+        // Не можем переместить - ничего не делаем
+        return;
+      }
+    } else {
+      // Перетаскиваем на пустое место - вытаскиваем из вложенности если был вложен
+      if (isActiveItemNested) {
+        console.log('[MenuSettingsPage] Extracting nested item to root level (dropped on empty)');
+        updatedItems = removeItemRecursively(items, activeItem.id);
+        const extractedItem = {
+          ...activeItem,
+          path: generatePath(activeItem.label || activeItem.id),
+          children: undefined,
+        };
+        updatedItems = [...updatedItems, extractedItem];
+      } else {
+        // Уже на корневом уровне, ничего не делаем
+        return;
+      }
+    }
+
+    // Обновляем порядок для всех корневых элементов и их children
+    const updateOrderRecursively = (itemsList: MenuItemConfig[], startOrder: number = 1): MenuItemConfig[] => {
+      return itemsList.map((item, index) => {
+        const order = startOrder + index;
+        const updatedItem: MenuItemConfig = {
+          ...item,
+          order,
+        };
+        
+        // Рекурсивно обновляем порядок children
+        if (item.children && item.children.length > 0) {
+          updatedItem.children = item.children.map((child, childIndex) => ({
+            ...child,
+            order: childIndex + 1,
+          }));
+        }
+        
+        return updatedItem;
+      });
+    };
+
+    updatedItems = updateOrderRecursively(updatedItems);
+
+    // Обновляем пути для всех элементов после перемещения
+    const updatePathsRecursively = (itemsList: MenuItemConfig[], parentId?: string): MenuItemConfig[] => {
+      return itemsList.map(item => {
+        const newPath = generatePath(item.label || item.id, parentId);
+        const updatedItem: MenuItemConfig = {
+          ...item,
+          path: newPath,
+        };
+        
+        // Рекурсивно обновляем пути children
+        if (item.children && item.children.length > 0) {
+          updatedItem.children = updatePathsRecursively(item.children, item.id);
+        }
+        
+        return updatedItem;
+      });
+    };
+
+    updatedItems = updatePathsRecursively(updatedItems);
+
+    // Обновляем локальное состояние
+    queryClient.setQueryData(['menu-settings'], (oldData: any) => {
+      if (!oldData) return oldData;
+      return {
+        ...oldData,
+        data: {
+          ...oldData.data,
+          data: { items: updatedItems },
+        },
+      };
+    });
+    
+    // Сохраняем на бэкенде
+    void persistMenu(updatedItems);
   };
 
   // Переключение включения/выключения пункта (локальное обновление без запроса на сервер)
@@ -687,10 +1000,11 @@ const MenuSettingsPage: React.FC = () => {
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
           >
             <SortableContext
-              items={items.map((item) => item.id)}
+              items={getAllItemsFlat(items).map((item) => item.id)}
               strategy={verticalListSortingStrategy}
             >
               <div className={themeClasses.spacing.spaceY3}>
@@ -715,6 +1029,18 @@ const MenuSettingsPage: React.FC = () => {
                   ))}
               </div>
             </SortableContext>
+            
+            {/* DragOverlay для визуальной подсказки */}
+            <DragOverlay>
+              {activeId ? (
+                <div className={`${themeClasses.spacing.p4} ${themeClasses.utility.roundedLg} ${themeClasses.border.default} ${themeClasses.background.surface} ${themeClasses.card.shadow} opacity-80`}>
+                  <div className={`${themeClasses.utility.flexItemsCenter} ${themeClasses.spacing.gap4}`}>
+                    <Icon name="grip-vertical" size="sm" className={themeClasses.text.secondary} />
+                    {items.find((item) => item.id === activeId)?.label || 'Перетаскиваемый элемент'}
+                  </div>
+                </div>
+              ) : null}
+            </DragOverlay>
           </DndContext>
         )}
       </div>

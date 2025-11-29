@@ -11,6 +11,8 @@ import {
   UploadedFile,
   BadRequestException,
   NotFoundException,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { PluginRegistryService } from './plugin-registry.service';
@@ -49,6 +51,7 @@ export class ExtensionsController {
    */
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: false }))
   async uploadExtension(
     @UploadedFile() file: any, // Express.Multer.File
     @Body() dto: UploadExtensionDto,
@@ -61,10 +64,13 @@ export class ExtensionsController {
       throw new BadRequestException('File must be a .zip archive');
     }
 
+    // Маппинг 'plugin' -> 'menu_item' для обратной совместимости
+    const extensionType = dto.extensionType === 'plugin' ? 'menu_item' : dto.extensionType;
+
     const result = await this.uploadService.uploadExtension(
       file.buffer,
       dto.name,
-      dto.extensionType,
+      extensionType,
       dto.config,
     );
 
@@ -72,6 +78,11 @@ export class ExtensionsController {
       throw new BadRequestException(result.message, {
         cause: result.errors?.join(', '),
       });
+    }
+
+    // Если enabled передан и установка успешна, устанавливаем его после установки
+    if (dto.enabled !== undefined && result.success && result.extensionId) {
+      await this.registry.update(result.extensionId, { enabled: dto.enabled });
     }
 
     return {
