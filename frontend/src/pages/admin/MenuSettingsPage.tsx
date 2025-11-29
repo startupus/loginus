@@ -55,9 +55,10 @@ interface MenuItemProps {
   onToggle: (id: string) => void;
   onEdit: (item: MenuItemConfig) => void;
   onDelete: (id: string) => void;
+  depth?: number; // Уровень вложенности для отступов
 }
 
-const MenuItem: React.FC<MenuItemProps> = ({ item, onToggle, onEdit, onDelete }) => {
+const MenuItem: React.FC<MenuItemProps> = ({ item, onToggle, onEdit, onDelete, depth = 0 }) => {
   const { t } = useTranslation();
   const {
     attributes,
@@ -76,19 +77,21 @@ const MenuItem: React.FC<MenuItemProps> = ({ item, onToggle, onEdit, onDelete })
 
   const isDefault = item.type === 'default';
   const canDelete = !isDefault; // Базовые пункты нельзя удалять
+  const leftPadding = depth * 32; // 32px отступ на каждый уровень
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={`${themeClasses.utility.flexItemsCenter} ${themeClasses.spacing.gap4} ${themeClasses.spacing.p4} ${themeClasses.utility.roundedLg} ${themeClasses.border.default} ${
-        isDragging ? `${themeClasses.border.primary} ${themeClasses.card.shadow}` : ''
-      } ${
-        item.enabled
-          ? themeClasses.background.surface
-          : themeClasses.background.iconContainer
-      } ${themeClasses.utility.transitionAll}`}
-    >
+    <>
+      <div
+        ref={setNodeRef}
+        style={{...style, paddingLeft: `${leftPadding + 16}px`}}
+        className={`${themeClasses.utility.flexItemsCenter} ${themeClasses.spacing.gap4} ${themeClasses.spacing.p4} ${themeClasses.utility.roundedLg} ${themeClasses.border.default} ${
+          isDragging ? `${themeClasses.border.primary} ${themeClasses.card.shadow}` : ''
+        } ${
+          item.enabled
+            ? themeClasses.background.surface
+            : themeClasses.background.iconContainer
+        } ${themeClasses.utility.transitionAll}`}
+      >
       {/* Иконка для перетаскивания - доступна для всех пунктов */}
       <div
         {...attributes}
@@ -164,6 +167,23 @@ const MenuItem: React.FC<MenuItemProps> = ({ item, onToggle, onEdit, onDelete })
         />
       </div>
     </div>
+    
+    {/* Рекурсивный рендеринг вложенных элементов */}
+    {item.children && item.children.length > 0 && (
+      <div className={themeClasses.spacing.spaceY3}>
+        {item.children.map((child) => (
+          <MenuItem
+            key={child.id}
+            item={child}
+            onToggle={onToggle}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            depth={depth + 1}
+          />
+        ))}
+      </div>
+    )}
+    </>
   );
 };
 
@@ -360,7 +380,22 @@ const MenuSettingsPage: React.FC = () => {
   const handleConfirmDelete = () => {
     if (!itemToDelete) return;
     
-    const updatedItems = items.filter((item) => item.id !== itemToDelete.id);
+    // Рекурсивная функция для удаления элемента и из children
+    const deleteRecursively = (itemsList: MenuItemConfig[], idToDelete: string): MenuItemConfig[] => {
+      return itemsList
+        .filter((item) => item.id !== idToDelete)
+        .map((item) => {
+          if (item.children && item.children.length > 0) {
+            return {
+              ...item,
+              children: deleteRecursively(item.children, idToDelete),
+            };
+          }
+          return item;
+        });
+    };
+
+    const updatedItems = deleteRecursively(items, itemToDelete.id);
     // Обновляем порядок
     const reorderedItems = updatedItems.map((item, index) => ({
       ...item,
@@ -659,15 +694,25 @@ const MenuSettingsPage: React.FC = () => {
               strategy={verticalListSortingStrategy}
             >
               <div className={themeClasses.spacing.spaceY3}>
-                {items.map((item) => (
-                  <MenuItem
-                    key={item.id}
-                    item={item}
-                    onToggle={handleToggle}
-                    onEdit={handleEdit}
-                    onDelete={handleDeleteClick}
-                  />
-                ))}
+                {items
+                  .filter((item) => {
+                    // Показываем только элементы верхнего уровня
+                    // Проверяем, не является ли этот элемент child другого элемента
+                    const isChild = items.some((parent) => 
+                      parent.children?.some((child) => child.id === item.id)
+                    );
+                    return !isChild;
+                  })
+                  .map((item) => (
+                    <MenuItem
+                      key={item.id}
+                      item={item}
+                      onToggle={handleToggle}
+                      onEdit={handleEdit}
+                      onDelete={handleDeleteClick}
+                      depth={0}
+                    />
+                  ))}
               </div>
             </SortableContext>
           </DndContext>

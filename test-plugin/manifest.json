@@ -1,0 +1,23 @@
+{
+  "slug": "test-simple-plugin",
+  "name": "Test Simple Plugin",
+  "version": "1.0.0",
+  "description": "Тестовый плагин для проверки системы загрузки",
+  "author": {
+    "name": "Test Author",
+    "email": "test@example.com"
+  },
+  "extensionType": "plugin",
+  "ui": {
+    "type": "iframe",
+    "entryFile": "index.html",
+    "path": "/test-plugin",
+    "icon": "puzzle"
+  },
+  "events": {
+    "subscribes": ["user.after_login"],
+    "emits": []
+  },
+  "permissions": []
+}
+
