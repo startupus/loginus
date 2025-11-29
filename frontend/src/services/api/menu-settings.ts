@@ -12,6 +12,7 @@ export interface MenuItemConfig {
   icon?: string;
   path?: string;
   children?: MenuItemConfig[];
+  pluginId?: string; // ID связанного плагина (для интеграции с extensions)
   // Для external
   externalUrl?: string;
   openInNewTab?: boolean;

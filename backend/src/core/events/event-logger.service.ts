@@ -29,6 +29,13 @@ export class EventLoggerService {
   /**
    * Log an event execution
    */
+  async logEvent(data: EventLogData): Promise<void> {
+    return this.log(data);
+  }
+
+  /**
+   * Log an event execution (alias for logEvent)
+   */
   async log(data: EventLogData): Promise<void> {
     try {
       const logEntry = this.eventLogRepository.create({

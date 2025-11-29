@@ -10,4 +10,6 @@ export * from './Logo';
 export * from './LoginusIdLogo';
 export * from './Checkbox';
 export * from './ScrollButton/ScrollButton';
+export * from './Card';
+export * from './Select';
 

@@ -12,6 +12,8 @@ import { OrganizationRole } from '../organizations/entities/organization-role.en
 import { TeamRole } from '../teams/entities/team-role.entity';
 import { UserRoleAssignment } from './entities/user-role-assignment.entity';
 import { RoleHierarchyService } from '../rbac/role-hierarchy.service';
+import { EventBusService } from '../core/events/event-bus.service';
+import { USER_EVENTS } from '../core/events/events';
 
 @Injectable()
 export class UsersService {
@@ -37,6 +39,7 @@ export class UsersService {
     @InjectRepository(UserRoleAssignment)
     private userRoleAssignmentRepo: Repository<UserRoleAssignment>,
     private roleHierarchyService: RoleHierarchyService,
+    private eventBus: EventBusService,
   ) {}
 
   async findById(id: string, options?: { select?: string[]; relations?: string[] }): Promise<User | null> {
@@ -72,8 +75,22 @@ export class UsersService {
   }
 
   async create(userData: Partial<User>): Promise<User> {
+    // ✅ Emit BEFORE_CREATE event
+    await this.eventBus.emit(USER_EVENTS.BEFORE_CREATE, {
+      userData,
+    });
+
     const user = this.usersRepo.create(userData);
-    return this.usersRepo.save(user);
+    const savedUser = await this.usersRepo.save(user);
+
+    // ✅ Emit AFTER_CREATE event
+    await this.eventBus.emit(USER_EVENTS.AFTER_CREATE, {
+      userId: savedUser.id,
+      email: savedUser.email,
+      userData,
+    });
+
+    return savedUser;
   }
 
   async findAll(page: number = 1, limit: number = 10): Promise<{ users: User[]; total: number }> {
@@ -93,8 +110,23 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
+    // ✅ Emit BEFORE_UPDATE event
+    await this.eventBus.emit(USER_EVENTS.BEFORE_UPDATE, {
+      userId: id,
+      oldData: user,
+      newData: userData,
+    });
+
     Object.assign(user, userData);
-    return this.usersRepo.save(user);
+    const updatedUser = await this.usersRepo.save(user);
+
+    // ✅ Emit AFTER_UPDATE event
+    await this.eventBus.emit(USER_EVENTS.AFTER_UPDATE, {
+      userId: id,
+      updatedData: userData,
+    });
+
+    return updatedUser;
   }
 
   async delete(id: string): Promise<void> {
@@ -105,6 +137,12 @@ export class UsersService {
     }
 
     console.log(`🗑️ Deleting user ${id} (${user.email}) and all related data...`);
+
+    // ✅ Emit BEFORE_DELETE event
+    await this.eventBus.emit(USER_EVENTS.BEFORE_DELETE, {
+      userId: id,
+      email: user.email,
+    });
 
     try {
       // Используем транзакцию для безопасного удаления
@@ -215,6 +253,12 @@ export class UsersService {
 
       // 13. НЕ удаляем audit_logs при удалении пользователя - они нужны для истории
       console.log('ℹ️ Skipping audit_logs deletion (keeping history)');
+
+      // ✅ Emit AFTER_DELETE event
+      await this.eventBus.emit(USER_EVENTS.AFTER_DELETE, {
+        userId: id,
+        email: user.email,
+      });
     } catch (error) {
       console.error(`❌ Error deleting user ${id}:`, error);
       if (error instanceof NotFoundException) {

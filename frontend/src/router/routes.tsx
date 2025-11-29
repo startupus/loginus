@@ -51,6 +51,9 @@ const AuthFlowBuilderPage = lazy(() => import('@/pages/admin/AuthFlowBuilderPage
 const BackupSettingsPage = lazy(() => import('@/pages/admin/BackupSettingsPage'));
 const MenuSettingsPage = lazy(() => import('@/pages/admin/MenuSettingsPage'));
 const PaymentMethodsPage = lazy(() => import('@/pages/admin/PaymentMethodsPage'));
+const ExtensionsManagerPage = lazy(() => import('@/pages/admin/ExtensionsManagerPage'));
+const PluginsUploadPage = lazy(() => import('@/pages/admin/PluginsUploadPage'));
+const WidgetsUploadPage = lazy(() => import('@/pages/admin/WidgetsUploadPage'));
 
 // Custom Pages
 const IframePage = lazy(() => import('@/pages/IframePage'));
@@ -94,6 +97,9 @@ export {
   BackupSettingsPage,
   MenuSettingsPage,
   PaymentMethodsPage,
+  ExtensionsManagerPage,
+  PluginsUploadPage,
+  WidgetsUploadPage,
   IframePage,
   EmbeddedAppPage,
   ErrorPage,

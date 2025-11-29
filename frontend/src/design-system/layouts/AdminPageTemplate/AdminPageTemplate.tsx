@@ -148,6 +148,32 @@ const AdminTemplateBody: React.FC<AdminPageTemplateProps> = ({
         },
       ]
     },
+    { 
+        label: t('admin.sidebar.extensions', 'Расширения'), 
+      path: buildPathWithLang('/admin/extensions', currentLang), 
+      icon: 'package', 
+      active: location.pathname.includes('/admin/extensions'),
+      children: [
+        { 
+            label: t('admin.sidebar.extensionsManager', 'Менеджер расширений'), 
+          path: buildPathWithLang('/admin/extensions', currentLang), 
+          icon: 'grid', 
+          active: location.pathname === buildPathWithLang('/admin/extensions', currentLang)
+        },
+        { 
+            label: t('admin.sidebar.pluginsUpload', 'Загрузить плагин'), 
+          path: buildPathWithLang('/admin/extensions/plugins/upload', currentLang), 
+          icon: 'upload', 
+          active: location.pathname.includes('/admin/extensions/plugins/upload')
+        },
+        { 
+            label: t('admin.sidebar.widgetsUpload', 'Загрузить виджет'), 
+          path: buildPathWithLang('/admin/extensions/widgets/upload', currentLang), 
+          icon: 'upload', 
+          active: location.pathname.includes('/admin/extensions/widgets/upload')
+        },
+      ]
+    },
   ], [t, currentLang, location.pathname, i18n.language, adminModuleLoaded]);
 
   const finalSidebarItems = sidebarItems || (showSidebar ? defaultAdminSidebarItems : undefined);

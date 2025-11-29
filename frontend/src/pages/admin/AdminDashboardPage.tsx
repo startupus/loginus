@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { AdminPageTemplate } from '../../design-system/layouts/AdminPageTemplate';
 import { adminApi } from '../../services/api/admin';
+import { apiClient } from '../../services/api/client';
 import { Icon } from '../../design-system/primitives/Icon';
 import { useAdminWidgets } from '../../hooks/useAdminWidgets';
 import { useAdminPermissions } from '../../hooks/useAdminPermissions';
@@ -15,6 +16,7 @@ const MasonryGrid = lazy(() => import('../../design-system/composites/MasonryGri
 // Lazy loading для виджетов
 const OverviewMetricsWidget = lazy(() => import('../../components/Admin/AdminWidgets/OverviewMetricsWidget').then(m => ({ default: m.OverviewMetricsWidget })));
 const RecentActivitiesWidget = lazy(() => import('../../components/Admin/AdminWidgets/RecentActivitiesWidget').then(m => ({ default: m.RecentActivitiesWidget })));
+const PluginWidget = lazy(() => import('../../components/Admin/AdminWidgets/PluginWidget').then(m => ({ default: m.PluginWidget })));
 
 // Lazy loading для компонентов
 const WidgetSelector = lazy(() => import('../../components/Dashboard/WidgetSelector').then(m => ({ default: m.WidgetSelector })));
@@ -28,7 +30,24 @@ export type AvailableAdminWidget = {
   icon: string;
   enabled: boolean;
   requiredRole?: 'super_admin' | 'company_admin';
+  isPlugin?: boolean; // Новое: флаг что это виджет-плагин
+  uiType?: string; // Новое: тип UI (iframe/embedded)
+  manifest?: any; // Новое: манифест плагина
 };
+
+// Интерфейс расширения (плагина)
+interface Extension {
+  id: string;
+  slug: string;
+  name: string;
+  description?: string;
+  version: string;
+  extensionType: string;
+  uiType?: string;
+  icon?: string;
+  enabled: boolean;
+  manifest?: any;
+}
 
 // Компонент скелетона для Suspense fallback
 const WidgetSkeleton: React.FC = () => (
@@ -77,8 +96,22 @@ const AdminDashboardPage: React.FC = () => {
     gcTime: 30 * 60 * 1000,
   });
 
+  // Загружаем виджеты-плагины из API
+  const { data: pluginWidgets = [] } = useQuery<Extension[]>({
+    queryKey: ['extensions', 'widgets', 'enabled'],
+    queryFn: async () => {
+      try {
+        const response = await apiClient.get('/admin/extensions?extensionType=widget&enabled=true');
+        return Array.isArray(response.data) ? response.data : [];
+      } catch (error) {
+        console.error('[AdminDashboardPage] Failed to fetch widget plugins:', error);
+        return [];
+      }
+    },
+  });
+
   // Доступные виджеты админки с реактивностью к смене языка
-  const availableWidgets: AvailableAdminWidget[] = useMemo(() => [
+  const systemWidgets: AvailableAdminWidget[] = useMemo(() => [
     {
       id: 'overview',
       title: t('admin.widgets.overview.title'),
@@ -123,6 +156,25 @@ const AdminDashboardPage: React.FC = () => {
     }
     return true;
   }), [t, i18n.language, enabledWidgets, isSuperAdmin]);
+
+  // Преобразуем виджеты-плагины в формат AvailableAdminWidget
+  const pluginWidgetsFormatted: AvailableAdminWidget[] = useMemo(() => 
+    pluginWidgets.map(plugin => ({
+      id: `plugin-${plugin.id}`,
+      title: plugin.name,
+      description: plugin.description || '',
+      icon: plugin.icon || 'package',
+      enabled: enabledWidgets.has(`plugin-${plugin.id}`),
+      isPlugin: true,
+      uiType: plugin.uiType,
+      manifest: plugin.manifest,
+    })),
+  [pluginWidgets, enabledWidgets]);
+
+  // Объединяем системные и плагин-виджеты
+  const availableWidgets: AvailableAdminWidget[] = useMemo(() => 
+    [...systemWidgets, ...pluginWidgetsFormatted],
+  [systemWidgets, pluginWidgetsFormatted]);
 
   // Drag & Drop handlers
   const handleDragStart = (_e: React.DragEvent, widgetId: string) => {
@@ -264,6 +316,24 @@ const AdminDashboardPage: React.FC = () => {
                       />
                   );
                 default:
+                  // Проверяем, является ли это виджетом-плагином
+                  if (widgetId.startsWith('plugin-')) {
+                    const pluginWidget = pluginWidgets.find(p => `plugin-${p.id}` === widgetId);
+                    if (pluginWidget) {
+                      return (
+                        <PluginWidget
+                          key={widgetId}
+                          widgetId={widgetId}
+                          title={pluginWidget.name}
+                          description={pluginWidget.description}
+                          uiType={pluginWidget.uiType}
+                          manifest={pluginWidget.manifest}
+                          icon={pluginWidget.icon}
+                          {...commonProps}
+                        />
+                      );
+                    }
+                  }
                   return null;
               }
             })}

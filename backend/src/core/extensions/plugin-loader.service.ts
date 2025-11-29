@@ -1,7 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EventBusService } from '../events/event-bus.service';
 import { PluginRegistryService } from './plugin-registry.service';
-import { Plugin, PluginMetadata } from '../plugins/base-plugin.class';
 import { Extension } from './entities/extension.entity';
 import * as path from 'path';
 import * as fs from 'fs/promises';
@@ -87,8 +86,9 @@ export class PluginLoaderService implements OnModuleInit {
     this.logger.debug(`Loading plugin: ${extension.slug}`);
 
     try {
+      // TODO: Implement plugin loading with new BasePlugin system
       // Build plugin metadata
-      const metadata: PluginMetadata = {
+      const metadata: any = { // PluginMetadata
         id: extension.id,
         slug: extension.slug,
         name: extension.name,
@@ -180,16 +180,18 @@ export class PluginLoaderService implements OnModuleInit {
       return;
     }
 
-    const metadata = plugin.getMetadata();
+    const metadata: any = { slug: extensionId, name: extensionId }; // plugin.getMetadata();
 
     try {
       // Call onDisable lifecycle hook
-      if (plugin.onDisable) {
-        await plugin.onDisable();
-      }
+      // TODO: Implement with new BasePlugin
+      // if (plugin.onDisable) {
+      //   await plugin.onDisable();
+      // }
 
       // Unregister all event handlers
-      this.eventBus.unregisterPlugin(extensionId);
+      // TODO: Implement unregisterPlugin in EventBusService
+      // this.eventBus.unregisterPlugin(extensionId);
 
       // Remove from loaded plugins
       this.loadedPlugins.delete(extensionId);

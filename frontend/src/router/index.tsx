@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouterProvider, Navigate, useLocation } from 'react-router-dom';
 import { Suspense } from 'react';
-import { LandingPage, AboutPage, FeaturesPage, AuthPage, VerifyCodePage, RegisterPage, OnboardingPage, DashboardPage, PersonalDocumentsPage, PersonalAddressesPage, FamilyPage, WorkPage, SecurityPage, DataPage, PayPage, SupportPage, HelpPage, AuthorizationHelpPage, RegistrationHelpPage, SecurityHelpPage, RecoveryHelpPage, KeyHelpPage, FamilyHelpPage, DataHelpPage, PaymentsHelpPage, AdminDashboardPage, UsersManagementPage, CompaniesManagementPage, CompanyDetailPage, AuthFlowBuilderPage, BackupSettingsPage, MenuSettingsPage, PaymentMethodsPage, IframePage, EmbeddedAppPage, ErrorPage, FamilyInvitePage } from './routes';
+import { LandingPage, AboutPage, FeaturesPage, AuthPage, VerifyCodePage, RegisterPage, OnboardingPage, DashboardPage, PersonalDocumentsPage, PersonalAddressesPage, FamilyPage, WorkPage, SecurityPage, DataPage, PayPage, SupportPage, HelpPage, AuthorizationHelpPage, RegistrationHelpPage, SecurityHelpPage, RecoveryHelpPage, KeyHelpPage, FamilyHelpPage, DataHelpPage, PaymentsHelpPage, AdminDashboardPage, UsersManagementPage, CompaniesManagementPage, CompanyDetailPage, AuthFlowBuilderPage, BackupSettingsPage, MenuSettingsPage, PaymentMethodsPage, ExtensionsManagerPage, PluginsUploadPage, WidgetsUploadPage, IframePage, EmbeddedAppPage, ErrorPage, FamilyInvitePage } from './routes';
 import { LanguageRoute } from './LanguageRoute';
 import { AdminRoute } from './AdminRoute';
 import { themeClasses } from '../design-system/utils/themeClasses';
@@ -440,6 +440,45 @@ const router = createBrowserRouter([
         <AdminRoute>
           <Suspense fallback={<LoadingFallback />}>
             <PaymentMethodsPage />
+          </Suspense>
+        </AdminRoute>
+      </LanguageRoute>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/:lang/admin/extensions',
+    element: (
+      <LanguageRoute>
+        <AdminRoute>
+          <Suspense fallback={<LoadingFallback />}>
+            <ExtensionsManagerPage />
+          </Suspense>
+        </AdminRoute>
+      </LanguageRoute>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/:lang/admin/extensions/plugins/upload',
+    element: (
+      <LanguageRoute>
+        <AdminRoute>
+          <Suspense fallback={<LoadingFallback />}>
+            <PluginsUploadPage />
+          </Suspense>
+        </AdminRoute>
+      </LanguageRoute>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/:lang/admin/extensions/widgets/upload',
+    element: (
+      <LanguageRoute>
+        <AdminRoute>
+          <Suspense fallback={<LoadingFallback />}>
+            <WidgetsUploadPage />
           </Suspense>
         </AdminRoute>
       </LanguageRoute>

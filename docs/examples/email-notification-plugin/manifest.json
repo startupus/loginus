@@ -1,0 +1,58 @@
+{
+  "slug": "email-notification-plugin",
+  "name": "Email Notification Plugin",
+  "version": "1.0.0",
+  "description": "Автоматическая отправка email уведомлений при различных событиях системы",
+  "author": {
+    "name": "Loginus Team",
+    "email": "dev@loginus.ru",
+    "url": "https://loginus.ru"
+  },
+  "extensionType": "plugin",
+  "ui": {
+    "type": "none"
+  },
+  "events": {
+    "subscribes": [
+      "auth.after_register",
+      "auth.after_login",
+      "user.password_changed",
+      "user.profile_updated",
+      "payment.success",
+      "payment.failed"
+    ],
+    "emits": [
+      "email-notification.sent",
+      "email-notification.failed"
+    ]
+  },
+  "permissions": [
+    "email.send"
+  ],
+  "config": {
+    "smtpHost": "smtp.example.com",
+    "smtpPort": 587,
+    "smtpUser": "noreply@loginus.ru",
+    "smtpPassword": "***",
+    "fromEmail": "noreply@loginus.ru",
+    "fromName": "Loginus ID",
+    "templates": {
+      "welcome": {
+        "subject": "Добро пожаловать в Loginus!",
+        "enabled": true
+      },
+      "passwordChanged": {
+        "subject": "Пароль изменён",
+        "enabled": true
+      },
+      "paymentSuccess": {
+        "subject": "Платёж успешно выполнен",
+        "enabled": true
+      }
+    }
+  },
+  "dependencies": {
+    "nodemailer": "^6.9.0"
+  }
+}
+

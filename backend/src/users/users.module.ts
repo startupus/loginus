@@ -17,6 +17,7 @@ import { TeamMembership } from '../teams/entities/team-membership.entity';
 import { OrganizationMembership } from '../organizations/entities/organization-membership.entity';
 import { Organization } from '../organizations/entities/organization.entity';
 import { RbacModule } from '../rbac/rbac.module';
+import { EventsModule } from '../core/events/events.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { RbacModule } from '../rbac/rbac.module';
       Organization
     ]),
     RbacModule,
+    EventsModule,
   ],
   controllers: [UsersController, TwoFactorSettingsController, UserRoleManagementController],
   providers: [UsersService, TwoFactorSettingsService, UserRoleManagementService],

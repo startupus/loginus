@@ -1,0 +1,19 @@
+{
+  "name": "email-notification-plugin",
+  "version": "1.0.0",
+  "description": "Email notification plugin for Loginus",
+  "main": "plugin.js",
+  "dependencies": {
+    "nodemailer": "^6.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/nodemailer": "^6.4.0",
+    "typescript": "^5.0.0"
+  },
+  "scripts": {
+    "build": "tsc plugin.ts --target ES2020 --module commonjs --esModuleInterop",
+    "package": "zip -r email-notification-plugin.zip manifest.json plugin.js package.json README.md"
+  }
+}
+

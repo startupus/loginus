@@ -1,6 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PluginRegistryService } from './plugin-registry.service';
 import { PluginLoaderService } from './plugin-loader.service';
+import { EventBusService } from '../events/event-bus.service';
+import { SYSTEM_EVENTS, PLUGIN_EVENTS } from '../events/events';
 import * as path from 'path';
 import * as fs from 'fs/promises';
 import { v4 as uuidv4 } from 'uuid';
@@ -25,6 +27,7 @@ export class ExtensionUploadService {
   constructor(
     private readonly registry: PluginRegistryService,
     private readonly loader: PluginLoaderService,
+    private readonly eventBus: EventBusService,
   ) {
     this.pluginsDirectory = path.join(process.cwd(), 'plugins');
     this.uploadsDirectory = path.join(process.cwd(), 'uploads', 'plugins');
@@ -102,6 +105,14 @@ export class ExtensionUploadService {
       });
 
       this.logger.log(`✅ Extension "${name}" installed successfully`);
+
+      // ✅ Emit PLUGIN_INSTALLED event
+      await this.eventBus.emit(PLUGIN_EVENTS.INSTALLED, {
+        extensionId: extension.id,
+        slug: extension.slug,
+        name: extension.name,
+        extensionType,
+      });
 
       return {
         success: true,

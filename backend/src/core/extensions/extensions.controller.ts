@@ -18,6 +18,7 @@ import { PluginLoaderService } from './plugin-loader.service';
 import { ExtensionUploadService } from './extension-upload.service';
 import { EventBusService } from '../events/event-bus.service';
 import { EventLoggerService } from '../events/event-logger.service';
+import { SYSTEM_EVENTS, PLUGIN_EVENTS } from '../events/events';
 import {
   UploadExtensionDto,
   UpdateExtensionConfigDto,
@@ -140,6 +141,13 @@ export class ExtensionsController {
       await this.loader.loadPlugin(extension);
     }
 
+    // ✅ Emit PLUGIN_ENABLED event
+    await this.eventBus.emit(PLUGIN_EVENTS.ENABLED, {
+      extensionId: id,
+      slug: extension.slug,
+      name: extension.name,
+    });
+
     return {
       success: true,
       data: extension,
@@ -159,6 +167,13 @@ export class ExtensionsController {
     if (this.loader.isPluginLoaded(id)) {
       await this.loader.unloadPlugin(id);
     }
+
+    // ✅ Emit PLUGIN_DISABLED event
+    await this.eventBus.emit(PLUGIN_EVENTS.DISABLED, {
+      extensionId: id,
+      slug: extension.slug,
+      name: extension.name,
+    });
 
     return {
       success: true,
@@ -196,7 +211,19 @@ export class ExtensionsController {
    */
   @Delete(':id')
   async deleteExtension(@Param('id') id: string) {
+    // Get extension before deleting
+    const extension = await this.registry.findById(id);
+
     await this.uploadService.uninstallExtension(id);
+
+    // ✅ Emit PLUGIN_UNINSTALLED event
+    if (extension) {
+      await this.eventBus.emit(PLUGIN_EVENTS.UNINSTALLED, {
+        extensionId: id,
+        slug: extension.slug,
+        name: extension.name,
+      });
+    }
 
     return {
       success: true,

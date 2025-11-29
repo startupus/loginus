@@ -1,241 +1,315 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, Optional } from '@nestjs/common';
 import {
-  EventPayload,
-  EventHandlerResult,
-} from './event-emitter.interface';
-import {
-  EventHandler,
-  EventHandlerRegistration,
-  EventSubscriptionOptions,
-} from './event-handler.interface';
-import { EventLoggerService } from './event-logger.service';
-import { v4 as uuidv4 } from 'uuid';
+  IEvent,
+  IEventHandler,
+  IEventSubscriptionOptions,
+  IEventExecutionResult,
+} from './interfaces/event.interface';
+
+// Forward reference для избежания circular dependency
+@Injectable()
+export class EventLoggerService {
+  async logEvent?(data: any): Promise<void>;
+}
 
 /**
- * Event Bus Service
- * Central hub for event emission and subscription
+ * Информация о зарегистрированном обработчике
+ */
+interface RegisteredHandler {
+  handler: IEventHandler;
+  priority: number;
+  async: boolean;
+  filter?: (event: IEvent) => boolean;
+  name: string;
+}
+
+/**
+ * EventBusService - центральная система управления событиями
+ * 
+ * Основные возможности:
+ * - Регистрация обработчиков событий с приоритетами
+ * - Синхронная и асинхронная обработка событий
+ * - Фильтрация событий
+ * - Логирование всех событий и ошибок
+ * - Поддержка wildcard подписок (например: 'user.*')
  */
 @Injectable()
 export class EventBusService {
   private readonly logger = new Logger(EventBusService.name);
-  private readonly handlers = new Map<string, EventHandlerRegistration[]>();
-
-  constructor(private readonly eventLogger: EventLoggerService) {}
+  
+  /**
+   * Хранилище обработчиков: eventName -> массив обработчиков
+   */
+  private handlers: Map<string, RegisteredHandler[]> = new Map();
 
   /**
-   * Subscribe to an event
+   * Счетчик событий для статистики
+   */
+  private eventCount = 0;
+
+  constructor(
+    @Optional() @Inject('EventLoggerService') private readonly eventLogger?: EventLoggerService,
+  ) {}
+
+  /**
+   * Подписаться на событие
+   * 
+   * @param eventName - имя события (поддерживает wildcard: 'user.*')
+   * @param handler - обработчик события
+   * @param options - опции подписки
+   * @returns функция для отписки
    */
   on(
     eventName: string,
-    handler: EventHandler,
-    options: EventSubscriptionOptions = {},
-  ): string {
-    const registration: EventHandlerRegistration = {
-      id: uuidv4(),
-      eventName,
+    handler: IEventHandler,
+    options: IEventSubscriptionOptions = {},
+  ): () => void {
+    const {
+      priority = 100,
+      async = false,
+      filter,
+    } = options;
+
+    const registeredHandler: RegisteredHandler = {
       handler,
-      priority: options.priority ?? 0,
-      pluginId: options.pluginId,
-      enabled: true,
+      priority,
+      async,
+      filter,
+      name: handler.name || handler.constructor.name || 'AnonymousHandler',
     };
 
-    // Get existing handlers or create new array
-    const existingHandlers = this.handlers.get(eventName) || [];
+    // Получаем или создаем массив обработчиков для события
+    const handlers = this.handlers.get(eventName) || [];
+    handlers.push(registeredHandler);
 
-    // Add new handler and sort by priority (higher first)
-    existingHandlers.push(registration);
-    existingHandlers.sort((a, b) => b.priority - a.priority);
+    // Сортируем обработчики по приоритету (меньше = выше)
+    handlers.sort((a, b) => a.priority - b.priority);
 
-    this.handlers.set(eventName, existingHandlers);
+    this.handlers.set(eventName, handlers);
 
     this.logger.debug(
-      `Registered handler for event "${eventName}" (priority: ${registration.priority}, plugin: ${registration.pluginId || 'core'})`,
+      `Handler "${registeredHandler.name}" registered for event "${eventName}" with priority ${priority}`,
     );
 
-    return registration.id;
-  }
-
-  /**
-   * Unsubscribe from an event
-   */
-  off(handlerId: string): boolean {
-    for (const [eventName, handlers] of this.handlers.entries()) {
-      const index = handlers.findIndex((h) => h.id === handlerId);
-      if (index !== -1) {
-        handlers.splice(index, 1);
-        this.logger.debug(`Unregistered handler ${handlerId}`);
-        return true;
+    // Возвращаем функцию для отписки
+    return () => {
+      const handlers = this.handlers.get(eventName);
+      if (handlers) {
+        const index = handlers.indexOf(registeredHandler);
+        if (index > -1) {
+          handlers.splice(index, 1);
+          this.logger.debug(
+            `Handler "${registeredHandler.name}" unregistered from event "${eventName}"`,
+          );
+        }
       }
-    }
-    return false;
+    };
   }
 
   /**
-   * Emit an event
+   * Подписаться на событие один раз
+   * 
+   * @param eventName - имя события
+   * @param handler - обработчик события
+   * @param options - опции подписки
+   */
+  once(
+    eventName: string,
+    handler: IEventHandler,
+    options: IEventSubscriptionOptions = {},
+  ): void {
+    const unsubscribe = this.on(
+      eventName,
+      {
+        ...handler,
+        handle: async (event: IEvent) => {
+          await handler.handle(event);
+          unsubscribe();
+        },
+      },
+      options,
+    );
+  }
+
+  /**
+   * Испустить событие
+   * 
+   * @param eventName - имя события
+   * @param data - данные события
+   * @param metadata - метаданные события
+   * @returns результат выполнения
    */
   async emit<T = any>(
     eventName: string,
     data: T,
     metadata?: Record<string, any>,
-  ): Promise<boolean> {
-    const payload: EventPayload<T> = {
-      eventName,
+  ): Promise<IEventExecutionResult> {
+    const startTime = performance.now();
+    const event: IEvent<T> = {
+      name: eventName,
       data,
       timestamp: new Date(),
-      userId: metadata?.userId,
-      requestId: metadata?.requestId,
       metadata,
     };
 
-    this.logger.debug(`Emitting event: ${eventName}`);
+    this.eventCount++;
 
-    const handlers = this.handlers.get(eventName) || [];
+    this.logger.debug(`Event emitted: ${eventName}`, { data, metadata });
+
+    const errors: Array<{ handler: string; error: Error }> = [];
+    let handlersExecuted = 0;
+
+    // Получаем все обработчики для этого события (включая wildcard)
+    const handlers = this.getHandlersForEvent(eventName);
 
     if (handlers.length === 0) {
-      this.logger.debug(`No handlers registered for event: ${eventName}`);
-      return true;
+      this.logger.debug(`No handlers found for event: ${eventName}`);
     }
 
-    let currentData = data;
-    let shouldContinue = true;
-
-    for (const registration of handlers) {
-      if (!registration.enabled) {
+    // Выполняем обработчики
+    for (const registered of handlers) {
+      // Проверяем фильтр
+      if (registered.filter && !registered.filter(event)) {
+        this.logger.debug(
+          `Handler "${registered.name}" filtered out for event: ${eventName}`,
+        );
         continue;
       }
 
-      const startTime = Date.now();
-      let result: EventHandlerResult | boolean | void;
-      let error: string | null = null;
-
       try {
-        // Update payload with potentially modified data
-        payload.data = currentData;
-
-        // Execute handler
-        result = await registration.handler(payload);
-
-        // Process result
-        if (typeof result === 'boolean') {
-          shouldContinue = result;
-        } else if (result && typeof result === 'object') {
-          shouldContinue = result.continue ?? true;
-          if (result.data !== undefined) {
-            currentData = result.data;
-          }
-          if (result.error) {
-            error = result.error;
+        if (registered.async) {
+          // Асинхронная обработка (не блокирует)
+          this.executeHandlerAsync(registered, event).catch((error) => {
             this.logger.error(
-              `Handler error for ${eventName}: ${result.error}`,
+              `Async handler "${registered.name}" failed for event "${eventName}":`,
+              error,
             );
-          }
+          });
+        } else {
+          // Синхронная обработка
+          await registered.handler.handle(event);
         }
-      } catch (err) {
-        error = err.message || 'Unknown error';
+        handlersExecuted++;
+      } catch (error) {
+        errors.push({
+          handler: registered.name,
+          error: error instanceof Error ? error : new Error(String(error)),
+        });
         this.logger.error(
-          `Exception in handler for ${eventName}:`,
-          err.stack,
+          `Handler "${registered.name}" failed for event "${eventName}":`,
+          error,
         );
-        shouldContinue = false;
-      }
-
-      const executionTime = Date.now() - startTime;
-
-      // Log event execution
-      await this.eventLogger.log({
-        eventName,
-        payload,
-        pluginId: registration.pluginId,
-        status: error ? 'error' : 'success',
-        error,
-        executionTime,
-      });
-
-      if (!shouldContinue) {
-        this.logger.debug(
-          `Event propagation stopped for ${eventName} by handler ${registration.id}`,
-        );
-        break;
       }
     }
 
-    return shouldContinue;
-  }
+    const executionTime = performance.now() - startTime;
 
-  /**
-   * Get all registered handlers for an event
-   */
-  getHandlers(eventName: string): EventHandlerRegistration[] {
-    return this.handlers.get(eventName) || [];
-  }
-
-  /**
-   * Get all handlers registered by a specific plugin
-   */
-  getPluginHandlers(pluginId: string): EventHandlerRegistration[] {
-    const allHandlers: EventHandlerRegistration[] = [];
-
-    for (const handlers of this.handlers.values()) {
-      const pluginHandlers = handlers.filter((h) => h.pluginId === pluginId);
-      allHandlers.push(...pluginHandlers);
-    }
-
-    return allHandlers;
-  }
-
-  /**
-   * Unregister all handlers for a plugin
-   */
-  unregisterPlugin(pluginId: string): number {
-    let count = 0;
-
-    for (const [eventName, handlers] of this.handlers.entries()) {
-      const filtered = handlers.filter((h) => h.pluginId !== pluginId);
-      count += handlers.length - filtered.length;
-      this.handlers.set(eventName, filtered);
-    }
-
-    this.logger.debug(`Unregistered ${count} handlers for plugin ${pluginId}`);
-    return count;
-  }
-
-  /**
-   * Enable/disable a specific handler
-   */
-  setHandlerEnabled(handlerId: string, enabled: boolean): boolean {
-    for (const handlers of this.handlers.values()) {
-      const handler = handlers.find((h) => h.id === handlerId);
-      if (handler) {
-        handler.enabled = enabled;
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Get statistics about registered handlers
-   */
-  getStatistics() {
-    const stats = {
-      totalEvents: this.handlers.size,
-      totalHandlers: 0,
-      handlersByEvent: {} as Record<string, number>,
-      handlersByPlugin: {} as Record<string, number>,
+    const result: IEventExecutionResult = {
+      event,
+      handlersExecuted,
+      executionTime,
+      errors,
+      success: errors.length === 0,
     };
 
-    for (const [eventName, handlers] of this.handlers.entries()) {
-      stats.totalHandlers += handlers.length;
-      stats.handlersByEvent[eventName] = handlers.length;
-
-      for (const handler of handlers) {
-        const pluginId = handler.pluginId || 'core';
-        stats.handlersByPlugin[pluginId] =
-          (stats.handlersByPlugin[pluginId] || 0) + 1;
+    // Логируем событие в БД если EventLoggerService доступен
+    if (this.eventLogger && this.eventLogger.logEvent) {
+      try {
+        await this.eventLogger.logEvent({
+          eventName,
+          payload: data,
+          status: errors.length === 0 ? 'success' : 'error',
+          error: errors.length > 0 ? errors.map(e => e.error.message).join('; ') : null,
+          executionTime,
+        });
+      } catch (logError) {
+        // Не бросаем ошибку, чтобы не прерывать основной поток
+        this.logger.error('Failed to log event:', logError);
       }
     }
 
-    return stats;
+    if (executionTime > 1000) {
+      this.logger.warn(
+        `Event "${eventName}" took ${executionTime.toFixed(2)}ms to process`,
+      );
+    }
+
+    return result;
+  }
+
+  /**
+   * Выполнить обработчик асинхронно
+   */
+  private async executeHandlerAsync(
+    registered: RegisteredHandler,
+    event: IEvent,
+  ): Promise<void> {
+    await registered.handler.handle(event);
+  }
+
+  /**
+   * Получить все обработчики для события (включая wildcard)
+   */
+  private getHandlersForEvent(eventName: string): RegisteredHandler[] {
+    const handlers: RegisteredHandler[] = [];
+
+    // Точное совпадение
+    const exactHandlers = this.handlers.get(eventName);
+    if (exactHandlers) {
+      handlers.push(...exactHandlers);
+    }
+
+    // Wildcard подписки (например: 'user.*' для 'user.created')
+    for (const [pattern, patternHandlers] of this.handlers.entries()) {
+      if (pattern.includes('*')) {
+        const regex = new RegExp(
+          '^' + pattern.replace(/\*/g, '.*').replace(/\./g, '\\.') + '$',
+        );
+        if (regex.test(eventName)) {
+          handlers.push(...patternHandlers);
+        }
+      }
+    }
+
+    // Сортируем по приоритету
+    handlers.sort((a, b) => a.priority - b.priority);
+
+    return handlers;
+  }
+
+  /**
+   * Получить статистику событий
+   */
+  getStats() {
+    return {
+      totalEvents: this.eventCount,
+      registeredHandlers: Array.from(this.handlers.entries()).map(
+        ([eventName, handlers]) => ({
+          eventName,
+          handlerCount: handlers.length,
+          handlers: handlers.map((h) => ({
+            name: h.name,
+            priority: h.priority,
+            async: h.async,
+          })),
+        }),
+      ),
+    };
+  }
+
+  /**
+   * Очистить все обработчики (для тестирования)
+   */
+  clearAll() {
+    this.handlers.clear();
+    this.logger.debug('All event handlers cleared');
+  }
+
+  /**
+   * Удалить все обработчики для события
+   */
+  removeAllListeners(eventName: string) {
+    this.handlers.delete(eventName);
+    this.logger.debug(`All handlers removed for event: ${eventName}`);
   }
 }
-

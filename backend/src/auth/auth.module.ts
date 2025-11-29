@@ -52,6 +52,7 @@ import { NfaService } from './services/nfa.service';
 import { NfaController } from './controllers/nfa.controller';
 import { OAuthService } from './services/oauth.service';
 import { GitHubTwoFactorService } from './micro-modules/two-factor/github/github-2fa.service';
+import { EventsModule } from '../core/events/events.module';
 
 @Module({
   imports: [
@@ -93,6 +94,7 @@ import { GitHubTwoFactorService } from './micro-modules/two-factor/github/github
     InvitationsModule, // Система приглашений
     EmailCodeModule, // Вход по коду с почты
     FinalMicroModulesModule, // Подключаем все микромодули (теперь глобальный модуль, forRoot не нужен)
+    EventsModule, // ✅ Добавляем EventsModule для доступа к EventBusService
   ],
   controllers: [
     AuthController, 

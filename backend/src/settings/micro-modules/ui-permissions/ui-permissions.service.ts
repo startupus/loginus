@@ -10,6 +10,8 @@ import { applyDefaultLabels, getDefaultMenuSeed, MenuItemConfig } from './defaul
 import { PluginManagerService } from '../../../plugins/plugin-manager.service';
 import { PluginsService } from '../../../plugins/plugins.service';
 import { Plugin, PluginType } from '../../../plugins/entities/plugin.entity';
+import { EventBusService } from '../../../core/events/event-bus.service';
+import { MENU_EVENTS } from '../../../core/events/events';
 
 @Injectable()
 export class UIPermissionsService {
@@ -27,6 +29,7 @@ export class UIPermissionsService {
     private pluginManager: PluginManagerService | null,
     // Сервис реальных плагинов (таблица plugins)
     private readonly pluginsService: PluginsService,
+    private readonly eventBus: EventBusService,
   ) {
     // Проверяем, что pluginManager доступен (может быть null при инициализации)
     if (!this.pluginManager) {
@@ -332,6 +335,12 @@ export class UIPermissionsService {
       return null;
     }
 
+    // ✅ Emit BEFORE_RENDER event
+    await this.eventBus.emit(MENU_EVENTS.BEFORE_RENDER, {
+      menuId,
+      items: menu.items,
+    });
+
     // Проверяем, что pluginManager доступен (может быть не инициализирован при первом вызове)
     if (this.pluginManager && typeof this.pluginManager.isInitialized === 'function' && this.pluginManager.isInitialized()) {
       try {
@@ -399,6 +408,12 @@ export class UIPermissionsService {
     }
     
     menu.items = enrichedItems;
+
+    // ✅ Emit AFTER_RENDER event
+    await this.eventBus.emit(MENU_EVENTS.AFTER_RENDER, {
+      menuId,
+      items: menu.items,
+    });
 
     return menu;
   }
@@ -561,6 +576,13 @@ export class UIPermissionsService {
         console.warn('[UIPermissionsService] Failed to sync plugins from menu items:', error);
       }
     }
+
+    // ✅ Emit STRUCTURE_CHANGED event
+    await this.eventBus.emit(MENU_EVENTS.STRUCTURE_CHANGED, {
+      menuId,
+      items: savedMenu.items,
+      userId,
+    });
 
     return savedMenu;
   }

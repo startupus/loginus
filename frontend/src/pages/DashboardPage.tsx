@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { preloadModule } from '../services/i18n/config';
 import { PageTemplate } from '../design-system/layouts/PageTemplate';
 import { profileApi } from '../services/api/profile';
+import { apiClient } from '../services/api/client';
 import { LoadingState, ErrorState, EmptyState } from '../design-system/composites';
 import { themeClasses } from '../design-system/utils/themeClasses';
 import { useAuthStore } from '../store';
@@ -40,7 +41,24 @@ export type AvailableWidget = {
   description: string;
   icon: string;
   enabled: boolean;
+  isPlugin?: boolean; // Новое: флаг что это виджет из расширения
+  uiType?: string; // Новое: тип UI (iframe/embedded)
+  manifest?: any; // Новое: манифест расширения
 };
+
+// Интерфейс расширения
+interface Extension {
+  id: string;
+  slug: string;
+  name: string;
+  description?: string;
+  version: string;
+  extensionType: string;
+  uiType?: string;
+  icon?: string;
+  enabled: boolean;
+  manifest?: any;
+}
 
 // Lazy loading для виджетов - загружаются по мере необходимости
 const CoursesWidget = lazy(() => import('../components/Dashboard/CoursesWidget').then(m => ({ default: m.CoursesWidget })));
@@ -50,6 +68,7 @@ const MailWidget = lazy(() => import('../components/Dashboard/MailWidget').then(
 const PlusWidget = lazy(() => import('../components/Dashboard/PlusWidget').then(m => ({ default: m.PlusWidget })));
 const PayWidget = lazy(() => import('../components/Dashboard/PayWidget').then(m => ({ default: m.PayWidget })));
 const SubscriptionsList = lazy(() => import('../components/Dashboard/SubscriptionsList').then(m => ({ default: m.SubscriptionsList })));
+const PluginWidget = lazy(() => import('../components/Admin/AdminWidgets/PluginWidget').then(m => ({ default: m.PluginWidget })));
 
 // Компонент скелетона для Suspense fallback - используем themeClasses для единообразия
 const WidgetSkeleton: React.FC = () => (
@@ -259,8 +278,22 @@ const DashboardPage: React.FC = () => {
   const dashboard = data?.data?.dashboard;
   const user = data?.data?.user;
 
-  // Доступные виджеты
-  const availableWidgets: AvailableWidget[] = [
+  // Загружаем виджеты из расширений
+  const { data: extensionWidgets = [] } = useQuery<Extension[]>({
+    queryKey: ['extensions', 'widgets', 'enabled'],
+    queryFn: async () => {
+      try {
+        const response = await apiClient.get('/admin/extensions?extensionType=widget&enabled=true');
+        return Array.isArray(response.data) ? response.data : [];
+      } catch (error) {
+        console.error('[DashboardPage] Failed to fetch extension widgets:', error);
+        return [];
+      }
+    },
+  });
+
+  // Доступные системные виджеты
+  const systemWidgets: AvailableWidget[] = [
     {
       id: 'courses',
       title: t('dashboard.courses.title'),
@@ -304,6 +337,21 @@ const DashboardPage: React.FC = () => {
       enabled: enabledWidgets.has('pay'),
     },
   ];
+
+  // Преобразуем виджеты-расширения в формат AvailableWidget
+  const extensionWidgetsFormatted: AvailableWidget[] = extensionWidgets.map(widget => ({
+    id: `extension-${widget.id}`,
+    title: widget.name,
+    description: widget.description || '',
+    icon: widget.icon || 'package',
+    enabled: enabledWidgets.has(`extension-${widget.id}`),
+    isPlugin: true,
+    uiType: widget.uiType,
+    manifest: widget.manifest,
+  }));
+
+  // Объединяем системные и виджеты-расширения
+  const availableWidgets: AvailableWidget[] = [...systemWidgets, ...extensionWidgetsFormatted];
 
   // Используем метод из хука для переключения виджета
   const handleToggleWidget = toggleWidget;
@@ -578,6 +626,24 @@ const DashboardPage: React.FC = () => {
                       />
                   );
                 default:
+                  // Проверяем, является ли это виджетом-расширением
+                  if (widgetId.startsWith('extension-')) {
+                    const extensionWidget = extensionWidgets.find(w => `extension-${w.id}` === widgetId);
+                    if (extensionWidget) {
+                      return (
+                        <PluginWidget
+                          key={widgetId}
+                          widgetId={widgetId}
+                          title={extensionWidget.name}
+                          description={extensionWidget.description}
+                          uiType={extensionWidget.uiType}
+                          manifest={extensionWidget.manifest}
+                          icon={extensionWidget.icon}
+                          {...commonProps}
+                        />
+                      );
+                    }
+                  }
                   return null;
               }
             })}

@@ -1,0 +1,203 @@
+.plugins-upload {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 24px;
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.plugins-upload__card {
+  padding: 24px;
+  background: var(--card-background);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.plugins-upload__form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.form-group .required {
+  color: var(--danger-color);
+}
+
+.form-hint {
+  margin: 4px 0 0 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.file-input {
+  padding: 12px;
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
+  background: var(--background-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.file-input:hover {
+  border-color: var(--primary-color);
+  background: var(--background-hover);
+}
+
+.file-info {
+  margin: 8px 0 0 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.error-message {
+  margin: 4px 0 0 0;
+  font-size: 14px;
+  color: var(--danger-color);
+}
+
+.checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-weight: normal;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.error-banner {
+  padding: 12px;
+  background: var(--danger-background);
+  border: 1px solid var(--danger-color);
+  border-radius: 8px;
+  color: var(--danger-color);
+}
+
+.upload-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--background-secondary);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar__fill {
+  height: 100%;
+  background: var(--primary-color);
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+/* Info Card */
+.plugins-upload__info {
+  padding: 24px;
+  background: var(--card-background);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  height: fit-content;
+  position: sticky;
+  top: 24px;
+}
+
+.plugins-upload__info h3 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.plugins-upload__info h3:not(:first-child) {
+  margin-top: 24px;
+}
+
+.plugins-upload__info ul {
+  margin: 0;
+  padding: 0 0 0 20px;
+  list-style-type: disc;
+}
+
+.plugins-upload__info li {
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.code-block {
+  margin: 0;
+  padding: 16px;
+  background: var(--background-secondary);
+  border-radius: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  color: var(--text-primary);
+  overflow-x: auto;
+  line-height: 1.5;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .plugins-upload {
+    grid-template-columns: 1fr;
+  }
+
+  .plugins-upload__info {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .plugins-upload {
+    padding: 16px;
+  }
+
+  .plugins-upload__card,
+  .plugins-upload__info {
+    padding: 16px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+}
+

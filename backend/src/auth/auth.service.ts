@@ -26,6 +26,8 @@ import { AuthMethodType } from './enums/auth-method-type.enum';
 import { ReferralService } from './micro-modules/referral-system/referral.service';
 import { NfaService } from './services/nfa.service';
 import { AuditService } from '../audit/audit.service';
+import { EventBusService } from '../core/events/event-bus.service';
+import { AUTH_EVENTS, USER_EVENTS } from '../core/events/events';
 
 @Injectable()
 export class AuthService {
@@ -51,6 +53,7 @@ export class AuthService {
     private emailService: EmailService,
     private nfaService: NfaService,
     private auditService: AuditService,
+    private eventBus: EventBusService,
   ) {}
 
   /**
@@ -59,6 +62,15 @@ export class AuthService {
    */
   async register(dto: RegisterDto, userAgent?: string, ipAddress?: string): Promise<AuthResponseDto> {
     console.log('🚀 AuthService.register() вызван с данными:', { email: dto.email, firstName: dto.firstName, lastName: dto.lastName });
+    
+    // ✅ Emit BEFORE_REGISTER event
+    await this.eventBus.emit(AUTH_EVENTS.BEFORE_REGISTER, {
+      email: dto.email,
+      firstName: dto.firstName,
+      lastName: dto.lastName,
+      ipAddress,
+      userAgent,
+    });
     
     // 1. Проверка уникальности email
     const exists = await this.usersService.findByEmail(dto.email);
@@ -134,6 +146,16 @@ export class AuthService {
     const accessToken = await this.generateAccessToken(userWithRoles);
     const refreshToken = await this.generateRefreshToken(userWithRoles);
 
+    // ✅ Emit AFTER_REGISTER event
+    await this.eventBus.emit(AUTH_EVENTS.AFTER_REGISTER, {
+      userId: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      ipAddress,
+      userAgent,
+    });
+
     return {
       accessToken,
       refreshToken,
@@ -158,6 +180,13 @@ export class AuthService {
         methods: string[];
       }
   > {
+    // ✅ Emit BEFORE_LOGIN event
+    await this.eventBus.emit(AUTH_EVENTS.BEFORE_LOGIN, {
+      login: dto.login,
+      ipAddress,
+      userAgent,
+    });
+
     // 1. Валидация credentials (email или телефон)
     const user = await this.validateUser(dto.login, dto.password);
 
@@ -209,6 +238,14 @@ export class AuthService {
       console.error('Error logging login event:', auditError);
       // Не прерываем процесс входа из-за ошибки логирования
     }
+
+    // ✅ Emit AFTER_LOGIN event
+    await this.eventBus.emit(AUTH_EVENTS.AFTER_LOGIN, {
+      userId: user.id,
+      email: user.email,
+      ipAddress,
+      userAgent,
+    });
 
     // 7. Возврат данных (fullUser уже содержит поле role из getCurrentUser)
     return {
@@ -364,6 +401,10 @@ export class AuthService {
         });
 
     if (!user) {
+      await this.eventBus.emit(AUTH_EVENTS.LOGIN_FAILED, {
+        login: login,
+        reason: 'User not found',
+      });
       throw new UnauthorizedException('Пользователь не найден');
     }
 
@@ -372,6 +413,11 @@ export class AuthService {
     console.log('🔍 User roles:', user.userRoleAssignments?.length || 0);
 
     if (!user.isActive) {
+      await this.eventBus.emit(AUTH_EVENTS.LOGIN_FAILED, {
+        login: login,
+        userId: user.id,
+        reason: 'Account deactivated',
+      });
       throw new UnauthorizedException('Аккаунт деактивирован');
     }
 
@@ -396,6 +442,11 @@ export class AuthService {
     console.log('  Is valid:', isPasswordValid);
     
     if (!isPasswordValid) {
+      await this.eventBus.emit(AUTH_EVENTS.LOGIN_FAILED, {
+        login: login,
+        userId: user.id,
+        reason: 'Invalid password',
+      });
       throw new UnauthorizedException('Неверный пароль');
     }
 

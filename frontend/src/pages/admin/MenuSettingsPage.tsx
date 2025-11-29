@@ -23,6 +23,7 @@ import { AdminPageTemplate } from '../../design-system/layouts/AdminPageTemplate
 import { Button } from '../../design-system/primitives/Button';
 import { Icon } from '../../design-system/primitives/Icon';
 import { Input } from '../../design-system/primitives/Input';
+import { Select } from '../../design-system/primitives/Select';
 import { Switch } from '../../design-system/composites/Switch';
 import { Checkbox } from '../../design-system/primitives/Checkbox';
 import { Modal } from '../../design-system/composites/Modal';
@@ -30,10 +31,23 @@ import { ErrorMessage } from '../../design-system/composites/ErrorMessage';
 import { LoadingState } from '../../design-system/composites/LoadingState';
 import { EmptyState } from '../../design-system/composites/EmptyState';
 import { menuSettingsApi, MenuItemConfig } from '../../services/api/menu-settings';
+import { apiClient } from '../../services/api/client';
 import { themeClasses } from '../../design-system/utils/themeClasses';
 import { useCurrentLanguage } from '../../utils/routing';
 import { IconPicker } from '../../components/IconPicker/IconPicker';
 import { Tabs } from '../../design-system/composites/Tabs';
+
+// Интерфейс расширения (плагина)
+interface Extension {
+  id: string;
+  slug: string;
+  name: string;
+  description?: string;
+  version: string;
+  extensionType: string;
+  uiType?: string;
+  enabled: boolean;
+}
 
 // Компонент для сортируемого элемента меню
 interface MenuItemProps {
@@ -159,6 +173,20 @@ const MenuSettingsPage: React.FC = () => {
   const queryClient = useQueryClient();
   const [adminModuleLoaded, setAdminModuleLoaded] = useState(false);
 
+  // Запрос списка установленных плагинов
+  const { data: plugins = [] } = useQuery<Extension[]>({
+    queryKey: ['extensions', 'enabled'],
+    queryFn: async () => {
+      try {
+        const response = await apiClient.get('/admin/extensions?enabled=true');
+        return Array.isArray(response.data) ? response.data : [];
+      } catch (error) {
+        console.error('[MenuSettingsPage] Failed to fetch plugins:', error);
+        return [];
+      }
+    },
+  });
+
   // Предзагрузка и перезагрузка модуля admin при смене языка
   useEffect(() => {
     const loadModules = async () => {
@@ -204,6 +232,7 @@ const MenuSettingsPage: React.FC = () => {
     enabled: true,
     order: 0,
   });
+  const [selectedPluginId, setSelectedPluginId] = useState<string>('');
 
   // Настройка сенсоров для drag & drop
   const sensors = useSensors(
@@ -373,9 +402,60 @@ const MenuSettingsPage: React.FC = () => {
     setIsAddModalOpen(true);
   };
 
+  // Обработчик выбора плагина
+  const handlePluginSelect = useCallback((pluginId: string) => {
+    setSelectedPluginId(pluginId);
+    
+    if (!pluginId) {
+      // Если плагин не выбран, оставляем текущее состояние
+      setNewItem(prev => ({
+        ...prev,
+        pluginId: undefined,
+      }));
+      return;
+    }
+
+    const plugin = plugins.find(p => p.id === pluginId);
+    if (!plugin) return;
+
+    // Определяем тип на основе uiType плагина
+    let type: MenuItemConfig['type'] = 'default';
+    let path = '';
+    let iframeUrl = '';
+    let embeddedAppUrl = '';
+
+    if (plugin.uiType === 'iframe') {
+      type = 'iframe';
+      // Генерируем путь на основе slug плагина
+      path = `/${plugin.slug}`;
+    } else if (plugin.uiType === 'embedded') {
+      type = 'embedded';
+      path = `/plugins/${plugin.slug}`;
+    } else if (plugin.uiType === 'external_link') {
+      type = 'external';
+    } else {
+      // Для типа 'none' или других - используем default
+      type = 'default';
+      path = `/${plugin.slug}`;
+    }
+
+    setNewItem(prev => ({
+      ...prev,
+      type,
+      path,
+      pluginId, // Сохраняем ID плагина
+      iframeUrl: type === 'iframe' ? iframeUrl : undefined,
+      embeddedAppUrl: type === 'embedded' ? embeddedAppUrl : undefined,
+      // Автозаполняем название из имени плагина, если еще не заполнено
+      labelRu: (prev as any).labelRu || plugin.name,
+      label: (prev as any).label || plugin.name,
+    }));
+  }, [plugins]);
+
   // Открытие модального окна для добавления
   const handleAdd = useCallback(() => {
     setEditingItem(null);
+    setSelectedPluginId(''); // Сброс выбранного плагина
     setNewItem({
       type: 'external',
       enabled: true,
@@ -467,6 +547,7 @@ const MenuSettingsPage: React.FC = () => {
         ? (newItem.path && newItem.path.trim() ? newItem.path.trim() : editingItem?.path)
         : (newItem.path && newItem.path.trim() ? newItem.path.trim() : undefined),
       systemId: isSystemItem ? editingItem.systemId : undefined,
+      pluginId: newItem.pluginId || undefined, // Сохраняем ID связанного плагина
       externalUrl: newItem.externalUrl || undefined,
       openInNewTab: newItem.openInNewTab || false,
       iframeUrl: newItem.iframeUrl || undefined,
@@ -599,6 +680,7 @@ const MenuSettingsPage: React.FC = () => {
         onClose={() => {
           setIsAddModalOpen(false);
           setEditingItem(null);
+          setSelectedPluginId(''); // Сброс выбранного плагина
           setErrorMessage(null);
           setNewItem({
             type: 'external',
@@ -616,6 +698,7 @@ const MenuSettingsPage: React.FC = () => {
               onClick={() => {
                 setIsAddModalOpen(false);
                 setEditingItem(null);
+                setSelectedPluginId(''); // Сброс выбранного плагина
                 setNewItem({
                   type: 'external',
                   enabled: true,
@@ -685,6 +768,29 @@ const MenuSettingsPage: React.FC = () => {
               defaultTab={currentLang || 'ru'}
             />
           </div>
+
+          {/* Выбор плагина (только для новых пунктов) */}
+          {!editingItem && (
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>
+                {t('admin.menuSettings.form.plugin', 'Плагин')}
+              </label>
+              <Select
+                value={selectedPluginId}
+                onChange={(e) => handlePluginSelect(e.target.value)}
+                options={[
+                  { value: '', label: t('admin.menuSettings.form.pluginNone', 'Без плагина (ручная настройка)') },
+                  ...plugins.map(plugin => ({
+                    value: plugin.id,
+                    label: `${plugin.name} (${plugin.extensionType})`,
+                  })),
+                ]}
+              />
+              <p className={`text-xs mt-1 ${themeClasses.text.secondary}`}>
+                {t('admin.menuSettings.form.pluginHelperText', 'Выберите плагин для автозаполнения настроек')}
+              </p>
+            </div>
+          )}
 
           {/* Для системных пунктов тип и id нельзя менять */}
           {editingItem && editingItem.type === 'default' ? (
