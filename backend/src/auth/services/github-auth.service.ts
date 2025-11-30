@@ -281,6 +281,8 @@ export class GitHubAuthService {
   // Приватные методы
 
   private async exchangeCodeForToken(code: string): Promise<string> {
+    this.logger.log(`🔄 Exchanging GitHub code for token. redirect_uri: ${this.redirectUri}`);
+    
     const response = await fetch('https://github.com/login/oauth/access_token', {
       method: 'POST',
       headers: {
@@ -296,15 +298,22 @@ export class GitHubAuthService {
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      this.logger.error(`❌ GitHub token exchange failed: ${response.statusText}. Response: ${errorText}`);
       throw new Error(`GitHub token exchange failed: ${response.statusText}`);
     }
 
     const data = await response.json();
     
     if (data.error) {
-      throw new Error(`GitHub token exchange error: ${data.error_description}`);
+      this.logger.error(`❌ GitHub token exchange error: ${data.error} - ${data.error_description}`);
+      this.logger.error(`   Code used: ${code.substring(0, 10)}...`);
+      this.logger.error(`   Redirect URI: ${this.redirectUri}`);
+      this.logger.error(`   Client ID: ${this.clientId}`);
+      throw new Error(`GitHub token exchange error: ${data.error_description || data.error}`);
     }
 
+    this.logger.log(`✅ GitHub token exchange successful`);
     return data.access_token;
   }
 
