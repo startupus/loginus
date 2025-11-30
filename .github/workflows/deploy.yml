@@ -1,0 +1,63 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Server
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H 45.144.176.42 >> ~/.ssh/known_hosts
+      
+      - name: Deploy to server
+        run: |
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no root@45.144.176.42 << 'EOF'
+            set -e
+            
+            echo "🚀 Starting deployment..."
+            
+            # Создаем директорию для проекта если её нет
+            mkdir -p /root/loginus-new
+            cd /root/loginus-new
+            
+            # Клонируем или обновляем репозиторий
+            if [ -d .git ]; then
+              echo "📥 Updating repository..."
+              git fetch origin
+              git reset --hard origin/main
+              git clean -fd
+            else
+              echo "📥 Cloning repository..."
+              git clone https://github.com/teramisuslik/loginus-v2.git .
+            fi
+            
+            # Останавливаем старые контейнеры
+            echo "🛑 Stopping old containers..."
+            docker-compose -f docker-compose.prod.yml down || true
+            
+            # Запускаем деплой скрипт
+            echo "🔧 Running deployment script..."
+            chmod +x scripts/deploy.sh
+            ./scripts/deploy.sh
+            
+            echo "✅ Deployment completed!"
+          EOF
+      
+      - name: Cleanup SSH
+        if: always()
+        run: |
+          rm -f ~/.ssh/id_ed25519
+

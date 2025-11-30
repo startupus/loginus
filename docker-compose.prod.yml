@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  loginus-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: loginus-backend-prod
+    ports:
+      - "127.0.0.1:3003:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+    volumes:
+      - ./backend-mock/data:/app/backend-mock/data:ro
+    restart: unless-stopped
+    networks:
+      - loginus-network
+
+  loginus-db:
+    image: postgres:15-alpine
+    container_name: loginus-db-prod
+    environment:
+      - POSTGRES_DB=loginus_prod
+      - POSTGRES_USER=loginus
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-loginus_secret_change_me}
+    volumes:
+      - loginus_db_data_prod:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - loginus-network
+
+  loginus-api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: production
+    container_name: loginus-api-prod
+    ports:
+      - "127.0.0.1:3004:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - FRONTEND_URL=https://loginus.startapus.com
+      - MOCK_BACKEND_URL=http://loginus-backend:3001
+      - DB_HOST=loginus-db
+      - DB_PORT=5432
+      - DB_USERNAME=loginus
+      - DB_PASSWORD=${DB_PASSWORD:-loginus_secret_change_me}
+      - DB_DATABASE=loginus_prod
+      - SMTP_HOST=${SMTP_HOST:-smtp.yandex.ru}
+      - SMTP_PORT=${SMTP_PORT:-465}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - SMTP_FROM=${SMTP_FROM}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+    volumes:
+      - ./backend/uploads:/app/uploads
+    depends_on:
+      - loginus-db
+      - loginus-backend
+    restart: unless-stopped
+    networks:
+      - loginus-network
+
+networks:
+  loginus-network:
+    driver: bridge
+
+volumes:
+  loginus_db_data_prod:
+
