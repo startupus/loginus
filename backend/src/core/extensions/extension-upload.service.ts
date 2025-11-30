@@ -59,7 +59,8 @@ export class ExtensionUploadService {
       this.logger.debug(`Saved temporary .zip file: ${tempPath}`);
 
       // Extract .zip file
-      const slug = this.generateSlug(name);
+      // Включаем тип расширения в slug, чтобы виджеты и плагины с одинаковым именем не конфликтовали
+      const slug = this.generateSlug(`${extensionType}-${name}`);
       const finalPath = path.join(this.pluginsDirectory, slug);
       await fs.mkdir(finalPath, { recursive: true });
       extractPath = finalPath;
