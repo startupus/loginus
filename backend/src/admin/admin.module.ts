@@ -6,9 +6,10 @@ import { User } from '../users/entities/user.entity';
 import { Organization } from '../organizations/entities/organization.entity';
 import { UIPermissionsModule } from '../settings/micro-modules/ui-permissions/ui-permissions.module';
 import { SettingsModule } from '../settings/settings.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Organization]), UIPermissionsModule, SettingsModule],
+  imports: [TypeOrmModule.forFeature([User, Organization]), UIPermissionsModule, SettingsModule, UsersModule],
   controllers: [AdminController],
   providers: [AdminService],
   exports: [AdminService],
