@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { themeClasses } from '../../design-system/utils/themeClasses';
 import { getAuthMethodIcon, isHorizontalLogo } from '../../utils/authMethodIcons';
+import { apiClient } from '../../services/api/client';
 
 interface SocialAuthButtonsProps {
   /**
@@ -69,9 +70,26 @@ export const SocialAuthButtons: React.FC<SocialAuthButtonsProps> = ({ enabledMet
     },
   ];
 
-  const handleSocialAuth = (providerId: string) => {
-    // TODO: Реализовать авторизацию через социальные сети
-    console.log(t('auth.socialAuth.loggingIn', 'Logging in through'), providerId);
+  const handleSocialAuth = async (providerId: string) => {
+    try {
+      if (providerId === 'github') {
+        // Получаем URL для авторизации через GitHub
+        const response = await apiClient.get('/auth/multi/oauth/github/url');
+        const authUrl = response.data?.url || response.data?.authUrl;
+        if (authUrl) {
+          window.location.href = authUrl;
+        } else {
+          console.error('GitHub auth URL not found in response:', response.data);
+        }
+      } else if (providerId === 'telegram') {
+        // Для Telegram перенаправляем на страницу с Telegram Login Widget
+        window.location.href = '/telegram-login.html';
+      } else {
+        console.log(t('auth.socialAuth.loggingIn', 'Logging in through'), providerId);
+      }
+    } catch (error) {
+      console.error(`Error initiating ${providerId} auth:`, error);
+    }
   };
 
   const activeProviders = enabledMethods && enabledMethods.length > 0
