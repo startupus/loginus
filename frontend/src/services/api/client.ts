@@ -13,12 +13,18 @@ export const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     const { accessToken } = useAuthStore.getState();
+    // Публичные endpoints не требуют токена (auth, public endpoints)
+    const isPublicEndpoint = config.url?.startsWith('/auth/') || 
+                             config.url?.includes('/public/') ||
+                             config.url?.includes('/oauth/');
+    
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
       if (process.env.NODE_ENV === 'development') {
         console.log(`[API Client] Adding Authorization header for ${config.method?.toUpperCase()} ${config.url}`);
       }
-    } else {
+    } else if (!isPublicEndpoint) {
+      // Предупреждаем только для защищенных endpoints
       if (process.env.NODE_ENV === 'development') {
         console.warn(`[API Client] No accessToken found for ${config.method?.toUpperCase()} ${config.url}`);
       }

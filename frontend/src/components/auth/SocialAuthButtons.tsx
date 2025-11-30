@@ -75,7 +75,8 @@ export const SocialAuthButtons: React.FC<SocialAuthButtonsProps> = ({ enabledMet
       if (providerId === 'github') {
         // Получаем URL для авторизации через GitHub
         const response = await apiClient.get('/auth/multi/oauth/github/url');
-        const authUrl = response.data?.url || response.data?.authUrl;
+        // Ответ имеет структуру: {success: true, data: {url: "..."}}
+        const authUrl = response.data?.data?.url || response.data?.url || response.data?.authUrl;
         if (authUrl) {
           window.location.href = authUrl;
         } else {
