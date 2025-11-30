@@ -16,7 +16,14 @@ export const GitHubLoginPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isProcessing = false; // ✅ Защита от повторных вызовов (React StrictMode)
+    
     const handleGitHubCallback = async () => {
+      if (isProcessing) {
+        console.log('[GitHubLoginPage] Already processing, skipping...');
+        return;
+      }
+      
       const code = searchParams.get('code');
       const state = searchParams.get('state');
 
@@ -26,6 +33,8 @@ export const GitHubLoginPage: React.FC = () => {
         return;
       }
 
+      isProcessing = true;
+      
       try {
         console.log('[GitHubLoginPage] Processing GitHub callback with code:', code.substring(0, 10) + '...');
         
@@ -65,6 +74,8 @@ export const GitHubLoginPage: React.FC = () => {
         const errorMessage = error.response?.data?.message || error.message || 'Ошибка при авторизации через GitHub';
         setError(errorMessage);
         setLoading(false);
+      } finally {
+        isProcessing = false;
       }
     };
 
