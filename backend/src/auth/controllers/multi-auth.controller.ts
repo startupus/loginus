@@ -493,12 +493,18 @@ export class MultiAuthController {
     this.logger.log(`GitHub OAuth callback received: code=${code?.substring(0, 10)}..., state=${state}`);
     this.logger.log(`🔍 [GitHub Callback] Query params: client_id=${clientIdFromQuery || 'none'}, redirect_uri=${redirectUriFromQuery || 'none'}`);
     
-    // ✅ ИСПРАВЛЕНИЕ: Если это браузерный запрос (не AJAX), перенаправляем на github-login.html
+    // ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: GitHub теперь перенаправляет на frontend, но на всякий случай проверяем
+    // Если это браузерный запрос (не AJAX), перенаправляем на github-login.html
     // GitHub может перенаправить напрямую на backend endpoint, но нам нужно, чтобы frontend обработал callback
     const acceptHeader = req.headers.accept || '';
+    const userAgent = req.headers['user-agent'] || '';
     const isAjaxRequest = acceptHeader.includes('application/json');
+    const isFromGitHub = userAgent.includes('GitHub') || req.headers.referer?.includes('github.com');
     
-    if (!isAjaxRequest && code) {
+    this.logger.log(`🔍 [GitHub Callback] Accept: ${acceptHeader}, User-Agent: ${userAgent.substring(0, 50)}..., isAjaxRequest: ${isAjaxRequest}, isFromGitHub: ${isFromGitHub}`);
+    
+    // ✅ Если это запрос от GitHub (браузерный редирект) или не AJAX запрос, перенаправляем на frontend
+    if ((!isAjaxRequest || isFromGitHub) && code) {
       // ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Это браузерный запрос от GitHub
       // НЕ обрабатываем код здесь, а сразу перенаправляем на frontend
       // Frontend вызовет этот же endpoint с Accept: application/json, и тогда обработаем код
