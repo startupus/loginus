@@ -28,6 +28,12 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 3000,
     strictPort: true,
+    allowedHosts: [
+      'loginus.startapus.com',
+      'www.loginus.startapus.com',
+      'localhost',
+      '127.0.0.1',
+    ],
     hmr: {
       clientPort: 3002,
       host: 'localhost',
