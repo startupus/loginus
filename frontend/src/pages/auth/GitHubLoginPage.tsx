@@ -47,6 +47,7 @@ export const GitHubLoginPage: React.FC = () => {
         const response = await apiClient.get(`/auth/multi/oauth/github/callback?${params.toString()}`, {
           headers: {
             'Accept': 'application/json',
+            'Content-Type': 'application/json',
           },
         });
 
