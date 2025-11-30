@@ -31,9 +31,13 @@ export default defineConfig({
     allowedHosts: [
       'loginus.startapus.com',
       'www.loginus.startapus.com',
+      '.startapus.com', // Разрешаем все поддомены
       'localhost',
       '127.0.0.1',
+      '45.144.176.42',
     ],
+    // Отключаем строгую проверку хоста для production
+    strictPort: false,
     hmr: {
       clientPort: 3002,
       host: 'localhost',
