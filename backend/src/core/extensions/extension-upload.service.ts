@@ -94,11 +94,41 @@ export class ExtensionUploadService {
         await this.installBackendCode(finalPath, slug, manifest);
       }
 
-      // Check if extension already exists
+      // Check if extension already exists - if so, remove it first
       const existing = await this.registry.findBySlug(slug);
       if (existing) {
-        errors.push(`Extension with slug "${slug}" already exists`);
-        return { success: false, message: 'Extension already exists', errors };
+        this.logger.log(`Extension "${slug}" already exists, removing old version...`);
+        try {
+          // Remove old files
+          const oldPath = existing.pathOnDisk;
+          if (oldPath && oldPath !== finalPath) {
+            try {
+              await fs.rm(oldPath, { recursive: true, force: true });
+              this.logger.debug(`Removed old extension files: ${oldPath}`);
+            } catch (error) {
+              this.logger.warn(`Failed to remove old extension files: ${error.message}`);
+            }
+          }
+          
+          // Remove backend code if exists
+          const oldBackendPath = existing.manifest?.backend?.installedPath;
+          if (oldBackendPath) {
+            try {
+              await fs.rm(oldBackendPath, { recursive: true, force: true });
+              this.logger.debug(`Removed old backend code: ${oldBackendPath}`);
+            } catch (error) {
+              this.logger.warn(`Failed to remove old backend code: ${error.message}`);
+            }
+          }
+          
+          // Remove from registry
+          await this.registry.unregister(existing.id);
+          this.logger.log(`Old extension "${slug}" removed successfully`);
+        } catch (error) {
+          this.logger.error(`Failed to remove existing extension: ${error.message}`);
+          errors.push(`Failed to remove existing extension: ${error.message}`);
+          return { success: false, message: 'Failed to update extension', errors };
+        }
       }
 
       this.logger.debug(`Created plugin directory: ${finalPath}`);
