@@ -70,26 +70,38 @@ export const SocialAuthButtons: React.FC<SocialAuthButtonsProps> = ({ enabledMet
     },
   ];
 
-  const handleSocialAuth = async (providerId: string) => {
+  const handleSocialAuth = async (providerId: string, event?: React.MouseEvent) => {
+    // Предотвращаем всплытие события и стандартное поведение
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    
     try {
       if (providerId === 'github') {
+        console.log('[SocialAuthButtons] Initiating GitHub auth...');
         // Получаем URL для авторизации через GitHub
         const response = await apiClient.get('/auth/multi/oauth/github/url');
+        console.log('[SocialAuthButtons] GitHub auth response:', response.data);
+        
         // Ответ имеет структуру: {success: true, data: {url: "..."}}
         const authUrl = response.data?.data?.url || response.data?.url || response.data?.authUrl;
         if (authUrl) {
-          window.location.href = authUrl;
+          console.log('[SocialAuthButtons] Redirecting to GitHub:', authUrl);
+          // Используем window.location.replace для предотвращения возврата назад
+          window.location.replace(authUrl);
         } else {
-          console.error('GitHub auth URL not found in response:', response.data);
+          console.error('[SocialAuthButtons] GitHub auth URL not found in response:', response.data);
         }
       } else if (providerId === 'telegram') {
+        console.log('[SocialAuthButtons] Redirecting to Telegram login page...');
         // Для Telegram перенаправляем на страницу с Telegram Login Widget
-        window.location.href = '/telegram-login.html';
+        window.location.replace('/telegram-login.html');
       } else {
         console.log(t('auth.socialAuth.loggingIn', 'Logging in through'), providerId);
       }
     } catch (error) {
-      console.error(`Error initiating ${providerId} auth:`, error);
+      console.error(`[SocialAuthButtons] Error initiating ${providerId} auth:`, error);
     }
   };
 
@@ -117,7 +129,8 @@ export const SocialAuthButtons: React.FC<SocialAuthButtonsProps> = ({ enabledMet
           return (
             <button
               key={provider.id}
-              onClick={() => handleSocialAuth(provider.id)}
+              type="button"
+              onClick={(e) => handleSocialAuth(provider.id, e)}
               className={`aspect-square flex items-center justify-center p-2 rounded-lg ${themeClasses.border.default} ${themeClasses.card.default} ${themeClasses.active.navItemInactive} transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2`}
               aria-label={t(`auth.socialAuth.${provider.id}`, provider.name)}
               title={provider.name}
