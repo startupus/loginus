@@ -57,10 +57,7 @@ services:
       - SMTP_FROM=${SMTP_FROM}
       - JWT_SECRET=${JWT_SECRET}
       - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
-      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
-      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
-      - GITHUB_REDIRECT_URI=${GITHUB_REDIRECT_URI}
-      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      # GitHub and Telegram variables are loaded from .env.production via env_file
     volumes:
       - ./backend/uploads:/app/uploads
     depends_on:
