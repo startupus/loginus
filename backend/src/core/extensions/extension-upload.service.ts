@@ -279,10 +279,11 @@ export class ExtensionUploadService {
   ): Promise<void> {
     try {
       const backendSourcePath = path.join(pluginPath, 'backend');
+      // Используем uploads/plugins-backend вместо src/plugins для production
       const backendTargetPath = path.join(
         process.cwd(),
-        'src',
-        'plugins',
+        'uploads',
+        'plugins-backend',
         slug,
       );
 

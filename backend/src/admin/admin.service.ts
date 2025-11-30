@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { Organization } from '../organizations/entities/organization.entity';
 import { UserAdapter } from '../common/adapters/user.adapter';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AdminService {
@@ -12,6 +13,7 @@ export class AdminService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(Organization)
     private readonly organizationRepository: Repository<Organization>,
+    private readonly usersService: UsersService,
   ) {}
 
   async getStats(userRole: string, companyId?: string) {
@@ -173,11 +175,21 @@ export class AdminService {
       if (!hasAccess) {
         throw new ForbiddenException('Access denied');
       }
+      // Company admin может только деактивировать пользователя
+      user.isActive = false;
+      const updatedUser = await this.userRepository.save(user);
+      return UserAdapter.toFrontendFormat(updatedUser);
     }
 
+    // Super admin может полностью удалить пользователя
+    if (userRole === 'super_admin') {
+      await this.usersService.delete(id);
+      return { deleted: true };
+    }
+
+    // Для других ролей - деактивация
     user.isActive = false;
     const updatedUser = await this.userRepository.save(user);
-
     return UserAdapter.toFrontendFormat(updatedUser);
   }
 
