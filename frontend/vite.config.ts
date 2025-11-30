@@ -36,8 +36,6 @@ export default defineConfig({
       '127.0.0.1',
       '45.144.176.42',
     ],
-    // Отключаем строгую проверку хоста для production
-    strictPort: false,
     hmr: {
       clientPort: 3002,
       host: 'localhost',
