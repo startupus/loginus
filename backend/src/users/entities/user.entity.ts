@@ -44,6 +44,13 @@ export class User {
   @Column({ type: 'varchar', length: 20, nullable: true })
   phone: string | null;
 
+  // ✅ ОТДЕЛЬНЫЕ ПОЛЯ для внешних сервисов
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  githubEmail: string | null; // Email от GitHub (отдельно от основного email)
+
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  telegramPhone: string | null; // Телефон от Telegram (отдельно от основного phone)
+
   // ✅ НОВЫЕ ПОЛЯ для мульти-аутентификации
   @Column({ type: 'varchar', length: 255, nullable: true })
   githubId: string | null;

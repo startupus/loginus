@@ -677,7 +677,7 @@ export class MultiAuthService {
    * Обработка Telegram Login Widget
    */
   async handleTelegramLogin(telegramUser: any): Promise<any> {
-    const { id, first_name, last_name, username, photo_url, auth_date, hash } = telegramUser;
+    const { id, first_name, last_name, username, photo_url, auth_date, hash, phone_number } = telegramUser;
     
     // Проверяем hash (безопасность)
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
@@ -731,8 +731,14 @@ export class MultiAuthService {
       this.logger.log(`Creating new Telegram user with email: ${email}`);
       // Убираем @ из username если есть (username должен быть без @)
       const cleanUsername = username ? username.replace('@', '') : '';
+      
+      // Получаем телефон из telegramUser, если он есть
+      // Telegram Login Widget может предоставить phone_number, если пользователь его разрешил
+      const telegramPhone = phone_number || null;
+      
       user = await this.usersService.create({
         email,
+        telegramPhone: telegramPhone, // ✅ Сохраняем телефон Telegram в отдельное поле (если доступен)
         firstName: first_name || '',
         lastName: last_name || '',
         avatarUrl: photo_url || '',

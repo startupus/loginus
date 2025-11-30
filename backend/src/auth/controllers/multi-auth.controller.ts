@@ -499,10 +499,13 @@ export class MultiAuthController {
     const isAjaxRequest = acceptHeader.includes('application/json');
     
     if (!isAjaxRequest && code) {
-      // Это браузерный запрос - перенаправляем на frontend страницу для обработки
+      // ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Это браузерный запрос от GitHub
+      // НЕ обрабатываем код здесь, а сразу перенаправляем на frontend
+      // Frontend вызовет этот же endpoint с Accept: application/json, и тогда обработаем код
+      // Это предотвращает двойное использование кода
       const frontendUrl = process.env.FRONTEND_URL || 'https://loginus.startapus.com';
       const redirectUrl = `${frontendUrl}/github-login.html?code=${code}${state ? '&state=' + encodeURIComponent(state) : ''}`;
-      this.logger.log(`🔄 Redirecting browser request to frontend: ${redirectUrl}`);
+      this.logger.log(`🔄 Redirecting browser request to frontend (code will be processed by frontend): ${redirectUrl}`);
       return res.redirect(redirectUrl);
     }
     

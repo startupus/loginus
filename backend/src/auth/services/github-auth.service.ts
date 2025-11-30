@@ -388,8 +388,13 @@ export class GitHubAuthService {
     
     this.logger.log(`Creating GitHub user with email: ${userEmail} (primaryEmail: ${primaryEmail || 'not found'})`);
     
+    // Сохраняем реальный email GitHub в отдельное поле
+    const githubEmail = primaryEmail || emailData.find(email => email.verified)?.email || null;
+    
+    // Для email используем псевдо-email, если реальный уже занят
     const newUser = this.usersRepo.create({
-      email: userEmail,
+      email: userEmail, // Псевдо-email или реальный, если не занят
+      githubEmail: githubEmail, // ✅ Реальный email от GitHub в отдельном поле
       passwordHash: null, // OAuth users don't have a password
       firstName: userData.name?.split(' ')[0] || userData.login,
       lastName: userData.name?.split(' ').slice(1).join(' ') || '',
