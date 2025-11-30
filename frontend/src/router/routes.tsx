@@ -15,6 +15,7 @@ const VerifyCodePage = lazy(() => import('@/pages/auth/VerifyCodePage'));
 const RegisterPage = lazy(() => import('@/pages/auth/RegisterPage'));
 const OnboardingPage = lazy(() => import('@/pages/auth/OnboardingPage'));
 const ResetPasswordPage = lazy(() => import('@/pages/auth/ResetPasswordPage')); // ✅ NEW: Password Reset
+const GitHubLoginPage = lazy(() => import('@/pages/auth/GitHubLoginPage')); // ✅ NEW: GitHub OAuth Callback
 
 // Dashboard (static import to avoid dynamic import fetch issues)
 
@@ -79,6 +80,7 @@ export {
   RegisterPage,
   OnboardingPage,
   ResetPasswordPage, // ✅ NEW
+  GitHubLoginPage, // ✅ NEW
   DashboardPage,
   DataPage,
   PersonalDocumentsPage,
