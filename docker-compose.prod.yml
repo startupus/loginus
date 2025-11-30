@@ -36,6 +36,8 @@ services:
       dockerfile: Dockerfile
       target: production
     container_name: loginus-api-prod
+    env_file:
+      - .env.production
     ports:
       - "127.0.0.1:3004:3001"
     environment:
