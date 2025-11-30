@@ -81,7 +81,7 @@ export class User {
   availableAuthMethods: AuthMethodType[];
 
   // Основной способ восстановления пароля
-  @Column({ type: 'varchar', length: 20, nullable: true, default: 'email', select: false })
+  @Column({ type: 'varchar', length: 20, nullable: true, default: 'email', select: false, name: 'primaryRecoveryMethod' })
   primaryRecoveryMethod: 'email' | 'phone' | null;
 
   // Удалены одиночные связи - теперь только ManyToMany
