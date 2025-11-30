@@ -498,17 +498,17 @@ export class MultiAuthController {
     // GitHub может перенаправить напрямую на backend endpoint, но нам нужно, чтобы frontend обработал callback
     const acceptHeader = req.headers.accept || '';
     const userAgent = req.headers['user-agent'] || '';
+    const referer = req.headers.referer || '';
     const isAjaxRequest = acceptHeader.includes('application/json');
-    const isFromGitHub = userAgent.includes('GitHub') || req.headers.referer?.includes('github.com');
+    const isFromGitHub = userAgent.includes('GitHub') || referer.includes('github.com');
+    const isFromFrontend = referer.includes('loginus.startapus.com') && !referer.includes('/api/');
     
-    this.logger.log(`🔍 [GitHub Callback] Accept: ${acceptHeader}, User-Agent: ${userAgent.substring(0, 50)}..., isAjaxRequest: ${isAjaxRequest}, isFromGitHub: ${isFromGitHub}`);
+    this.logger.log(`🔍 [GitHub Callback] Accept: ${acceptHeader}, User-Agent: ${userAgent.substring(0, 50)}..., Referer: ${referer.substring(0, 100)}..., isAjaxRequest: ${isAjaxRequest}, isFromGitHub: ${isFromGitHub}, isFromFrontend: ${isFromFrontend}`);
     
-    // ✅ Если это запрос от GitHub (браузерный редирект) или не AJAX запрос, перенаправляем на frontend
-    if ((!isAjaxRequest || isFromGitHub) && code) {
-      // ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Это браузерный запрос от GitHub
-      // НЕ обрабатываем код здесь, а сразу перенаправляем на frontend
-      // Frontend вызовет этот же endpoint с Accept: application/json, и тогда обработаем код
-      // Это предотвращает двойное использование кода
+    // ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Если это НЕ AJAX запрос (браузерный редирект), перенаправляем на frontend
+    // НЕ обрабатываем код здесь, чтобы избежать двойного использования
+    // Frontend вызовет этот же endpoint с Accept: application/json, и тогда обработаем код
+    if (!isAjaxRequest && code) {
       const frontendUrl = process.env.FRONTEND_URL || 'https://loginus.startapus.com';
       const redirectUrl = `${frontendUrl}/github-login.html?code=${code}${state ? '&state=' + encodeURIComponent(state) : ''}`;
       this.logger.log(`🔄 Redirecting browser request to frontend (code will be processed by frontend): ${redirectUrl}`);
