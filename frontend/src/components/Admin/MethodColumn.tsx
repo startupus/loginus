@@ -255,16 +255,11 @@ export const MethodColumn: React.FC<MethodColumnProps> = ({
                         onRemoveMethod(method.id, flow);
                       }}
                       disabled={
-                        !method.enabled || (flow === 'factors' && method.id === 'login-window')
+                        flow === 'factors' && method.id === 'login-window'
                       }
                       className="text-destructive hover:text-destructive-foreground hover:bg-destructive/10 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                       title={
-                        !method.enabled
-                          ? t(
-                              'admin.authFlow.cannotDeleteDisabled',
-                              'Нельзя удалить отключенный метод',
-                            )
-                          : flow === 'factors' && method.id === 'login-window'
+                        flow === 'factors' && method.id === 'login-window'
                           ? t('admin.authFlow.factors.required', 'Обязательный шаг')
                           : t('common.delete', 'Удалить')
                       }

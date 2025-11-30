@@ -44,5 +44,89 @@ export const authFlowApi = {
    * Тестировать алгоритм авторизации
    */
   testAuthFlow: () => apiClient.post<{ success: boolean; data: { result: string } }>('/admin/auth-flow/test'),
+
+  /**
+   * ✅ НОВЫЕ МЕТОДЫ для пошаговой аутентификации
+   */
+  
+  /**
+   * Инициировать пошаговый вход
+   */
+  initLoginFlow: (data: { stepId: string; data: Record<string, any> }) => apiClient.post<{
+    success: boolean;
+    message: string;
+    nextStep?: string;
+    sessionId?: string;
+    payload?: any;
+  }>('/auth/flow/login/init', data),
+
+  /**
+   * Выполнить шаг входа
+   */
+  loginStep: (data: {
+    stepId: string;
+    sessionId?: string;
+    data: any;
+  }) => apiClient.post<{
+    success: boolean;
+    sessionId?: string;
+    nextStep?: string;
+    completed?: boolean;
+    accessToken?: string;
+    refreshToken?: string;
+    userId?: string;
+    message?: string;
+    tempData?: any;
+  }>('/auth/flow/login/step', data),
+
+  /**
+   * Инициировать пошаговую регистрацию
+   */
+  initRegisterFlow: (data: { stepId: string; data: Record<string, any> }) => apiClient.post<{
+    success: boolean;
+    message: string;
+    nextStep?: string;
+    sessionId?: string;
+    payload?: any;
+  }>('/auth/flow/register/init', data),
+
+  /**
+   * Выполнить шаг регистрации
+   */
+  registerStep: (data: {
+    stepId: string;
+    sessionId?: string;
+    data: any;
+  }) => apiClient.post<{
+    success: boolean;
+    sessionId?: string;
+    nextStep?: string;
+    completed?: boolean;
+    accessToken?: string;
+    refreshToken?: string;
+    userId?: string;
+    message?: string;
+    tempData?: any;
+  }>('/auth/flow/register/step', data),
+
+  /**
+   * Завершить регистрацию
+   */
+  completeRegisterFlow: (data: {
+    stepId: string;
+    sessionId?: string;
+    data: any;
+  }) => apiClient.post<{
+    success: boolean;
+    accessToken?: string;
+    refreshToken?: string;
+    userId?: string;
+    message?: string;
+  }>('/auth/flow/register/complete', data),
+
+  /**
+   * Получить настройки Auth Flow для пользователя
+   */
+  getUserFlowSettings: () => apiClient.get('/auth/user-flow-settings'),
 };
 

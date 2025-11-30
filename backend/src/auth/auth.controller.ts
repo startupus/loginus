@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, UseGuards, UnauthorizedException, Req, Res, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Controller, Post, Get, Delete, Body, Param, UseGuards, UnauthorizedException, Req, Res, BadRequestException, NotFoundException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,6 +10,7 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { SmartAuthDto, SmartAuthResponseDto } from './dto/smart-auth.dto';
 import { BindPhoneDto, VerifyPhoneDto, BindPhoneResponseDto } from './dto/bind-phone.dto';
 import { SendEmailVerificationDto, VerifyEmailDto, EmailVerificationResponseDto } from './dto/email-verification.dto';
+import { LoginStepDto, RegisterStepDto, AuthStepResponseDto } from './dto/auth-step.dto';
 import { Public } from './decorators/public.decorator';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { RequirePermissions } from './decorators/permissions.decorator';
@@ -23,6 +24,8 @@ import { UserAdapter } from '../common/adapters/user.adapter';
 import { TwoFactorCode, TwoFactorType, TwoFactorStatus } from './entities/two-factor-code.entity';
 import { AuditService } from '../audit/audit.service';
 import { SettingsService } from '../settings/settings.service';
+import { AuthFlowService } from './services/auth-flow.service';
+import * as bcrypt from 'bcrypt';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -35,6 +38,7 @@ export class AuthController {
     private emailService: EmailService,
     private auditService: AuditService,
     private readonly settingsService: SettingsService,
+    private readonly authFlowService: AuthFlowService,
     @InjectRepository(TwoFactorCode)
     private twoFactorCodesRepo: Repository<TwoFactorCode>,
   ) {}
@@ -263,26 +267,42 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Текущая конфигурация алгоритма авторизации (для клиентских форм)' })
   async getPublicAuthFlow() {
     try {
-    const raw = await this.settingsService.getSetting('auth_flow_config');
+      console.log('✅ [AuthController] getPublicAuthFlow called');
+      if (!this.settingsService) {
+        console.error('❌ [AuthController] SettingsService is not initialized');
+        return {
+          success: true,
+          data: {
+            login: [],
+            registration: [],
+            factors: [],
+            updatedAt: null,
+          },
+        };
+      }
 
-    if (!raw) {
-      return {
-        success: true,
-        data: {
-          login: [],
-          registration: [],
-          factors: [],
-          updatedAt: null,
-        },
-      };
-    }
+      console.log('✅ [AuthController] SettingsService is initialized, calling getSetting...');
+      const raw = await this.settingsService.getSetting('auth_flow_config');
+      console.log('✅ [AuthController] getSetting returned:', raw ? 'has value' : 'null');
 
-    try {
-      const parsed = JSON.parse(raw);
-      return {
-        success: true,
-        data: parsed,
-      };
+      if (!raw) {
+        return {
+          success: true,
+          data: {
+            login: [],
+            registration: [],
+            factors: [],
+            updatedAt: null,
+          },
+        };
+      }
+
+      try {
+        const parsed = JSON.parse(raw);
+        return {
+          success: true,
+          data: parsed,
+        };
       } catch (parseError) {
         console.error('❌ [AuthController] Error parsing auth_flow_config:', parseError);
         return {
@@ -309,6 +329,173 @@ export class AuthController {
         },
       };
     }
+  }
+
+  @Get('user-flow-settings')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Получить настройки Auth Flow для текущего пользователя' })
+  @ApiResponse({ status: 200, description: 'Настройки авторизации (обязательные + дополнительные факторы)' })
+  async getUserFlowSettings(@CurrentUser() user: any) {
+    const userId = user?.userId || user?.id || user?.sub;
+    
+    try {
+      // 1. Получить обязательные настройки из auth_flow_config
+      const configRaw = await this.settingsService.getSetting('auth_flow_config');
+      let config = { login: [], registration: [], factors: [] };
+      
+      if (configRaw) {
+        try {
+          config = JSON.parse(configRaw);
+        } catch (parseError) {
+          console.error('Error parsing auth_flow_config:', parseError);
+        }
+      }
+      
+      // 2. Получить индивидуальные настройки пользователя
+      const userEntity = await this.usersService.findById(userId);
+      
+      if (!userEntity) {
+        throw new NotFoundException('User not found');
+      }
+      
+      // 3. Получить дополнительные факторы из mfaSettings
+      const additionalFactors = userEntity.mfaSettings?.methods || [];
+      const mandatoryFactors = config.factors || [];
+      
+      // 4. Отфильтровать дополнительные факторы (только те, которых нет в обязательных)
+      const mandatoryFactorIds = mandatoryFactors.map((f: any) => f.id || f);
+      const userOnlyFactors = additionalFactors.filter(
+        (method: string) => !mandatoryFactorIds.includes(method)
+      );
+      
+      return {
+        success: true,
+        data: {
+          mandatory: {
+            login: config.login || [],
+            registration: config.registration || [],
+            factors: mandatoryFactors
+          },
+          user: {
+            additionalFactors: userOnlyFactors.map((method: string) => ({
+              id: method,
+              name: method,
+              enabled: true,
+              type: 'user-added'
+            })),
+            availableAuthMethods: userEntity.availableAuthMethods || []
+          }
+        }
+      };
+    } catch (error) {
+      console.error('Error in getUserFlowSettings:', error);
+      throw error;
+    }
+  }
+
+  @Post('user-additional-factors')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Добавить дополнительный фактор аутентификации' })
+  @ApiResponse({ status: 200, description: 'Фактор добавлен' })
+  @ApiResponse({ status: 400, description: 'Метод недоступен' })
+  async addUserAdditionalFactor(
+    @CurrentUser() user: any,
+    @Body() body: { method: string }
+  ) {
+    const userId = user?.userId || user?.id || user?.sub;
+    const userEntity = await this.usersService.findById(userId);
+    
+    if (!userEntity) {
+      throw new NotFoundException('User not found');
+    }
+    
+    // Проверяем, что метод доступен пользователю
+    const availableMethods = userEntity.availableAuthMethods || [];
+    if (!availableMethods.includes(body.method as any)) {
+      throw new BadRequestException('Method not available for this user');
+    }
+    
+    // Инициализируем mfaSettings если нет
+    if (!userEntity.mfaSettings) {
+      userEntity.mfaSettings = {
+        enabled: true,
+        methods: [body.method],
+        backupCodes: [],
+        backupCodesUsed: [],
+        requiredMethods: 1
+      };
+    } else {
+      // Добавляем метод если его еще нет
+      if (!userEntity.mfaSettings.methods.includes(body.method)) {
+        userEntity.mfaSettings.methods.push(body.method);
+        userEntity.mfaSettings.enabled = true;
+      } else {
+        throw new BadRequestException('Method already added');
+      }
+    }
+    
+    await this.usersService.update(userId, { mfaSettings: userEntity.mfaSettings });
+    
+    return {
+      success: true,
+      message: 'Additional factor added successfully',
+      method: body.method
+    };
+  }
+
+  @Delete('user-additional-factors/:method')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Удалить дополнительный фактор аутентификации' })
+  @ApiResponse({ status: 200, description: 'Фактор удален' })
+  async removeUserAdditionalFactor(
+    @CurrentUser() user: any,
+    @Param('method') method: string
+  ) {
+    const userId = user?.userId || user?.id || user?.sub;
+    const userEntity = await this.usersService.findById(userId);
+    
+    if (!userEntity) {
+      throw new NotFoundException('User not found');
+    }
+    
+    // Получаем обязательные факторы из конфигурации
+    const configRaw = await this.settingsService.getSetting('auth_flow_config');
+    let mandatoryFactors: string[] = [];
+    
+    if (configRaw) {
+      try {
+        const config = JSON.parse(configRaw);
+        mandatoryFactors = (config.factors || []).map((f: any) => f.id || f);
+      } catch (parseError) {
+        console.error('Error parsing auth_flow_config:', parseError);
+      }
+    }
+    
+    // Проверяем, что метод не является обязательным
+    if (mandatoryFactors.includes(method)) {
+      throw new BadRequestException('Cannot remove mandatory factor');
+    }
+    
+    // Удаляем метод из mfaSettings
+    if (userEntity.mfaSettings) {
+      userEntity.mfaSettings.methods = userEntity.mfaSettings.methods.filter(m => m !== method);
+      
+      // Если методов не осталось, отключаем MFA
+      if (userEntity.mfaSettings.methods.length === 0) {
+        userEntity.mfaSettings.enabled = false;
+      }
+    }
+    
+    await this.usersService.update(userId, { mfaSettings: userEntity.mfaSettings });
+    
+    return {
+      success: true,
+      message: 'Additional factor removed successfully',
+      method
+    };
   }
 
   @Post('bind-phone/send-code')
@@ -520,6 +707,10 @@ export class AuthController {
 
         // Отправляем код на email (используем один и тот же код для всех)
         try {
+          console.log(`📧 [sendCode] Начинаем отправку email на ${dto.contact}`);
+          console.log(`📧 [sendCode] Код: ${code}`);
+          console.log(`📧 [sendCode] EmailService доступен: ${this.emailService ? 'да' : 'нет'}`);
+          
           await this.emailService.sendEmail({
             to: dto.contact,
             subject: 'Код подтверждения Loginus',
@@ -536,9 +727,15 @@ export class AuthController {
               </div>
             `,
           });
-          console.log(`✅ Код отправлен на email ${dto.contact}`);
+          console.log(`✅ [sendCode] Код отправлен на email ${dto.contact}`);
         } catch (error) {
-          console.warn('Ошибка отправки кода на email:', error.message);
+          console.error('❌ [sendCode] Ошибка отправки кода на email:', error);
+          console.error('❌ [sendCode] Детали ошибки:', {
+            message: error?.message,
+            stack: error?.stack,
+            name: error?.name,
+            code: error?.code
+          });
           // В dev режиме продолжаем, даже если email не отправился
         }
       } else if (dto.type === 'phone') {
@@ -729,7 +926,9 @@ export class AuthController {
           phoneVerified: contactType === 'phone' ? true : false,
           isActive: true, // Активируем пользователя
           // Пароль будет установлен позже при регистрации
-          passwordHash: null, 
+          passwordHash: null,
+          // Устанавливаем способ восстановления по умолчанию
+          primaryRecoveryMethod: contactType === 'email' ? 'email' : (contactType === 'phone' ? 'phone' : 'email'),
         });
         console.log(`✅ Пользователь создан: id=${newUser.id}, email=${newUser.email}, phone=${newUser.phone}`);
         user = newUser;
@@ -815,5 +1014,699 @@ export class AuthController {
       lastName: dto.lastName,
       password: dto.password,
     });
+  }
+
+  /**
+   * ✅ НОВЫЙ ENDPOINT: Пошаговая аутентификация (вход)
+   * Позволяет пройти каждый шаг Auth Flow отдельно
+   */
+  @Post('flow/login/step')
+  @Public()
+  @ApiOperation({ summary: 'Пошаговая аутентификация - выполнить один шаг входа' })
+  @ApiResponse({ status: 200, description: 'Шаг выполнен', type: AuthStepResponseDto })
+  @ApiResponse({ status: 400, description: 'Неверные данные шага' })
+  async loginStep(
+    @Body() dto: LoginStepDto,
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response
+  ): Promise<AuthStepResponseDto> {
+    const userAgent = req.get('User-Agent') || undefined;
+    const ipAddress = req.ip || req.socket?.remoteAddress || undefined;
+
+    try {
+      // Валидация данных шага
+      const validation = await this.authFlowService.validateStepData(dto.stepId, dto.data);
+      if (!validation.valid) {
+        throw new BadRequestException(validation.error);
+      }
+
+      // Получить следующий шаг
+      const nextStep = await this.authFlowService.getNextStep(dto.stepId, 'login');
+      const isLastStep = await this.authFlowService.isLastStep(dto.stepId, 'login');
+
+      // Обработка в зависимости от типа шага
+      switch (dto.stepId) {
+        case 'phone-email': {
+          // Фронтенд отправляет contact и type, но может быть и login для обратной совместимости
+          const contact = (dto.data.contact || dto.data.login)?.trim();
+          const contactType = dto.data.type || (contact?.includes('@') ? 'email' : 'phone');
+          
+          if (!contact) {
+            throw new BadRequestException('Contact (email or phone) is required');
+          }
+
+          // Нормализуем email (приводим к нижнему регистру)
+          const normalizedContact = contactType === 'email' ? contact.toLowerCase().trim() : contact.trim();
+          
+          const user = contactType === 'email' 
+            ? await this.usersService.findByEmail(normalizedContact)
+            : await this.usersService.findByPhone(normalizedContact);
+          
+          // Если пользователь не найден, возвращаем флаг для автоматической регистрации
+          if (!user) {
+            return {
+              success: true,
+              requiresRegistration: true,
+              message: 'User not found, switching to registration',
+              tempData: { contact: normalizedContact, type: contactType }
+            };
+          }
+
+          const sessionId = dto.sessionId || `session-${Date.now()}-${Math.random()}`;
+          
+          // Если следующий шаг - это код, отправляем код автоматически
+          if (nextStep && (nextStep.id === 'sms-code' || nextStep.id === 'email-code' || nextStep.id === 'sms' || nextStep.id === 'email')) {
+            try {
+              console.log(`📧 [loginStep] Отправка кода для ${normalizedContact}, тип: ${contactType}`);
+              console.log(`📧 [loginStep] nextStep.id: ${nextStep.id}`);
+              const sendCodeResult = await this.sendCode({
+                contact: normalizedContact,
+                type: contactType,
+                sessionId: sessionId,
+              });
+              console.log(`✅ [loginStep] Код отправлен успешно:`, sendCodeResult);
+            } catch (error) {
+              console.error('❌ [loginStep] Ошибка отправки кода:', error);
+              console.error('❌ [loginStep] Детали ошибки:', {
+                message: error?.message,
+                stack: error?.stack,
+                name: error?.name
+              });
+              // Не прерываем процесс, просто логируем ошибку
+            }
+          } else {
+            console.log(`⚠️ [loginStep] Следующий шаг не требует отправки кода. nextStep:`, nextStep ? { id: nextStep.id, name: nextStep.name } : 'null');
+          }
+          
+          return {
+            success: true,
+            sessionId,
+            nextStep: nextStep ? {
+              id: nextStep.id,
+              name: nextStep.name,
+              type: nextStep.type,
+              requiresVerification: this.authFlowService.requiresVerification(nextStep.id)
+            } : undefined,
+            completed: false,
+            message: 'User found, proceed to next step',
+            tempData: { userId: user.id, contact: normalizedContact, type: contactType }
+          };
+        }
+
+        case 'password': {
+          if (!dto.data.userId) {
+            throw new BadRequestException('User ID is required from previous step');
+          }
+
+          const userForPassword = await this.usersService.findById(dto.data.userId);
+          if (!userForPassword) {
+            throw new UnauthorizedException('User not found');
+          }
+
+          const loginResult = await this.authService.login({
+            login: userForPassword.email || userForPassword.phone || '',
+            password: dto.data.password
+          }, userAgent, ipAddress);
+
+          if ('requires2FA' in loginResult || 'requiresNFA' in loginResult) {
+            return {
+              success: true,
+              sessionId: dto.sessionId,
+              completed: false,
+              message: loginResult.message,
+              tempData: loginResult
+            };
+          }
+
+          // Логируем информацию о следующем шаге
+          console.log(`📋 [loginStep password] nextStep:`, nextStep ? { id: nextStep.id, name: nextStep.name } : 'null');
+          console.log(`📋 [loginStep password] isLastStep:`, isLastStep);
+
+          // Если это последний шаг и нет следующего шага, завершаем логин
+          if (isLastStep && 'accessToken' in loginResult && !nextStep) {
+            return {
+              success: true,
+              completed: true,
+              accessToken: loginResult.accessToken,
+              refreshToken: loginResult.refreshToken,
+              user: loginResult.user,
+              message: 'Login successful'
+            };
+          }
+
+          // Если следующий шаг - это код (из конфигурации auth flow), отправляем код автоматически
+          if (nextStep && (nextStep.id === 'sms-code' || nextStep.id === 'email-code' || nextStep.id === 'sms' || nextStep.id === 'email')) {
+            const contact = userForPassword.email || userForPassword.phone || '';
+            const contactType = userForPassword.email ? 'email' : 'phone';
+            console.log(`📧 [loginStep password] Следующий шаг требует код. Отправка кода для ${contact}, тип: ${contactType}`);
+            if (contact) {
+              try {
+                const sendCodeResult = await this.sendCode({
+                  contact: contact,
+                  type: contactType,
+                  sessionId: dto.sessionId,
+                });
+                console.log(`✅ [loginStep password] Код отправлен успешно:`, sendCodeResult);
+              } catch (error) {
+                console.error('❌ [loginStep password] Ошибка отправки кода:', error);
+                console.error('❌ [loginStep password] Детали ошибки:', {
+                  message: error?.message,
+                  stack: error?.stack,
+                  name: error?.name
+                });
+                // Не прерываем процесс, просто логируем ошибку
+              }
+            } else {
+              console.warn('⚠️ [loginStep password] Контакт не найден для отправки кода');
+            }
+          }
+          
+          return {
+            success: true,
+            sessionId: dto.sessionId,
+            nextStep: nextStep ? {
+              id: nextStep.id,
+              name: nextStep.name,
+              type: nextStep.type,
+              requiresVerification: this.authFlowService.requiresVerification(nextStep.id)
+            } : undefined,
+            completed: false,
+            tempData: { userId: userForPassword.id }
+          };
+        }
+
+        case 'sms-code':
+        case 'email-code':
+        case 'sms': // Поддержка старого формата
+        case 'email': { // Поддержка старого формата
+          // Нормализуем stepId для обработки
+          const normalizedStepId = dto.stepId === 'sms' ? 'sms-code' : 
+                                   dto.stepId === 'email' ? 'email-code' : 
+                                   dto.stepId;
+          
+          if (!dto.data.code) {
+            throw new BadRequestException('Verification code is required');
+          }
+
+          // Используем verifyCode для проверки кода
+          // Получаем контакт из данных (tempData передается через data в предыдущих шагах)
+          const codeContact = dto.data.contact || (dto.data.tempData?.contact);
+          const codeContactType = dto.data.type || (dto.data.tempData?.type) || (normalizedStepId === 'email-code' ? 'email' : 'phone');
+          
+          if (!codeContact) {
+            throw new BadRequestException('Contact is required for code verification');
+          }
+
+          const verifyResult = await this.verifyCode({
+            sessionId: dto.sessionId || '',
+            code: dto.data.code,
+            contact: codeContact,
+            type: codeContactType as 'phone' | 'email',
+          }, req);
+
+          if (!verifyResult.verified) {
+            throw new BadRequestException('Invalid verification code');
+          }
+
+          // Если это последний шаг, возвращаем токены
+          if (isLastStep) {
+            const user = await this.usersService.findById(verifyResult.userId || '');
+            if (!user) {
+              throw new UnauthorizedException('User not found');
+            }
+
+            const accessToken = await this.authService.generateAccessToken(user);
+            const refreshToken = await this.authService.generateRefreshToken(user, userAgent, ipAddress);
+
+            return {
+              success: true,
+              completed: true,
+              accessToken,
+              refreshToken,
+              user: UserAdapter.toFrontendFormat(user),
+              message: 'Login successful'
+            };
+          }
+
+          // Если не последний шаг, возвращаем следующий
+          const nextStepAfterCode = await this.authFlowService.getNextStep(normalizedStepId, 'login');
+          return {
+            success: true,
+            sessionId: dto.sessionId,
+            nextStep: nextStepAfterCode ? {
+              id: nextStepAfterCode.id,
+              name: nextStepAfterCode.name,
+              type: nextStepAfterCode.type,
+              requiresVerification: this.authFlowService.requiresVerification(nextStepAfterCode.id)
+            } : undefined,
+            completed: false,
+            tempData: { userId: verifyResult.userId }
+          };
+        }
+
+        default:
+          throw new BadRequestException(`Unsupported step: ${dto.stepId}`);
+      }
+    } catch (error) {
+      console.error('Error in loginStep:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * ✅ НОВЫЙ ENDPOINT: Получить первый шаг для входа
+   */
+  @Get('login/first-step')
+  @Public()
+  @ApiOperation({ summary: 'Получить первый шаг для входа согласно Auth Flow' })
+  @ApiResponse({ status: 200, description: 'Первый шаг входа' })
+  async getFirstLoginStep() {
+    const steps = await this.authFlowService.getLoginFlow();
+    const firstStep = steps.length > 0 ? steps[0] : null;
+
+    return {
+      success: true,
+      data: {
+        step: firstStep,
+        totalSteps: steps.length
+      }
+    };
+  }
+
+  /**
+   * ✅ НОВЫЙ ENDPOINT: Инициировать пошаговую регистрацию
+   */
+  @Post('flow/register/init')
+  @Public()
+  @ApiOperation({ summary: 'Инициировать пошаговую регистрацию' })
+  @ApiResponse({ status: 200, description: 'Первый шаг регистрации', type: AuthStepResponseDto })
+  async initRegisterFlow(
+    @Body() dto: RegisterStepDto,
+    @Req() req: Request,
+  ): Promise<AuthStepResponseDto> {
+    const userAgent = req.get('User-Agent') || undefined;
+    const ipAddress = req.ip || req.socket?.remoteAddress || undefined;
+
+    try {
+      // Получаем первый шаг регистрации
+      const steps = await this.authFlowService.getRegistrationFlow();
+      if (steps.length === 0) {
+        throw new BadRequestException('Registration flow is not configured');
+      }
+
+      const firstStep = steps[0];
+      const sessionId = `register-session-${Date.now()}-${Math.random()}`;
+
+      return {
+        success: true,
+        message: 'Registration flow initiated',
+        sessionId,
+        nextStep: {
+          id: firstStep.id,
+          name: firstStep.name,
+          type: firstStep.type,
+        },
+        payload: {
+          flowConfig: steps,
+        },
+      };
+    } catch (error) {
+      console.error('Error in initRegisterFlow:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * ✅ НОВЫЙ ENDPOINT: Обработать шаг пошаговой регистрации
+   */
+  @Post('flow/register/step')
+  @Public()
+  @ApiOperation({ summary: 'Обработать шаг пошаговой регистрации' })
+  @ApiResponse({ status: 200, description: 'Следующий шаг или завершение', type: AuthStepResponseDto })
+  async processRegisterStep(
+    @Body() dto: RegisterStepDto,
+    @Req() req: Request,
+  ): Promise<AuthStepResponseDto> {
+    const userAgent = req.get('User-Agent') || undefined;
+    const ipAddress = req.ip || req.socket?.remoteAddress || undefined;
+
+    try {
+      // Создаем sessionId, если его нет (для первого шага)
+      const sessionId = dto.sessionId || `register-session-${Date.now()}-${Math.random()}`;
+
+      // Валидация данных шага
+      console.log('🔍 [processRegisterStep] Before validation, dto.stepId:', dto.stepId, 'dto.data:', JSON.stringify(dto.data, null, 2));
+      const validation = await this.authFlowService.validateStepData(dto.stepId, dto.data);
+      console.log('🔍 [processRegisterStep] Validation result:', JSON.stringify(validation, null, 2));
+      if (!validation.valid) {
+        console.error('❌ [processRegisterStep] Validation failed:', validation.error);
+        throw new BadRequestException(validation.error);
+      }
+
+      // Получить следующий шаг
+      const nextStep = await this.authFlowService.getNextStep(dto.stepId, 'registration');
+      const isLastStep = await this.authFlowService.isLastStep(dto.stepId, 'registration');
+
+      // Обработка в зависимости от типа шага
+      switch (dto.stepId) {
+        case 'phone-email':
+          const contact = dto.data.contact || dto.data.login;
+          const contactType = dto.data.type || (contact?.includes('@') ? 'email' : 'phone');
+          
+          if (!contact) {
+            throw new BadRequestException('Contact (email or phone) is required');
+          }
+
+          // Проверяем, не существует ли уже пользователь
+          const existingUser = contactType === 'email' 
+            ? await this.usersService.findByEmail(contact)
+            : await this.usersService.findByPhone(contact);
+          
+          if (existingUser) {
+            throw new BadRequestException('User with this contact already exists. Please login.');
+          }
+
+          // Если следующий шаг - это код, отправляем код автоматически
+          if (nextStep && (nextStep.id === 'sms-code' || nextStep.id === 'email-code')) {
+            try {
+              console.log(`📧 [processRegisterStep] Отправка кода для ${contact}, тип: ${contactType}`);
+              const sendCodeResult = await this.sendCode({
+                contact: contact,
+                type: contactType,
+                sessionId: sessionId,
+              });
+              console.log(`✅ [processRegisterStep] Код отправлен успешно:`, sendCodeResult);
+            } catch (error) {
+              console.error('❌ [processRegisterStep] Ошибка отправки кода:', error);
+              // Не прерываем процесс, просто логируем ошибку
+            }
+          }
+          
+          return {
+            success: true,
+            sessionId: sessionId,
+            nextStep: nextStep ? {
+              id: nextStep.id,
+              name: nextStep.name,
+              type: nextStep.type,
+            } : undefined,
+            completed: false,
+            message: 'Contact verified, proceed to next step',
+            tempData: { contact, type: contactType }
+          };
+
+        case 'first-name':
+        case 'name':
+          console.log('🔍 [processRegisterStep] first-name step, dto.data:', JSON.stringify(dto.data, null, 2));
+          if (!dto.data.firstName) {
+            console.error('❌ [processRegisterStep] firstName is missing in dto.data:', dto.data);
+            throw new BadRequestException('First name is required');
+          }
+          // Объединяем с предыдущими данными из tempData (фронтенд передает все в combinedData)
+          const firstNameTempData = {
+            ...(dto.data.contact && { contact: dto.data.contact }),
+            ...(dto.data.type && { type: dto.data.type }),
+            ...(dto.data.lastName && { lastName: dto.data.lastName }),
+            firstName: dto.data.firstName
+          };
+          console.log('✅ [processRegisterStep] firstNameTempData:', JSON.stringify(firstNameTempData, null, 2));
+          return {
+            success: true,
+            sessionId: sessionId,
+            nextStep: nextStep ? {
+              id: nextStep.id,
+              name: nextStep.name,
+              type: nextStep.type,
+            } : undefined,
+            completed: false,
+            message: 'First name saved',
+            tempData: firstNameTempData
+          };
+
+        case 'last-name':
+        case 'surname':
+          if (!dto.data.lastName) {
+            throw new BadRequestException('Last name is required');
+          }
+          // Объединяем с предыдущими данными из tempData
+          const lastNameTempData = {
+            ...(dto.data.contact && { contact: dto.data.contact }),
+            ...(dto.data.type && { type: dto.data.type }),
+            ...(dto.data.firstName && { firstName: dto.data.firstName }),
+            lastName: dto.data.lastName
+          };
+          return {
+            success: true,
+            sessionId: sessionId,
+            nextStep: nextStep ? {
+              id: nextStep.id,
+              name: nextStep.name,
+              type: nextStep.type,
+            } : undefined,
+            completed: false,
+            message: 'Last name saved',
+            tempData: lastNameTempData
+          };
+
+        case 'inn':
+          if (!dto.data.inn) {
+            throw new BadRequestException('INN is required');
+          }
+          
+          // Объединяем с предыдущими данными из tempData (фронтенд передает все в combinedData)
+          const innTempData = {
+            ...(dto.data.contact && { contact: dto.data.contact }),
+            ...(dto.data.type && { type: dto.data.type }),
+            ...(dto.data.firstName && { firstName: dto.data.firstName }),
+            ...(dto.data.lastName && { lastName: dto.data.lastName }),
+            ...(dto.data.password && { password: dto.data.password }),
+            inn: dto.data.inn
+          };
+          
+          // Если следующий шаг - это код, отправляем код автоматически
+          if (nextStep && (nextStep.id === 'sms-code' || nextStep.id === 'email-code')) {
+            const contact = dto.data.contact || '';
+            const contactType = dto.data.type || (contact.includes('@') ? 'email' : 'phone');
+            if (contact) {
+              try {
+                await this.sendCode({
+                  contact: contact,
+                  type: contactType,
+                  sessionId: sessionId,
+                });
+              } catch (error) {
+                console.error('Ошибка отправки кода:', error);
+                // Не прерываем процесс, просто логируем ошибку
+              }
+            }
+          }
+          
+          // Если это последний шаг, вызываем completeRegisterFlow
+          if (isLastStep) {
+            // Собираем все данные из dto.data (они должны быть накоплены через tempData на фронтенде)
+            const allData = {
+              ...(dto.data.contact && { contact: dto.data.contact }),
+              ...(dto.data.type && { type: dto.data.type }),
+              ...(dto.data.firstName && { firstName: dto.data.firstName }),
+              ...(dto.data.lastName && { lastName: dto.data.lastName }),
+              ...(dto.data.password && { password: dto.data.password }),
+              inn: dto.data.inn,
+            };
+            
+            return this.completeRegisterFlow(
+              { ...dto, sessionId, data: allData },
+              req as any,
+            );
+          }
+          
+          return {
+            success: true,
+            sessionId: sessionId,
+            nextStep: nextStep ? {
+              id: nextStep.id,
+              name: nextStep.name,
+              type: nextStep.type,
+            } : undefined,
+            completed: false,
+            message: 'INN saved',
+            tempData: innTempData
+          };
+
+        case 'password':
+          if (!dto.data.password) {
+            throw new BadRequestException('Password is required');
+          }
+          
+          // Если это регистрация и есть подтверждение пароля, проверяем совпадение
+          if (dto.data.passwordConfirm) {
+            if (dto.data.passwordConfirm !== dto.data.password) {
+              throw new BadRequestException('Passwords do not match');
+            }
+          }
+          
+          // Объединяем с предыдущими данными из tempData (фронтенд передает все в combinedData)
+          const passwordTempData = {
+            ...(dto.data.contact && { contact: dto.data.contact }),
+            ...(dto.data.type && { type: dto.data.type }),
+            ...(dto.data.firstName && { firstName: dto.data.firstName }),
+            ...(dto.data.lastName && { lastName: dto.data.lastName }),
+            ...(dto.data.inn && { inn: dto.data.inn }),
+            password: dto.data.password
+          };
+          
+          // Если следующий шаг - это код, отправляем код автоматически
+          if (nextStep && (nextStep.id === 'sms-code' || nextStep.id === 'email-code')) {
+            const contact = dto.data.contact || '';
+            const contactType = dto.data.type || (contact.includes('@') ? 'email' : 'phone');
+            if (contact) {
+              try {
+                await this.sendCode({
+                  contact: contact,
+                  type: contactType,
+                  sessionId: sessionId,
+                });
+              } catch (error) {
+                console.error('Ошибка отправки кода:', error);
+                // Не прерываем процесс, просто логируем ошибку
+              }
+            }
+          }
+          
+          // Если это последний шаг, вызываем completeRegisterFlow
+          if (isLastStep) {
+            // Собираем все данные из dto.data (они должны быть накоплены через tempData на фронтенде)
+            const allData = {
+              ...(dto.data.contact && { contact: dto.data.contact }),
+              ...(dto.data.type && { type: dto.data.type }),
+              ...(dto.data.firstName && { firstName: dto.data.firstName }),
+              ...(dto.data.lastName && { lastName: dto.data.lastName }),
+              ...(dto.data.inn && { inn: dto.data.inn }),
+              password: dto.data.password, // Используем оригинальный пароль, не подтверждение
+            };
+            
+            return this.completeRegisterFlow(
+              { ...dto, sessionId, data: allData },
+              req as any,
+            );
+          }
+          
+          return {
+            success: true,
+            sessionId: sessionId,
+            nextStep: nextStep ? {
+              id: nextStep.id,
+              name: nextStep.name,
+              type: nextStep.type,
+            } : undefined,
+            completed: false,
+            message: 'Password saved',
+            tempData: passwordTempData
+          };
+
+        default:
+          throw new BadRequestException(`Unsupported registration step: ${dto.stepId}`);
+      }
+    } catch (error) {
+      console.error('Error in processRegisterStep:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * ✅ НОВЫЙ ENDPOINT: Завершить регистрацию
+   */
+  @Post('flow/register/complete')
+  @Public()
+  @ApiOperation({ summary: 'Завершить регистрацию' })
+  @ApiResponse({ status: 200, description: 'Регистрация завершена, выданы токены', type: AuthStepResponseDto })
+  async completeRegisterFlow(
+    @Body() dto: RegisterStepDto,
+    @Req() req: Request,
+  ): Promise<AuthStepResponseDto> {
+    const userAgent = req.get('User-Agent') || undefined;
+    const ipAddress = req.ip || req.socket?.remoteAddress || undefined;
+
+    try {
+      if (!dto.sessionId) {
+        throw new BadRequestException('Session ID is required');
+      }
+
+      // Собираем все данные из dto.data (они должны быть накоплены через tempData)
+      // Используем password, а не passwordConfirm
+      const { contact, type, firstName, lastName, password, passwordConfirm, inn } = dto.data;
+      
+      // Используем password (не passwordConfirm) для создания пользователя
+      const finalPassword = password || passwordConfirm;
+      
+      // Нормализуем contact
+      const normalizedContact = type === 'email' ? contact?.toLowerCase().trim() : contact?.trim();
+
+      if (!contact || !type || !finalPassword) {
+        throw new BadRequestException('Missing required registration data: contact, type, and password are required');
+      }
+
+      // Проверяем, не существует ли уже пользователь
+      const existingUser = type === 'email' 
+        ? await this.usersService.findByEmail(normalizedContact)
+        : await this.usersService.findByPhone(normalizedContact);
+      
+      if (existingUser) {
+        throw new BadRequestException('User with this contact already exists');
+      }
+
+      // Создаем пользователя через UsersService напрямую, так как RegisterDto не поддерживает phone
+      const salt = await bcrypt.genSalt(12);
+      const passwordHash = await bcrypt.hash(finalPassword, salt);
+
+      const newUser = await this.usersService.create({
+        email: type === 'email' ? normalizedContact : undefined,
+        phone: type === 'phone' ? normalizedContact : undefined,
+        passwordHash,
+        firstName: firstName || '',
+        lastName: lastName || '',
+        inn: inn || null,
+        emailVerified: type === 'email',
+        phoneVerified: type === 'phone',
+      });
+
+      // Генерируем токены
+      const accessToken = await this.authService.generateAccessToken(newUser);
+      const refreshToken = await this.authService.generateRefreshToken(newUser, userAgent, ipAddress);
+
+      // Логируем регистрацию
+      try {
+        await this.auditService.log({
+          userId: newUser.id,
+          service: 'Auth',
+          action: 'registration_completed',
+          resource: 'user',
+          requestData: { contact, type, hasInn: !!inn },
+          statusCode: 200,
+          ipAddress: ipAddress || 'unknown',
+          userAgent: userAgent || 'unknown',
+          userRoles: [],
+          userPermissions: [],
+        });
+      } catch (auditError) {
+        console.error('Error logging registration event:', auditError);
+      }
+
+      return {
+        success: true,
+        completed: true,
+        accessToken,
+        refreshToken,
+        user: {
+          id: newUser.id,
+          email: newUser.email,
+          firstName: newUser.firstName,
+          lastName: newUser.lastName,
+        },
+        message: 'Registration successful',
+      };
+    } catch (error) {
+      console.error('Error in completeRegisterFlow:', error);
+      throw error;
+    }
   }
 }

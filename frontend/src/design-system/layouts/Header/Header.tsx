@@ -84,13 +84,42 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center gap-4">
             {/* Поиск скрыт на мобильных (xl), отображается на десктопе */}
             {showSearch && (
-              <div className="relative w-[200px] sm:w-[300px] m-0 p-0 hidden xl:block">
+              <form autoComplete="off" onSubmit={(e) => e.preventDefault()} className="relative w-[200px] sm:w-[300px] m-0 p-0 hidden xl:block">
+                {/* Скрытое поле-обманка для браузера */}
+                <input type="text" name="fake-email" autoComplete="off" style={{ position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none' }} tabIndex={-1} />
                 <Input
-                  type="text"
+                  type="search"
+                  name="q"
+                  id="header-search-input"
                   placeholder={t('common.search', { defaultValue: 'Search...' })}
                   rightIcon={<Icon name="search" size="sm" className={themeClasses.text.secondary} />}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  spellCheck="false"
+                  data-lpignore="true"
+                  data-form-type="other"
+                  data-1p-ignore="true"
+                  data-dashlane-ignore="true"
+                  data-bitwarden-ignore="true"
+                  role="searchbox"
+                  aria-label="Search"
+                  onFocus={(e) => {
+                    // Очищаем поле при фокусе, если там что-то автозаполнилось
+                    const target = e.target as HTMLInputElement;
+                    if (target.value && (target.value.includes('@') || target.value.includes('mail'))) {
+                      target.value = '';
+                    }
+                  }}
+                  onInput={(e) => {
+                    // Очищаем поле при вводе, если там что-то автозаполнилось
+                    const target = e.target as HTMLInputElement;
+                    if (target.value && (target.value.includes('@') || target.value.includes('mail'))) {
+                      target.value = '';
+                    }
+                  }}
                 />
-              </div>
+              </form>
             )}
             
             {actions}

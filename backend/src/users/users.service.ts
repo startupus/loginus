@@ -43,35 +43,108 @@ export class UsersService {
   ) {}
 
   async findById(id: string, options?: { select?: string[]; relations?: string[] }): Promise<User | null> {
-    return this.usersRepo.findOne({
-      where: { id },
-      select: options?.select as any,
-      relations: options?.relations || [
-        'organizations', 
-        'teams', 
-        'userRoleAssignments', 
-        'userRoleAssignments.role', 
-        'userRoleAssignments.role.permissions',
-        'userRoleAssignments.organizationRole',
-        'userRoleAssignments.teamRole'
-      ],
-    });
+    try {
+      return await this.usersRepo.findOne({
+        where: { id },
+        select: options?.select as any,
+        relations: options?.relations || [
+          'organizations', 
+          'teams', 
+          'userRoleAssignments', 
+          'userRoleAssignments.role', 
+          'userRoleAssignments.role.permissions',
+          'userRoleAssignments.organizationRole',
+          'userRoleAssignments.teamRole'
+        ],
+      });
+    } catch (error: any) {
+      // Если ошибка связана с отсутствующим полем primaryRecoveryMethod, используем queryBuilder
+      if (error?.message?.includes('primaryRecoveryMethod')) {
+        const queryBuilder = this.usersRepo.createQueryBuilder('user')
+          .where('user.id = :id', { id });
+        
+        if (options?.select) {
+          queryBuilder.select(options.select.map(field => `user.${field}`));
+        }
+        
+        const relations = options?.relations || [
+          'organizations', 
+          'teams', 
+          'userRoleAssignments', 
+          'userRoleAssignments.role', 
+          'userRoleAssignments.role.permissions',
+          'userRoleAssignments.organizationRole',
+          'userRoleAssignments.teamRole'
+        ];
+        
+        relations.forEach(relation => {
+          queryBuilder.leftJoinAndSelect(`user.${relation}`, relation);
+        });
+        
+        return queryBuilder.getOne();
+      }
+      throw error;
+    }
   }
 
   async findByEmail(email: string, options?: { select?: string[]; relations?: string[] }): Promise<User | null> {
-    return this.usersRepo.findOne({
-      where: { email },
-      select: options?.select as any,
-      relations: options?.relations as any,
-    });
+    // Нормализуем email: приводим к нижнему регистру и убираем пробелы
+    const normalizedEmail = email?.toLowerCase().trim();
+    try {
+      return await this.usersRepo.findOne({
+        where: { email: normalizedEmail },
+        select: options?.select as any,
+        relations: options?.relations as any,
+      });
+    } catch (error: any) {
+      // Если ошибка связана с отсутствующим полем primaryRecoveryMethod, используем queryBuilder
+      if (error?.message?.includes('primaryRecoveryMethod')) {
+        const queryBuilder = this.usersRepo.createQueryBuilder('user')
+          .where('user.email = :email', { email: normalizedEmail });
+        
+        if (options?.select) {
+          queryBuilder.select(options.select.map(field => `user.${field}`));
+        }
+        
+        if (options?.relations) {
+          options.relations.forEach(relation => {
+            queryBuilder.leftJoinAndSelect(`user.${relation}`, relation);
+          });
+        }
+        
+        return queryBuilder.getOne();
+      }
+      throw error;
+    }
   }
 
   async findByPhone(phone: string, options?: { select?: string[]; relations?: string[] }): Promise<User | null> {
-    return this.usersRepo.findOne({
-      where: { phone },
-      select: options?.select as any,
-      relations: options?.relations as any,
-    });
+    try {
+      return await this.usersRepo.findOne({
+        where: { phone },
+        select: options?.select as any,
+        relations: options?.relations as any,
+      });
+    } catch (error: any) {
+      // Если ошибка связана с отсутствующим полем primaryRecoveryMethod, используем queryBuilder
+      if (error?.message?.includes('primaryRecoveryMethod')) {
+        const queryBuilder = this.usersRepo.createQueryBuilder('user')
+          .where('user.phone = :phone', { phone });
+        
+        if (options?.select) {
+          queryBuilder.select(options.select.map(field => `user.${field}`));
+        }
+        
+        if (options?.relations) {
+          options.relations.forEach(relation => {
+            queryBuilder.leftJoinAndSelect(`user.${relation}`, relation);
+          });
+        }
+        
+        return queryBuilder.getOne();
+      }
+      throw error;
+    }
   }
 
   async create(userData: Partial<User>): Promise<User> {
@@ -79,6 +152,26 @@ export class UsersService {
     await this.eventBus.emit(USER_EVENTS.BEFORE_CREATE, {
       userData,
     });
+
+    // Нормализуем email: приводим к нижнему регистру и убираем пробелы
+    if (userData.email) {
+      userData.email = userData.email.toLowerCase().trim();
+    }
+    // Нормализуем телефон: убираем пробелы
+    if (userData.phone) {
+      userData.phone = userData.phone.trim();
+    }
+
+    // Устанавливаем primaryRecoveryMethod по умолчанию, если не указан
+    if (!userData.primaryRecoveryMethod) {
+      if (userData.email) {
+        userData.primaryRecoveryMethod = 'email';
+      } else if (userData.phone) {
+        userData.primaryRecoveryMethod = 'phone';
+      } else {
+        userData.primaryRecoveryMethod = 'email'; // По умолчанию email
+      }
+    }
 
     const user = this.usersRepo.create(userData);
     const savedUser = await this.usersRepo.save(user);

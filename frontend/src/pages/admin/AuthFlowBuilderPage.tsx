@@ -94,14 +94,13 @@ const AuthFlowBuilderPage: React.FC = () => {
   const saveMutation = useMutation({
     mutationFn: (methods: AuthMethod[]) => authFlowApi.updateAuthFlow(methods),
     onSuccess: () => {
-      // Сбрасываем флаг несохраненных изменений
-      setHasUnsavedChanges(false);
       // Инвалидируем кэш публичного алгоритма авторизации, чтобы формы входа/регистрации обновились
       queryClient.invalidateQueries({ queryKey: ['auth-flow-public'] });
-      // Обновляем данные из API, но только после небольшой задержки, чтобы дать серверу время обработать запрос
+      // Обновляем данные из API после задержки, чтобы дать серверу время обработать запрос
+      // НЕ сбрасываем hasUnsavedChanges сразу - это сделает useEffect после загрузки обновленных данных
       setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: ['authFlow'] });
-      }, 100);
+      }, 500); // Увеличиваем задержку до 500ms для надежности
     },
     onError: () => {
       // При ошибке сохраняем флаг, чтобы не перезаписывать состояние
@@ -151,6 +150,21 @@ const AuthFlowBuilderPage: React.FC = () => {
       
       // Обновляем состояние, сравнивая структуру данных
       setAuthMethods(prevMethods => {
+        // Если есть несохраненные изменения, используем локальное состояние как источник истины
+        // и только обновляем имена методов из API (для поддержки смены языка)
+        if (hasUnsavedChanges) {
+          return prevMethods.map(prevMethod => {
+            const apiMethod = methodsWithNames.find(
+              m => m.id === prevMethod.id && m.flow === prevMethod.flow
+            );
+            if (apiMethod) {
+              // Обновляем только имя, сохраняя остальные свойства из локального состояния
+              return { ...prevMethod, name: apiMethod.name };
+            }
+            return prevMethod;
+          });
+        }
+        
         // Если есть локальные методы, которых нет в API (недавно добавленные), сохраняем их
         const localOnlyMethods = prevMethods.filter(prevMethod => 
           !methodsWithNames.some(apiMethod => 
@@ -278,6 +292,33 @@ const AuthFlowBuilderPage: React.FC = () => {
       setIsInitialLoad(false);
     }
   }, [isLoading, authFlowData]);
+
+  // Проверяем синхронизацию после сохранения: если данные из API соответствуют локальному состоянию, сбрасываем флаг
+  useEffect(() => {
+    if (!hasUnsavedChanges || isLoading || saveMutation.isPending || !authFlowData) return;
+
+    // Сравниваем структуру данных из API с локальным состоянием
+    const apiMethods = [
+      ...(authFlowData.login || []).map((m: any) => ({ ...m, flow: 'login' as const })),
+      ...(authFlowData.registration || []).map((m: any) => ({ ...m, flow: 'registration' as const })),
+      ...(authFlowData.factors || []).map((m: any) => ({ ...m, flow: 'factors' as const })),
+    ];
+
+    // Создаем ключи для сравнения (без имен, только структура)
+    const apiKeys = apiMethods
+      .map(m => `${m.id}-${m.flow}-${m.order}-${m.enabled ? '1' : '0'}-${m.isPrimary ? '1' : '0'}`)
+      .sort()
+      .join(',');
+    const localKeys = authMethods
+      .map(m => `${m.id}-${m.flow}-${m.order}-${m.enabled ? '1' : '0'}-${m.isPrimary ? '1' : '0'}`)
+      .sort()
+      .join(',');
+
+    // Если структуры совпадают, значит сохранение применилось - сбрасываем флаг
+    if (apiKeys === localKeys) {
+      setHasUnsavedChanges(false);
+    }
+  }, [authFlowData, authMethods, hasUnsavedChanges, isLoading, saveMutation.isPending]);
 
   // Автосохранение при изменении методов (только после первой загрузки и если методы действительно изменились)
   useEffect(() => {

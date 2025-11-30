@@ -178,8 +178,8 @@ export const CodeInput = forwardRef<CodeInputRef, CodeInputProps>(({
   };
 
   return (
-    <div className="code-input">
-      <div className="flex gap-2 justify-center">
+    <div className="code-input w-full">
+      <div className="flex gap-3 justify-center items-center">
         {currentOtp.map((digit, index) => (
           <input
             key={index}
@@ -197,17 +197,20 @@ export const CodeInput = forwardRef<CodeInputRef, CodeInputProps>(({
             disabled={disabled}
             autoFocus={autoFocus && index === 0}
             className={`
-              flex w-14 h-14 items-center justify-center rounded-lg 
-              border p-2 text-center 
-              text-2xl font-medium outline-none 
-              focus:ring-2
+              w-12 h-14 sm:w-14 sm:h-16
+              flex items-center justify-center 
+              rounded-lg border-2 text-center
+              text-2xl sm:text-3xl font-semibold
+              outline-none transition-all duration-150
               disabled:opacity-50 disabled:cursor-not-allowed
-              ${themeClasses.background.default}
-              ${themeClasses.text.primary}
+              ${themeClasses.background.default || 'bg-gray-800 dark:bg-gray-700'}
+              ${themeClasses.text.primary || 'text-white'}
               ${
                 error && error.trim() !== ''
-                  ? `border-error focus:border-error focus:ring-error/20` 
-                  : `${themeClasses.border.default} focus:border-primary focus:ring-primary/20`
+                  ? `border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20` 
+                  : digit 
+                    ? `border-blue-500 bg-blue-500/10 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20`
+                    : `${themeClasses.border.default || 'border-gray-600 dark:border-gray-500'} focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20`
               }
             `}
             aria-label={t('codeInput.digit', 'Цифра {{index}} из {{total}}', { index: index + 1, total: length })}
@@ -215,7 +218,7 @@ export const CodeInput = forwardRef<CodeInputRef, CodeInputProps>(({
         ))}
       </div>
       {error && (
-        <p className="mt-2 text-sm text-error text-center" role="alert">
+        <p className="mt-4 text-sm text-red-500 text-center font-medium" role="alert">
           {error}
         </p>
       )}

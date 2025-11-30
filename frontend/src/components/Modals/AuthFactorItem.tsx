@@ -108,11 +108,12 @@ export const AuthFactorItem: React.FC<AuthFactorItemProps> = ({
           <>
             <button
               onClick={() => onToggle(factor.id)}
+              disabled={factor.required}
               className={`flex-shrink-0 w-12 h-6 rounded-full transition-colors duration-200 ${
                 factor.enabled
                   ? 'bg-primary'
                   : 'bg-gray-3 dark:bg-gray-2'
-              }`}
+              } ${factor.required ? 'opacity-50 cursor-not-allowed' : ''}`}
               aria-label={factor.enabled ? t('common.disable', 'Отключить') : t('common.enable', 'Включить')}
             >
               <span
@@ -122,8 +123,11 @@ export const AuthFactorItem: React.FC<AuthFactorItemProps> = ({
               />
             </button>
             <button
-              onClick={() => onRemove(factor.id)}
-              className="p-2 hover:bg-error/10 rounded-lg transition-colors text-error"
+              onClick={() => !factor.required && onRemove(factor.id)}
+              disabled={factor.required}
+              className={`p-2 hover:bg-error/10 rounded-lg transition-colors text-error ${
+                factor.required ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
               aria-label={t('common.remove', 'Удалить')}
             >
               <Icon name="trash" size="sm" />

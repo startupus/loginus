@@ -235,6 +235,21 @@ const DashboardPage: React.FC = () => {
     },
   });
 
+  // Загружаем виджеты из расширений (ПЕРЕД ранним return, чтобы соблюсти правила хуков)
+  const { data: extensionWidgets = [] } = useQuery<Extension[]>({
+    queryKey: ['extensions', 'widgets', 'enabled'],
+    queryFn: async () => {
+      try {
+        const response = await apiClient.get('/admin/extensions?type=widget&enabled=true');
+        // API возвращает { success: true, data: [...] }
+        return Array.isArray(response.data?.data) ? response.data.data : [];
+      } catch (error) {
+        console.error('[DashboardPage] Failed to fetch extension widgets:', error);
+        return [];
+      }
+    },
+  });
+
   // Синхронизируем данные пользователя из API с authStore
   // ВАЖНО: Сохраняем роль и права при обновлении, чтобы не потерять их
   useEffect(() => {
@@ -277,21 +292,6 @@ const DashboardPage: React.FC = () => {
 
   const dashboard = data?.data?.dashboard;
   const user = data?.data?.user;
-
-  // Загружаем виджеты из расширений
-  const { data: extensionWidgets = [] } = useQuery<Extension[]>({
-    queryKey: ['extensions', 'widgets', 'enabled'],
-    queryFn: async () => {
-      try {
-        const response = await apiClient.get('/admin/extensions?type=widget&enabled=true');
-        // API возвращает { success: true, data: [...] }
-        return Array.isArray(response.data?.data) ? response.data.data : [];
-      } catch (error) {
-        console.error('[DashboardPage] Failed to fetch extension widgets:', error);
-        return [];
-      }
-    },
-  });
 
   // Доступные системные виджеты
   const systemWidgets: AvailableWidget[] = [
@@ -634,7 +634,6 @@ const DashboardPage: React.FC = () => {
                       return (
                         <PluginWidget
                           key={widgetId}
-                          widgetId={widgetId}
                           slug={extensionWidget.slug}
                           title={extensionWidget.name}
                           description={extensionWidget.description}

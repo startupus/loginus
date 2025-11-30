@@ -40,7 +40,7 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3001
-      - FRONTEND_URL=http://localhost:3002
+      - FRONTEND_URL=http://localhost:3000
       - MOCK_BACKEND_URL=http://loginus-backend:3001
       - DB_HOST=loginus-db
       - DB_PORT=5432

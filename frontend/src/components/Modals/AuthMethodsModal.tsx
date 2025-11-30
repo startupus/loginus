@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   DndContext,
   closestCenter,
@@ -20,6 +21,7 @@ import { Button } from '@/design-system/primitives/Button';
 import { Icon } from '@/design-system/primitives/Icon';
 import { themeClasses } from '@/design-system/utils/themeClasses';
 import { AuthFactorItem } from './AuthFactorItem';
+import { securityApi } from '@/services/api/security';
 
 /**
  * Типы факторов аутентификации
@@ -63,11 +65,13 @@ export interface AuthMethodsModalProps {
   currentPath: AuthFactor[];
   connectedAccounts: string[]; // ID подключенных внешних аккаунтов
   onSave: (path: AuthFactor[]) => void;
+  userId?: string; // ID пользователя для добавления дополнительных факторов
 }
 
 /**
  * AuthMethodsModal - модальное окно для настройки способов входа
  * Позволяет пользователю настроить последовательность факторов аутентификации
+ * И добавить дополнительные факторы через API
  */
 export const AuthMethodsModal: React.FC<AuthMethodsModalProps> = ({
   isOpen,
@@ -75,9 +79,47 @@ export const AuthMethodsModal: React.FC<AuthMethodsModalProps> = ({
   currentPath = [],
   connectedAccounts = [],
   onSave,
+  userId,
 }) => {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const [authPath, setAuthPath] = useState<AuthFactor[]>(currentPath);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Синхронизация локального состояния с пропсами
+  useEffect(() => {
+    setAuthPath(currentPath);
+  }, [currentPath, isOpen]);
+
+  // Мутация для добавления дополнительного фактора через API
+  const addFactorMutation = useMutation({
+    mutationFn: async (method: string) => {
+      if (!userId) {
+        throw new Error('User ID is required');
+      }
+      const response = await securityApi.addAuthFactor(method);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-auth-factors'] });
+      queryClient.invalidateQueries({ queryKey: ['user-profile'] });
+    },
+  });
+
+  // Мутация для удаления дополнительного фактора через API
+  const removeFactorMutation = useMutation({
+    mutationFn: async (factorId: string) => {
+      if (!userId) {
+        throw new Error('User ID is required');
+      }
+      const response = await securityApi.removeAuthFactor(factorId);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-auth-factors'] });
+      queryClient.invalidateQueries({ queryKey: ['user-profile'] });
+    },
+  });
 
   // Настройка сенсоров для drag & drop
   const sensors = useSensors(
@@ -88,6 +130,9 @@ export const AuthMethodsModal: React.FC<AuthMethodsModalProps> = ({
   );
 
   // Все доступные факторы аутентификации
+  // Исключаем обязательные факторы из списка доступных для добавления
+  const mandatoryFactorIds = authPath.filter(f => f.required).map(f => f.id);
+  
   const allFactors: AuthFactor[] = [
     {
       id: 'password',
@@ -95,9 +140,9 @@ export const AuthMethodsModal: React.FC<AuthMethodsModalProps> = ({
       name: t('security.factors.password', 'Пароль'),
       description: t('security.factors.passwordDesc', 'Основной способ входа'),
       icon: 'key',
-      enabled: true,
-      required: true,
-      available: true,
+      enabled: authPath.some(f => f.type === 'password'),
+      required: false, // Пароль не обязателен для добавления, так как он уже в обязательных
+      available: !mandatoryFactorIds.includes('password'),
     },
     {
       id: 'email-code',
@@ -184,17 +229,52 @@ export const AuthMethodsModal: React.FC<AuthMethodsModalProps> = ({
   // Факторы, включенные в путь
   const enabledFactors = authPath.filter(f => f.enabled);
   
-  // Факторы, доступные для добавления
+  // Факторы, доступные для добавления (исключаем обязательные и уже добавленные)
   const availableFactors = allFactors.filter(
-    f => !authPath.some(p => p.id === f.id) && f.available
+    f => !authPath.some(p => p.id === f.id) && f.available && !f.required
   );
 
-  const handleAddFactor = (factor: AuthFactor) => {
-    setAuthPath([...authPath, { ...factor, enabled: true }]);
+  const handleAddFactor = async (factor: AuthFactor) => {
+    // Если userId указан, добавляем фактор через API
+    if (userId) {
+      setIsSaving(true);
+      try {
+        await addFactorMutation.mutateAsync(factor.type);
+        setAuthPath([...authPath, { ...factor, enabled: true }]);
+      } catch (error) {
+        console.error('Failed to add factor:', error);
+      } finally {
+        setIsSaving(false);
+      }
+    } else {
+      // Локальное добавление без API
+      setAuthPath([...authPath, { ...factor, enabled: true }]);
+    }
   };
 
-  const handleRemoveFactor = (factorId: string) => {
-    setAuthPath(authPath.filter(f => f.id !== factorId));
+  const handleRemoveFactor = async (factorId: string) => {
+    // Не позволяем удалять обязательные факторы
+    const factor = authPath.find(f => f.id === factorId);
+    if (factor?.required) {
+      console.warn('Cannot remove required factor:', factorId);
+      return;
+    }
+    
+    // Если userId указан, удаляем фактор через API
+    if (userId) {
+      setIsSaving(true);
+      try {
+        await removeFactorMutation.mutateAsync(factorId);
+        setAuthPath(authPath.filter(f => f.id !== factorId));
+      } catch (error) {
+        console.error('Failed to remove factor:', error);
+      } finally {
+        setIsSaving(false);
+      }
+    } else {
+      // Локальное удаление без API
+      setAuthPath(authPath.filter(f => f.id !== factorId));
+    }
   };
 
   const handleToggleFactor = (factorId: string) => {
@@ -349,7 +429,8 @@ export const AuthMethodsModal: React.FC<AuthMethodsModalProps> = ({
             <Button
               variant="primary"
               onClick={handleSave}
-              disabled={authPath.length === 0}
+              disabled={authPath.length === 0 || isSaving}
+              loading={isSaving}
             >
               {t('common.save', 'Сохранить')}
             </Button>

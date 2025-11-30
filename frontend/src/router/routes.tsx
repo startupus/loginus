@@ -10,9 +10,11 @@ const DashboardPage = lazy(() => import('@/pages/DashboardPage'));
 
 // Auth
 const AuthPage = lazy(() => import('@/pages/auth/AuthPage'));
+const AuthPageV2 = lazy(() => import('@/pages/auth/AuthPageV2')); // ✅ NEW: Dynamic Auth Flow
 const VerifyCodePage = lazy(() => import('@/pages/auth/VerifyCodePage'));
 const RegisterPage = lazy(() => import('@/pages/auth/RegisterPage'));
 const OnboardingPage = lazy(() => import('@/pages/auth/OnboardingPage'));
+const ResetPasswordPage = lazy(() => import('@/pages/auth/ResetPasswordPage')); // ✅ NEW: Password Reset
 
 // Dashboard (static import to avoid dynamic import fetch issues)
 
@@ -24,6 +26,11 @@ const FamilyPage = lazy(() => import('@/pages/FamilyPage'));
 const FamilyInvitePage = lazy(() => import('@/pages/FamilyInvitePage'));
 const WorkPage = lazy(() => import('@/pages/WorkPage'));
 const SecurityPage = lazy(() => import('@/pages/SecurityPage'));
+
+// ✅ NEW: Security Pages
+const RecoveryMethodsPage = lazy(() => import('@/pages/security/RecoveryMethodsPage'));
+const ActivityHistoryPage = lazy(() => import('@/pages/security/ActivityHistoryPage'));
+const DevicesPage = lazy(() => import('@/pages/security/DevicesPage'));
 
 // Finance
 const PayPage = lazy(() => import('@/pages/PayPage'));
@@ -67,9 +74,11 @@ export {
   AboutPage,
   FeaturesPage,
   AuthPage,
+  AuthPageV2, // ✅ NEW
   VerifyCodePage,
   RegisterPage,
   OnboardingPage,
+  ResetPasswordPage, // ✅ NEW
   DashboardPage,
   DataPage,
   PersonalDocumentsPage,
@@ -78,6 +87,9 @@ export {
   FamilyInvitePage,
   WorkPage,
   SecurityPage,
+  RecoveryMethodsPage, // ✅ NEW
+  ActivityHistoryPage, // ✅ NEW
+  DevicesPage, // ✅ NEW
   PayPage,
   SupportPage,
   HelpPage,

@@ -44,7 +44,8 @@ export class SecurityController {
     @Body() dto: { oldPassword: string; newPassword: string }
   ) {
     const userId = user?.userId || user?.id || user?.sub;
-    return this.securityService.changePassword(userId, dto.oldPassword, dto.newPassword);
+    const result = await this.securityService.changePassword(userId, dto.oldPassword, dto.newPassword);
+    return { success: true, ...result };
   }
 
   @Patch('auth-method')
@@ -67,6 +68,14 @@ export class SecurityController {
     return this.securityService.getAuthMethod(userId);
   }
 
+  @Get('recovery-methods')
+  @ApiOperation({ summary: 'Получить доступные способы восстановления' })
+  @ApiResponse({ status: 200, description: 'Список способов восстановления' })
+  async getRecoveryMethods(@CurrentUser() user: any) {
+    const userId = user?.userId || user?.id || user?.sub;
+    return this.securityService.getAvailableRecoveryMethods(userId);
+  }
+
   @Post('recovery-method/setup')
   @ApiOperation({ summary: 'Настроить способ восстановления' })
   @ApiResponse({ status: 200, description: 'Способ восстановления настроен' })
@@ -76,6 +85,20 @@ export class SecurityController {
   ) {
     const userId = user?.userId || user?.id || user?.sub;
     return this.securityService.setupRecoveryMethod(userId, dto.method);
+  }
+
+  @Post('logout-all')
+  @ApiOperation({ summary: 'Выйти со всех устройств' })
+  @ApiResponse({ status: 200, description: 'Выход выполнен со всех устройств' })
+  @ApiResponse({ status: 400, description: 'Ошибка выполнения' })
+  async logoutFromAllDevices(
+    @CurrentUser() user: any,
+    @Body() body: { keepCurrentSession?: boolean },
+    @Req() req: Request
+  ) {
+    const userId = user?.userId || user?.id || user?.sub;
+    const currentTokenId = body.keepCurrentSession ? user?.tokenId : undefined;
+    return this.securityService.logoutFromAllDevices(userId, currentTokenId, req);
   }
 }
 

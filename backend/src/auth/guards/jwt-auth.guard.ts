@@ -129,6 +129,12 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   handleRequest(err: any, user: any, info: any, context: ExecutionContext) {
     const request = context.switchToHttp().getRequest();
     
+    // Проверяем, является ли endpoint публичным ПЕРЕД проверкой user
+    const isPublic = this.reflector.getAllAndOverride<boolean>('isPublic', [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    
     // Если пользователь валидирован, устанавливаем его в request.user
     if (user) {
       console.log('✅ [JwtAuthGuard] handleRequest: Setting request.user for user:', user.userId || user.id || user.sub);
@@ -136,14 +142,10 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       return user;
     }
     
-    // Если ошибка, но это публичный эндпоинт, разрешаем доступ
-    const isPublic = this.reflector.getAllAndOverride<boolean>('isPublic', [
-      context.getHandler(),
-      context.getClass(),
-    ]);
-    
+    // Если это публичный эндпоинт, разрешаем доступ без пользователя
     if (isPublic) {
-      console.log('⚠️ [JwtAuthGuard] handleRequest: Public endpoint, allowing access without user');
+      console.log('✅ [JwtAuthGuard] handleRequest: Public endpoint, allowing access without user');
+      request.user = null;
       return null; // Разрешаем доступ, но user остается null
     }
     

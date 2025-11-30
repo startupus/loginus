@@ -51,6 +51,7 @@ import { EmailCodeService } from './micro-modules/email-code/email-code.service'
 import { NfaService } from './services/nfa.service';
 import { NfaController } from './controllers/nfa.controller';
 import { OAuthService } from './services/oauth.service';
+import { AuthFlowService } from './services/auth-flow.service';
 import { GitHubTwoFactorService } from './micro-modules/two-factor/github/github-2fa.service';
 import { EventsModule } from '../core/events/events.module';
 
@@ -122,6 +123,7 @@ import { EventsModule } from '../core/events/events.module';
     GitHubTwoFactorService, // GitHub 2FA сервис для nFA
     OAuthService, // OAuth сервис
     EmailCodeService, // Email код сервис
+    AuthFlowService, // ✅ Auth Flow сервис для пошаговой аутентификации
   ],
   exports: [
     AuthService, 
@@ -134,6 +136,7 @@ import { EventsModule } from '../core/events/events.module';
     VKontakteAuthService,
     GosuslugiAuthService,
     EmailCodeService,
+    AuthFlowService, // ✅ Экспортируем AuthFlowService
   ],
 })
 export class AuthModule {}

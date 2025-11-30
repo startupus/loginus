@@ -35,6 +35,9 @@ export class User {
   @Column({ type: 'varchar', length: 100, nullable: true })
   lastName: string;
 
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  inn: string | null;
+
   @Column({ type: 'varchar', length: 500, nullable: true })
   avatarUrl: string;
 
@@ -69,6 +72,10 @@ export class User {
   // Активные способы аутентификации
   @Column({ type: 'jsonb', default: '["EMAIL"]' })
   availableAuthMethods: AuthMethodType[];
+
+  // Основной способ восстановления пароля
+  @Column({ type: 'varchar', length: 20, nullable: true, default: 'email', select: false })
+  primaryRecoveryMethod: 'email' | 'phone' | null;
 
   // Удалены одиночные связи - теперь только ManyToMany
 

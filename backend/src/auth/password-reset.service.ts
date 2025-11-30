@@ -117,34 +117,82 @@ export class PasswordResetService {
    * Проверка валидности токена восстановления
    */
   async validateResetToken(token: string): Promise<{ valid: boolean; user?: any }> {
-    const resetToken = await this.passwordResetTokensRepo.findOne({
-      where: { token },
-      relations: ['user'],
-    });
+    console.log('🔍 [validateResetToken] Validating token:', token?.substring(0, 20) + '...');
+    
+    try {
+      // Сначала загружаем токен без relations, чтобы избежать проблем с primaryRecoveryMethod
+      const resetToken = await this.passwordResetTokensRepo.findOne({
+        where: { token },
+      });
 
-    if (!resetToken) {
+      if (!resetToken) {
+        console.log('❌ [validateResetToken] Token not found in database');
+        return { valid: false };
+      }
+
+      console.log('✅ [validateResetToken] Token found:', {
+        id: resetToken.id,
+        expiresAt: resetToken.expiresAt,
+        usedAt: resetToken.usedAt,
+        now: new Date(),
+      });
+
+      // Проверяем, не истек ли токен
+      if (resetToken.expiresAt < new Date()) {
+        console.log('❌ [validateResetToken] Token expired:', {
+          expiresAt: resetToken.expiresAt,
+          now: new Date(),
+          diff: resetToken.expiresAt.getTime() - new Date().getTime(),
+        });
+        return { valid: false };
+      }
+
+      // Проверяем, не использован ли токен
+      if (resetToken.usedAt) {
+        console.log('❌ [validateResetToken] Token already used:', resetToken.usedAt);
+        return { valid: false };
+      }
+
+      // Безопасно загружаем пользователя, избегая проблем с primaryRecoveryMethod
+      let user: User | null = null;
+      try {
+        user = await this.usersRepo.findOne({
+          where: { id: resetToken.userId },
+          select: ['id', 'email', 'firstName', 'lastName'],
+        });
+      } catch (userError: any) {
+        console.warn('⚠️ [validateResetToken] Error loading user, trying with query builder:', userError?.message);
+        // Fallback: используем query builder для безопасной загрузки
+        try {
+          const queryBuilder = this.usersRepo.createQueryBuilder('user')
+            .where('user.id = :userId', { userId: resetToken.userId })
+            .select(['user.id', 'user.email', 'user.firstName', 'user.lastName']);
+          user = await queryBuilder.getOne();
+        } catch (fallbackError) {
+          console.error('❌ [validateResetToken] Failed to load user even with query builder:', fallbackError);
+          return { valid: false };
+        }
+      }
+
+      if (!user) {
+        console.log('❌ [validateResetToken] User not found for token');
+        return { valid: false };
+      }
+
+      console.log('✅ [validateResetToken] Token is valid for user:', user.email);
+      return {
+        valid: true,
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+        },
+      };
+    } catch (error: any) {
+      console.error('❌ [validateResetToken] Error validating token:', error?.message, error);
       return { valid: false };
     }
-
-    // Проверяем, не истек ли токен
-    if (resetToken.expiresAt < new Date()) {
-      return { valid: false };
-    }
-
-    // Проверяем, не использован ли токен
-    if (resetToken.usedAt) {
-      return { valid: false };
-    }
-
-    return {
-      valid: true,
-      user: {
-        id: resetToken.user.id,
-        email: resetToken.user.email,
-        firstName: resetToken.user.firstName,
-        lastName: resetToken.user.lastName,
-      },
-    };
   }
 
   /**

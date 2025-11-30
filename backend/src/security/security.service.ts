@@ -223,18 +223,46 @@ export class SecurityService {
 
   async changePassword(userId: string, oldPassword: string, newPassword: string) {
     // Используем AuthService для смены пароля
-    const user = await this.usersService.findById(userId);
+    const user = await this.usersService.findById(userId, {
+      select: ['id', 'email', 'phone', 'passwordHash'],
+    });
     if (!user) {
       throw new Error('User not found');
     }
 
-    // Проверяем старый пароль
-    if (!user.email) {
-      throw new Error('User email is required');
+    // Проверяем старый пароль напрямую через bcrypt
+    if (!user.passwordHash) {
+      throw new Error('User password hash is required');
     }
-    try {
-      await this.authService.validateUser(user.email, oldPassword);
-    } catch (error) {
+    
+    // Проверяем, что oldPassword не пустой
+    if (!oldPassword || oldPassword.trim() === '') {
+      throw new Error('Текущий пароль обязателен');
+    }
+    
+    // Проверяем, что newPassword не пустой
+    if (!newPassword || newPassword.trim() === '') {
+      throw new Error('Новый пароль обязателен');
+    }
+    
+    // Проверяем минимальную длину нового пароля
+    if (newPassword.length < 6) {
+      throw new Error('Новый пароль должен содержать минимум 6 символов');
+    }
+    
+    console.log('🔍 [changePassword] Checking password for user:', userId);
+    console.log('🔍 [changePassword] Password hash exists:', !!user.passwordHash);
+    console.log('🔍 [changePassword] Old password provided:', !!oldPassword);
+    
+    // Проверяем, что passwordHash валидный (не null, не undefined, строка)
+    if (typeof user.passwordHash !== 'string' || user.passwordHash.trim() === '') {
+      throw new Error('Invalid password hash format');
+    }
+    
+    const isPasswordValid = await bcrypt.compare(oldPassword, user.passwordHash);
+    console.log('🔍 [changePassword] Password valid:', isPasswordValid);
+    
+    if (!isPasswordValid) {
       throw new Error('Invalid old password');
     }
 
@@ -331,6 +359,108 @@ export class SecurityService {
     };
   }
 
+  async getAvailableRecoveryMethods(userId: string) {
+    const user = await this.usersService.findById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    
+    // Определяем primaryRecoveryMethod по умолчанию, если его нет
+    // Используем безопасный доступ к полю, так как оно может отсутствовать в БД
+    let primaryRecoveryMethod: 'email' | 'phone' | null = null;
+    try {
+      primaryRecoveryMethod = (user as any).primaryRecoveryMethod;
+    } catch (e) {
+      // Поле может отсутствовать в БД
+    }
+    
+    if (!primaryRecoveryMethod) {
+      // Устанавливаем по умолчанию на основе доступных контактов
+      if (user.email) {
+        primaryRecoveryMethod = 'email';
+      } else if (user.phone) {
+        primaryRecoveryMethod = 'phone';
+      } else {
+        primaryRecoveryMethod = 'email'; // По умолчанию email
+      }
+    }
+    
+    const methods: Array<{
+      type: string;
+      contact: string;
+      verified: boolean;
+      primary: boolean;
+      icon: string;
+    }> = [];
+    
+    // Email
+    if (user.email) {
+      methods.push({
+        type: 'email',
+        contact: user.email,
+        verified: user.emailVerified,
+        primary: primaryRecoveryMethod === 'email' || (!primaryRecoveryMethod && user.primaryAuthMethod === 'EMAIL'),
+        icon: 'mail'
+      });
+    }
+    
+    // Phone / Telegram
+    if (user.phone || user.messengerMetadata?.telegram) {
+      methods.push({
+        type: 'phone_telegram',
+        contact: user.phone || user.messengerMetadata?.telegram?.username || 'Telegram',
+        verified: user.phoneVerified,
+        primary: primaryRecoveryMethod === 'phone' || (!primaryRecoveryMethod && user.primaryAuthMethod === 'PHONE_TELEGRAM'),
+        icon: 'message-circle'
+      });
+    }
+    
+    // GitHub
+    if (user.githubId) {
+      methods.push({
+        type: 'github',
+        contact: user.githubUsername || 'GitHub Account',
+        verified: user.githubVerified,
+        primary: user.primaryAuthMethod === 'GITHUB',
+        icon: 'github'
+      });
+    }
+    
+    // VKontakte
+    if (user.vkontakteId) {
+      methods.push({
+        type: 'vkontakte',
+        contact: 'VK Account',
+        verified: user.vkontakteVerified,
+        primary: false,
+        icon: 'user'
+      });
+    }
+    
+    // Gosuslugi
+    if (user.gosuslugiId) {
+      methods.push({
+        type: 'gosuslugi',
+        contact: 'Gosuslugi Account',
+        verified: user.gosuslugiVerified,
+        primary: false,
+        icon: 'shield'
+      });
+    }
+    
+    // Возвращаем методы с правильной структурой
+    return {
+      success: true,
+      methods: methods.map(m => ({
+        type: m.type,
+        contact: m.contact,
+        verified: m.verified,
+        primary: m.primary,
+        icon: m.icon,
+      }))
+    };
+  }
+
   async setupRecoveryMethod(userId: string, method: 'email' | 'phone') {
     const user = await this.usersService.findById(userId);
     if (!user) {
@@ -343,6 +473,19 @@ export class SecurityService {
 
     if (method === 'phone' && !user.phone) {
       throw new Error('Phone not found');
+    }
+
+    // Сохраняем выбранный способ восстановления
+    // Используем безопасное обновление, так как поле может отсутствовать в БД
+    try {
+      await this.usersService.update(userId, { primaryRecoveryMethod: method });
+    } catch (error: any) {
+      // Если поле отсутствует в БД, просто логируем ошибку
+      if (error?.message?.includes('primaryRecoveryMethod')) {
+        console.warn('⚠️ [setupRecoveryMethod] Поле primaryRecoveryMethod отсутствует в БД, пропускаем сохранение');
+      } else {
+        throw error;
+      }
     }
 
     // Отправляем уведомление на email
@@ -368,6 +511,73 @@ export class SecurityService {
     if (userAgent.includes('Safari')) return 'Safari';
     if (userAgent.includes('Edge')) return 'Edge';
     return 'Unknown';
+  }
+
+  /**
+   * Выход со всех устройств
+   * Помечает все refresh tokens пользователя как revoked
+   * @param userId - ID пользователя
+   * @param currentTokenId - ID текущего токена (опционально, чтобы не отзывать текущую сессию)
+   * @param req - Request объект для логирования
+   */
+  async logoutFromAllDevices(
+    userId: string,
+    currentTokenId?: string,
+    req?: Request,
+  ): Promise<{ success: boolean; message: string; revokedCount: number }> {
+    if (!userId) {
+      throw new Error('User ID is required');
+    }
+
+    try {
+      // 1. Получить все активные токены пользователя
+      const tokens = await this.refreshTokensRepo.find({
+        where: { userId, isRevoked: false },
+      });
+
+      // 2. Отметить все токены как revoked (кроме текущего, если указан)
+      let revokedCount = 0;
+      for (const token of tokens) {
+        // Если передан currentTokenId и это текущий токен, пропускаем
+        if (currentTokenId && token.id === currentTokenId) {
+          continue;
+        }
+        
+        token.isRevoked = true;
+        await this.refreshTokensRepo.save(token);
+        revokedCount++;
+      }
+
+      // 3. Залогировать событие в audit
+      const ipAddress = req?.ip || req?.socket?.remoteAddress || 'system';
+      const userAgent = req?.get('User-Agent') || 'system';
+      
+      await this.auditService.log({
+        userId,
+        service: 'security',
+        action: 'logout-all-devices',
+        resource: 'sessions',
+        requestData: {
+          totalTokens: tokens.length,
+          revokedCount,
+          keepCurrentSession: !!currentTokenId,
+        },
+        statusCode: 200,
+        ipAddress,
+        userAgent,
+        userRoles: [],
+        userPermissions: [],
+      });
+
+      return {
+        success: true,
+        message: 'Successfully logged out from all devices',
+        revokedCount,
+      };
+    } catch (error) {
+      console.error('Error in logoutFromAllDevices:', error);
+      throw error;
+    }
   }
 }
 

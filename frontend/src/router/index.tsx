@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouterProvider, Navigate, useLocation } from 'react-router-dom';
 import { Suspense } from 'react';
-import { LandingPage, AboutPage, FeaturesPage, AuthPage, VerifyCodePage, RegisterPage, OnboardingPage, DashboardPage, PersonalDocumentsPage, PersonalAddressesPage, FamilyPage, WorkPage, SecurityPage, DataPage, PayPage, SupportPage, HelpPage, AuthorizationHelpPage, RegistrationHelpPage, SecurityHelpPage, RecoveryHelpPage, KeyHelpPage, FamilyHelpPage, DataHelpPage, PaymentsHelpPage, AdminDashboardPage, UsersManagementPage, CompaniesManagementPage, CompanyDetailPage, AuthFlowBuilderPage, BackupSettingsPage, MenuSettingsPage, PaymentMethodsPage, ExtensionsManagerPage, PluginsUploadPage, WidgetsUploadPage, IframePage, EmbeddedAppPage, ErrorPage, FamilyInvitePage } from './routes';
+import { LandingPage, AboutPage, FeaturesPage, AuthPage, AuthPageV2, VerifyCodePage, RegisterPage, OnboardingPage, ResetPasswordPage, DashboardPage, PersonalDocumentsPage, PersonalAddressesPage, FamilyPage, WorkPage, SecurityPage, RecoveryMethodsPage, ActivityHistoryPage, DevicesPage, DataPage, PayPage, SupportPage, HelpPage, AuthorizationHelpPage, RegistrationHelpPage, SecurityHelpPage, RecoveryHelpPage, KeyHelpPage, FamilyHelpPage, DataHelpPage, PaymentsHelpPage, AdminDashboardPage, UsersManagementPage, CompaniesManagementPage, CompanyDetailPage, AuthFlowBuilderPage, BackupSettingsPage, MenuSettingsPage, PaymentMethodsPage, ExtensionsManagerPage, PluginsUploadPage, WidgetsUploadPage, IframePage, EmbeddedAppPage, ErrorPage, FamilyInvitePage } from './routes';
 import { LanguageRoute } from './LanguageRoute';
 import { AdminRoute } from './AdminRoute';
 import { themeClasses } from '../design-system/utils/themeClasses';
@@ -65,7 +65,7 @@ const router = createBrowserRouter([
     element: (
       <LanguageRoute>
         <Suspense fallback={<LoadingFallback />}>
-          <AuthPage />
+          <AuthPageV2 />
         </Suspense>
       </LanguageRoute>
     ),
@@ -88,6 +88,17 @@ const router = createBrowserRouter([
       <LanguageRoute>
         <Suspense fallback={<LoadingFallback />}>
           <RegisterPage />
+        </Suspense>
+      </LanguageRoute>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/:lang/auth/reset-password',
+    element: (
+      <LanguageRoute>
+        <Suspense fallback={<LoadingFallback />}>
+          <ResetPasswordPage />
         </Suspense>
       </LanguageRoute>
     ),
@@ -215,6 +226,42 @@ const router = createBrowserRouter([
       <LanguageRoute>
         <Suspense fallback={<LoadingFallback />}>
           <SecurityPage />
+        </Suspense>
+      </LanguageRoute>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
+    // ✅ NEW: Recovery Methods Page
+    path: '/:lang/security/recovery',
+    element: (
+      <LanguageRoute>
+        <Suspense fallback={<LoadingFallback />}>
+          <RecoveryMethodsPage />
+        </Suspense>
+      </LanguageRoute>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
+    // ✅ NEW: Activity History Page
+    path: '/:lang/security/activity',
+    element: (
+      <LanguageRoute>
+        <Suspense fallback={<LoadingFallback />}>
+          <ActivityHistoryPage />
+        </Suspense>
+      </LanguageRoute>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
+    // ✅ NEW: Devices Management Page
+    path: '/:lang/security/devices',
+    element: (
+      <LanguageRoute>
+        <Suspense fallback={<LoadingFallback />}>
+          <DevicesPage />
         </Suspense>
       </LanguageRoute>
     ),
