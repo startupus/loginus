@@ -14,12 +14,12 @@ export const GitHubLoginPage: React.FC = () => {
   const { login } = useAuthStore();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const processingRef = React.useRef(false); // ✅ Используем useRef для защиты от повторных вызовов
 
   useEffect(() => {
-    let isProcessing = false; // ✅ Защита от повторных вызовов (React StrictMode)
-    
     const handleGitHubCallback = async () => {
-      if (isProcessing) {
+      // ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Используем ref для защиты от повторных вызовов
+      if (processingRef.current) {
         console.log('[GitHubLoginPage] Already processing, skipping...');
         return;
       }
@@ -33,7 +33,7 @@ export const GitHubLoginPage: React.FC = () => {
         return;
       }
 
-      isProcessing = true;
+      processingRef.current = true;
       
       try {
         console.log('[GitHubLoginPage] Processing GitHub callback with code:', code.substring(0, 10) + '...');
@@ -76,7 +76,7 @@ export const GitHubLoginPage: React.FC = () => {
         setError(errorMessage);
         setLoading(false);
       } finally {
-        isProcessing = false;
+        processingRef.current = false;
       }
     };
 
