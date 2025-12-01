@@ -7,7 +7,6 @@ import { Logo } from '../../primitives/Logo';
 import { Input } from '../../primitives/Input';
 import { useSidebar } from '../../hooks/useSidebar';
 import { useTheme } from '../../contexts';
-import { useLanguageStore } from '@/store';
 import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';
 import { themeClasses } from '../../utils/themeClasses';
 import { LanguageSwitcher } from '../../composites/LanguageSwitcher';
@@ -144,20 +143,32 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     item.children && openDropdown === item.path && item.active ? '!bg-primary/10 dark:!bg-primary/20' : ''
                   }`}>
                     <button
-                      onClick={() => {
-                        // При клике на кнопку всегда делаем переход (если есть path)
-                        // Дропдаун открывается только при клике на стрелочку
-                        if (item.type === 'external' && item.externalUrl) {
-                          if (item.openInNewTab) {
-                            window.open(item.externalUrl, '_blank');
-                          } else {
-                            window.location.href = item.externalUrl;
-                          }
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        if (item.children && item.children.length > 0) {
+                          // Для элементов с детьми - переключаем дропдаун
+                          toggleDropdown(item.path);
                         } else {
-                          // Обычный переход - используем navigationPath, если есть, иначе path
-                          const targetPath = item.navigationPath || item.path;
-                          if (targetPath) {
-                            onNavigate ? onNavigate(targetPath) : navigate(targetPath);
+                          // Для элементов без детей - выполняем навигацию
+                          // При клике на обычный пункт закрываем все открытые дропдауны
+                          if (openDropdown) {
+                            toggleDropdown(openDropdown);
+                          }
+                          // Обработка кастомных типов
+                          if (item.type === 'external' && item.externalUrl) {
+                            if (item.openInNewTab) {
+                              window.open(item.externalUrl, '_blank');
+                            } else {
+                              window.location.href = item.externalUrl;
+                            }
+                          } else {
+                            // Обычный переход - используем navigationPath если есть, иначе path
+                            const targetPath = item.navigationPath || item.path;
+                            if (targetPath) {
+                              onNavigate ? onNavigate(targetPath) : navigate(targetPath);
+                            }
                           }
                         }
                       }}

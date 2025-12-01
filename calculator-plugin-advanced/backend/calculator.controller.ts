@@ -1,10 +1,7 @@
-import { Controller, Post, Body, UseGuards, Get, Query } from '@nestjs/common';
+import { Controller, Post, Body, Get, Query } from '@nestjs/common';
 import { IsString, IsNotEmpty } from 'class-validator';
-// Импорты будут разрешены при установке плагина
-// ВНИМАНИЕ: Пути должны быть скорректированы при установке
-import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
-import { EventBusService } from '../../../core/events/event-bus.service';
-import { PLUGIN_EVENTS } from '../../../core/events/events';
+// ✅ ИСПРАВЛЕНИЕ: Зависимости передаются через конструктор
+// EventBusService и PLUGIN_EVENTS будут переданы при создании экземпляра контроллера
 
 export class CalculateDto {
   @IsString()
@@ -15,11 +12,18 @@ export class CalculateDto {
 /**
  * Calculator Controller для плагина calculator-advanced
  * Этот файл устанавливается при загрузке плагина
+ * 
+ * ВАЖНО: Зависимости передаются через конструктор при создании экземпляра
  */
 @Controller('calculator')
-@UseGuards(JwtAuthGuard)
 export class CalculatorController {
-  constructor(private readonly eventBus: EventBusService) {}
+  private eventBus: any;
+  private PLUGIN_EVENTS: any;
+
+  constructor(eventBus?: any, pluginEvents?: any) {
+    this.eventBus = eventBus;
+    this.PLUGIN_EVENTS = pluginEvents;
+  }
 
   /**
    * Выполнить вычисление
@@ -43,11 +47,13 @@ export class CalculatorController {
       const result = this.safeEvaluate(expression);
 
       // Отправляем событие в EventBus
-      await this.eventBus.emit(PLUGIN_EVENTS.CALCULATION_DONE, {
-        expression,
-        result: result.toString(),
-        timestamp: new Date().toISOString(),
-      });
+      if (this.eventBus && this.PLUGIN_EVENTS) {
+        await this.eventBus.emit(this.PLUGIN_EVENTS.CALCULATION_DONE, {
+          expression,
+          result: result.toString(),
+          timestamp: new Date().toISOString(),
+        });
+      }
 
       return {
         success: true,
@@ -59,11 +65,13 @@ export class CalculatorController {
       };
     } catch (error) {
       // Отправляем событие об ошибке
-      await this.eventBus.emit(PLUGIN_EVENTS.CALCULATION_ERROR, {
-        expression,
-        error: error.message,
-        timestamp: new Date().toISOString(),
-      });
+      if (this.eventBus && this.PLUGIN_EVENTS) {
+        await this.eventBus.emit(this.PLUGIN_EVENTS.CALCULATION_ERROR, {
+          expression,
+          error: error.message,
+          timestamp: new Date().toISOString(),
+        });
+      }
 
       return {
         success: false,

@@ -99,14 +99,32 @@ export const IconPicker: React.FC<IconPickerProps> = ({ value, onChange, label }
       if (next && containerRef.current) {
         const rect = containerRef.current.getBoundingClientRect();
         const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
-        const maxHeight = Math.min(384, viewportHeight - rect.bottom - 16);
+        const dropdownHeight = 384; // Примерная высота выпадающего списка
+        const spaceBelow = viewportHeight - rect.bottom;
+        const spaceAbove = rect.top;
+        
+        // Если места внизу недостаточно, но есть место сверху - разворачиваем вверх
+        const shouldOpenUpward = spaceBelow < dropdownHeight && spaceAbove > spaceBelow;
+        
+        let top: number;
+        let maxHeight: number;
+        
+        if (shouldOpenUpward) {
+          // Разворачиваем вверх
+          maxHeight = Math.min(dropdownHeight, spaceAbove - 16);
+          top = rect.top - maxHeight - 8;
+        } else {
+          // Разворачиваем вниз (как раньше)
+          maxHeight = Math.min(dropdownHeight, spaceBelow - 16);
+          top = rect.bottom + 8;
+        }
 
         setDropdownStyle({
           position: 'fixed',
-          top: Math.min(rect.bottom + 8, viewportHeight - 16 - (maxHeight || 0)),
+          top: Math.max(8, top), // Минимум 8px от верха экрана
           left: rect.left,
           width: rect.width,
-          maxHeight: maxHeight > 0 ? maxHeight : 384,
+          maxHeight: maxHeight > 0 ? maxHeight : dropdownHeight,
         });
       }
       return next;
@@ -171,13 +189,13 @@ export const IconPicker: React.FC<IconPickerProps> = ({ value, onChange, label }
                   {t('common.noIconsFound', 'Иконки не найдены')}
                 </div>
               ) : (
-                <div className="grid grid-cols-6 gap-2">
+                <div className="grid grid-cols-8 gap-2">
                   {filteredIcons.map((iconName) => (
                     <button
                       key={iconName}
                       type="button"
                       onClick={() => handleIconSelect(iconName)}
-                      className={`flex flex-col items-center justify-center gap-1 p-3 rounded-lg border transition-all ${
+                      className={`flex items-center justify-center p-3 rounded-lg border transition-all ${
                         value === iconName
                           ? `${themeClasses.border.primary} ${themeClasses.background.primary} bg-primary/10`
                           : `${themeClasses.border.default} ${themeClasses.background.surface} hover:border-primary hover:bg-gray-1 dark:hover:bg-dark-3`
@@ -189,11 +207,6 @@ export const IconPicker: React.FC<IconPickerProps> = ({ value, onChange, label }
                         size="md" 
                         className={value === iconName ? themeClasses.text.primary : themeClasses.text.secondary}
                       />
-                      <span className={`text-xs truncate w-full text-center ${
-                        value === iconName ? themeClasses.text.primary : themeClasses.text.secondary
-                      }`}>
-                        {iconName.length > 8 ? `${iconName.slice(0, 6)}...` : iconName}
-                      </span>
                     </button>
                   ))}
                 </div>
