@@ -268,8 +268,8 @@ export class AuthController {
   async getPublicAuthFlow() {
     try {
       console.log('✅ [AuthController] getPublicAuthFlow called');
-      if (!this.settingsService) {
-        console.error('❌ [AuthController] SettingsService is not initialized');
+      if (!this.authFlowService) {
+        console.error('❌ [AuthController] AuthFlowService is not initialized');
         return {
           success: true,
           data: {
@@ -281,53 +281,45 @@ export class AuthController {
         };
       }
 
-      console.log('✅ [AuthController] SettingsService is initialized, calling getSetting...');
-      const raw = await this.settingsService.getSetting('auth_flow_config');
-      console.log('✅ [AuthController] getSetting returned:', raw ? 'has value' : 'null');
+      console.log('✅ [AuthController] AuthFlowService is initialized, calling getAuthFlowConfig...');
+      const config = await this.authFlowService.getAuthFlowConfig();
+      console.log('✅ [AuthController] getAuthFlowConfig returned:', config ? 'has config' : 'null');
 
-      if (!raw) {
-        return {
-          success: true,
-          data: {
-            login: [],
-            registration: [],
-            factors: [],
-            updatedAt: null,
-          },
-        };
-      }
-
-      try {
-        const parsed = JSON.parse(raw);
-        return {
-          success: true,
-          data: parsed,
-        };
-      } catch (parseError) {
-        console.error('❌ [AuthController] Error parsing auth_flow_config:', parseError);
-        return {
-          success: true,
-          data: {
-            login: [],
-            registration: [],
-            factors: [],
-            updatedAt: null,
-          },
-        };
-      }
-    } catch (error) {
-      console.error('❌ [AuthController] Error in getPublicAuthFlow:', error);
-      console.error('❌ [AuthController] Error stack:', error?.stack);
-      // Возвращаем дефолтную конфигурацию вместо ошибки
       return {
         success: true,
-        data: {
+        data: config || {
           login: [],
           registration: [],
           factors: [],
           updatedAt: null,
         },
       };
+    } catch (error) {
+      console.error('❌ [AuthController] Error in getPublicAuthFlow:', error);
+      console.error('❌ [AuthController] Error stack:', error?.stack);
+      // Возвращаем дефолтную конфигурацию через AuthFlowService
+      try {
+        const defaultConfig = await this.authFlowService?.getAuthFlowConfig();
+        return {
+          success: true,
+          data: defaultConfig || {
+            login: [],
+            registration: [],
+            factors: [],
+            updatedAt: null,
+          },
+        };
+      } catch {
+        return {
+          success: true,
+          data: {
+            login: [],
+            registration: [],
+            factors: [],
+            updatedAt: null,
+          },
+        };
+      }
     }
   }
 
@@ -1040,9 +1032,9 @@ export class AuthController {
         throw new BadRequestException(validation.error);
       }
 
-      // Получить следующий шаг
-      const nextStep = await this.authFlowService.getNextStep(dto.stepId, 'login');
-      const isLastStep = await this.authFlowService.isLastStep(dto.stepId, 'login');
+      // Получить следующий шаг (пока без информации о пользователе)
+      let nextStep = await this.authFlowService.getNextStep(dto.stepId, 'login');
+      let isLastStep = await this.authFlowService.isLastStep(dto.stepId, 'login');
 
       // Обработка в зависимости от типа шага
       switch (dto.stepId) {
@@ -1073,6 +1065,20 @@ export class AuthController {
           }
 
           const sessionId = dto.sessionId || `session-${Date.now()}-${Math.random()}`;
+          
+          // ✅ ИСПРАВЛЕНИЕ: Пересчитываем следующий шаг с учетом способа входа пользователя
+          // Если пользователь входит через EMAIL (почта + пароль), исключаем GitHub/Telegram
+          if (user) {
+            nextStep = await this.authFlowService.getNextStep(dto.stepId, 'login', {
+              primaryAuthMethod: user.primaryAuthMethod,
+              availableAuthMethods: user.availableAuthMethods
+            });
+            // Пересчитываем isLastStep с учетом способа входа пользователя
+            isLastStep = await this.authFlowService.isLastStep(dto.stepId, 'login', {
+              primaryAuthMethod: user.primaryAuthMethod,
+              availableAuthMethods: user.availableAuthMethods
+            });
+          }
           
           // Если следующий шаг - это код, отправляем код автоматически
           if (nextStep && (nextStep.id === 'sms-code' || nextStep.id === 'email-code' || nextStep.id === 'sms' || nextStep.id === 'email')) {
@@ -1137,6 +1143,17 @@ export class AuthController {
               tempData: loginResult
             };
           }
+
+          // ✅ ИСПРАВЛЕНИЕ: Пересчитываем следующий шаг с учетом способа входа пользователя
+          // Если пользователь входит через EMAIL (почта + пароль), исключаем GitHub/Telegram
+          nextStep = await this.authFlowService.getNextStep(dto.stepId, 'login', {
+            primaryAuthMethod: userForPassword.primaryAuthMethod,
+            availableAuthMethods: userForPassword.availableAuthMethods
+          });
+          isLastStep = await this.authFlowService.isLastStep(dto.stepId, 'login', {
+            primaryAuthMethod: userForPassword.primaryAuthMethod,
+            availableAuthMethods: userForPassword.availableAuthMethods
+          });
 
           // Логируем информацию о следующем шаге
           console.log(`📋 [loginStep password] nextStep:`, nextStep ? { id: nextStep.id, name: nextStep.name } : 'null');
@@ -1309,7 +1326,17 @@ export class AuthController {
 
     try {
       // Получаем первый шаг регистрации
-      const steps = await this.authFlowService.getRegistrationFlow();
+      let steps = await this.authFlowService.getRegistrationFlow();
+      
+      // ✅ ИСПРАВЛЕНИЕ: Исключаем шаги для GitHub/Telegram при регистрации через EMAIL
+      // При регистрации через phone-email это EMAIL способ, исключаем OAuth методы
+      steps = steps.filter(step => 
+        step.id !== 'github' && 
+        step.id !== 'telegram' &&
+        step.id !== 'oauth-github' &&
+        step.id !== 'oauth-telegram'
+      );
+      
       if (steps.length === 0) {
         throw new BadRequestException('Registration flow is not configured');
       }
@@ -1363,9 +1390,9 @@ export class AuthController {
         throw new BadRequestException(validation.error);
       }
 
-      // Получить следующий шаг
-      const nextStep = await this.authFlowService.getNextStep(dto.stepId, 'registration');
-      const isLastStep = await this.authFlowService.isLastStep(dto.stepId, 'registration');
+      // Получить следующий шаг (пока без информации о пользователе, т.к. это регистрация)
+      let nextStep = await this.authFlowService.getNextStep(dto.stepId, 'registration');
+      let isLastStep = await this.authFlowService.isLastStep(dto.stepId, 'registration');
 
       // Обработка в зависимости от типа шага
       switch (dto.stepId) {
@@ -1385,6 +1412,11 @@ export class AuthController {
           if (existingUser) {
             throw new BadRequestException('User with this contact already exists. Please login.');
           }
+
+          // ВАЖНО: При регистрации пользователя еще нет, поэтому не передаем параметр user
+          // GitHub/Telegram уже исключены в getRegistrationFlow(), последний шаг определяется на основе всех шагов из БД
+          nextStep = await this.authFlowService.getNextStep(dto.stepId, 'registration');
+          isLastStep = await this.authFlowService.isLastStep(dto.stepId, 'registration');
 
           // Если следующий шаг - это код, отправляем код автоматически
           if (nextStep && (nextStep.id === 'sms-code' || nextStep.id === 'email-code')) {
@@ -1422,6 +1454,24 @@ export class AuthController {
             console.error('❌ [processRegisterStep] firstName is missing in dto.data:', dto.data);
             throw new BadRequestException('First name is required');
           }
+          
+          // ВАЖНО: При регистрации пользователя еще нет, поэтому не передаем параметр user
+          // GitHub/Telegram уже исключены в getRegistrationFlow(), последний шаг определяется на основе всех шагов из БД
+          console.log('🔍 [processRegisterStep] name step - Getting registration flow...');
+          console.log('🔍 [processRegisterStep] Current stepId from dto:', dto.stepId);
+          
+          const registrationSteps = await this.authFlowService.getRegistrationFlow();
+          console.log('🔍 [processRegisterStep] name step - Got registration steps:', registrationSteps.length);
+          console.log('🔍 [processRegisterStep] All registration steps:', registrationSteps.map(s => `${s.id}(order=${s.order})`).join(', '));
+          
+          console.log('🔍 [processRegisterStep] name step - Getting next step...');
+          nextStep = await this.authFlowService.getNextStep(dto.stepId, 'registration');
+          console.log('🔍 [processRegisterStep] name step - Got nextStep:', nextStep ? nextStep.id : 'null');
+          
+          console.log('🔍 [processRegisterStep] name step - Checking if last step...');
+          isLastStep = await this.authFlowService.isLastStep(dto.stepId, 'registration');
+          console.log('🔍 [processRegisterStep] name step - isLastStep result:', isLastStep);
+          
           // Объединяем с предыдущими данными из tempData (фронтенд передает все в combinedData)
           const firstNameTempData = {
             ...(dto.data.contact && { contact: dto.data.contact }),
@@ -1430,6 +1480,27 @@ export class AuthController {
             firstName: dto.data.firstName
           };
           console.log('✅ [processRegisterStep] firstNameTempData:', JSON.stringify(firstNameTempData, null, 2));
+          
+          // Если это последний шаг, вызываем completeRegisterFlow
+          if (isLastStep) {
+            console.log('✅ [processRegisterStep] name step is last, calling completeRegisterFlow');
+            // Собираем все данные из dto.data (они должны быть накоплены через tempData на фронтенде)
+            const allData = {
+              ...(dto.data.contact && { contact: dto.data.contact }),
+              ...(dto.data.type && { type: dto.data.type }),
+              ...(dto.data.firstName && { firstName: dto.data.firstName }),
+              ...(dto.data.lastName && { lastName: dto.data.lastName }),
+              ...(dto.data.password && { password: dto.data.password }),
+              ...(dto.data.inn && { inn: dto.data.inn }),
+            };
+            
+            return this.completeRegisterFlow(
+              { ...dto, sessionId, data: allData },
+              req as any,
+            );
+          }
+          
+          console.log('⚠️ [processRegisterStep] name step is NOT last, returning nextStep:', nextStep ? nextStep.id : 'null');
           return {
             success: true,
             sessionId: sessionId,
@@ -1448,6 +1519,12 @@ export class AuthController {
           if (!dto.data.lastName) {
             throw new BadRequestException('Last name is required');
           }
+          
+          // ВАЖНО: При регистрации пользователя еще нет, поэтому не передаем параметр user
+          // GitHub/Telegram уже исключены в getRegistrationFlow(), последний шаг определяется на основе всех шагов из БД
+          nextStep = await this.authFlowService.getNextStep(dto.stepId, 'registration');
+          isLastStep = await this.authFlowService.isLastStep(dto.stepId, 'registration');
+          
           // Объединяем с предыдущими данными из tempData
           const lastNameTempData = {
             ...(dto.data.contact && { contact: dto.data.contact }),
@@ -1472,6 +1549,11 @@ export class AuthController {
           if (!dto.data.inn) {
             throw new BadRequestException('INN is required');
           }
+          
+          // ВАЖНО: При регистрации пользователя еще нет, поэтому не передаем параметр user
+          // GitHub/Telegram уже исключены в getRegistrationFlow(), последний шаг определяется на основе всех шагов из БД
+          nextStep = await this.authFlowService.getNextStep(dto.stepId, 'registration');
+          isLastStep = await this.authFlowService.isLastStep(dto.stepId, 'registration');
           
           // Объединяем с предыдущими данными из tempData (фронтенд передает все в combinedData)
           const innTempData = {
@@ -1543,6 +1625,11 @@ export class AuthController {
               throw new BadRequestException('Passwords do not match');
             }
           }
+          
+          // ВАЖНО: При регистрации пользователя еще нет, поэтому не передаем параметр user
+          // GitHub/Telegram уже исключены в getRegistrationFlow(), последний шаг определяется на основе всех шагов из БД
+          nextStep = await this.authFlowService.getNextStep(dto.stepId, 'registration');
+          isLastStep = await this.authFlowService.isLastStep(dto.stepId, 'registration');
           
           // Объединяем с предыдущими данными из tempData (фронтенд передает все в combinedData)
           const passwordTempData = {

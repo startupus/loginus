@@ -43,14 +43,26 @@ export class AuthFlowService {
       const configRaw = await this.settingsService.getSetting('auth_flow_config');
       
       if (!configRaw) {
-        return this.getDefaultConfig();
+        // Если конфигурации нет в БД, возвращаем пустую конфигурацию
+        // Администратор должен настроить её через админ-панель
+        this.logger.warn('Auth flow config not found in database. Please configure it via admin panel.');
+        return {
+          login: [],
+          registration: [],
+          factors: [],
+        };
       }
 
       const config = JSON.parse(configRaw);
       return config;
     } catch (error) {
       this.logger.error('Error loading auth flow config:', error);
-      return this.getDefaultConfig();
+      // При ошибке тоже возвращаем пустую конфигурацию
+      return {
+        login: [],
+        registration: [],
+        factors: [],
+      };
     }
   }
 
@@ -67,7 +79,20 @@ export class AuthFlowService {
    */
   async getRegistrationFlow(): Promise<AuthFlowStep[]> {
     const config = await this.getAuthFlowConfig();
-    return (config.registration || []).filter(step => step.enabled !== false).sort((a, b) => a.order - b.order);
+    let steps = (config.registration || []).filter(step => step.enabled !== false).sort((a, b) => a.order - b.order);
+    
+    // ВАЖНО: Исключаем шаги для GitHub/Telegram из регистрации
+    // GitHub и Telegram - это отдельные способы входа, они не учитываются в шагах регистрации
+    steps = steps.filter(step => 
+      step.id !== 'github' && 
+      step.id !== 'telegram' &&
+      step.id !== 'oauth-github' &&
+      step.id !== 'oauth-telegram'
+    );
+    
+    this.logger.log(`🔍 [getRegistrationFlow] Found ${steps.length} steps after filtering: ${steps.map(s => `${s.id}(order=${s.order})`).join(', ')}`);
+    
+    return steps;
   }
 
   /**
@@ -80,10 +105,34 @@ export class AuthFlowService {
 
   /**
    * Получить следующий шаг после текущего
+   * @param currentStepId - ID текущего шага
+   * @param flow - Тип потока (login или registration)
+   * @param user - Опционально: пользователь для фильтрации шагов по способу входа
    */
-  async getNextStep(currentStepId: string, flow: 'login' | 'registration'): Promise<AuthFlowStep | null> {
-    const steps = flow === 'login' ? await this.getLoginFlow() : await this.getRegistrationFlow();
-    const currentIndex = steps.findIndex(step => step.id === currentStepId);
+  async getNextStep(
+    currentStepId: string, 
+    flow: 'login' | 'registration',
+    user?: { primaryAuthMethod?: string; availableAuthMethods?: string[] }
+  ): Promise<AuthFlowStep | null> {
+    // ВАЖНО: Берем ВСЕ шаги из конфигурации БД
+    const allSteps = flow === 'login' ? await this.getLoginFlow() : await this.getRegistrationFlow();
+    
+    // Исключаем только шаги GitHub/Telegram (они отдельные способы входа, не учитываются в шагах)
+    const steps = allSteps.filter(step => 
+      step.id !== 'github' && 
+      step.id !== 'telegram' &&
+      step.id !== 'oauth-github' &&
+      step.id !== 'oauth-telegram'
+    );
+    
+    // Нормализуем currentStepId: 'name' и 'first-name' - это одно и то же
+    const normalizedCurrentStepId = currentStepId === 'name' || currentStepId === 'first-name' ? 'name' : currentStepId;
+    
+    // Ищем текущий шаг, учитывая что 'name' и 'first-name' - это одно и то же
+    const currentIndex = steps.findIndex(step => {
+      const normalizedStepIdFromConfig = step.id === 'name' || step.id === 'first-name' ? 'name' : step.id;
+      return normalizedStepIdFromConfig === normalizedCurrentStepId;
+    });
     
     if (currentIndex === -1 || currentIndex === steps.length - 1) {
       return null; // Текущий шаг не найден или это последний шаг
@@ -94,14 +143,54 @@ export class AuthFlowService {
 
   /**
    * Проверить, является ли шаг последним в потоке
+   * @param stepId - ID шага
+   * @param flow - Тип потока (login или registration)
+   * @param user - Опционально: пользователь для фильтрации шагов по способу входа
    */
-  async isLastStep(stepId: string, flow: 'login' | 'registration'): Promise<boolean> {
-    const steps = flow === 'login' ? await this.getLoginFlow() : await this.getRegistrationFlow();
-    const step = steps.find(s => s.id === stepId);
+  async isLastStep(
+    stepId: string, 
+    flow: 'login' | 'registration',
+    user?: { primaryAuthMethod?: string; availableAuthMethods?: string[] }
+  ): Promise<boolean> {
+    // ВАЖНО: Берем ВСЕ шаги из конфигурации БД, без фильтрации GitHub/Telegram
+    // Telegram и GitHub - это отдельные способы входа, они не учитываются в шагах
+    const allSteps = flow === 'login' ? await this.getLoginFlow() : await this.getRegistrationFlow();
     
-    if (!step) return false;
+    // Исключаем только шаги GitHub/Telegram из проверки (они отдельные способы входа)
+    const steps = allSteps.filter(step => 
+      step.id !== 'github' && 
+      step.id !== 'telegram' &&
+      step.id !== 'oauth-github' &&
+      step.id !== 'oauth-telegram'
+    );
     
-    return step.order === Math.max(...steps.map(s => s.order));
+    // Нормализуем stepId: 'name' и 'first-name' - это одно и то же
+    const normalizedStepId = stepId === 'name' || stepId === 'first-name' ? 'name' : stepId;
+    
+    // Ищем шаг по ID, учитывая что 'name' и 'first-name' - это одно и то же
+    const step = steps.find(s => {
+      const normalizedStepIdFromConfig = s.id === 'name' || s.id === 'first-name' ? 'name' : s.id;
+      return normalizedStepIdFromConfig === normalizedStepId;
+    });
+    
+    if (!step) {
+      this.logger.warn(`Step ${stepId} (normalized: ${normalizedStepId}) not found in ${flow} flow. Available steps: ${steps.map(s => s.id).join(', ')}`);
+      return false;
+    }
+    
+    // Определяем последний шаг на основе ВСЕХ шагов из конфигурации (после исключения GitHub/Telegram)
+    // Используем индекс в массиве, так как шаги уже отсортированы по order
+    // Нормализуем ID шагов для сравнения
+    const stepIndex = steps.findIndex(s => {
+      const normalizedStepIdFromConfig = s.id === 'name' || s.id === 'first-name' ? 'name' : s.id;
+      return normalizedStepIdFromConfig === normalizedStepId;
+    });
+    const isLast = stepIndex === steps.length - 1;
+    
+    this.logger.log(`🔍 [isLastStep] stepId=${stepId} (normalized: ${normalizedStepId}), stepIndex=${stepIndex}, totalSteps=${steps.length}, isLast=${isLast}`);
+    this.logger.log(`🔍 [isLastStep] steps (excluding GitHub/Telegram): ${steps.map(s => `${s.id}(order=${s.order})`).join(', ')}`);
+    
+    return isLast;
   }
 
   /**
@@ -216,70 +305,14 @@ export class AuthFlowService {
 
   /**
    * Получить дефолтную конфигурацию
+   * ВАЖНО: Конфигурация должна настраиваться через админ-панель и храниться в БД
+   * Этот метод возвращает пустую конфигурацию, если в БД нет настроек
    */
   private getDefaultConfig(): AuthFlowConfig {
+    // Возвращаем пустую конфигурацию - шаги должны настраиваться через админ-панель
     return {
-      login: [
-        {
-          id: 'phone-email',
-          name: 'Phone or Email',
-          icon: 'mail',
-          enabled: true,
-          isPrimary: true,
-          order: 1,
-          type: 'primary',
-        },
-        {
-          id: 'password',
-          name: 'Password',
-          icon: 'lock',
-          enabled: true,
-          isPrimary: false,
-          order: 2,
-          type: 'alternative',
-        },
-        {
-          id: 'email-code',
-          name: 'Email Code',
-          icon: 'mail',
-          enabled: true,
-          isPrimary: false,
-          order: 3,
-          type: 'verification',
-          stepType: 'auth-method',
-        },
-      ],
-      registration: [
-        {
-          id: 'phone-email',
-          name: 'Phone or Email',
-          icon: 'mail',
-          enabled: true,
-          isPrimary: true,
-          order: 1,
-          type: 'primary',
-        },
-        {
-          id: 'password',
-          name: 'Password',
-          icon: 'lock',
-          enabled: true,
-          isPrimary: false,
-          order: 2,
-          type: 'alternative',
-        },
-        {
-          id: 'name',
-          name: 'First Name',
-          icon: 'user',
-          enabled: true,
-          isPrimary: false,
-          order: 3,
-          type: 'registration-field',
-          stepType: 'field',
-          fieldType: 'name',
-        },
-      ],
+      login: [],
+      registration: [],
       factors: [],
     };
   }

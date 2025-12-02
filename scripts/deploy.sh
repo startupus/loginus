@@ -24,7 +24,9 @@ fi
 
 # Загружаем переменные окружения
 if [ -f .env.production ]; then
-  export $(cat .env.production | grep -v '^#' | xargs)
+  set -a
+  source .env.production
+  set +a
 fi
 
 # Останавливаем старые контейнеры

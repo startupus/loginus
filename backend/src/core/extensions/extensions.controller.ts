@@ -135,6 +135,7 @@ export class ExtensionsController {
   async getExtensions(
     @Query('type') extensionType?: string,
     @Query('enabled') enabled?: string,
+    @Query('excludeWidgets') excludeWidgets?: string, // ✅ НОВЫЙ ПАРАМЕТР: исключить виджеты
   ) {
     const filters: any = {};
 
@@ -146,7 +147,13 @@ export class ExtensionsController {
       filters.enabled = enabled === 'true';
     }
 
-    const extensions = await this.registry.findAll(filters);
+    let extensions = await this.registry.findAll(filters);
+
+    // ✅ ИСПРАВЛЕНИЕ: Если excludeWidgets=true, исключаем виджеты из списка
+    // Виджеты не должны быть доступны для выбора при создании пункта меню
+    if (excludeWidgets === 'true') {
+      extensions = extensions.filter(ext => ext.extensionType !== 'widget');
+    }
 
     return {
       success: true,

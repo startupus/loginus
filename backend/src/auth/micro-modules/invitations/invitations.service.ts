@@ -1413,7 +1413,7 @@ export class InvitationsService {
 
       await this.invitationsRepo.save(invitation);
 
-      const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3002';
+      const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'https://loginus.startapus.com';
       const invitationLink = `${frontendUrl}/invitation?token=${token}`;
 
       const result: InvitationResponseDto = {

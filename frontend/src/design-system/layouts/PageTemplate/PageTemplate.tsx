@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 // Lazy load Sidebar - не критичен для первого рендера (оптимизация первой загрузки)
-const Sidebar = lazy(() => import('../Sidebar').then(m => ({ default: m.Sidebar })));
+const Sidebar = lazy(() => import('../Sidebar/Sidebar').then(m => ({ default: m.Sidebar })));
 import type { SidebarItem } from '../Sidebar/Sidebar';
 // Lazy load Footer - не критичен для первой загрузки (оптимизация производительности)
 const Footer = lazy(() => import('../Footer').then(m => ({ default: m.Footer })));
@@ -12,7 +12,7 @@ const MobileBottomNav = lazy(() => import('../MobileBottomNav').then(m => ({ def
 import { Header } from '../Header';
 import { useAuthStore } from '@/store';
 import { useCurrentLanguage, buildPathWithLang } from '@/utils/routing';
-import { SidebarProvider, useSidebar } from '../../hooks';
+import { SidebarProvider, useSidebar } from '@/design-system/hooks';
 import { themeClasses } from '../../utils/themeClasses';
 import { menuSettingsApi, MenuItemConfig } from '@/services/api/menu-settings';
 
@@ -138,8 +138,28 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
       // Для внешних ссылок используем специальный путь или externalUrl
       path = item.path || item.externalUrl || '#';
       navigationPath = path;
+    } else if (item.systemId) {
+      // ✅ ИСПРАВЛЕНИЕ: Для системных разделов ВСЕГДА используем дефолтные пути (игнорируем path из API)
+      const systemPaths: Record<string, string> = {
+        'profile': '/dashboard',
+        'data': '/data',
+        'security': '/security',
+        'family': '/family',
+        'work': '/work',
+        'payments': '/pay',
+        'support': '/support',
+      };
+      const defaultPath = systemPaths[item.systemId];
+      if (defaultPath) {
+        path = buildPathWithLang(defaultPath, currentLang);
+        navigationPath = path;
+      } else if (item.path) {
+        // Если systemId не найден в systemPaths, используем path из API
+        path = buildPathWithLang(item.path, currentLang);
+        navigationPath = path;
+      }
     } else if (item.path) {
-      // Для системных пунктов добавляем язык
+      // Для несистемных пунктов добавляем язык
       path = buildPathWithLang(item.path, currentLang);
       navigationPath = path;
     }
@@ -195,7 +215,7 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
     const sidebarItem: SidebarItem = {
       label: resolveMenuItemLabel(item),
       path,
-      navigationPath: navigationPath !== path ? navigationPath : undefined, // Добавляем только если отличается
+      navigationPath: navigationPath !== path ? navigationPath : path, // Используем path, если navigationPath не отличается (для системных разделов)
       icon: finalIcon,
       type: item.type,
       externalUrl: item.externalUrl,
@@ -205,6 +225,17 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
       embeddedAppUrl: item.embeddedAppUrl,
       active: isParentActive,
     };
+    
+    // Логируем системные разделы для отладки
+    if (item.systemId) {
+      console.log('[PageTemplate] Converted system item:', {
+        systemId: item.systemId,
+        originalPath: item.path,
+        finalPath: path,
+        navigationPath: sidebarItem.navigationPath,
+        label: sidebarItem.label
+      });
+    }
 
     // Добавляем children, если они есть
     if (filteredChildren.length > 0) {
@@ -433,6 +464,11 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
     // Всегда логируем для отладки
     if (menuItemsFromApi.length > 0) {
       console.log('[PageTemplate] Menu items from API:', menuItemsFromApi.map(item => ({ id: item.id, icon: item.icon, systemId: item.systemId, enabled: item.enabled, hasChildren: !!item.children, path: item.path, order: item.order })));
+      // Логируем системные разделы отдельно
+      const systemItems = menuItemsFromApi.filter(item => item.systemId);
+      if (systemItems.length > 0) {
+        console.log('[PageTemplate] System items from API:', systemItems.map(item => ({ systemId: item.systemId, path: item.path, label: item.label || item.name })));
+      }
     }
     
     // Если API вернул данные (даже пустой массив), используем их

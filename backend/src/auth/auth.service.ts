@@ -372,6 +372,7 @@ export class AuthService {
             'isActive',
             'emailVerified',
             'twoFactorEnabled',
+            'primaryAuthMethod',
           ],
           relations: [
             'organizations',
@@ -406,6 +407,16 @@ export class AuthService {
         reason: 'User not found',
       });
       throw new UnauthorizedException('Пользователь не найден');
+    }
+
+    // ✅ ИСПРАВЛЕНИЕ: При входе через email/phone проверяем, что у пользователя есть passwordHash
+    // Это гарантирует, что мы не входим в GitHub/Telegram аккаунт через обычный логин
+    if (isEmail && !user.passwordHash) {
+      await this.eventBus.emit(AUTH_EVENTS.LOGIN_FAILED, {
+        login: login,
+        reason: 'Account registered via OAuth, please use OAuth login',
+      });
+      throw new UnauthorizedException('Этот аккаунт зарегистрирован через GitHub/Telegram. Используйте вход через соответствующий сервис.');
     }
 
     console.log('🔍 User organizations:', user.organizations?.length || 0);

@@ -176,8 +176,13 @@
   font-family: 'Courier New', monospace;
   font-size: 13px;
   color: var(--text-primary);
-  overflow-x: auto;
+  overflow-x: visible;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  white-space: pre-wrap;
   line-height: 1.5;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* Responsive */

@@ -59,22 +59,15 @@ export class ExtensionUploadService {
       this.logger.debug(`Saved temporary .zip file: ${tempPath}`);
 
       // Extract .zip file
-      // Включаем тип расширения в slug, чтобы виджеты и плагины с одинаковым именем не конфликтовали
-      const slug = this.generateSlug(`${extensionType}-${name}`);
-      const finalPath = path.join(this.pluginsDirectory, slug);
-      await fs.mkdir(finalPath, { recursive: true });
-      extractPath = finalPath;
-
-      this.logger.debug(`Extracting .zip to: ${finalPath}`);
-      
-      // Use adm-zip to extract
       const zip = new AdmZip(tempPath);
-      zip.extractAllTo(finalPath, true);
+      
+      // Сначала извлекаем во временную директорию, чтобы прочитать manifest
+      const tempExtractPath = path.join(this.uploadsDirectory, `temp-${uuidv4()}`);
+      await fs.mkdir(tempExtractPath, { recursive: true });
+      zip.extractAllTo(tempExtractPath, true);
 
-      this.logger.debug(`Extraction complete`);
-
-      // Read manifest.json
-      const manifestPath = path.join(finalPath, 'manifest.json');
+      // Read manifest.json для получения правильного slug
+      const manifestPath = path.join(tempExtractPath, 'manifest.json');
       let manifest: any = {
         name,
         version: '1.0.0',
@@ -89,10 +82,39 @@ export class ExtensionUploadService {
         this.logger.warn(`No manifest.json found or invalid, using defaults`);
       }
 
+      // ✅ ИСПРАВЛЕНИЕ: Используем slug из манифеста, если он есть, иначе генерируем
+      const slug = manifest.name 
+        ? this.generateSlug(manifest.name)
+        : this.generateSlug(`${extensionType}-${name}`);
+      
+      const finalPath = path.join(this.pluginsDirectory, slug);
+      await fs.mkdir(finalPath, { recursive: true });
+      
+      // Перемещаем файлы из временной директории в финальную
+      const files = await fs.readdir(tempExtractPath);
+      for (const file of files) {
+        const sourceFile = path.join(tempExtractPath, file);
+        const targetFile = path.join(finalPath, file);
+        const stat = await fs.stat(sourceFile);
+        if (stat.isDirectory()) {
+          await fs.cp(sourceFile, targetFile, { recursive: true });
+        } else {
+          await fs.copyFile(sourceFile, targetFile);
+        }
+      }
+      
+      // Удаляем временную директорию
+      await fs.rm(tempExtractPath, { recursive: true, force: true });
+      
+      extractPath = finalPath;
+      this.logger.debug(`Extraction complete to: ${finalPath}`);
+
       // 🔥 УСТАНОВКА BACKEND КОДА (если есть)
       if (await this.hasBackendCode(finalPath)) {
         this.logger.log(`[ExtensionUploadService] Backend code detected, installing...`);
         await this.installBackendCode(finalPath, slug, manifest);
+        // ✅ ИСПРАВЛЕНИЕ: Компилируем TypeScript в JavaScript
+        await this.compilePluginBackend(slug, manifest);
       }
 
       // Check if extension already exists - if so, remove it first
@@ -345,18 +367,120 @@ export class ExtensionUploadService {
       this.logger.log(
         `[ExtensionUploadService] Backend code installed to: ${backendTargetPath}`,
       );
-
-      // TODO: Динамическая регистрация модуля в NestJS
-      // Это требует перезапуска приложения или использования динамических модулей
-      this.logger.warn(
-        `[ExtensionUploadService] Backend code installed but module registration requires app restart`,
-      );
     } catch (error) {
       this.logger.error(
         `[ExtensionUploadService] Failed to install backend code:`,
         error.message,
       );
       throw error;
+    }
+  }
+
+  /**
+   * Компилировать TypeScript backend плагина в JavaScript
+   */
+  private async compilePluginBackend(slug: string, manifest: any): Promise<void> {
+    if (!manifest?.backend?.enabled) {
+      return;
+    }
+
+    const backendPath = path.join(
+      process.cwd(),
+      'uploads',
+      'plugins-backend',
+      slug,
+    );
+
+    try {
+      const { exec } = require('child_process');
+      const { promisify } = require('util');
+      const execAsync = promisify(exec);
+
+      // Проверяем наличие TypeScript файлов
+      const controllerPath = path.join(
+        backendPath,
+        manifest.backend.controllerPath.replace('backend/', ''),
+      );
+
+      try {
+        await fs.access(controllerPath);
+      } catch {
+        this.logger.debug(`[ExtensionUploadService] No TypeScript files to compile for ${slug}`);
+        return;
+      }
+
+      // Компилируем TypeScript используя tsc из node_modules
+      const tscPath = path.join(process.cwd(), 'node_modules', '.bin', 'tsc');
+      
+      try {
+        // Создаем временный tsconfig.json для компиляции плагина
+        const tsconfigPath = path.join(backendPath, 'tsconfig.json');
+        const tsconfig = {
+          compilerOptions: {
+            target: 'ES2020',
+            module: 'commonjs',
+            lib: ['ES2020'],
+            outDir: './',
+            rootDir: './',
+            strict: false,
+            esModuleInterop: true,
+            skipLibCheck: true,
+            forceConsistentCasingInFileNames: true,
+            resolveJsonModule: true,
+            moduleResolution: 'node',
+            allowSyntheticDefaultImports: true,
+            emitDecoratorMetadata: true, // ✅ КРИТИЧНО: Сохраняет метаданные для декораторов NestJS
+            experimentalDecorators: true, // ✅ КРИТИЧНО: Включает поддержку декораторов
+            types: ['node', '@nestjs/common', '@nestjs/core'], // ✅ Добавляем типы NestJS
+          },
+          include: ['*.ts'],
+          exclude: ['node_modules'],
+        };
+
+        await fs.writeFile(tsconfigPath, JSON.stringify(tsconfig, null, 2));
+
+        // Компилируем
+        this.logger.log(`[ExtensionUploadService] Compiling TypeScript for plugin ${slug}...`);
+        try {
+          const { stdout, stderr } = await execAsync(`node "${tscPath}" --project "${tsconfigPath}" --outDir "${backendPath}"`, {
+            cwd: backendPath,
+            maxBuffer: 1024 * 1024 * 10, // 10MB
+          });
+          
+          if (stderr && !stderr.includes('warning')) {
+            this.logger.warn(`[ExtensionUploadService] TypeScript compilation warnings: ${stderr}`);
+          }
+          
+          this.logger.log(`[ExtensionUploadService] TypeScript compiled successfully for ${slug}`);
+        } catch (compileError) {
+          // Если компиляция не удалась, попробуем скомпилировать файлы по отдельности
+          this.logger.warn(`[ExtensionUploadService] Standard compilation failed, trying individual files...`);
+          try {
+            // Компилируем контроллер отдельно
+            const controllerFile = manifest.backend.controllerPath.replace('backend/', '');
+            await execAsync(`node "${tscPath}" "${controllerFile}" --outDir "${backendPath}" --module commonjs --target ES2020 --esModuleInterop --skipLibCheck`, {
+              cwd: backendPath,
+              maxBuffer: 1024 * 1024 * 10,
+            });
+            this.logger.log(`[ExtensionUploadService] TypeScript compiled successfully for ${slug} (individual file)`);
+          } catch (individualError) {
+            this.logger.error(`[ExtensionUploadService] TypeScript compilation failed: ${individualError.message}`);
+            throw individualError;
+          }
+        }
+      } catch (error) {
+        this.logger.warn(
+          `[ExtensionUploadService] Failed to compile TypeScript for ${slug}, will try to use ts-node:`,
+          error.message,
+        );
+        // Если компиляция не удалась, попробуем использовать ts-node при загрузке
+      }
+    } catch (error) {
+      this.logger.error(
+        `[ExtensionUploadService] Error compiling TypeScript for ${slug}:`,
+        error.message,
+      );
+      // Не прерываем установку, просто логируем ошибку
     }
   }
 

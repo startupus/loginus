@@ -4,6 +4,7 @@ import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: '/',
   test: {
     globals: true,
     environment: 'jsdom',
@@ -37,9 +38,9 @@ export default defineConfig({
       '45.144.176.42',
     ],
     hmr: {
-      clientPort: 3002,
-      host: 'localhost',
-      protocol: 'ws',
+      clientPort: 443,
+      host: 'loginus.startapus.com',
+      protocol: 'wss',
       timeout: 5000,
     },
     watch: {

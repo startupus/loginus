@@ -10,6 +10,7 @@ export interface PluginWidgetProps {
   description?: string;
   uiType?: string;
   manifest?: any;
+  config?: any; // Добавляем config для доступа к baseUrl
   icon?: string;
   onRemove?: (widgetId: string) => void;
   onDragStart?: (e: React.DragEvent, widgetId: string) => void;
@@ -31,6 +32,7 @@ export const PluginWidget: React.FC<PluginWidgetProps> = ({
   description,
   uiType,
   manifest,
+  config,
   icon,
   onRemove,
   onDragStart,
@@ -118,52 +120,66 @@ export const PluginWidget: React.FC<PluginWidgetProps> = ({
 
         {/* Content */}
         <div className="p-4">
-          {uiType === 'iframe' && (manifest?.ui?.entryFile || manifest?.config?.entrypoint) ? (
-            <iframe
-              ref={iframeRef}
-              src={manifest?.ui?.entryFile || `/uploads/plugins/${slug}/${manifest?.config?.entrypoint}`}
-              className="w-full border-0 rounded-lg"
-              style={{ 
-                height: iframeHeight ? `${iframeHeight}px` : 'auto',
-                minHeight: '200px',
-                maxHeight: '600px',
-                overflow: 'hidden'
-              }}
-              title={title}
-              sandbox="allow-scripts allow-same-origin"
-              scrolling="no"
-            />
-          ) : uiType === 'embedded' && (manifest?.ui?.entryFile || manifest?.config?.entrypoint) ? (
-            <iframe
-              ref={iframeRef}
-              src={manifest?.ui?.entryFile || `/uploads/plugins/${slug}/${manifest?.config?.entrypoint}`}
-              className="w-full border-0 rounded-lg"
-              style={{ 
-                height: iframeHeight ? `${iframeHeight}px` : 'auto',
-                minHeight: '200px',
-                maxHeight: '600px',
-                overflow: 'hidden'
-              }}
-              title={title}
-              sandbox="allow-scripts allow-same-origin"
-              scrolling="no"
-            />
-          ) : (
-            <div className="w-full h-64 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-lg">
-              <div className="text-center">
-                <Icon name="package" size="xl" className="text-primary mx-auto mb-2" />
-                <p className={themeClasses.text.primary}>{title}</p>
-                {description && (
-                  <p className={`text-sm ${themeClasses.text.secondary} mt-2 max-w-md`}>
-                    {description}
+          {(() => {
+            // Формируем правильный URL для виджета
+            const getWidgetUrl = () => {
+              // Если есть полный URL в manifest.ui.entryFile, используем его
+              if (manifest?.ui?.entryFile && manifest.ui.entryFile.startsWith('http')) {
+                return manifest.ui.entryFile;
+              }
+              
+              // Используем baseUrl из config, если есть
+              const baseUrl = config?.baseUrl || manifest?.config?.baseUrl || `/uploads/plugins/${slug}`;
+              const entrypoint = manifest?.ui?.entryFile || manifest?.config?.entrypoint || 'index.html';
+              
+              // Если entrypoint уже содержит полный путь, используем его
+              if (entrypoint.startsWith('http')) {
+                return entrypoint;
+              }
+              
+              // Если baseUrl уже содержит entrypoint, используем baseUrl
+              if (baseUrl.includes(entrypoint)) {
+                return baseUrl;
+              }
+              
+              // Формируем путь: baseUrl/entrypoint
+              return `${baseUrl}/${entrypoint}`.replace(/\/+/g, '/');
+            };
+            
+            const widgetUrl = getWidgetUrl();
+            
+            return (uiType === 'iframe' || uiType === 'embedded') && widgetUrl ? (
+              <iframe
+                ref={iframeRef}
+                src={widgetUrl}
+                className="w-full border-0 rounded-lg"
+                style={{ 
+                  height: iframeHeight ? `${iframeHeight}px` : 'auto',
+                  minHeight: '200px',
+                  maxHeight: '600px',
+                  overflow: 'hidden'
+                }}
+                title={title}
+                sandbox="allow-scripts allow-same-origin"
+                scrolling="no"
+              />
+            ) : (
+              <div className="w-full h-64 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-lg">
+                <div className="text-center">
+                  <Icon name="package" size="xl" className="text-primary mx-auto mb-2" />
+                  <p className={themeClasses.text.primary}>{title}</p>
+                  {description && (
+                    <p className={`text-sm ${themeClasses.text.secondary} mt-2 max-w-md`}>
+                      {description}
+                    </p>
+                  )}
+                  <p className={`text-xs ${themeClasses.text.secondary} mt-4`}>
+                    {t('admin.widgets.plugin.noUI', 'UI не настроен')}
                   </p>
-                )}
-                <p className={`text-xs ${themeClasses.text.secondary} mt-4`}>
-                  {t('admin.widgets.plugin.noUI', 'UI не настроен')}
-                </p>
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { Controller, Get, Post, Body } from '@nestjs/common';
 import { TelegramAuthMicroModuleService } from './telegram-auth.service';
+import { Public } from '../../../auth/decorators/public.decorator';
 
 @Controller('micro-modules/telegram-auth')
 export class TelegramAuthMicroModuleController {
@@ -28,9 +29,10 @@ export class TelegramAuthMicroModuleController {
   }
 
   /**
-   * Получение конфигурации модуля
+   * Получение конфигурации модуля (публичный эндпоинт для получения bot username)
    */
   @Get('config')
+  @Public()
   async getConfig() {
     return this.telegramAuthService.getConfig();
   }

@@ -383,7 +383,11 @@ export class GitHubAuthService {
     // Здесь должна быть логика создания нового пользователя в БД
     const primaryEmail = emailData.find(email => email.primary)?.email;
     // Если primary email не найден, берем первый verified email
-    let userEmail = primaryEmail || emailData.find(email => email.verified)?.email || `${userData.login}@github.local`;
+    const realGitHubEmail = primaryEmail || emailData.find(email => email.verified)?.email || null;
+    
+    // ✅ ИСПРАВЛЕНИЕ: Используем реальный email GitHub в основном поле email
+    // Если реальный email не найден, используем псевдо-email
+    let userEmail = realGitHubEmail || `${userData.login}@github.local`;
     
     // ✅ ИСПРАВЛЕНИЕ: Проверяем, не используется ли email другим аккаунтом
     // Если используется, создаем псевдо-email для нового аккаунта
@@ -395,15 +399,13 @@ export class GitHubAuthService {
       this.logger.log(`✅ Используем псевдо-email: ${userEmail}`);
     }
     
-    this.logger.log(`Creating GitHub user with email: ${userEmail} (primaryEmail: ${primaryEmail || 'not found'})`);
+    this.logger.log(`Creating GitHub user with email: ${userEmail} (realGitHubEmail: ${realGitHubEmail || 'not found'})`);
     
-    // Сохраняем реальный email GitHub в отдельное поле
-    const githubEmail = primaryEmail || emailData.find(email => email.verified)?.email || null;
-    
-    // Для email используем псевдо-email, если реальный уже занят
+    // ✅ ИСПРАВЛЕНИЕ: Используем реальный email GitHub в основном поле email
+    // Если реальный email занят другим аккаунтом, используем псевдо-email, но сохраняем реальный в githubEmail
     const newUser = this.usersRepo.create({
-      email: userEmail, // Псевдо-email или реальный, если не занят
-      githubEmail: githubEmail, // ✅ Реальный email от GitHub в отдельном поле
+      email: userEmail, // Реальный email GitHub или псевдо-email, если занят
+      githubEmail: realGitHubEmail, // ✅ Реальный email от GitHub (может быть null, если не найден)
       passwordHash: null, // OAuth users don't have a password
       firstName: userData.name?.split(' ')[0] || userData.login,
       lastName: userData.name?.split(' ').slice(1).join(' ') || '',
@@ -440,35 +442,19 @@ export class GitHubAuthService {
 
   private async assignDefaultRoleToUser(userId: string): Promise<void> {
     try {
-      // Проверяем, есть ли уже пользователи в системе
-      const userCount = await this.usersRepo.count();
-      const isFirstUser = userCount === 1; // Только что создали пользователя, поэтому count = 1
-      
-      let roleToAssign;
-      
-      if (isFirstUser) {
-        // Первый пользователь становится super_admin
-        roleToAssign = await this.rolesRepo.findOne({
-          where: { name: 'super_admin' }
-        });
-        this.logger.log('👑 Первый пользователь получает роль super_admin');
-      } else {
-        // Остальные пользователи получают роль из настроек системы
-        const defaultRoleName = await this.settingsService.getDefaultUserRole();
-        roleToAssign = await this.rolesRepo.findOne({
-          where: { name: defaultRoleName }
-        });
-        this.logger.log(`👤 Новому пользователю назначена роль "${defaultRoleName}" (из настроек)`);
-      }
+      // ✅ ИСПРАВЛЕНИЕ: Все новые пользователи получают роль super_admin
+      const roleToAssign = await this.rolesRepo.findOne({
+        where: { name: 'super_admin' }
+      });
       
       if (roleToAssign) {
         await this.userRoleAssignmentRepo.save({
           userId: userId,
           roleId: roleToAssign.id,
         });
-        this.logger.log(`✅ Пользователю назначена роль "${roleToAssign.name}"`);
+        this.logger.log(`👑 Новому пользователю назначена роль super_admin`);
       } else {
-        this.logger.log('⚠️ Роль не найдена');
+        this.logger.log('⚠️ Роль super_admin не найдена');
       }
     } catch (error) {
       this.logger.error(`Ошибка назначения роли: ${error.message}`);

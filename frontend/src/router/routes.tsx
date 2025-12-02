@@ -16,6 +16,7 @@ const RegisterPage = lazy(() => import('@/pages/auth/RegisterPage'));
 const OnboardingPage = lazy(() => import('@/pages/auth/OnboardingPage'));
 const ResetPasswordPage = lazy(() => import('@/pages/auth/ResetPasswordPage')); // ✅ NEW: Password Reset
 const GitHubLoginPage = lazy(() => import('@/pages/auth/GitHubLoginPage')); // ✅ NEW: GitHub OAuth Callback
+const TelegramLoginPage = lazy(() => import('@/pages/auth/TelegramLoginPage')); // ✅ NEW: Telegram Login Widget
 
 // Dashboard (static import to avoid dynamic import fetch issues)
 
@@ -81,6 +82,7 @@ export {
   OnboardingPage,
   ResetPasswordPage, // ✅ NEW
   GitHubLoginPage, // ✅ NEW
+  TelegramLoginPage, // ✅ NEW
   DashboardPage,
   DataPage,
   PersonalDocumentsPage,

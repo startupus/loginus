@@ -1,0 +1,20 @@
+[Unit]
+Description=Loginus Frontend Service
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/loginus-new/frontend
+Environment="NVM_DIR=/root/.nvm"
+Environment="PATH=/root/.nvm/versions/node/v20.19.6/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ExecStartPre=/bin/bash -c 'source /root/.nvm/nvm.sh && nvm use 20 && cd /root/loginus-new/frontend && [ ! -d node_modules ] && pnpm install || true'
+ExecStart=/bin/bash -c 'source /root/.nvm/nvm.sh && nvm use 20 && cd /root/loginus-new/frontend && pnpm dev'
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+

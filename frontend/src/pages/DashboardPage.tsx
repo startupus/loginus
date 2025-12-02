@@ -535,6 +535,8 @@ const DashboardPage: React.FC = () => {
               name: user.name,
               phone: user.phone,
               email: user.email,
+              githubEmail: (user as any).githubEmail,
+              telegramPhone: (user as any).telegramPhone,
               avatar: user.avatar,
               balance: dashboard.balance,
               gamePoints: dashboard.gamePoints,
@@ -639,6 +641,7 @@ const DashboardPage: React.FC = () => {
                           description={extensionWidget.description}
                           uiType={extensionWidget.uiType}
                           manifest={extensionWidget.manifest}
+                          config={extensionWidget.config}
                           icon={extensionWidget.icon}
                           {...commonProps}
                         />

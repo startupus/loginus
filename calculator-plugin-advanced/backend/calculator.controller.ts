@@ -1,21 +1,18 @@
-import { Controller, Post, Body, Get, Query } from '@nestjs/common';
-import { IsString, IsNotEmpty } from 'class-validator';
-// ✅ ИСПРАВЛЕНИЕ: Зависимости передаются через конструктор
-// EventBusService и PLUGIN_EVENTS будут переданы при создании экземпляра контроллера
+// ✅ ИСПРАВЛЕНИЕ: Убираем декораторы NestJS, так как они не работают при динамической загрузке
+// Используем простой класс с методами-обработчиками
 
 export class CalculateDto {
-  @IsString()
-  @IsNotEmpty()
   expression: string;
 }
 
 /**
  * Calculator Controller для плагина calculator-advanced
- * Этот файл устанавливается при загрузке плагина
  * 
- * ВАЖНО: Зависимости передаются через конструктор при создании экземпляра
+ * ВАЖНО: 
+ * - Зависимости передаются через конструктор при создании экземпляра
+ * - НЕ используем декораторы NestJS (@Controller, @Post, @Body) - они не работают при динамической загрузке
+ * - Методы вызываются напрямую через PluginRouterService
  */
-@Controller('calculator')
 export class CalculatorController {
   private eventBus: any;
   private PLUGIN_EVENTS: any;
@@ -27,12 +24,21 @@ export class CalculatorController {
 
   /**
    * Выполнить вычисление
-   * POST /api/v2/calculator/calculate
+   * POST /api/v2/plugins/calculator-advanced/calculator/calculate
+   * Вызывается через PluginRouterService.callPluginHandler()
    */
-  @Post('calculate')
-  async calculate(@Body() dto: CalculateDto) {
-    console.log('[CalculatorController] Received request:', JSON.stringify(dto));
-    const { expression } = dto;
+  async calculate(body: CalculateDto, query: any, req: any) {
+    console.log('[CalculatorController] Received request:', JSON.stringify(body));
+    
+    // ✅ ВАЛИДАЦИЯ: Проверяем вручную
+    if (!body || typeof body !== 'object') {
+      return {
+        success: false,
+        message: 'Invalid request body',
+      };
+    }
+    
+    const { expression } = body;
 
     if (!expression || typeof expression !== 'string') {
       console.log('[CalculatorController] Expression is missing or invalid:', { expression, type: typeof expression });
@@ -82,10 +88,9 @@ export class CalculatorController {
 
   /**
    * Получить историю вычислений
-   * GET /api/v2/calculator/history?limit=10
+   * GET /api/v2/plugins/calculator-advanced/calculator/history
    */
-  @Get('history')
-  async getHistory(@Query('limit') limit?: number) {
+  async getHistory(body: any, query: any, req: any) {
     // TODO: Реализовать получение истории из БД
     return {
       success: true,
@@ -121,4 +126,3 @@ export class CalculatorController {
     }
   }
 }
-

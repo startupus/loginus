@@ -12,12 +12,15 @@ import { useContactMasking } from '../../../hooks/useContactMasking';
 import { OrganizationModal, BirthdayModal } from '../../../components/Modals';
 import { useModal } from '../../../hooks/useModal';
 import { profileApi } from '../../../services/api/profile';
+import { getDisplayEmail, getDisplayPhone } from '../../../utils/userContactUtils';
 
 export interface UserProfile {
   id: string;
   name: string;
   phone: string;
   email?: string;
+  githubEmail?: string;
+  telegramPhone?: string;
   login?: string;
   avatar?: string | null;
   unreadMail?: number;
@@ -72,7 +75,9 @@ export const ProfilePopup: React.FC<ProfilePopupProps> = ({
   // const navigate = useNavigate(); // TODO: использовать для навигации
   const { t } = useTranslation();
   const { themeMode, setThemeMode } = useTheme();
-  const { masked: maskedPhone } = useContactMasking(user.phone, 'phone');
+  const displayPhone = getDisplayPhone(user) || user.phone;
+  const displayEmail = getDisplayEmail(user);
+  const { masked: maskedPhone } = useContactMasking(displayPhone, 'phone');
   const organizationModal = useModal();
   const birthdayModal = useModal();
 
@@ -162,7 +167,7 @@ export const ProfilePopup: React.FC<ProfilePopupProps> = ({
             )}
           </div>
           <p className="text-sm text-text-secondary">
-            {maskedPhone} {user.login && `• ${user.login}`}
+            {maskedPhone} {displayEmail && `• ${displayEmail}`} {user.login && !displayEmail && `• ${user.login}`}
           </p>
         </div>
 

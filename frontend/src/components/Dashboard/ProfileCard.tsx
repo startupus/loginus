@@ -7,12 +7,15 @@ import { ProfileCardMenu } from './ProfileCardMenu';
 import { useCurrentLanguage, buildPathWithLang } from '../../utils/routing';
 import { formatCurrency, formatNumber } from '../../utils/intl/formatters';
 import { themeClasses } from '../../design-system/utils/themeClasses';
+import { getDisplayEmail, getDisplayPhone } from '../../utils/userContactUtils';
 
 export interface ProfileCardProps {
   user: {
     name: string;
     phone: string;
     email?: string;
+    githubEmail?: string;
+    telegramPhone?: string;
     avatar?: string | null;
     balance?: number;
     gamePoints?: number;
@@ -45,8 +48,8 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
         <div className="transition-transform duration-300 hover:scale-110">
         <Avatar
           src={user.avatar || undefined}
-          initials={getInitials(user.name)}
-          name={user.name}
+          initials={getInitials(user.name) || undefined}
+          name={user.name || 'User'}
           size="lg"
           rounded
           showStatus
@@ -95,12 +98,14 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
           
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <div className="space-y-1">
-              <p className={`text-sm ${themeClasses.text.secondary}`}>
-                {user.phone}
-              </p>
-              {user.email && (
+              {getDisplayPhone(user) && (
                 <p className={`text-sm ${themeClasses.text.secondary}`}>
-                  {user.email}
+                  {getDisplayPhone(user)}
+                </p>
+              )}
+              {getDisplayEmail(user) && (
+                <p className={`text-sm ${themeClasses.text.secondary}`}>
+                  {getDisplayEmail(user)}
                 </p>
               )}
             </div>

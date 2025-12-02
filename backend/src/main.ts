@@ -159,6 +159,19 @@ async function bootstrap() {
     }
     next();
   });
+
+  // ✅ ВРЕМЕННОЕ РЕШЕНИЕ: Добавляем middleware для логирования запросов к плагинам
+  // Это поможет понять, доходят ли запросы до сервера
+  app.use((req: any, res: any, next: any) => {
+    if (req.path && req.path.startsWith('/api/v2/plugins')) {
+      console.log(`[Middleware] Plugin request: ${req.method} ${req.path}`, {
+        url: req.url,
+        originalUrl: req.originalUrl,
+        baseUrl: req.baseUrl,
+      });
+    }
+    next();
+  });
   await app.listen(port, '0.0.0.0');
   
   console.log(`🚀 Application is running on: http://localhost:${port}`);

@@ -9,7 +9,9 @@ import { PluginRegistryService } from './extensions/plugin-registry.service';
 import { PluginLoaderService } from './extensions/plugin-loader.service';
 import { ExtensionUploadService } from './extensions/extension-upload.service';
 import { ExtensionsController } from './extensions/extensions.controller';
-// import { CalculatorController } from './extensions/calculator.controller'; // ❌ Временно отключен (плагин)
+import { PluginRouterService } from './extensions/plugin-router.service';
+import { PluginProxyController } from './extensions/plugin-proxy.controller';
+// Плагины загружаются динамически, не нужно импортировать их контроллеры здесь
 import { EventLog } from './events/entities/event-log.entity';
 import { Extension } from './extensions/entities/extension.entity';
 import { MenuItemPlugin } from './extensions/entities/menu-item-plugin.entity';
@@ -35,13 +37,14 @@ import { ProfileWidget } from './extensions/entities/profile-widget.entity';
       },
     }),
   ],
-  controllers: [ExtensionsController, EventsController], // CalculatorController временно отключен
+  controllers: [ExtensionsController, EventsController, PluginProxyController],
   providers: [
     EventBusService,
     EventLoggerService,
     PluginRegistryService,
     PluginLoaderService,
     ExtensionUploadService,
+    PluginRouterService,
   ],
   exports: [
     EventBusService,

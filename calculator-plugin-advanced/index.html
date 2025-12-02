@@ -269,9 +269,13 @@
 
     <script>
         // === КОНФИГУРАЦИЯ ===
-        const API_BASE = window.location.origin.includes('localhost:3000') 
-            ? 'http://localhost:3000/api/v2'  // Через Vite proxy
-            : 'http://localhost:3004/api/v2'; // Напрямую к backend
+        // Получаем slug плагина из манифеста или из URL
+        // Плагин должен знать свой slug для формирования правильного пути
+        const PLUGIN_SLUG = 'calculator-advanced'; // TODO: получать из манифеста или postMessage
+        
+        // ✅ ИСПРАВЛЕНИЕ: Используем window.location.origin для определения правильного URL
+        // Это работает как на localhost, так и на продакшн сервере
+        const API_BASE = `${window.location.origin}/api/v2`;
         let currentExpression = '';
         let currentResult = '0';
         let history = [];
@@ -446,7 +450,9 @@
                 logEvent(`🔄 Отправка на backend: ${safeExpression}`);
 
                 // 🔥 ВЫЧИСЛЕНИЕ НА BACKEND
-                const response = await fetch(`${API_BASE}/calculator/calculate`, {
+                // Используем новый путь через прокси плагинов
+                // API_BASE уже содержит /api/v2, поэтому не добавляем его снова
+                const response = await fetch(`${API_BASE}/plugins/${PLUGIN_SLUG}/calculator/calculate`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,

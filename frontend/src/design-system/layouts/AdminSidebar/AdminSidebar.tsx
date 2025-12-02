@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Icon } from '../../primitives/Icon';
@@ -56,17 +56,24 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   const logoText = client?.name || 'Loginus';
   
   // Автоматическое открытие дропдауна, если один из дочерних пунктов активен
+  // Но только при первой загрузке, не при каждом изменении items
+  const [hasAutoOpened, setHasAutoOpened] = useState(false);
   useEffect(() => {
-    const activeParentItem = items.find(item => 
-      item.children && item.children.some(child => child.active)
-    );
-    if (activeParentItem && activeParentItem.path && openDropdown !== activeParentItem.path) {
-      // Используем setTimeout чтобы избежать конфликта с инициализацией
-      setTimeout(() => {
-        toggleDropdown(activeParentItem.path);
-      }, 0);
+    if (!hasAutoOpened) {
+      const activeParentItem = items.find(item => 
+        item.children && item.children.some(child => child.active)
+      );
+      if (activeParentItem && activeParentItem.path && openDropdown !== activeParentItem.path) {
+        // Используем setTimeout чтобы избежать конфликта с инициализацией
+        setTimeout(() => {
+          toggleDropdown(activeParentItem.path);
+          setHasAutoOpened(true);
+        }, 0);
+      } else {
+        setHasAutoOpened(true);
+      }
     }
-  }, [items, openDropdown, toggleDropdown]);
+  }, [items, openDropdown, toggleDropdown, hasAutoOpened]);
   
   // Блокировка скролла body когда сайдбар открыт на мобильных
   useEffect(() => {
@@ -129,12 +136,42 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
               {items.map((item, index) => (
                 <li key={item.path || index} className={item.children ? 'relative' : ''}>
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      
                       if (item.children) {
                         // Для пунктов с children только открываем/закрываем дропдаун
-                        // Переход происходит только при клике на дочерний пункт
-                        toggleDropdown(item.path);
+                        const isCurrentlyOpen = openDropdown === item.path;
+                        
+                        if (openDropdown && openDropdown !== item.path) {
+                          // Если открыт другой дропдаун, закрываем его и открываем текущий
+                          toggleDropdown(openDropdown);
+                          setTimeout(() => {
+                            toggleDropdown(item.path);
+                          }, 100);
+                        } else {
+                          // ✅ ИСПРАВЛЕНИЕ: Всегда переключаем (открываем/закрываем) при клике
+                          // Это позволяет свернуть раздел даже если открыт подраздел внутри него
+                          // Временно отключаем автоматическое открытие
+                          const wasAutoOpened = hasAutoOpened;
+                          setHasAutoOpened(true); // Предотвращаем автоматическое открытие
+                          toggleDropdown(item.path);
+                          // Если раздел был открыт и мы его закрыли, не открываем автоматически
+                          if (isCurrentlyOpen) {
+                            // Раздел закрыт, оставляем hasAutoOpened = true чтобы не открывался автоматически
+                          } else {
+                            // Раздел открыт, можно разрешить автоматическое открытие
+                            setTimeout(() => {
+                              setHasAutoOpened(wasAutoOpened);
+                            }, 300);
+                          }
+                        }
                       } else {
+                        // При клике на обычный пункт закрываем все открытые дропдауны
+                        if (openDropdown) {
+                          toggleDropdown(openDropdown);
+                        }
                         // Обработка кастомных типов
                         if (item.type === 'external' && item.externalUrl) {
                           if (item.openInNewTab) {

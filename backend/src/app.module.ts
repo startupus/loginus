@@ -53,7 +53,8 @@ import { CoreModule } from './core/core.module';
 
 @Module({
   imports: [
-    // Core infrastructure (event system, plugins)
+    // Core infrastructure (event system, plugins) - ДОЛЖЕН БЫТЬ ПЕРВЫМ
+    // чтобы PluginProxyController зарегистрировался раньше ProxyController
     CoreModule,
 
     // Configuration

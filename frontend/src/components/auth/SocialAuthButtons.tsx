@@ -84,14 +84,26 @@ export const SocialAuthButtons: React.FC<SocialAuthButtonsProps> = ({ enabledMet
         const response = await apiClient.get('/auth/multi/oauth/github/url');
         console.log('[SocialAuthButtons] GitHub auth response:', response.data);
         
-        // Ответ имеет структуру: {success: true, data: {url: "..."}}
-        const authUrl = response.data?.data?.url || response.data?.url || response.data?.authUrl;
-        if (authUrl) {
+        // Ответ имеет структуру: {success: true, data: {url: "..."}} или {url: "..."}
+        const responseData = response.data?.data || response.data;
+        const authUrl = responseData?.url || responseData?.authUrl;
+        
+        console.log('[SocialAuthButtons] Full response structure:', {
+          'response.data': response.data,
+          'response.data?.data': response.data?.data,
+          'responseData': responseData,
+          'extracted authUrl': authUrl
+        });
+        
+        if (authUrl && typeof authUrl === 'string' && authUrl.startsWith('http')) {
           console.log('[SocialAuthButtons] Redirecting to GitHub:', authUrl);
           // Используем window.location.replace для предотвращения возврата назад
           window.location.replace(authUrl);
         } else {
+          // Проверяем, есть ли ошибка в ответе
+          const errorMessage = responseData?.error || responseData?.message || 'GitHub OAuth не настроен';
           console.error('[SocialAuthButtons] GitHub auth URL not found in response:', response.data);
+          alert(`Ошибка авторизации через GitHub: ${errorMessage}`);
         }
       } else if (providerId === 'telegram') {
         console.log('[SocialAuthButtons] Redirecting to Telegram login page...');

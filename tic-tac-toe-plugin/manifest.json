@@ -1,0 +1,57 @@
+{
+  "name": "tic-tac-toe",
+  "version": "1.0.0",
+  "displayName": "Крестики-нолики",
+  "displayNameEn": "Tic Tac Toe",
+  "description": "Классическая игра крестики-нолики с backend логикой",
+  "descriptionEn": "Classic tic-tac-toe game with backend logic",
+  "author": "Loginus Team",
+  "type": "menu_item",
+  "icon": "gamepad",
+  "scope": "user",
+  "config": {
+    "renderType": "iframe",
+    "entrypoint": "index.html",
+    "baseUrl": "/uploads/plugins/tic-tac-toe"
+  },
+  "backend": {
+    "enabled": true,
+    "modulePath": "backend/tic-tac-toe.module.ts",
+    "controllerPath": "backend/tic-tac-toe.controller.ts",
+    "moduleName": "TicTacToeModule",
+    "controllerName": "TicTacToeController",
+    "routes": [
+      {
+        "path": "/tic-tac-toe/move",
+        "method": "POST",
+        "handler": "makeMove",
+        "description": "Сделать ход"
+      },
+      {
+        "path": "/tic-tac-toe/reset",
+        "method": "POST",
+        "handler": "resetGame",
+        "description": "Сбросить игру"
+      },
+      {
+        "path": "/tic-tac-toe/status",
+        "method": "GET",
+        "handler": "getGameStatus",
+        "description": "Получить статус игры"
+      }
+    ]
+  },
+  "events": {
+    "subscribes": [],
+    "emits": [
+      "TIC_TAC_TOE_GAME_STARTED",
+      "TIC_TAC_TOE_MOVE_MADE",
+      "TIC_TAC_TOE_GAME_ENDED"
+    ]
+  },
+  "permissions": {
+    "api": ["read:user", "write:events"],
+    "storage": ["localStorage"]
+  }
+}
+

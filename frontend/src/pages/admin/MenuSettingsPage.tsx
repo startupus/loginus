@@ -245,7 +245,8 @@ const MenuSettingsPage: React.FC = () => {
     queryKey: ['extensions', 'enabled'],
     queryFn: async () => {
       try {
-        const response = await apiClient.get('/admin/extensions?enabled=true');
+        // ✅ ИСПРАВЛЕНИЕ: Исключаем виджеты из списка плагинов для меню
+        const response = await apiClient.get('/admin/extensions?enabled=true&excludeWidgets=true');
         // API возвращает { success: true, data: [...] }
         return Array.isArray(response.data?.data) ? response.data.data : [];
       } catch (error) {

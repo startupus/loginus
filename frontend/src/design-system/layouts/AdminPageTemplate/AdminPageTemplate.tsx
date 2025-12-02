@@ -131,7 +131,7 @@ const AdminTemplateBody: React.FC<AdminPageTemplateProps> = ({
         { 
             label: t('admin.sidebar.backup'), 
           path: buildPathWithLang('/admin/backup', currentLang), 
-          icon: 'server', 
+          icon: 'hard-drive', 
           active: location.pathname.includes('/admin/backup')
         },
         { 
@@ -151,7 +151,7 @@ const AdminTemplateBody: React.FC<AdminPageTemplateProps> = ({
     { 
         label: t('admin.sidebar.extensions', 'Расширения'), 
       path: buildPathWithLang('/admin/extensions', currentLang), 
-      icon: 'package', 
+      icon: 'grid', 
       active: location.pathname.includes('/admin/extensions'),
       children: [
         { 

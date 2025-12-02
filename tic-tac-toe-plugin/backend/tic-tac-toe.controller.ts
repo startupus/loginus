@@ -1,27 +1,24 @@
-import { Controller, Post, Body, Get } from '@nestjs/common';
-import { IsNumber, IsNotEmpty, Min, Max } from 'class-validator';
-// ✅ ИСПРАВЛЕНИЕ: Зависимости передаются через конструктор
+// ✅ ИСПРАВЛЕНИЕ: Убираем декораторы NestJS, так как они не работают при динамической загрузке
+// Используем простой класс с методами-обработчиками
 
 export class MakeMoveDto {
-  @IsNumber()
-  @IsNotEmpty()
-  @Min(0)
-  @Max(8)
   position: number;
+  userId?: string;
 }
 
 export class ResetGameDto {
-  @IsNumber()
-  @IsNotEmpty()
   playerSymbol?: 'X' | 'O';
+  userId?: string;
 }
 
 /**
  * Tic Tac Toe Controller для плагина tic-tac-toe
  * 
- * ВАЖНО: Зависимости передаются через конструктор при создании экземпляра
+ * ВАЖНО: 
+ * - Зависимости передаются через конструктор при создании экземпляра
+ * - НЕ используем декораторы NestJS (@Controller, @Post, @Body) - они не работают при динамической загрузке
+ * - Методы вызываются напрямую через PluginRouterService
  */
-@Controller('tic-tac-toe')
 export class TicTacToeController {
   private games: Map<string, any> = new Map(); // userId -> game state
   private eventBus: any;
@@ -35,11 +32,27 @@ export class TicTacToeController {
   /**
    * Сделать ход
    * POST /api/v2/plugins/tic-tac-toe/tic-tac-toe/move
+   * Вызывается через PluginRouterService.callPluginHandler()
    */
-  @Post('move')
-  async makeMove(@Body() dto: MakeMoveDto & { userId?: string }) {
-    const userId = dto.userId || 'anonymous';
-    const position = dto.position;
+  async makeMove(body: MakeMoveDto, query: any, req: any) {
+    // ✅ ВАЛИДАЦИЯ: Проверяем вручную
+    if (!body || typeof body !== 'object') {
+      return {
+        success: false,
+        message: 'Invalid request body',
+      };
+    }
+    
+    const userId = body.userId || req?.user?.userId || 'anonymous';
+    const position = body.position;
+    
+    // Валидация position
+    if (typeof position !== 'number' || position < 0 || position > 8) {
+      return {
+        success: false,
+        message: 'Invalid position. Must be between 0 and 8',
+      };
+    }
 
     // Получаем или создаем игру
     let game = this.games.get(userId);
@@ -77,12 +90,12 @@ export class TicTacToeController {
       
       if (this.eventBus && this.PLUGIN_EVENTS) {
         await this.eventBus.emit(this.PLUGIN_EVENTS.CALCULATION_DONE, {
-        type: 'TIC_TAC_TOE_GAME_ENDED',
-        userId,
-        winner,
-        board: game.board,
-        timestamp: new Date().toISOString(),
-      });
+          type: 'TIC_TAC_TOE_GAME_ENDED',
+          userId,
+          winner,
+          board: game.board,
+          timestamp: new Date().toISOString(),
+        });
       }
     } else if (this.isBoardFull(game.board)) {
       game.isDraw = true;
@@ -90,12 +103,12 @@ export class TicTacToeController {
       
       if (this.eventBus && this.PLUGIN_EVENTS) {
         await this.eventBus.emit(this.PLUGIN_EVENTS.CALCULATION_DONE, {
-        type: 'TIC_TAC_TOE_GAME_ENDED',
-        userId,
-        winner: 'draw',
-        board: game.board,
-        timestamp: new Date().toISOString(),
-      });
+          type: 'TIC_TAC_TOE_GAME_ENDED',
+          userId,
+          winner: 'draw',
+          board: game.board,
+          timestamp: new Date().toISOString(),
+        });
       }
     } else {
       // Переключаем игрока
@@ -103,13 +116,13 @@ export class TicTacToeController {
       
       if (this.eventBus && this.PLUGIN_EVENTS) {
         await this.eventBus.emit(this.PLUGIN_EVENTS.CALCULATION_DONE, {
-        type: 'TIC_TAC_TOE_MOVE_MADE',
-        userId,
-        position,
-        player: game.currentPlayer === 'X' ? 'O' : 'X', // Тот, кто только что сделал ход
-        board: game.board,
-        timestamp: new Date().toISOString(),
-      });
+          type: 'TIC_TAC_TOE_MOVE_MADE',
+          userId,
+          position,
+          player: game.currentPlayer === 'X' ? 'O' : 'X', // Тот, кто только что сделал ход
+          board: game.board,
+          timestamp: new Date().toISOString(),
+        });
       }
     }
 
@@ -130,21 +143,22 @@ export class TicTacToeController {
    * Сбросить игру
    * POST /api/v2/plugins/tic-tac-toe/tic-tac-toe/reset
    */
-  @Post('reset')
-  async resetGame(@Body() dto: ResetGameDto & { userId?: string }) {
-    const userId = dto.userId || 'anonymous';
-    const playerSymbol = dto.playerSymbol || 'X';
+  async resetGame(body: ResetGameDto, query: any, req: any) {
+    const userId = body.userId || req?.user?.userId || 'anonymous';
+    const playerSymbol = body.playerSymbol || 'X';
 
     const game = this.createNewGame();
     game.currentPlayer = playerSymbol;
     this.games.set(userId, game);
 
-    await this.eventBus.emit(PLUGIN_EVENTS.CALCULATION_DONE, {
-      type: 'TIC_TAC_TOE_GAME_STARTED',
-      userId,
-      playerSymbol,
-      timestamp: new Date().toISOString(),
-    });
+    if (this.eventBus && this.PLUGIN_EVENTS) {
+      await this.eventBus.emit(this.PLUGIN_EVENTS.CALCULATION_DONE, {
+        type: 'TIC_TAC_TOE_GAME_STARTED',
+        userId,
+        playerSymbol,
+        timestamp: new Date().toISOString(),
+      });
+    }
 
     return {
       success: true,
@@ -159,9 +173,8 @@ export class TicTacToeController {
    * Получить статус игры
    * GET /api/v2/plugins/tic-tac-toe/tic-tac-toe/status
    */
-  @Get('status')
-  async getGameStatus(@Body() dto: { userId?: string }) {
-    const userId = dto.userId || 'anonymous';
+  async getGameStatus(body: any, query: any, req: any) {
+    const userId = query.userId || req?.user?.userId || 'anonymous';
     const game = this.games.get(userId);
 
     if (!game) {
@@ -227,4 +240,3 @@ export class TicTacToeController {
     return board.every(cell => cell !== '');
   }
 }
-

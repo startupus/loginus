@@ -40,7 +40,7 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3001
-      - FRONTEND_URL=http://localhost:3000
+      - FRONTEND_URL=https://loginus.startapus.com
       - MOCK_BACKEND_URL=http://loginus-backend:3001
       - DB_HOST=loginus-db
       - DB_PORT=5432
@@ -52,6 +52,11 @@ services:
       - SMTP_USER=KazakovVladislav2005@yandex.ru
       - SMTP_PASSWORD=bvdjbeygikzrwmnu
       - SMTP_FROM=KazakovVladislav2005@yandex.ru
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      - TELEGRAM_BOT_USERNAME=${TELEGRAM_BOT_USERNAME:-}
+      - GITHUB_CLIENT_ID=Ov23li3523l5PKz1Jblw
+      - GITHUB_CLIENT_SECRET=74f40856066f25e6041e45348579e1f6373e82e2
+      - GITHUB_REDIRECT_URI=https://loginus.startapus.com/github-login.html
     volumes:
       - ./backend/src:/app/src
       - ./backend/package.json:/app/package.json
@@ -77,6 +82,7 @@ services:
     environment:
       - NODE_ENV=development
       - VITE_HMR_TIMEOUT=10000
+      - VITE_TELEGRAM_BOT_USERNAME=${VITE_TELEGRAM_BOT_USERNAME:-}
     volumes:
       - ./frontend/src:/app/frontend/src
       - ./frontend/public:/app/frontend/public

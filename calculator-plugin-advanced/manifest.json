@@ -24,11 +24,13 @@
       {
         "path": "/calculator/calculate",
         "method": "POST",
+        "handler": "calculate",
         "description": "Выполнить вычисление"
       },
       {
         "path": "/calculator/history",
         "method": "GET",
+        "handler": "getHistory",
         "description": "Получить историю вычислений"
       }
     ]

@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouterProvider, Navigate, useLocation } from 'react-router-dom';
 import { Suspense } from 'react';
-import { LandingPage, AboutPage, FeaturesPage, AuthPage, AuthPageV2, VerifyCodePage, RegisterPage, OnboardingPage, ResetPasswordPage, DashboardPage, PersonalDocumentsPage, PersonalAddressesPage, FamilyPage, WorkPage, SecurityPage, RecoveryMethodsPage, ActivityHistoryPage, DevicesPage, DataPage, PayPage, SupportPage, HelpPage, AuthorizationHelpPage, RegistrationHelpPage, SecurityHelpPage, RecoveryHelpPage, KeyHelpPage, FamilyHelpPage, DataHelpPage, PaymentsHelpPage, AdminDashboardPage, UsersManagementPage, CompaniesManagementPage, CompanyDetailPage, AuthFlowBuilderPage, BackupSettingsPage, MenuSettingsPage, PaymentMethodsPage, ExtensionsManagerPage, PluginsUploadPage, WidgetsUploadPage, IframePage, EmbeddedAppPage, ErrorPage, FamilyInvitePage, GitHubLoginPage } from './routes';
+import { LandingPage, AboutPage, FeaturesPage, AuthPage, AuthPageV2, VerifyCodePage, RegisterPage, OnboardingPage, ResetPasswordPage, DashboardPage, PersonalDocumentsPage, PersonalAddressesPage, FamilyPage, WorkPage, SecurityPage, RecoveryMethodsPage, ActivityHistoryPage, DevicesPage, DataPage, PayPage, SupportPage, HelpPage, AuthorizationHelpPage, RegistrationHelpPage, SecurityHelpPage, RecoveryHelpPage, KeyHelpPage, FamilyHelpPage, DataHelpPage, PaymentsHelpPage, AdminDashboardPage, UsersManagementPage, CompaniesManagementPage, CompanyDetailPage, AuthFlowBuilderPage, BackupSettingsPage, MenuSettingsPage, PaymentMethodsPage, ExtensionsManagerPage, PluginsUploadPage, WidgetsUploadPage, IframePage, EmbeddedAppPage, ErrorPage, FamilyInvitePage, GitHubLoginPage, TelegramLoginPage } from './routes';
 import { LanguageRoute } from './LanguageRoute';
 import { AdminRoute } from './AdminRoute';
 import { themeClasses } from '../design-system/utils/themeClasses';
@@ -650,6 +650,16 @@ const router = createBrowserRouter([
     element: (
       <Suspense fallback={<LoadingFallback />}>
         <GitHubLoginPage />
+      </Suspense>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  // Telegram Login Widget page (без языка, так как это специальная страница)
+  {
+    path: '/telegram-login.html',
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <TelegramLoginPage />
       </Suspense>
     ),
     errorElement: <ErrorPage />,

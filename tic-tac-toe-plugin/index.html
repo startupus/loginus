@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Крестики-нолики</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .status {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 10px;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .cell {
+            aspect-ratio: 1;
+            background: #f8f9fa;
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            font-size: 48px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #333;
+        }
+
+        .cell:hover:not(.disabled) {
+            background: #e9ecef;
+            transform: scale(1.05);
+        }
+
+        .cell.disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .cell.x {
+            color: #e74c3c;
+        }
+
+        .cell.o {
+            color: #3498db;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-reset {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .winner {
+            color: #27ae60;
+        }
+
+        .draw {
+            color: #f39c12;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎮 Крестики-нолики</h1>
+        <div class="status" id="status">Ход игрока: X</div>
+        <div class="board" id="board"></div>
+        <div class="controls">
+            <button class="btn-reset" onclick="resetGame()">Новая игра</button>
+        </div>
+    </div>
+
+    <script>
+        // === КОНФИГУРАЦИЯ ===
+        const PLUGIN_SLUG = 'tic-tac-toe';
+        // ✅ ИСПРАВЛЕНИЕ: Используем window.location.origin для определения правильного URL
+        // Это работает как на localhost, так и на продакшн сервере
+        const API_BASE = `${window.location.origin}/api/v2`;
+
+        let gameState = {
+            board: ['', '', '', '', '', '', '', '', ''],
+            currentPlayer: 'X',
+            winner: null,
+            isDraw: false,
+        };
+
+        let authToken = null;
+
+        // === ПОЛУЧЕНИЕ ТОКЕНА ===
+        function getAuthToken() {
+            if (authToken) {
+                return authToken;
+            }
+            try {
+                const authStore = localStorage.getItem('auth-store');
+                if (authStore) {
+                    const parsed = JSON.parse(authStore);
+                    return parsed?.state?.accessToken || null;
+                }
+            } catch (e) {
+                console.error('Ошибка получения токена:', e);
+            }
+            return null;
+        }
+
+        // === ИНИЦИАЛИЗАЦИЯ ===
+        function initGame() {
+            createBoard();
+            updateDisplay();
+        }
+
+        function createBoard() {
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.index = i;
+                cell.onclick = () => makeMove(i);
+                board.appendChild(cell);
+            }
+        }
+
+        function updateDisplay() {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach((cell, index) => {
+                const value = gameState.board[index];
+                cell.textContent = value;
+                cell.className = 'cell';
+                if (value === 'X') {
+                    cell.classList.add('x');
+                } else if (value === 'O') {
+                    cell.classList.add('o');
+                }
+                if (gameState.winner || gameState.isDraw || value !== '') {
+                    cell.classList.add('disabled');
+                }
+            });
+
+            const statusEl = document.getElementById('status');
+            if (gameState.winner) {
+                statusEl.textContent = `🎉 Победитель: ${gameState.winner}`;
+                statusEl.classList.add('winner');
+            } else if (gameState.isDraw) {
+                statusEl.textContent = '🤝 Ничья!';
+                statusEl.classList.add('draw');
+            } else {
+                statusEl.textContent = `Ход игрока: ${gameState.currentPlayer}`;
+                statusEl.classList.remove('winner', 'draw');
+            }
+        }
+
+        // === ИГРОВАЯ ЛОГИКА ===
+        async function makeMove(position) {
+            if (gameState.board[position] !== '' || gameState.winner || gameState.isDraw) {
+                return;
+            }
+
+            const token = getAuthToken();
+            if (!token) {
+                alert('Ошибка: нет токена авторизации');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/plugins/${PLUGIN_SLUG}/tic-tac-toe/move`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        position: position
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Ошибка выполнения хода');
+                }
+
+                gameState = data.data.game;
+                updateDisplay();
+            } catch (error) {
+                console.error('Ошибка выполнения хода:', error);
+                alert('Ошибка: ' + error.message);
+            }
+        }
+
+        async function resetGame() {
+            const token = getAuthToken();
+            if (!token) {
+                alert('Ошибка: нет токена авторизации');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/plugins/${PLUGIN_SLUG}/tic-tac-toe/reset`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        playerSymbol: 'X'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Ошибка сброса игры');
+                }
+
+                gameState = data.data.game;
+                updateDisplay();
+            } catch (error) {
+                console.error('Ошибка сброса игры:', error);
+                alert('Ошибка: ' + error.message);
+            }
+        }
+
+        // === СЛУШАТЕЛЬ СОБЫТИЙ ОТ РОДИТЕЛЬСКОГО ОКНА ===
+        window.addEventListener('message', (event) => {
+            if (event.data.type === 'LOGINUS_AUTH_TOKEN') {
+                authToken = event.data.token;
+                console.log('🔑 Токен получен от родительского окна');
+            }
+        });
+
+        // === ЗАПУСК ===
+        initGame();
+    </script>
+</body>
+</html>
+

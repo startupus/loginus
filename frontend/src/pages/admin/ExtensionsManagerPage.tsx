@@ -228,33 +228,13 @@ const ExtensionsManagerPage: React.FC = () => {
           <div className="extensions-manager__grid">
             {filteredExtensions.map((extension) => (
               <Card key={extension.id} className="extension-card">
-                <div className="extension-card__header">
-                  <div className="extension-card__icon">
-                    {extension.icon ? (
-                      <img src={extension.icon} alt={extension.name} />
-                    ) : (
-                      <div className="extension-card__icon-placeholder">
-                        {extension.name.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                  </div>
-                  <div className="extension-card__info">
-                    <h3 className="extension-card__name">{extension.name}</h3>
-                    <p className="extension-card__version">v{extension.version}</p>
-                  </div>
-                  <Badge
-                    variant={extension.enabled ? 'success' : 'gray'}
-                  >
-                    {extension.enabled
-                      ? t('admin.extensions.status.enabled', 'Включено')
-                      : t('admin.extensions.status.disabled', 'Выключено')}
-                  </Badge>
+                <div className="extension-card__info">
+                  <h3 className="extension-card__name">{extension.name}</h3>
+                  <p className="extension-card__version">v{extension.version}</p>
+                  {extension.description && (
+                    <p className="extension-card__description">{extension.description}</p>
+                  )}
                 </div>
-
-                {extension.description && (
-                  <p className="extension-card__description">{extension.description}</p>
-                )}
-
                 <div className="extension-card__meta">
                   <span className="extension-card__type">
                     {t(`admin.extensions.type.${extension.extensionType}`, extension.extensionType)}
@@ -265,7 +245,13 @@ const ExtensionsManagerPage: React.FC = () => {
                     </span>
                   )}
                 </div>
-
+                <Badge
+                  variant={extension.enabled ? 'success' : 'gray'}
+                >
+                  {extension.enabled
+                    ? t('admin.extensions.status.enabled', 'Включено')
+                    : t('admin.extensions.status.disabled', 'Выключено')}
+                </Badge>
                 <div className="extension-card__actions">
                   <Button
                     variant={extension.enabled ? 'secondary' : 'primary'}

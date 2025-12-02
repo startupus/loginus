@@ -9,6 +9,8 @@ interface User {
   email: string;
   phone: string;
   avatar?: string;
+  githubEmail?: string | null;
+  telegramPhone?: string | null;
   role?: UserRole;
   companyId?: string | null;
   permissions?: string[];

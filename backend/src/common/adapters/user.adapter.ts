@@ -53,6 +53,8 @@ export class UserAdapter {
         : user.firstName || user.lastName || user.email || '',
       email: user.email || '',
       phone: user.phone || '',
+      githubEmail: (user as any).githubEmail || null, // Email от GitHub
+      telegramPhone: (user as any).telegramPhone || null, // Телефон от Telegram
       avatar: (user as any).avatarUrl || null,
       firstName: user.firstName,
       lastName: user.lastName,

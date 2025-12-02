@@ -54,6 +54,7 @@ export const Header: React.FC<HeaderProps> = ({
     logout();
     onLogout?.();
     setIsProfilePopupOpen(false);
+    navigate(buildPathWithLang('/', currentLang));
   };
 
   const handleEdit = () => {
@@ -162,6 +163,7 @@ export const Header: React.FC<HeaderProps> = ({
                   onLogout={onLogout}
                   onSwitchAccount={() => {
                     handleLogout();
+                    navigate(buildPathWithLang('/', currentLang));
                   }}
                 />
                 <button

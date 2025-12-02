@@ -16,6 +16,13 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     const authHeader = request.headers?.authorization || '';
     const token = authHeader.replace('Bearer ', '');
     
+    // ✅ ЛОГИРОВАНИЕ для плагинов
+    if (request.path && request.path.startsWith('/api/v2/plugins')) {
+      console.log('🔍 [JwtAuthGuard] ⚡ PLUGIN REQUEST:', request.method, request.path);
+      console.log('🔍 [JwtAuthGuard] Has auth header:', !!authHeader);
+      console.log('🔍 [JwtAuthGuard] Token length:', token.length);
+    }
+    
     console.log('🔍 [JwtAuthGuard] canActivate called');
     console.log('🔍 [JwtAuthGuard] Request path:', request.path);
     console.log('🔍 [JwtAuthGuard] Has auth header:', !!authHeader);
@@ -27,6 +34,10 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       context.getHandler(),
       context.getClass(),
     ]);
+
+    console.log('🔍 [JwtAuthGuard] isPublic check result:', isPublic);
+    console.log('🔍 [JwtAuthGuard] Handler:', context.getHandler()?.name);
+    console.log('🔍 [JwtAuthGuard] Class:', context.getClass()?.name);
 
     if (isPublic) {
       console.log('✅ [JwtAuthGuard] Public endpoint, but still trying to extract user if token exists');

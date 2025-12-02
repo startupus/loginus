@@ -166,6 +166,7 @@ export const AuthPageV2: React.FC = () => {
       return response.data;
     },
     onSuccess: (data) => {
+      console.log('🔍 [registerStepMutation] onSuccess data:', JSON.stringify(data, null, 2));
       if (data.completed && data.accessToken) {
         // Регистрация завершена, сохраняем токены
         authTokens.setAccessToken(data.accessToken);
@@ -196,6 +197,7 @@ export const AuthPageV2: React.FC = () => {
         navigate(buildPathWithLang('/dashboard', currentLang));
       } else if (data.nextStep) {
         // Переход к следующему шагу
+        console.log('🔍 [registerStepMutation] Moving to next step:', data.nextStep);
         setSessionId(data.sessionId || sessionId);
         const nextStepId = typeof data.nextStep === 'string' ? data.nextStep : data.nextStep.id;
         const steps = publicAuthFlow?.registration || [];
@@ -208,7 +210,9 @@ export const AuthPageV2: React.FC = () => {
         });
         setTempData({ ...tempData, ...data.tempData });
         setError(null);
-      } else if (!data.nextStep && data.sessionId && data.tempData) {
+      } else if (!data.nextStep && !data.completed && data.sessionId && data.tempData) {
+        // Если нет следующего шага и регистрация не завершена, но есть sessionId и tempData
+        console.log('⚠️ [registerStepMutation] No nextStep and not completed, but has sessionId and tempData');
         // Если нет следующего шага, но есть sessionId и tempData, значит это первый шаг и он уже обработан
         // Нужно получить следующий шаг из конфигурации
         setSessionId(data.sessionId);

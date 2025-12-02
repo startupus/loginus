@@ -11,6 +11,7 @@ import { NfaService } from '../services/nfa.service';
 import { AuthMethodType } from '../enums/auth-method-type.enum';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { Public } from '../decorators/public.decorator';
+import { UserAdapter } from '../../common/adapters/user.adapter';
 
 @ApiTags('multi-auth')
 @Controller('auth/multi')
@@ -990,10 +991,13 @@ export class MultiAuthController {
       
       this.logger.log(`Tokens generated for current user ${userId}`);
       
+          // ✅ ИСПРАВЛЕНИЕ: Используем UserAdapter для правильного преобразования данных пользователя
+          const userData = UserAdapter.toFrontendFormat(currentUser);
+          
           return res.json({
             accessToken: tokens.accessToken,
             refreshToken: tokens.refreshToken,
-            user: currentUser,
+            user: userData,
           });
     }
     
@@ -1061,15 +1065,14 @@ export class MultiAuthController {
         const oauthClientId = req.cookies?.oauth_client_id;
         const oauthRedirectUri = req.cookies?.oauth_redirect_uri;
         
+        // ✅ ИСПРАВЛЕНИЕ: Используем UserAdapter для правильного преобразования данных пользователя
+        // Это гарантирует, что avatarUrl и telegramPhone передаются на фронтенд
+        const userData = UserAdapter.toFrontendFormat(user);
+        
         const response: any = {
           accessToken: tokens.accessToken,
           refreshToken: tokens.refreshToken,
-          user: {
-            id: user.id,
-            email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
-          },
+          user: userData,
         };
         
         // ✅ ИСПРАВЛЕНИЕ: Добавляем OAuth флаг ТОЛЬКО если это действительно OAuth flow

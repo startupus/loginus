@@ -758,16 +758,24 @@ export class MultiAuthService {
       // Назначаем роль новому пользователю
       await this.assignDefaultRoleToUser(user.id);
     } else {
-      // Обновляем username если он изменился или отсутствует
+      // Обновляем данные существующего пользователя
       const cleanUsername = username ? username.replace('@', '') : '';
       const telegramMeta = (user.messengerMetadata as any)?.telegram || {};
       const shouldUpdateUsername = !telegramMeta.username || telegramMeta.username !== cleanUsername;
       const shouldUpdateUserId = !telegramMeta.userId || telegramMeta.userId !== id.toString();
       
+      // ✅ ИСПРАВЛЕНИЕ: Обновляем avatarUrl и telegramPhone при каждом входе, если они есть
+      // Обновляем даже если они уже есть, чтобы синхронизировать с Telegram
+      const shouldUpdateAvatar = photo_url && (user.avatarUrl !== photo_url);
+      const shouldUpdatePhone = phone_number && (user.telegramPhone !== phone_number);
+      
       // Также проверяем, что telegram метод добавлен в availableAuthMethods
       const hasTelegramMethod = user.availableAuthMethods?.includes(AuthMethodType.PHONE_TELEGRAM) || false;
       
-      if (shouldUpdateUsername || shouldUpdateUserId || !hasTelegramMethod) {
+      // ✅ ИСПРАВЛЕНИЕ: Всегда обновляем данные, если есть что обновить
+      const needsUpdate = shouldUpdateUsername || shouldUpdateUserId || !hasTelegramMethod || shouldUpdateAvatar || shouldUpdatePhone || photo_url || phone_number;
+      
+      if (needsUpdate) {
         if (!user.messengerMetadata) {
           user.messengerMetadata = {};
         }
@@ -780,6 +788,17 @@ export class MultiAuthService {
           }
         };
         
+        // ✅ ИСПРАВЛЕНИЕ: Обновляем avatarUrl и telegramPhone всегда, если они есть в данных Telegram
+        // Это гарантирует, что данные всегда синхронизированы с Telegram
+        if (photo_url) {
+          user.avatarUrl = photo_url;
+          this.logger.log(`✅ Updated avatarUrl for user ${user.email}: ${photo_url}`);
+        }
+        if (phone_number) {
+          user.telegramPhone = phone_number;
+          this.logger.log(`✅ Updated telegramPhone for user ${user.email}: ${phone_number}`);
+        }
+        
         // Добавляем Telegram метод, если его нет
         if (!hasTelegramMethod && user.availableAuthMethods) {
           user.availableAuthMethods.push(AuthMethodType.PHONE_TELEGRAM);
@@ -788,7 +807,23 @@ export class MultiAuthService {
         }
         
         await this.usersRepo.save(user);
-        this.logger.log(`✅ Updated Telegram data for user ${user.email}: username=${cleanUsername}, userId=${id.toString()}`);
+        this.logger.log(`✅ Updated Telegram data for user ${user.email}: username=${cleanUsername}, userId=${id.toString()}, avatarUrl=${photo_url || 'none'}, telegramPhone=${phone_number || 'none'}`);
+      } else {
+        // Даже если не нужно обновлять метаданные, обновляем avatarUrl и telegramPhone если они есть
+        let needsSave = false;
+        if (photo_url && user.avatarUrl !== photo_url) {
+          user.avatarUrl = photo_url;
+          needsSave = true;
+          this.logger.log(`✅ Updated avatarUrl for user ${user.email}: ${photo_url}`);
+        }
+        if (phone_number && user.telegramPhone !== phone_number) {
+          user.telegramPhone = phone_number;
+          needsSave = true;
+          this.logger.log(`✅ Updated telegramPhone for user ${user.email}: ${phone_number}`);
+        }
+        if (needsSave) {
+          await this.usersRepo.save(user);
+        }
       }
     }
     
@@ -798,8 +833,20 @@ export class MultiAuthService {
       throw new Error('Не удалось создать или обновить пользователя');
     }
     
-    this.logger.log(`✅ handleTelegramLogin successful: user.id=${user.id}, user.email=${user.email}`);
-    return user;
+    // ✅ ИСПРАВЛЕНИЕ: Перезагружаем пользователя из базы после сохранения, чтобы получить актуальные данные
+    // Это гарантирует, что avatarUrl и telegramPhone будут актуальными
+    const updatedUser = await this.usersRepo.findOne({ 
+      where: { id: user.id },
+      relations: ['userRoleAssignments', 'userRoleAssignments.role']
+    });
+    
+    if (!updatedUser) {
+      this.logger.error(`❌ handleTelegramLogin: Failed to reload user ${user.id} from database`);
+      throw new Error('Не удалось загрузить данные пользователя');
+    }
+    
+    this.logger.log(`✅ handleTelegramLogin successful: user.id=${updatedUser.id}, user.email=${updatedUser.email}, avatarUrl=${updatedUser.avatarUrl || 'none'}, telegramPhone=${updatedUser.telegramPhone || 'none'}`);
+    return updatedUser;
   }
 
   /**

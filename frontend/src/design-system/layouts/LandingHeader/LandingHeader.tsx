@@ -241,7 +241,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
         user={userData}
         onSwitchAccount={() => {
           onLogout?.();
-          navigate(buildPathWithLang('/auth', currentLang));
+          navigate(buildPathWithLang('/', currentLang));
         }}
       />
       </Suspense>
