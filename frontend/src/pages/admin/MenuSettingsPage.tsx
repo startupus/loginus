@@ -473,7 +473,7 @@ const MenuSettingsPage: React.FC = () => {
 
   // Обработчик DragOver для определения позиции drop
   const handleDragOver = (event: DragOverEvent) => {
-    const { active, over, delta } = event;
+    const { active, over } = event;
     
     if (!over || active.id === over.id) {
       setOverId(null);
@@ -485,13 +485,19 @@ const MenuSettingsPage: React.FC = () => {
 
     // Определяем позицию курсора относительно элемента
     const overElement = document.querySelector(`[data-menu-item-id="${over.id}"]`);
-    if (!overElement) return;
+    if (!overElement) {
+      setDropPosition(null);
+      return;
+    }
 
     const rect = overElement.getBoundingClientRect();
     
     // Используем active rect для вычисления позиции
     const activeRect = active.rect.current.translated;
-    if (!activeRect) return;
+    if (!activeRect) {
+      setDropPosition(null);
+      return;
+    }
     
     const activeCenterY = activeRect.top + activeRect.height / 2;
     const currentX = activeRect.left;
@@ -500,25 +506,36 @@ const MenuSettingsPage: React.FC = () => {
     const overBottom = rect.bottom;
     const overHeight = rect.height;
     const overCenterY = overTop + overHeight / 2;
+    const overLeft = rect.left;
+    const overRight = rect.right;
     
     // КЛЮЧЕВОЕ ИЗМЕНЕНИЕ:
-    // Считаем СДВИГ от начальной позиции, а не от левого края элемента!
+    // Считаем СДВИГ от начальной позиции для определения вложенности
     const horizontalDelta = currentX - dragStartX;
     const verticalOffset = activeCenterY - overCenterY;
+    
+    // Определяем, находится ли курсор в правой части элемента (для вложения)
+    const overWidth = overRight - overLeft;
+    const relativeX = currentX - overLeft;
+    const isInRightPart = relativeX > overWidth * 0.6; // Правая 40% элемента
 
     console.log('[DnD] Position:', { 
-      horizontalDelta: horizontalDelta.toFixed(0) + 'px',  // СДВИГ вправо от начальной позиции
+      horizontalDelta: horizontalDelta.toFixed(0) + 'px',
       verticalOffset: verticalOffset.toFixed(0) + 'px',
+      relativeX: relativeX.toFixed(0) + 'px',
+      overWidth: overWidth.toFixed(0) + 'px',
+      isInRightPart,
       currentX: currentX.toFixed(0),
       dragStartX: dragStartX.toFixed(0)
     });
 
     // НОВАЯ ЛОГИКА:
-    // 1. ПРИОРИТЕТ: Если сдвинули ВПРАВО > 40px от начальной позиции → NEST
-    // 2. Если НЕТ сдвига вправо → вертикальное перемещение (before/after)
+    // 1. ПРИОРИТЕТ: Если сдвинули ВПРАВО > 40px И курсор в правой части элемента → NEST (вложить)
+    // 2. Если сдвинули ВЛЕВО < -20px → извлечь из вложенности (before/after на том же уровне)
+    // 3. Если НЕТ горизонтального сдвига → вертикальное перемещение (before/after)
 
-    if (horizontalDelta > 40) {
-      // Сдвинут вправо от начальной позиции → попытка вложить
+    if (horizontalDelta > 40 && isInRightPart) {
+      // Сдвинут вправо от начальной позиции И курсор в правой части → попытка вложить
       const allItemsFlat = getAllItemsFlat(items);
       const activeItem = allItemsFlat.find((item) => item.id === active.id);
       const overItem = allItemsFlat.find((item) => item.id === over.id);
@@ -533,6 +550,7 @@ const MenuSettingsPage: React.FC = () => {
       }
     }
 
+    // Если сдвинули влево → извлечение из вложенности (вертикальное перемещение)
     // Если НЕТ горизонтального сдвига → вертикальное перемещение
     if (activeCenterY < overCenterY) {
       // Курсор выше центра элемента → вставить ПЕРЕД
@@ -619,6 +637,20 @@ const MenuSettingsPage: React.FC = () => {
       return;
     }
 
+    if (!overItem) {
+      console.warn('[MenuSettingsPage] handleDragEnd: overItem not found', { overId: over.id });
+      return;
+    }
+
+    // Функция для глубокого копирования элемента (без children для вложенных)
+    const cloneItem = (item: MenuItemConfig, removeChildren: boolean = false): MenuItemConfig => {
+      const cloned = { ...item };
+      if (removeChildren) {
+        delete cloned.children;
+      }
+      return cloned;
+    };
+
     // Функция для рекурсивного удаления элемента из структуры
     const removeItemRecursively = (itemsList: MenuItemConfig[], itemId: string): MenuItemConfig[] => {
       return itemsList
@@ -634,7 +666,7 @@ const MenuSettingsPage: React.FC = () => {
         });
     };
 
-    // Функция для добавления элемента в children родителя
+    // Функция для добавления элемента в children родителя (рекурсивно)
     const addToParent = (itemsList: MenuItemConfig[], parentId: string, childItem: MenuItemConfig): MenuItemConfig[] => {
       return itemsList.map(item => {
         if (item.id === parentId) {
@@ -645,10 +677,9 @@ const MenuSettingsPage: React.FC = () => {
             children: [
               ...existingChildren,
               {
-                ...childItem,
+                ...cloneItem(childItem, true), // Убираем children при вложении
                 path: newPath,
                 order: existingChildren.length + 1,
-                children: undefined, // Убираем children при вложении
               },
             ],
           };
@@ -663,8 +694,8 @@ const MenuSettingsPage: React.FC = () => {
       });
     };
 
-    // Функция для вставки элемента до/после другого элемента
-    const insertItem = (
+    // Функция для рекурсивной вставки элемента до/после другого элемента
+    const insertItemRecursively = (
       itemsList: MenuItemConfig[], 
       targetId: string, 
       itemToInsert: MenuItemConfig, 
@@ -673,14 +704,25 @@ const MenuSettingsPage: React.FC = () => {
       const result: MenuItemConfig[] = [];
       
       for (const item of itemsList) {
-        if (position === 'before' && item.id === targetId) {
-          result.push(itemToInsert);
-          result.push(item);
-        } else if (position === 'after' && item.id === targetId) {
-          result.push(item);
-          result.push(itemToInsert);
+        if (item.id === targetId) {
+          // Найден целевой элемент
+          if (position === 'before') {
+            result.push(cloneItem(itemToInsert, true)); // Извлекаем из вложенности
+            result.push(item);
+          } else {
+            result.push(item);
+            result.push(cloneItem(itemToInsert, true)); // Извлекаем из вложенности
+          }
         } else {
-          result.push(item);
+          // Обычный элемент - проверяем children
+          if (item.children && item.children.length > 0) {
+            result.push({
+              ...item,
+              children: insertItemRecursively(item.children, targetId, itemToInsert, position),
+            });
+          } else {
+            result.push(item);
+          }
         }
       }
       
@@ -689,41 +731,41 @@ const MenuSettingsPage: React.FC = () => {
 
     let updatedItems: MenuItemConfig[];
 
-    // Удаляем активный элемент из текущей позиции
+    // ВАЖНО: Сначала удаляем активный элемент из текущей позиции
     updatedItems = removeItemRecursively(items, activeItem.id);
+
+    // Проверяем, что элемент действительно был удален
+    const checkAfterRemove = getAllItemsFlat(updatedItems);
+    if (checkAfterRemove.find(item => item.id === activeItem.id)) {
+      console.error('[MenuSettingsPage] Failed to remove active item!');
+      return; // Не продолжаем, если элемент не был удален
+    }
 
     // Применяем действие в зависимости от dropPosition
     if (dropPosition === 'inside' && overItem) {
       // Вложить внутрь overItem
-      console.log('[MenuSettingsPage] Nesting item inside');
+      console.log('[MenuSettingsPage] Nesting item inside', { activeId: activeItem.id, overId: overItem.id });
       updatedItems = addToParent(updatedItems, overItem.id, activeItem);
     } else if (dropPosition === 'before' && overItem) {
-      // Вставить перед overItem
-      console.log('[MenuSettingsPage] Inserting before');
-      const extractedItem = {
-        ...activeItem,
-        path: generatePath(activeItem.label || activeItem.id),
-        children: undefined,
-      };
-      updatedItems = insertItem(updatedItems, overItem.id, extractedItem, 'before');
+      // Вставить перед overItem (извлекаем из вложенности, если был вложен)
+      console.log('[MenuSettingsPage] Inserting before', { activeId: activeItem.id, overId: overItem.id });
+      updatedItems = insertItemRecursively(updatedItems, overItem.id, activeItem, 'before');
     } else if (dropPosition === 'after' && overItem) {
-      // Вставить после overItem
-      console.log('[MenuSettingsPage] Inserting after');
-      const extractedItem = {
-        ...activeItem,
-        path: generatePath(activeItem.label || activeItem.id),
-        children: undefined,
-      };
-      updatedItems = insertItem(updatedItems, overItem.id, extractedItem, 'after');
+      // Вставить после overItem (извлекаем из вложенности, если был вложен)
+      console.log('[MenuSettingsPage] Inserting after', { activeId: activeItem.id, overId: overItem.id });
+      updatedItems = insertItemRecursively(updatedItems, overItem.id, activeItem, 'after');
     } else {
-      // Fallback: вставляем в конец списка
-      console.log('[MenuSettingsPage] Fallback: appending to end');
-      const extractedItem = {
-        ...activeItem,
-        path: generatePath(activeItem.label || activeItem.id),
-        children: undefined,
-      };
-      updatedItems = [...updatedItems, extractedItem];
+      // Fallback: вставляем в конец корневого списка (извлекаем из вложенности)
+      console.log('[MenuSettingsPage] Fallback: appending to end', { activeId: activeItem.id });
+      updatedItems = [...updatedItems, cloneItem(activeItem, true)];
+    }
+
+    // Проверяем, что элемент присутствует в результате
+    const checkAfterInsert = getAllItemsFlat(updatedItems);
+    if (!checkAfterInsert.find(item => item.id === activeItem.id)) {
+      console.error('[MenuSettingsPage] Item was lost during drag! Restoring...');
+      // Восстанавливаем элемент в конец списка
+      updatedItems = [...updatedItems, cloneItem(activeItem, true)];
     }
 
     // Обновляем порядок для всех корневых элементов и их children
