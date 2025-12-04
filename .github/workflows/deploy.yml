@@ -57,16 +57,20 @@ jobs:
             # Клонируем или обновляем репозиторий
             if [ -d .git ]; then
               echo "📥 Updating repository..."
+              # Обновляем remote на правильный репозиторий
+              git remote set-url origin git@github.com:startupus/loginus.git || git remote add origin git@github.com:startupus/loginus.git
               git fetch origin
+              git checkout main
               git reset --hard origin/main
               git clean -fd
             else
               echo "📥 Cloning repository via SSH..."
               # Используем SSH с Deploy Key
-              git clone git@github.com:teramisuslik/loginus-v2.git . || {
+              git clone git@github.com:startupus/loginus.git . || {
                 echo "❌ Failed to clone repository"
                 exit 1
               }
+              git checkout main
             fi
             
             # Останавливаем старые контейнеры
