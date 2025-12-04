@@ -54,21 +54,48 @@ sleep 3
 
 # Обновляем фронтенд (Vite dev server)
 echo -e "${GREEN}🔄 Updating frontend...${NC}"
-cd frontend
-if [ -d node_modules ]; then
-  echo -e "${YELLOW}📦 Installing/updating frontend dependencies...${NC}"
-  npm install || pnpm install || yarn install
-else
-  echo -e "${YELLOW}📦 Installing frontend dependencies...${NC}"
-  npm install || pnpm install || yarn install
+
+# Проверка наличия pnpm
+if ! command -v pnpm &> /dev/null; then
+  echo -e "${YELLOW}📦 Installing pnpm...${NC}"
+  npm install -g pnpm
 fi
 
-# Перезапускаем Vite dev server
-echo -e "${GREEN}🚀 Restarting Vite dev server...${NC}"
-pkill -f vite || true
-sleep 2
-nohup npm run dev > /tmp/vite.log 2>&1 &
-echo -e "${GREEN}   Vite dev server started in background (logs: /tmp/vite.log)${NC}"
+cd frontend
+
+# Установка зависимостей
+if [ ! -d node_modules ]; then
+  echo -e "${YELLOW}📦 Installing frontend dependencies...${NC}"
+  pnpm install
+else
+  echo -e "${YELLOW}📦 Updating frontend dependencies...${NC}"
+  pnpm install
+fi
+
+# Остановка старого процесса если есть
+if lsof -ti:3000 > /dev/null 2>&1; then
+  echo -e "${YELLOW}🛑 Stopping old frontend process...${NC}"
+  lsof -ti:3000 | xargs kill -9 2>/dev/null || true
+  sleep 2
+fi
+
+# Создание .env файла для фронтенда если его нет
+if [ ! -f .env.production ]; then
+  echo -e "${YELLOW}📝 Creating frontend .env.production...${NC}"
+  cat > .env.production << EOF
+VITE_API_BASE_URL=/api/v2
+VITE_API_URL=http://localhost:3004
+EOF
+fi
+
+# Запуск фронтенда
+echo -e "${GREEN}🚀 Starting frontend on http://localhost:3000${NC}"
+nohup pnpm dev > /tmp/loginus-frontend.log 2>&1 &
+FRONTEND_PID=$!
+
+echo -e "${GREEN}   Frontend started with PID: $FRONTEND_PID${NC}"
+echo -e "${GREEN}   Access at: http://localhost:3000${NC}"
+echo -e "${GREEN}   Logs: /tmp/loginus-frontend.log${NC}"
 
 cd ..
 
