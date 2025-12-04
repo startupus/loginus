@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouterProvider, Navigate, useLocation } from 'react-router-dom';
 import { Suspense } from 'react';
-import { LandingPage, AboutPage, FeaturesPage, AuthPage, AuthPageV2, VerifyCodePage, RegisterPage, OnboardingPage, ResetPasswordPage, DashboardPage, PersonalDocumentsPage, PersonalAddressesPage, FamilyPage, WorkPage, SecurityPage, RecoveryMethodsPage, ActivityHistoryPage, DevicesPage, DataPage, PayPage, SupportPage, HelpPage, AuthorizationHelpPage, RegistrationHelpPage, SecurityHelpPage, RecoveryHelpPage, KeyHelpPage, FamilyHelpPage, DataHelpPage, PaymentsHelpPage, AdminDashboardPage, UsersManagementPage, CompaniesManagementPage, CompanyDetailPage, AuthFlowBuilderPage, BackupSettingsPage, MenuSettingsPage, PaymentMethodsPage, ExtensionsManagerPage, PluginsUploadPage, WidgetsUploadPage, IframePage, EmbeddedAppPage, ErrorPage, FamilyInvitePage, GitHubLoginPage, TelegramLoginPage } from './routes';
+import { LandingPage, AboutPage, FeaturesPage, AuthPage, AuthPageV2, VerifyCodePage, RegisterPage, OnboardingPage, ResetPasswordPage, DashboardPage, PersonalDocumentsPage, PersonalAddressesPage, FamilyPage, WorkPage, SecurityPage, RecoveryMethodsPage, ActivityHistoryPage, DevicesPage, DataPage, PayPage, SupportPage, HelpPage, AuthorizationHelpPage, RegistrationHelpPage, SecurityHelpPage, RecoveryHelpPage, KeyHelpPage, FamilyHelpPage, DataHelpPage, PaymentsHelpPage, AdminDashboardPage, UsersManagementPage, CompaniesManagementPage, CompanyDetailPage, AuthFlowBuilderPage, BackupSettingsPage, MenuSettingsPage, PaymentMethodsPage, ExtensionsManagerPage, PluginsUploadPage, WidgetsUploadPage, IframePage, EmbeddedAppPage, ErrorPage, FamilyInvitePage, TeamInvitePage, GitHubLoginPage, TelegramLoginPage } from './routes';
 import { LanguageRoute } from './LanguageRoute';
 import { AdminRoute } from './AdminRoute';
 import { themeClasses } from '../design-system/utils/themeClasses';
@@ -18,6 +18,22 @@ const InvitationRedirect: React.FC = () => {
   console.log('[InvitationRedirect] Redirecting from:', location.pathname + location.search);
   console.log('[InvitationRedirect] Redirecting to:', `/ru/invitation${search}`);
   return <Navigate to={`/ru/invitation${search}`} replace />;
+};
+
+// Компонент для определения типа приглашения и показа соответствующей страницы
+const InvitationRouter: React.FC = () => {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const type = searchParams.get('type');
+  const teamId = searchParams.get('teamId');
+  
+  // Если указан type=team или teamId, показываем страницу приглашения команды
+  if (type === 'team' || teamId) {
+    return <TeamInvitePage />;
+  }
+  
+  // По умолчанию показываем страницу приглашения семьи
+  return <FamilyInvitePage />;
 };
 
 const router = createBrowserRouter([
@@ -159,6 +175,15 @@ const router = createBrowserRouter([
     ),
     errorElement: <ErrorPage />,
   },
+  // ✅ РЕДИРЕКТЫ для транслитерированных путей (исправление проблемы с путями из API)
+  {
+    path: '/:lang/dannye/dokumenty',
+    element: <Navigate to="../data/documents" replace />,
+  },
+  {
+    path: '/:lang/dannye/adresa',
+    element: <Navigate to="../data/addresses" replace />,
+  },
   // Редиректы со старого пути /personal на новый /data для обратной совместимости
   {
     path: '/:lang/personal',
@@ -199,7 +224,7 @@ const router = createBrowserRouter([
     element: (
       <LanguageRoute>
         <Suspense fallback={<LoadingFallback />}>
-          <FamilyInvitePage />
+          <InvitationRouter />
         </Suspense>
       </LanguageRoute>
     ),
@@ -601,6 +626,15 @@ const router = createBrowserRouter([
   },
   {
     path: '/data/addresses',
+    element: <Navigate to="/ru/data/addresses" replace />,
+  },
+  // ✅ РЕДИРЕКТЫ для транслитерированных путей без языка (исправление проблемы с путями из API)
+  {
+    path: '/dannye/dokumenty',
+    element: <Navigate to="/ru/data/documents" replace />,
+  },
+  {
+    path: '/dannye/adresa',
     element: <Navigate to="/ru/data/addresses" replace />,
   },
   // Редиректы со старого пути /personal на новый /data для обратной совместимости

@@ -160,12 +160,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             path: item.path,
                             navigationPath: item.navigationPath,
                             targetPath,
-                            willNavigate: !!targetPath
+                            willNavigate: !!targetPath && targetPath !== '#'
                           });
-                          if (targetPath) {
+                          if (targetPath && targetPath !== '#') {
                             onNavigate ? onNavigate(targetPath) : navigate(targetPath);
                           } else {
-                            console.warn('[Sidebar] No path for item:', item.label);
+                            console.warn('[Sidebar] No valid path for item:', {
+                              label: item.label,
+                              path: item.path,
+                              navigationPath: item.navigationPath
+                            });
                           }
                         }
                       }}
@@ -211,7 +215,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             onClick={() => {
                               // Используем navigationPath, если есть, иначе path
                               const targetPath = child.navigationPath || child.path;
-                              onNavigate ? onNavigate(targetPath) : navigate(targetPath);
+                              console.log('[Sidebar] Child navigation click:', {
+                                label: child.label,
+                                path: child.path,
+                                navigationPath: child.navigationPath,
+                                targetPath,
+                                willNavigate: !!targetPath && targetPath !== '#'
+                              });
+                              if (targetPath && targetPath !== '#') {
+                                onNavigate ? onNavigate(targetPath) : navigate(targetPath);
+                              } else {
+                                console.warn('[Sidebar] No valid path for child:', {
+                                  label: child.label,
+                                  path: child.path,
+                                  navigationPath: child.navigationPath
+                                });
+                              }
                             }}
                             className={`${themeClasses.text.secondary} dark:text-dark-6 hover:border-primary hover:bg-primary/5 hover:text-primary flex w-full items-center border-r-4 border-transparent py-[10px] pl-9 pr-2 text-base font-medium duration-200 transition-all text-left ${
                               child.active ? '!border-primary bg-primary/5' : ''

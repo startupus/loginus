@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { preloadModule } from '../../services/i18n/config';
@@ -62,6 +62,8 @@ interface MenuItemProps {
   depth?: number; // Уровень вложенности для отступов
   overId?: string | null;
   dropPosition?: 'before' | 'after' | 'inside' | null;
+  collapsedItems?: Set<string>;
+  onToggleCollapse?: (id: string) => void;
 }
 
 const MenuItem: React.FC<MenuItemProps> = ({ 
@@ -72,6 +74,8 @@ const MenuItem: React.FC<MenuItemProps> = ({
   depth = 0,
   overId,
   dropPosition,
+  collapsedItems = new Set(),
+  onToggleCollapse,
 }) => {
   const { t } = useTranslation();
   const {
@@ -94,21 +98,12 @@ const MenuItem: React.FC<MenuItemProps> = ({
   const canDelete = !isDefault; // Базовые пункты нельзя удалять
   const leftPadding = depth * 32; // 32px отступ на каждый уровень
   
-  // Определяем показывать ли drop indicator
+  // Убираем визуальные индикаторы - классический D&D без полосок
   const isDropTarget = overId === item.id;
-  const showDropBefore = isDropTarget && dropPosition === 'before';
-  const showDropAfter = isDropTarget && dropPosition === 'after';
   const showDropInside = isDropTarget && dropPosition === 'inside';
 
   return (
     <>
-      {/* Drop indicator - линия сверху */}
-      {showDropBefore && (
-        <div 
-          className="h-1 bg-blue-500 rounded-full mx-4 my-1 shadow-lg"
-          style={{ marginLeft: `${leftPadding + 16}px` }}
-        />
-      )}
 
       <div
         ref={setNodeRef}
@@ -134,6 +129,25 @@ const MenuItem: React.FC<MenuItemProps> = ({
       >
         <Icon name="grip-vertical" size="sm" />
       </div>
+
+      {/* Стрелочка для сворачивания/разворачивания (только для элементов с детьми) */}
+      {item.children && item.children.length > 0 && onToggleCollapse ? (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleCollapse(item.id);
+          }}
+          className={`${themeClasses.utility.flexItemsCenter} ${themeClasses.utility.justifyCenter} w-6 h-6 ${themeClasses.utility.rounded} ${themeClasses.utility.transitionAll} hover:${themeClasses.background.hover} ${themeClasses.text.secondary} ${themeClasses.utility.opacity80}`}
+          aria-label={collapsedItems.has(item.id) ? 'Развернуть' : 'Свернуть'}
+        >
+          <Icon 
+            name={collapsedItems.has(item.id) ? "chevron-right" : "chevron-down"} 
+            size="sm" 
+          />
+        </button>
+      ) : (
+        <div className="w-6" /> // Заглушка для выравнивания
+      )}
 
       {/* Иконка пункта меню */}
       {item.icon && (
@@ -199,17 +213,9 @@ const MenuItem: React.FC<MenuItemProps> = ({
         />
       </div>
     </div>
-
-    {/* Drop indicator - линия снизу */}
-    {showDropAfter && (
-      <div 
-        className="h-1 bg-blue-500 rounded-full mx-4 my-1 shadow-lg"
-        style={{ marginLeft: `${leftPadding + 16}px` }}
-      />
-    )}
     
     {/* Рекурсивный рендеринг вложенных элементов с отдельным SortableContext */}
-    {item.children && item.children.length > 0 && (
+    {item.children && item.children.length > 0 && !collapsedItems.has(item.id) && (
       <SortableContext
         items={item.children.map((child) => child.id)}
         strategy={verticalListSortingStrategy}
@@ -225,6 +231,8 @@ const MenuItem: React.FC<MenuItemProps> = ({
               depth={depth + 1}
               overId={overId}
               dropPosition={dropPosition}
+              collapsedItems={collapsedItems}
+              onToggleCollapse={onToggleCollapse}
             />
           ))}
         </div>
@@ -296,6 +304,7 @@ const MenuSettingsPage: React.FC = () => {
   const [itemToDelete, setItemToDelete] = useState<MenuItemConfig | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<MenuItemConfig | null>(null);
+  const [collapsedItems, setCollapsedItems] = useState<Set<string>>(new Set());
   const [newItem, setNewItem] = useState<Partial<MenuItemConfig & { labelRu?: string; labelEn?: string }>>({
     type: 'external',
     enabled: true,
@@ -305,7 +314,11 @@ const MenuSettingsPage: React.FC = () => {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
   const [dropPosition, setDropPosition] = useState<'before' | 'after' | 'inside' | null>(null);
-  const [dragStartX, setDragStartX] = useState<number>(0);
+  const [dragStartPosition, setDragStartPosition] = useState<{ x: number; y: number } | null>(null);
+  // Используем useRef для синхронного доступа к последним координатам мыши
+  const lastMousePositionRef = useRef<{ x: number; y: number } | null>(null);
+  // Сохраняем начальную позицию элемента (не мыши) для вычисления горизонтального движения
+  const dragStartElementPositionRef = useRef<{ x: number; y: number } | null>(null);
 
   // Настройка сенсоров для drag & drop
   const sensors = useSensors(
@@ -437,12 +450,23 @@ const MenuSettingsPage: React.FC = () => {
   }, [generatePath]);
 
   // Функция проверки, можно ли вложить один пункт в другой
+  // Проверка, можно ли вложить draggedItem в targetItem
   const canBeNested = useCallback((draggedItem: MenuItemConfig, targetItem: MenuItemConfig): boolean => {
     // Нельзя вложить в себя
     if (draggedItem.id === targetItem.id) return false;
     
-    // Нельзя вложить родителя в своего ребенка
-    if (targetItem.children?.some((child: MenuItemConfig) => child.id === draggedItem.id)) {
+    // Нельзя вложить родителя в своего ребенка (рекурсивная проверка)
+    const isChildOfDragged = (item: MenuItemConfig, parentId: string): boolean => {
+      if (item.children) {
+        if (item.children.some((child: MenuItemConfig) => child.id === parentId)) {
+          return true;
+        }
+        return item.children.some((child: MenuItemConfig) => isChildOfDragged(child, parentId));
+      }
+      return false;
+    };
+    
+    if (isChildOfDragged(targetItem, draggedItem.id)) {
       return false;
     }
     
@@ -452,7 +476,10 @@ const MenuSettingsPage: React.FC = () => {
     );
     if (targetHasParent) return false;
     
-    // Нельзя вложить, если элемент уже имеет детей (ограничение: не больше 2 уровней)
+    // ВАЖНО: Можно вложить в любой элемент, даже если у него уже есть дети
+    // Ограничение только на глубину (максимум 2 уровня)
+    
+    // Нельзя вложить элемент с детьми (ограничение: не больше 2 уровней)
     if (draggedItem.children && draggedItem.children.length > 0) {
       return false;
     }
@@ -464,14 +491,48 @@ const MenuSettingsPage: React.FC = () => {
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
     
-    // Сохраняем начальную X позицию для определения горизонтального сдвига
+    console.log('[DnD] DragStart called', { 
+      activeId: event.active.id,
+      hasInitialRect: !!event.active.rect.current.initial,
+      hasTranslatedRect: !!event.active.rect.current.translated
+    });
+    
+    // ВАЖНО: Сохраняем начальную позицию ЭЛЕМЕНТА (не мыши)
+    // Это нужно для правильного определения горизонтального движения элемента
     const activeRect = event.active.rect.current.initial;
     if (activeRect) {
-      setDragStartX(activeRect.left);
+      const startX = activeRect.left + activeRect.width / 2;
+      const startY = activeRect.top + activeRect.height / 2;
+      dragStartElementPositionRef.current = { x: startX, y: startY };
+      setDragStartPosition({ x: startX, y: startY }); // Для совместимости
+      console.log('[DnD] DragStart - position saved:', { 
+        activeId: event.active.id,
+        elementX: startX.toFixed(0),
+        elementY: startY.toFixed(0),
+        refValue: dragStartElementPositionRef.current ? `${dragStartElementPositionRef.current.x.toFixed(0)}, ${dragStartElementPositionRef.current.y.toFixed(0)}` : 'null'
+      });
+    } else {
+      console.warn('[DnD] DragStart - activeRect is null, trying fallback');
+      // Fallback: пытаемся получить позицию из DOM
+      const element = document.querySelector(`[data-menu-item-id="${event.active.id}"]`);
+      if (element) {
+        const rect = element.getBoundingClientRect();
+        const startX = rect.left + rect.width / 2;
+        const startY = rect.top + rect.height / 2;
+        dragStartElementPositionRef.current = { x: startX, y: startY };
+        setDragStartPosition({ x: startX, y: startY });
+        console.log('[DnD] DragStart - fallback position saved:', { 
+          activeId: event.active.id,
+          elementX: startX.toFixed(0),
+          elementY: startY.toFixed(0)
+        });
+      } else {
+        console.error('[DnD] DragStart - cannot find element in DOM');
+      }
     }
   };
 
-  // Обработчик DragOver для определения позиции drop
+  // Классический D&D: простое определение позиции
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
     
@@ -482,8 +543,42 @@ const MenuSettingsPage: React.FC = () => {
     }
 
     setOverId(over.id as string);
+    console.log('[DnD] DragOver called', { activeId: active.id, overId: over.id });
 
-    // Определяем позицию курсора относительно элемента
+    // Получаем координаты мыши
+    const activatorEvent = event.activatorEvent as MouseEvent | TouchEvent | null;
+    let currentMouseX = 0;
+    let currentMouseY = 0;
+    
+    if (activatorEvent) {
+      currentMouseX = 'clientX' in activatorEvent ? activatorEvent.clientX : 
+                      (activatorEvent.touches?.[0]?.clientX || 0);
+      currentMouseY = 'clientY' in activatorEvent ? activatorEvent.clientY : 
+                      (activatorEvent.touches?.[0]?.clientY || 0);
+    } else {
+      // Fallback: используем позицию элемента
+      const activeRect = active.rect.current.translated;
+      if (activeRect) {
+        currentMouseX = activeRect.left + activeRect.width / 2;
+        currentMouseY = activeRect.top + activeRect.height / 2;
+      } else {
+        setDropPosition(null);
+        return;
+      }
+    }
+    
+    // ВСЕГДА сохраняем последние координаты мыши для использования в handleDragEnd (синхронно через useRef)
+    lastMousePositionRef.current = { x: currentMouseX, y: currentMouseY };
+    console.log('[DnD] DragOver - saving mouse position', {
+      mouseX: currentMouseX.toFixed(0),
+      mouseY: currentMouseY.toFixed(0),
+      hasActivatorEvent: !!activatorEvent,
+      dragStartX: dragStartPosition?.x.toFixed(0) || 'null',
+      dragStartY: dragStartPosition?.y.toFixed(0) || 'null',
+      refValue: lastMousePositionRef.current ? `${lastMousePositionRef.current.x.toFixed(0)}, ${lastMousePositionRef.current.y.toFixed(0)}` : 'null'
+    });
+    
+    // Получаем позицию целевого элемента
     const overElement = document.querySelector(`[data-menu-item-id="${over.id}"]`);
     if (!overElement) {
       setDropPosition(null);
@@ -491,74 +586,40 @@ const MenuSettingsPage: React.FC = () => {
     }
 
     const rect = overElement.getBoundingClientRect();
+    const overCenterY = rect.top + rect.height / 2;
     
-    // Используем active rect для вычисления позиции
-    const activeRect = active.rect.current.translated;
-    if (!activeRect) {
-      setDropPosition(null);
-      return;
-    }
-    
-    const activeCenterY = activeRect.top + activeRect.height / 2;
-    const currentX = activeRect.left;
-    
-    const overTop = rect.top;
-    const overBottom = rect.bottom;
-    const overHeight = rect.height;
-    const overCenterY = overTop + overHeight / 2;
-    const overLeft = rect.left;
-    const overRight = rect.right;
-    
-    // КЛЮЧЕВОЕ ИЗМЕНЕНИЕ:
-    // Считаем СДВИГ от начальной позиции для определения вложенности
-    const horizontalDelta = currentX - dragStartX;
-    const verticalOffset = activeCenterY - overCenterY;
-    
-    // Определяем, находится ли курсор в правой части элемента (для вложения)
-    const overWidth = overRight - overLeft;
-    const relativeX = currentX - overLeft;
-    const isInRightPart = relativeX > overWidth * 0.6; // Правая 40% элемента
-
-    console.log('[DnD] Position:', { 
-      horizontalDelta: horizontalDelta.toFixed(0) + 'px',
-      verticalOffset: verticalOffset.toFixed(0) + 'px',
-      relativeX: relativeX.toFixed(0) + 'px',
-      overWidth: overWidth.toFixed(0) + 'px',
-      isInRightPart,
-      currentX: currentX.toFixed(0),
-      dragStartX: dragStartX.toFixed(0)
-    });
-
-    // НОВАЯ ЛОГИКА:
-    // 1. ПРИОРИТЕТ: Если сдвинули ВПРАВО > 40px И курсор в правой части элемента → NEST (вложить)
-    // 2. Если сдвинули ВЛЕВО < -20px → извлечь из вложенности (before/after на том же уровне)
-    // 3. Если НЕТ горизонтального сдвига → вертикальное перемещение (before/after)
-
-    if (horizontalDelta > 40 && isInRightPart) {
-      // Сдвинут вправо от начальной позиции И курсор в правой части → попытка вложить
-      const allItemsFlat = getAllItemsFlat(items);
-      const activeItem = allItemsFlat.find((item) => item.id === active.id);
-      const overItem = allItemsFlat.find((item) => item.id === over.id);
+    // ВЛОЖЕНИЕ: ТОЛЬКО при явном движении вправо
+    // ВАЖНО: Проверяем, что горизонтальное движение значительно больше вертикального
+    if (dragStartPosition) {
+      const horizontalDelta = currentMouseX - dragStartPosition.x;
+      const verticalDelta = currentMouseY - dragStartPosition.y;
+      const absHorizontal = Math.abs(horizontalDelta);
+      const absVertical = Math.abs(verticalDelta);
       
-      if (activeItem && overItem && canBeNested(activeItem, overItem)) {
-        setDropPosition('inside');
-        return;
-      } else {
-        // Не можем вложить → вставляем после
-        setDropPosition('after');
-        return;
+      // ВЛОЖЕНИЕ ТОЛЬКО если:
+      // 1. Движение вправо > 10px (порог для удобства)
+      // При движении вправо элемент вкладывается независимо от вертикального движения
+      if (horizontalDelta > 10) {
+        const allItemsFlat = getAllItemsFlat(items);
+        const activeItem = allItemsFlat.find((item) => item.id === active.id);
+        const overItem = allItemsFlat.find((item) => item.id === over.id);
+        
+        if (activeItem && overItem && canBeNested(activeItem, overItem)) {
+          setDropPosition('inside');
+          console.log('[DnD] Nesting triggered', {
+            horizontalDelta: horizontalDelta.toFixed(0),
+            verticalDelta: verticalDelta.toFixed(0),
+            ratio: (absHorizontal / absVertical).toFixed(2)
+          });
+          return;
+        }
       }
     }
 
-    // Если сдвинули влево → извлечение из вложенности (вертикальное перемещение)
-    // Если НЕТ горизонтального сдвига → вертикальное перемещение
-    if (activeCenterY < overCenterY) {
-      // Курсор выше центра элемента → вставить ПЕРЕД
-      setDropPosition('before');
-    } else {
-      // Курсор ниже центра элемента → вставить ПОСЛЕ
-      setDropPosition('after');
-    }
+    // ВЕРТИКАЛЬНОЕ ПЕРЕМЕЩЕНИЕ: просто меняем местами
+    // Определяем позицию по вертикали мыши относительно центра элемента
+    const position = currentMouseY < overCenterY ? 'before' : 'after';
+    setDropPosition(position);
   };
 
   // Вспомогательная функция для получения плоского списка всех элементов (включая вложенные)
@@ -618,11 +679,36 @@ const MenuSettingsPage: React.FC = () => {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
+    // ВАЖНО: Получаем координаты элемента в момент отпускания
+    // active.rect.current.translated отражает текущую позицию элемента, который следует за мышью
+    const activeRect = active.rect.current.translated;
+    let finalElementX = 0;
+    let finalElementY = 0;
+    
+    if (activeRect) {
+      // Используем центр элемента
+      finalElementX = activeRect.left + activeRect.width / 2;
+      finalElementY = activeRect.top + activeRect.height / 2;
+    } else {
+      // Fallback: используем начальную позицию (не идеально, но лучше чем ничего)
+      const initialRect = active.rect.current.initial;
+      if (initialRect) {
+        finalElementX = initialRect.left + initialRect.width / 2;
+        finalElementY = initialRect.top + initialRect.height / 2;
+      }
+    }
+    
+    // ВАЖНО: Сохраняем координаты ДО сброса состояния
+    const savedDragStartElementPosition = dragStartElementPositionRef.current;
+    const savedDragStartPosition = dragStartPosition;
+
     // Сбрасываем состояние
     setActiveId(null);
     setOverId(null);
     setDropPosition(null);
-    setDragStartX(0);
+    setDragStartPosition(null);
+    lastMousePositionRef.current = null;
+    dragStartElementPositionRef.current = null;
 
     if (!over || active.id === over.id) {
       return;
@@ -642,44 +728,227 @@ const MenuSettingsPage: React.FC = () => {
       return;
     }
 
-    // Функция для глубокого копирования элемента (без children для вложенных)
-    const cloneItem = (item: MenuItemConfig, removeChildren: boolean = false): MenuItemConfig => {
-      const cloned = { ...item };
-      if (removeChildren) {
-        delete cloned.children;
-      }
-      return cloned;
-    };
-
-    // Функция для рекурсивного удаления элемента из структуры
-    const removeItemRecursively = (itemsList: MenuItemConfig[], itemId: string): MenuItemConfig[] => {
-      return itemsList
-        .filter(item => item.id !== itemId)
-        .map(item => {
-          if (item.children && item.children.length > 0) {
-            return {
-              ...item,
-              children: removeItemRecursively(item.children, itemId),
-            };
+    // КРИТИЧЕСКИ ВАЖНО: Определяем финальную позицию на основе визуального положения элемента
+    // Находим ближайший элемент по Y координате
+    // Используем уже объявленный activeRect из строки 667
+    const allMenuElements = document.querySelectorAll('[data-menu-item-id]');
+    
+    // ВАЖНО: НЕ используем dropPosition из handleDragOver - всегда определяем заново
+    // Это предотвращает случайное вложение при обычном перемещении
+    let finalDropPosition: 'before' | 'after' | 'inside' = 'after';
+    let finalOverItem = overItem;
+    
+    if (activeRect && allMenuElements.length > 0) {
+      const activeCenterY = activeRect.top + activeRect.height / 2;
+      
+      // Находим ближайший элемент по Y координате (исключая сам перетаскиваемый)
+      let closestElement: Element | null = null;
+      let closestDistance = Infinity;
+      
+      allMenuElements.forEach((element) => {
+        const elementId = element.getAttribute('data-menu-item-id');
+        // Пропускаем сам перетаскиваемый элемент
+        if (elementId === activeItem.id) {
+          return;
+        }
+        
+        const rect = element.getBoundingClientRect();
+        const elementCenterY = rect.top + rect.height / 2;
+        const distance = Math.abs(activeCenterY - elementCenterY);
+        
+        // Находим ближайший элемент
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestElement = element;
+        }
+      });
+      
+      if (closestElement) {
+        const closestId = closestElement.getAttribute('data-menu-item-id');
+        if (closestId) {
+          const closestItem = allItemsFlat.find((item) => item.id === closestId);
+          if (closestItem && closestItem.id !== activeItem.id) {
+            finalOverItem = closestItem;
+            
+            // Определяем позицию: выше центра = before, ниже центра = after
+            const closestRect = closestElement.getBoundingClientRect();
+            const closestCenterY = closestRect.top + closestRect.height / 2;
+            finalDropPosition = activeCenterY < closestCenterY ? 'before' : 'after';
+            
+            // ВЛОЖЕНИЕ: ТОЛЬКО при явном движении вправо
+            // ВАЖНО: Используем координаты ЭЛЕМЕНТА (не мыши) для вычисления горизонтального движения
+            console.log('[MenuSettingsPage] Checking nesting - ref state', {
+              hasDragStartElementPosition: !!savedDragStartElementPosition,
+              finalElementX: finalElementX.toFixed(0),
+              finalElementY: finalElementY.toFixed(0),
+              dragStartValue: savedDragStartElementPosition ? `${savedDragStartElementPosition.x.toFixed(0)}, ${savedDragStartElementPosition.y.toFixed(0)}` : 'null'
+            });
+            if (savedDragStartElementPosition) {
+              // Вычисляем движение ЭЛЕМЕНТА от начальной позиции до финальной позиции
+              const horizontalDelta = finalElementX - savedDragStartElementPosition.x;
+              const verticalDelta = finalElementY - savedDragStartElementPosition.y;
+              const absHorizontal = Math.abs(horizontalDelta);
+              const absVertical = Math.abs(verticalDelta);
+              
+              console.log('[MenuSettingsPage] Checking nesting conditions', {
+                horizontalDelta: horizontalDelta.toFixed(0),
+                verticalDelta: verticalDelta.toFixed(0),
+                absHorizontal: absHorizontal.toFixed(0),
+                absVertical: absVertical.toFixed(0),
+                ratio: absVertical > 0 ? (absHorizontal / absVertical).toFixed(2) : 'inf',
+                elementX: finalElementX.toFixed(0),
+                startX: savedDragStartElementPosition.x.toFixed(0),
+                hasDragStartElementPosition: !!savedDragStartElementPosition
+              });
+              
+              // Вложение ТОЛЬКО если:
+              // 1. Движение элемента вправо > 10px (порог для удобства)
+              // При движении вправо элемент вкладывается независимо от вертикального движения
+              // ВАЖНО: При вложении используем элемент, который находится ВЫШЕ по Y координате (верхний пункт)
+              // Находим все элементы выше перетаскиваемого и выбираем ближайший
+              const elementsAbove: Array<{ element: Element; item: MenuItemConfig; distance: number }> = [];
+              allMenuElements.forEach((element) => {
+                const elementId = element.getAttribute('data-menu-item-id');
+                if (elementId === activeItem.id) return;
+                
+                const rect = element.getBoundingClientRect();
+                const elementCenterY = rect.top + rect.height / 2;
+                // Элемент выше, если его центр Y меньше центра перетаскиваемого элемента
+                if (elementCenterY < activeCenterY) {
+                  const item = allItemsFlat.find((item) => item.id === elementId);
+                  if (item && canBeNested(activeItem, item)) {
+                    const distance = activeCenterY - elementCenterY;
+                    elementsAbove.push({ element, item, distance });
+                  }
+                }
+              });
+              
+              // Выбираем ближайший элемент выше (с минимальным расстоянием)
+              if (elementsAbove.length > 0) {
+                elementsAbove.sort((a, b) => a.distance - b.distance);
+                const topItem = elementsAbove[0].item;
+                
+                if (horizontalDelta > 10 && canBeNested(activeItem, topItem)) {
+                  finalDropPosition = 'inside';
+                  finalOverItem = topItem; // Используем верхний элемент
+                  console.log('[MenuSettingsPage] ✅ Nesting detected', {
+                    horizontalDelta: horizontalDelta.toFixed(0),
+                    verticalDelta: verticalDelta.toFixed(0),
+                    absHorizontal: absHorizontal.toFixed(0),
+                    absVertical: absVertical.toFixed(0),
+                    ratio: absVertical > 0 ? (absHorizontal / absVertical).toFixed(2) : 'inf',
+                    elementX: finalElementX.toFixed(0),
+                    startX: savedDragStartElementPosition.x.toFixed(0),
+                    topItemId: topItem.id,
+                    elementsAboveCount: elementsAbove.length
+                  });
+                } else {
+                  // Не вложение - используем обычную логику
+                  const closestRect = closestElement.getBoundingClientRect();
+                  const closestCenterY = closestRect.top + closestRect.height / 2;
+                  finalDropPosition = activeCenterY < closestCenterY ? 'before' : 'after';
+                }
+              } else if (horizontalDelta > 10 && canBeNested(activeItem, closestItem)) {
+                // Если нет элементов выше, но есть движение вправо, используем closestItem
+                finalDropPosition = 'inside';
+                finalOverItem = closestItem;
+                console.log('[MenuSettingsPage] ✅ Nesting detected (no elements above, using closest)', {
+                  horizontalDelta: horizontalDelta.toFixed(0),
+                  closestItemId: closestItem.id
+                });
+              } else {
+                // Определяем позицию только если НЕ вложение: выше центра = before, ниже центра = after
+                const closestRect = closestElement.getBoundingClientRect();
+                const closestCenterY = closestRect.top + closestRect.height / 2;
+                finalDropPosition = activeCenterY < closestCenterY ? 'before' : 'after';
+                console.log('[MenuSettingsPage] ❌ No nesting - conditions not met', {
+                  horizontalDelta: horizontalDelta.toFixed(0),
+                  verticalDelta: verticalDelta.toFixed(0),
+                  absHorizontal: absHorizontal.toFixed(0),
+                  absVertical: absVertical.toFixed(0),
+                  ratio: absVertical > 0 ? (absHorizontal / absVertical).toFixed(2) : 'inf',
+                  threshold: '> 20px and > 1.5x vertical',
+                  canBeNested: canBeNested(activeItem, closestItem)
+                });
+              }
+            } else {
+              // Если нет данных для проверки вложения, определяем позицию по вертикали
+              const closestRect = closestElement.getBoundingClientRect();
+              const closestCenterY = closestRect.top + closestRect.height / 2;
+              finalDropPosition = activeCenterY < closestCenterY ? 'before' : 'after';
+              console.log('[MenuSettingsPage] ⚠️ Cannot check nesting - missing data', {
+                hasDragStartElementPosition: !!savedDragStartElementPosition,
+                finalElementX: finalElementX.toFixed(0),
+                finalElementY: finalElementY.toFixed(0)
+              });
+            }
+            
+            console.log('[MenuSettingsPage] Visual position detected', {
+              activeCenterY: activeCenterY.toFixed(0),
+              closestCenterY: closestCenterY.toFixed(0),
+              position: finalDropPosition,
+              closestItemId: closestItem.id,
+              distance: closestDistance.toFixed(0)
+            });
           }
-          return item;
-        });
+        }
+      }
+    }
+
+    // Глубокое копирование элемента
+    const cloneItem = (item: MenuItemConfig): MenuItemConfig => {
+      return JSON.parse(JSON.stringify(item));
     };
 
-    // Функция для добавления элемента в children родителя (рекурсивно)
+    // Рекурсивное удаление элемента из структуры
+    // ВАЖНО: При удалении родителя его дети НЕ извлекаются - они удаляются вместе с родителем
+    // Дети будут перемещены вместе с родителем в новую позицию
+    const removeItemRecursively = (itemsList: MenuItemConfig[], itemId: string): MenuItemConfig[] => {
+      const result: MenuItemConfig[] = [];
+      
+      for (const item of itemsList) {
+        if (item.id === itemId) {
+          // Найден элемент для удаления - просто пропускаем его
+          // Дети остаются с родителем и будут перемещены вместе с ним
+          continue;
+        }
+        
+        const newItem = { ...item };
+        
+        // Рекурсивно обрабатываем children
+        if (item.children && item.children.length > 0) {
+          const filteredChildren = removeItemRecursively(item.children, itemId);
+          if (filteredChildren.length > 0) {
+            newItem.children = filteredChildren;
+          } else {
+            delete newItem.children;
+          }
+        }
+        
+        result.push(newItem);
+      }
+      
+      return result;
+    };
+
+    // Добавление элемента в children родителя
     const addToParent = (itemsList: MenuItemConfig[], parentId: string, childItem: MenuItemConfig): MenuItemConfig[] => {
       return itemsList.map(item => {
         if (item.id === parentId) {
           const existingChildren = item.children || [];
           const newPath = generatePath(childItem.label || childItem.id, parentId);
+          const clonedChild = cloneItem(childItem);
+          // Убираем children при вложении (максимум 2 уровня)
+          delete clonedChild.children;
+          
           return {
             ...item,
             children: [
               ...existingChildren,
               {
-                ...cloneItem(childItem, true), // Убираем children при вложении
+                ...clonedChild,
                 path: newPath,
-                order: existingChildren.length + 1,
+                order: existingChildren.length + 1, // Добавляем в конец списка детей
               },
             ],
           };
@@ -694,7 +963,7 @@ const MenuSettingsPage: React.FC = () => {
       });
     };
 
-    // Функция для рекурсивной вставки элемента до/после другого элемента
+    // Вставка элемента до/после целевого элемента
     const insertItemRecursively = (
       itemsList: MenuItemConfig[], 
       targetId: string, 
@@ -706,12 +975,16 @@ const MenuSettingsPage: React.FC = () => {
       for (const item of itemsList) {
         if (item.id === targetId) {
           // Найден целевой элемент
+          const clonedItem = cloneItem(itemToInsert);
+          // ВАЖНО: Сохраняем children при перемещении (не извлекаем из вложенности)
+          // delete clonedItem.children; // УБРАНО - сохраняем дочерние элементы
+          
           if (position === 'before') {
-            result.push(cloneItem(itemToInsert, true)); // Извлекаем из вложенности
+            result.push(clonedItem);
             result.push(item);
           } else {
             result.push(item);
-            result.push(cloneItem(itemToInsert, true)); // Извлекаем из вложенности
+            result.push(clonedItem);
           }
         } else {
           // Обычный элемент - проверяем children
@@ -729,43 +1002,55 @@ const MenuSettingsPage: React.FC = () => {
       return result;
     };
 
-    let updatedItems: MenuItemConfig[];
+    // Сохраняем копию активного элемента перед удалением
+    const activeItemClone = cloneItem(activeItem);
+    
+    // Удаляем активный элемент из текущей позиции
+    let updatedItems = removeItemRecursively(items, activeItem.id);
 
-    // ВАЖНО: Сначала удаляем активный элемент из текущей позиции
-    updatedItems = removeItemRecursively(items, activeItem.id);
-
-    // Проверяем, что элемент действительно был удален
+    // Проверяем, что элемент был удален
     const checkAfterRemove = getAllItemsFlat(updatedItems);
-    if (checkAfterRemove.find(item => item.id === activeItem.id)) {
-      console.error('[MenuSettingsPage] Failed to remove active item!');
-      return; // Не продолжаем, если элемент не был удален
+    const stillExists = checkAfterRemove.find(item => item.id === activeItem.id);
+    
+    if (stillExists) {
+      console.error('[MenuSettingsPage] Failed to remove active item! Item still exists after removal.');
+      // Пытаемся удалить еще раз более агрессивно
+      updatedItems = removeItemRecursively(updatedItems, activeItem.id);
     }
 
-    // Применяем действие в зависимости от dropPosition
-    if (dropPosition === 'inside' && overItem) {
-      // Вложить внутрь overItem
-      console.log('[MenuSettingsPage] Nesting item inside', { activeId: activeItem.id, overId: overItem.id });
-      updatedItems = addToParent(updatedItems, overItem.id, activeItem);
-    } else if (dropPosition === 'before' && overItem) {
-      // Вставить перед overItem (извлекаем из вложенности, если был вложен)
-      console.log('[MenuSettingsPage] Inserting before', { activeId: activeItem.id, overId: overItem.id });
-      updatedItems = insertItemRecursively(updatedItems, overItem.id, activeItem, 'before');
-    } else if (dropPosition === 'after' && overItem) {
-      // Вставить после overItem (извлекаем из вложенности, если был вложен)
-      console.log('[MenuSettingsPage] Inserting after', { activeId: activeItem.id, overId: overItem.id });
-      updatedItems = insertItemRecursively(updatedItems, overItem.id, activeItem, 'after');
+    // Применяем действие в зависимости от finalDropPosition (визуальной позиции)
+    if (finalDropPosition === 'inside' && finalOverItem) {
+      // Вложить внутрь finalOverItem
+      console.log('[MenuSettingsPage] Nesting item inside', { activeId: activeItem.id, overId: finalOverItem.id });
+      updatedItems = addToParent(updatedItems, finalOverItem.id, activeItemClone);
+    } else if (finalDropPosition === 'before' && finalOverItem) {
+      // Вставить перед finalOverItem
+      console.log('[MenuSettingsPage] Inserting before', { activeId: activeItem.id, overId: finalOverItem.id });
+      updatedItems = insertItemRecursively(updatedItems, finalOverItem.id, activeItemClone, 'before');
+    } else if (finalDropPosition === 'after' && finalOverItem) {
+      // Вставить после finalOverItem
+      console.log('[MenuSettingsPage] Inserting after', { activeId: activeItem.id, overId: finalOverItem.id });
+      updatedItems = insertItemRecursively(updatedItems, finalOverItem.id, activeItemClone, 'after');
     } else {
-      // Fallback: вставляем в конец корневого списка (извлекаем из вложенности)
-      console.log('[MenuSettingsPage] Fallback: appending to end', { activeId: activeItem.id });
-      updatedItems = [...updatedItems, cloneItem(activeItem, true)];
+      // Fallback: вставляем в конец корневого списка
+      // ВАЖНО: Сохраняем children при перемещении родительского элемента
+      console.log('[MenuSettingsPage] Fallback: appending to end', { activeId: activeItem.id, hasChildren: !!activeItemClone.children });
+      const cloned = cloneItem(activeItemClone);
+      // НЕ удаляем children - сохраняем их при перемещении
+      updatedItems = [...updatedItems, cloned];
     }
 
-    // Проверяем, что элемент присутствует в результате
+    // ФИНАЛЬНАЯ ПРОВЕРКА: элемент должен присутствовать в результате
     const checkAfterInsert = getAllItemsFlat(updatedItems);
-    if (!checkAfterInsert.find(item => item.id === activeItem.id)) {
-      console.error('[MenuSettingsPage] Item was lost during drag! Restoring...');
+    const itemExists = checkAfterInsert.find(item => item.id === activeItem.id);
+    
+    if (!itemExists) {
+      console.error('[MenuSettingsPage] Item was lost during drag! Restoring to end of list...', { hasChildren: !!activeItemClone.children });
       // Восстанавливаем элемент в конец списка
-      updatedItems = [...updatedItems, cloneItem(activeItem, true)];
+      // ВАЖНО: Сохраняем children при восстановлении
+      const restored = cloneItem(activeItemClone);
+      // НЕ удаляем children - сохраняем их при восстановлении
+      updatedItems = [...updatedItems, restored];
     }
 
     // Обновляем порядок для всех корневых элементов и их children
@@ -825,6 +1110,19 @@ const MenuSettingsPage: React.FC = () => {
     
     // Сохраняем на бэкенде
     void persistMenu(updatedItems);
+  };
+
+  // Переключение сворачивания/разворачивания пункта меню
+  const handleToggleCollapse = (id: string) => {
+    setCollapsedItems((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
   };
 
   // Переключение включения/выключения пункта (локальное обновление без запроса на сервер)
@@ -1243,6 +1541,8 @@ const MenuSettingsPage: React.FC = () => {
                       depth={0}
                       overId={overId}
                       dropPosition={dropPosition}
+                      collapsedItems={collapsedItems}
+                      onToggleCollapse={handleToggleCollapse}
                     />
                   ))}
               </div>

@@ -106,10 +106,36 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
 
   // Функция для преобразования MenuItemConfig в SidebarItem с локализацией
   const convertMenuItemToSidebarItem = React.useCallback((item: MenuItemConfig): SidebarItem | null => {
+    // ✅ КРИТИЧЕСКОЕ ЛОГИРОВАНИЕ: Всегда логируем для data-documents и data-addresses в самом начале
+    if (item.systemId === 'data-documents' || item.systemId === 'data-addresses') {
+      console.log('[PageTemplate] 🔍 ENTRY POINT for data-documents/addresses:', {
+        systemId: item.systemId,
+        systemIdType: typeof item.systemId,
+        systemIdLength: item.systemId?.length,
+        itemPath: item.path,
+        itemId: item.id,
+        itemType: item.type,
+        enabled: item.enabled
+      });
+    }
+    
     // Пропускаем выключенные элементы
     if (item.enabled === false) {
       return null;
     }
+    
+    // ✅ ИСПРАВЛЕНИЕ: Определяем systemPaths ДО использования, чтобы он был доступен везде
+    const systemPaths: Record<string, string> = {
+      'profile': '/dashboard',
+      'data': '/data',
+      'data-documents': '/data/documents',
+      'data-addresses': '/data/addresses',
+      'security': '/security',
+      'family': '/family',
+      'work': '/work',
+      'payments': '/pay',
+      'support': '/support',
+    };
     
     let path = '';
     let navigationPath = ''; // Путь для фактической навигации
@@ -139,24 +165,92 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
       path = item.path || item.externalUrl || '#';
       navigationPath = path;
     } else if (item.systemId) {
-      // ✅ ИСПРАВЛЕНИЕ: Для системных разделов ВСЕГДА используем дефолтные пути (игнорируем path из API)
-      const systemPaths: Record<string, string> = {
-        'profile': '/dashboard',
-        'data': '/data',
-        'security': '/security',
-        'family': '/family',
-        'work': '/work',
-        'payments': '/pay',
-        'support': '/support',
-      };
-      const defaultPath = systemPaths[item.systemId];
-      if (defaultPath) {
-        path = buildPathWithLang(defaultPath, currentLang);
+      // ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Принудительно используем дефолтные пути для data-documents и data-addresses
+      // Это должно быть ПЕРВЫМ, чтобы гарантированно переопределить пути из API
+      console.log('[PageTemplate] 🔍 Checking systemId for forced path:', {
+        systemId: item.systemId,
+        systemIdType: typeof item.systemId,
+        isDataDocuments: item.systemId === 'data-documents',
+        isDataAddresses: item.systemId === 'data-addresses',
+        willForce: item.systemId === 'data-documents' || item.systemId === 'data-addresses'
+      });
+      
+      const isForcedPath = item.systemId === 'data-documents' || item.systemId === 'data-addresses';
+      if (isForcedPath) {
+        let forcedPath = '';
+        if (item.systemId === 'data-documents') {
+          forcedPath = '/data/documents';
+        } else if (item.systemId === 'data-addresses') {
+          forcedPath = '/data/addresses';
+        }
+        path = buildPathWithLang(forcedPath, currentLang);
         navigationPath = path;
-      } else if (item.path) {
-        // Если systemId не найден в systemPaths, используем path из API
-        path = buildPathWithLang(item.path, currentLang);
-        navigationPath = path;
+        console.log('[PageTemplate] 🔧 FORCED default path for:', {
+          systemId: item.systemId,
+          forcedPath,
+          finalPath: path,
+          navigationPath: navigationPath
+        });
+        // ✅ ВАЖНО: После установки принудительного пути, пропускаем остальную логику
+        // и сразу переходим к созданию sidebarItem
+      }
+      
+      // ✅ ВАЖНО: Если это НЕ принудительный путь, выполняем обычную логику
+      if (!isForcedPath) {
+        // ✅ ИСПРАВЛЕНИЕ: Для остальных системных разделов используем дефолтные пути (игнорируем path из API)
+        // Нормализуем systemId (убираем пробелы, приводим к нижнему регистру)
+        const normalizedSystemId = item.systemId?.trim().toLowerCase();
+        // Пробуем найти путь по нормализованному systemId, затем по оригинальному
+        let defaultPath = systemPaths[normalizedSystemId];
+        if (!defaultPath) {
+          defaultPath = systemPaths[item.systemId];
+        }
+        if (!defaultPath && item.systemId?.trim()) {
+          defaultPath = systemPaths[item.systemId.trim()];
+        }
+        
+        console.log('[PageTemplate] Processing systemId:', {
+          systemId: item.systemId,
+          normalizedSystemId,
+          defaultPath,
+          itemPath: item.path,
+          willUseDefault: !!defaultPath,
+          systemPathsKeys: Object.keys(systemPaths),
+          hasNormalized: systemPaths.hasOwnProperty(normalizedSystemId),
+          hasOriginal: systemPaths.hasOwnProperty(item.systemId),
+          directAccess: systemPaths[item.systemId],
+          normalizedAccess: systemPaths[normalizedSystemId]
+        });
+        
+        if (defaultPath) {
+          // ВАЖНО: Игнорируем path из API для системных разделов
+          path = buildPathWithLang(defaultPath, currentLang);
+          navigationPath = path;
+          console.log('[PageTemplate] ✅ Using system path:', {
+            systemId: item.systemId,
+            normalizedSystemId,
+            defaultPath,
+            finalPath: path
+          });
+        } else if (item.path) {
+          // Если systemId не найден в systemPaths, используем path из API
+          console.warn('[PageTemplate] ⚠️ SystemId not found in systemPaths, using API path:', {
+            systemId: item.systemId,
+            normalizedSystemId,
+            apiPath: item.path,
+            availableKeys: Object.keys(systemPaths),
+            directAccess: systemPaths[item.systemId],
+            normalizedAccess: systemPaths[normalizedSystemId]
+          });
+          path = buildPathWithLang(item.path, currentLang);
+          navigationPath = path;
+        } else {
+          console.warn('[PageTemplate] ⚠️ No path for systemId:', {
+            systemId: item.systemId,
+            normalizedSystemId,
+            availableKeys: Object.keys(systemPaths)
+          });
+        }
       }
     } else if (item.path) {
       // Для несистемных пунктов добавляем язык
@@ -212,10 +306,45 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
       (shouldCheckNavigationPath && isNavigationPathActive)
     );
 
+    // ВАЖНО: Если path пустой, это проблема - нужно установить fallback
+    // Это может произойти, если systemId не найден и item.path тоже пустой
+    if (!path && !navigationPath) {
+      console.warn('[PageTemplate] Empty path for item:', {
+        systemId: item.systemId,
+        id: item.id,
+        type: item.type,
+        originalPath: item.path
+      });
+      // Для системных элементов без path используем id как fallback
+      path = item.path || `/${item.id}`;
+      navigationPath = path;
+    }
+
+    // ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Принудительно переопределяем пути для data-documents и data-addresses
+    // Это делается ПЕРЕД созданием sidebarItem, чтобы гарантированно установить правильные пути
+    if (item.systemId === 'data-documents' || item.systemId === 'data-addresses') {
+      let forcedPath = '';
+      if (item.systemId === 'data-documents') {
+        forcedPath = '/data/documents';
+      } else if (item.systemId === 'data-addresses') {
+        forcedPath = '/data/addresses';
+      }
+      const forcedPathWithLang = buildPathWithLang(forcedPath, currentLang);
+      path = forcedPathWithLang;
+      navigationPath = forcedPathWithLang;
+      console.log('[PageTemplate] 🔧 FORCED default path BEFORE sidebarItem creation:', {
+        systemId: item.systemId,
+        forcedPath,
+        finalPath: forcedPathWithLang,
+        path,
+        navigationPath
+      });
+    }
+
     const sidebarItem: SidebarItem = {
       label: resolveMenuItemLabel(item),
-      path,
-      navigationPath: navigationPath !== path ? navigationPath : path, // Используем path, если navigationPath не отличается (для системных разделов)
+      path: path || navigationPath || '#', // Fallback на navigationPath или '#'
+      navigationPath: navigationPath || path || '#', // Используем navigationPath, если есть, иначе path
       icon: finalIcon,
       type: item.type,
       externalUrl: item.externalUrl,
@@ -226,14 +355,40 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
       active: isParentActive,
     };
     
+    // ✅ КРИТИЧЕСКАЯ ПРОВЕРКА: Убеждаемся, что пути для data-documents и data-addresses установлены правильно
+    // Это делается ПОСЛЕ создания sidebarItem, чтобы гарантированно исправить любые ошибки
+    if (item.systemId === 'data-documents' || item.systemId === 'data-addresses') {
+      const expectedPath = item.systemId === 'data-documents' 
+        ? buildPathWithLang('/data/documents', currentLang)
+        : buildPathWithLang('/data/addresses', currentLang);
+      
+      // Принудительно устанавливаем правильные пути, независимо от того, что было установлено ранее
+      sidebarItem.path = expectedPath;
+      sidebarItem.navigationPath = expectedPath;
+      
+      console.log('[PageTemplate] 🔧 FINAL FORCED default path AFTER sidebarItem creation:', {
+        systemId: item.systemId,
+        expectedPath,
+        sidebarItemPath: sidebarItem.path,
+        sidebarItemNavigationPath: sidebarItem.navigationPath,
+        wasCorrected: sidebarItem.path === expectedPath && sidebarItem.navigationPath === expectedPath
+      });
+    }
+
     // Логируем системные разделы для отладки
     if (item.systemId) {
       console.log('[PageTemplate] Converted system item:', {
         systemId: item.systemId,
+        systemIdType: typeof item.systemId,
+        systemIdLength: item.systemId?.length,
+        systemIdCharCodes: item.systemId?.split('').map(c => c.charCodeAt(0)),
         originalPath: item.path,
-        finalPath: path,
+        finalPath: sidebarItem.path,
         navigationPath: sidebarItem.navigationPath,
-        label: sidebarItem.label
+        label: sidebarItem.label,
+        hasChildren: !!item.children,
+        systemPathsKeys: Object.keys(systemPaths || {}),
+        defaultPathFound: systemPaths?.[item.systemId] !== undefined
       });
     }
 
@@ -474,6 +629,32 @@ const TemplateBody: React.FC<PageTemplateProps> = ({
     // Если API вернул данные (даже пустой массив), используем их
     // Fallback на defaultSidebarItems только если API еще не загрузился (userMenuData === undefined)
     if (userMenuData !== undefined) {
+      // ✅ КРИТИЧЕСКОЕ ЛОГИРОВАНИЕ: Проверяем, что приходит из API для data-documents и data-addresses
+      console.log('[PageTemplate] 🔍 CHECKING menuItemsFromApi for data-documents/addresses:', {
+        totalItems: menuItemsFromApi.length,
+        allSystemIds: menuItemsFromApi.map(item => item.systemId).filter(Boolean),
+        dataDocsItems: menuItemsFromApi.filter(item => item.systemId && item.systemId.includes('document')),
+        dataAddressesItems: menuItemsFromApi.filter(item => item.systemId && item.systemId.includes('address'))
+      });
+      
+      const dataDocsItem = menuItemsFromApi.find(item => item.systemId === 'data-documents');
+      const dataAddressesItem = menuItemsFromApi.find(item => item.systemId === 'data-addresses');
+      
+      console.log('[PageTemplate] 🔍 FIND RESULTS:', {
+        dataDocsItem: dataDocsItem ? {
+          systemId: dataDocsItem.systemId,
+          path: dataDocsItem.path,
+          id: dataDocsItem.id,
+          type: dataDocsItem.type
+        } : null,
+        dataAddressesItem: dataAddressesItem ? {
+          systemId: dataAddressesItem.systemId,
+          path: dataAddressesItem.path,
+          id: dataAddressesItem.id,
+          type: dataAddressesItem.type
+        } : null
+      });
+      
       // API загружен, используем данные из API (даже если пустой массив - все плагины выключены)
       const filteredItems = menuItemsFromApi
         .map(convertMenuItemToSidebarItem)

@@ -45,7 +45,14 @@ export class PersonalController {
         mimetype: file.mimetype,
         size: file.size,
         uploadsDir,
+        hasBuffer: !!file.buffer,
       });
+      
+      // Проверяем наличие buffer (должен быть при использовании memoryStorage)
+      if (!file.buffer) {
+        console.error('File buffer is missing! File keys:', Object.keys(file));
+        throw new Error('File buffer is missing. Check multer configuration.');
+      }
       
       // Создаем директорию, если её нет
       if (!fs.existsSync(uploadsDir)) {
@@ -178,7 +185,46 @@ export class PersonalController {
     const userId = user?.userId || user?.id || user?.sub;
     
     console.log('Adding vehicle - req.body:', req.body);
-    console.log('Adding vehicle - file:', file?.filename);
+    console.log('Adding vehicle - file:', file ? {
+      originalname: file.originalname,
+      mimetype: file.mimetype,
+      size: file.size,
+      hasBuffer: !!file.buffer,
+    } : 'NO FILE');
+    
+    // Сохраняем файл, если он есть
+    let photoUrl: string | null = null;
+    if (file) {
+      const fs = require('fs');
+      const path = require('path');
+      const uploadsDir = path.join(process.cwd(), 'uploads', 'vehicles');
+      
+      // Проверяем наличие buffer (должен быть при использовании memoryStorage)
+      if (!file.buffer) {
+        console.error('File buffer is missing! File keys:', Object.keys(file));
+        throw new Error('File buffer is missing. Check multer configuration.');
+      }
+      
+      // Создаем директорию, если её нет
+      if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+        console.log('Created uploads directory:', uploadsDir);
+      }
+      
+      // Генерируем уникальное имя файла
+      const uniqueName = `${Date.now()}-${file.originalname}`;
+      const filePath = path.join(uploadsDir, uniqueName);
+      
+      // Сохраняем файл
+      try {
+        fs.writeFileSync(filePath, file.buffer);
+        console.log('Vehicle photo saved successfully:', filePath);
+        photoUrl = `/uploads/vehicles/${uniqueName}`;
+      } catch (error) {
+        console.error('Error saving vehicle photo:', error);
+        throw new Error('Failed to save vehicle photo');
+      }
+    }
     
     const vehicleDto: any = {
       type: 'car', // По умолчанию
@@ -187,7 +233,7 @@ export class PersonalController {
       licensePlate: req.body.licensePlate || null,
       year: req.body.year ? parseInt(req.body.year, 10) : null,
       vin: req.body.sts || null, // Используем sts как VIN
-      photoUrl: file ? `/uploads/vehicles/${file.filename}` : null,
+      photoUrl,
     };
     
     console.log('Vehicle DTO:', vehicleDto);
@@ -216,14 +262,53 @@ export class PersonalController {
     const userId = user?.userId || user?.id || user?.sub;
     
     console.log('Adding pet - req.body:', req.body);
-    console.log('Adding pet - file:', file?.filename);
+    console.log('Adding pet - file:', file ? {
+      originalname: file.originalname,
+      mimetype: file.mimetype,
+      size: file.size,
+      hasBuffer: !!file.buffer,
+    } : 'NO FILE');
+    
+    // Сохраняем файл, если он есть
+    let photoUrl: string | null = null;
+    if (file) {
+      const fs = require('fs');
+      const path = require('path');
+      const uploadsDir = path.join(process.cwd(), 'uploads', 'pets');
+      
+      // Проверяем наличие buffer (должен быть при использовании memoryStorage)
+      if (!file.buffer) {
+        console.error('File buffer is missing! File keys:', Object.keys(file));
+        throw new Error('File buffer is missing. Check multer configuration.');
+      }
+      
+      // Создаем директорию, если её нет
+      if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+        console.log('Created uploads directory:', uploadsDir);
+      }
+      
+      // Генерируем уникальное имя файла
+      const uniqueName = `${Date.now()}-${file.originalname}`;
+      const filePath = path.join(uploadsDir, uniqueName);
+      
+      // Сохраняем файл
+      try {
+        fs.writeFileSync(filePath, file.buffer);
+        console.log('Pet photo saved successfully:', filePath);
+        photoUrl = `/uploads/pets/${uniqueName}`;
+      } catch (error) {
+        console.error('Error saving pet photo:', error);
+        throw new Error('Failed to save pet photo');
+      }
+    }
     
     const petDto: any = {
       name: req.body.name || null,
       type: req.body.type || 'dog',
       breed: req.body.breed || null,
       birthDate: req.body.birthDate ? new Date(req.body.birthDate) : null,
-      photoUrl: file ? `/uploads/pets/${file.filename}` : null,
+      photoUrl,
     };
     
     console.log('Pet DTO:', petDto);

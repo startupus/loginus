@@ -27,7 +27,11 @@ export class TeamsController {
   @ApiOperation({ summary: 'Получить все доступные команды пользователя' })
   @ApiResponse({ status: 200, description: 'Список всех доступных команд' })
   async getAccessibleTeams(@CurrentUser() user: any) {
-    return this.teamsService.getAccessibleTeams(user.userId);
+    const teams = await this.teamsService.getAccessibleTeams(user.userId);
+    return {
+      success: true,
+      data: teams,
+    };
   }
 
   @Get('organization/:organizationId')
@@ -149,5 +153,25 @@ export class TeamsController {
       throw new BadRequestException('User ID not found in token');
     }
     return this.teamsService.getTeamRolesFromRolesTable(teamId, userId);
+  }
+
+  @Post(':id/invite-link')
+  @ApiOperation({ summary: 'Генерировать многоразовую ссылку приглашения в команду' })
+  @ApiResponse({ status: 200, description: 'Ссылка создана' })
+  @ApiResponse({ status: 403, description: 'Недостаточно прав' })
+  async generateInviteLink(
+    @Param('id') teamId: string,
+    @Body() body: { roleName?: string },
+    @CurrentUser() user: any,
+  ) {
+    const result = await this.teamsService.generateTeamInviteLink(
+      teamId,
+      body.roleName || 'member',
+      user.userId,
+    );
+    return {
+      success: true,
+      data: result,
+    };
   }
 }

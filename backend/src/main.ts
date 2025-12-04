@@ -38,6 +38,11 @@ async function bootstrap() {
   // Cookie parser
   app.use(cookieParser());
 
+  // Настройка bodyParser для увеличения лимита размера запроса (для загрузки файлов)
+  // Это важно для предотвращения ошибки 413 (Request Entity Too Large)
+  app.use(require('express').json({ limit: '50mb' }));
+  app.use(require('express').urlencoded({ limit: '50mb', extended: true }));
+
   // Global prefix
   app.setGlobalPrefix('api/v2');
 

@@ -550,16 +550,43 @@ export class InvitationsService {
           }
         }
         
-        // Если не нашли по имени, используем роль по умолчанию
+        // Если не нашли по имени, используем роль из приглашения напрямую
+        if (!roleId && invitation.role) {
+          // Пробуем использовать roleId напрямую из приглашения
+          const directRole = await this.teamRoleRepo.findOne({
+            where: { 
+              id: invitation.role,
+              teamId: invitation.teamId
+            }
+          });
+          if (directRole) {
+            roleId = directRole.id;
+            console.log(`🔍 Using direct role from invitation: ${roleId}`);
+          }
+        }
+        
+        // Если все еще не нашли, пробуем роль по умолчанию (viewer для команд без организации)
         if (!roleId) {
-          const defaultRole = await this.teamRoleRepo.findOne({
+          // Сначала пробуем viewer (для команд без организации)
+          let defaultRole = await this.teamRoleRepo.findOne({
+            where: { 
+              teamId: invitation.teamId,
+              name: 'viewer'
+            }
+          });
+          
+          // Если viewer не найден, пробуем member (для команд с организацией)
+          if (!defaultRole) {
+            defaultRole = await this.teamRoleRepo.findOne({
             where: { 
               teamId: invitation.teamId,
               name: 'member'
             }
           });
+          }
+          
           roleId = defaultRole?.id || null;
-          console.log(`🔍 Using default 'member' role for team ${invitation.teamId}: ${roleId ? 'found' : 'not found'}`);
+          console.log(`🔍 Using default role for team ${invitation.teamId}: ${roleId ? 'found' : 'not found'}`);
         }
 
         if (roleId) {
@@ -572,6 +599,23 @@ export class InvitationsService {
           });
           await this.teamMembershipRepo.save(teamMembership);
           console.log(`✅ User ${user.email} added to team ${invitation.teamId} with role ${roleId}`);
+          
+          // Добавляем в старую систему (user_teams)
+          try {
+            await this.teamsRepo
+              .createQueryBuilder()
+              .insert()
+              .into('user_teams')
+              .values({
+                user_id: user.id,
+                team_id: invitation.teamId,
+              })
+              .orIgnore() // Игнорируем, если уже существует
+              .execute();
+            console.log(`✅ User ${user.email} added to user_teams for team ${invitation.teamId}`);
+          } catch (error) {
+            console.warn(`⚠️ Error adding to user_teams (might not exist):`, error);
+          }
         } else {
           console.log(`⚠️ No role found for team ${invitation.teamId}`);
         }

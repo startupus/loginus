@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Team } from './entities/team.entity';
@@ -8,11 +8,14 @@ import { User } from '../users/entities/user.entity';
 import { OrganizationMembership } from '../organizations/entities/organization-membership.entity';
 import { Role } from '../rbac/entities/role.entity';
 import { RoleHierarchyService } from '../rbac/role-hierarchy.service';
+import { InvitationsService } from '../auth/micro-modules/invitations/invitations.service';
+import { InvitationType } from '../auth/micro-modules/invitations/entities/invitation.entity';
+import * as crypto from 'crypto';
 
 export interface CreateTeamDto {
   name: string;
   description?: string;
-  organizationId: string;
+  organizationId?: string | null; // Опционально для команд без организации
 }
 
 export interface UpdateTeamDto {
@@ -36,6 +39,8 @@ export class TeamsService {
     @InjectRepository(Role)
     private rolesRepo: Repository<Role>,
     private roleHierarchyService: RoleHierarchyService,
+    @Inject(forwardRef(() => InvitationsService))
+    private invitationsService: InvitationsService,
   ) {}
 
   /**
@@ -45,20 +50,24 @@ export class TeamsService {
     dto: CreateTeamDto,
     creatorId: string,
   ): Promise<Team> {
-    // Проверяем права на создание команды в организации
-    const canCreate = await this.roleHierarchyService.canCreateTeams(creatorId, dto.organizationId);
-    if (!canCreate) {
-      throw new ForbiddenException('Недостаточно прав для создания команды в этой организации');
+    // Если указана организация, проверяем права на создание команды в организации
+    if (dto.organizationId) {
+      const canCreate = await this.roleHierarchyService.canCreateTeams(creatorId, dto.organizationId);
+      if (!canCreate) {
+        throw new ForbiddenException('Недостаточно прав для создания команды в этой организации');
+      }
     }
+    // Для команд без организации (organizationId === null) права не проверяем - любой пользователь может создать
 
     // Создаем команду
     const team = this.teamRepo.create({
       ...dto,
+      organizationId: dto.organizationId || null, // Явно устанавливаем null, если не указано
       createdBy: creatorId,
     });
 
     const savedTeam = await this.teamRepo.save(team);
-    console.log(`✅ Team created: ${savedTeam.name} (ID: ${savedTeam.id})`);
+    console.log(`✅ Team created: ${savedTeam.name} (ID: ${savedTeam.id})${dto.organizationId ? ` in organization ${dto.organizationId}` : ' (without organization)'}`);
 
     // Создаем системные роли для команды
     // ✅ ВАЖНО: createSystemRoles уже синхронизирует права из глобальной таблицы roles
@@ -66,8 +75,50 @@ export class TeamsService {
     await this.createSystemRoles(savedTeam.id);
     console.log(`✅ System roles creation completed for team: ${savedTeam.id}`);
 
-    // Команда создается пустой - участники добавляются через приглашения
-    console.log(`✅ Team created empty: ${savedTeam.name} (ID: ${savedTeam.id})`);
+    // Добавляем создателя в команду как admin напрямую (без проверки прав, так как он создатель)
+    try {
+      // Для команд без организации используем admin, для команд с организацией - owner
+      const roleName = savedTeam.organizationId ? 'owner' : 'admin';
+      
+      // Находим роль
+      const creatorRole = await this.teamRoleRepo.findOne({
+        where: { name: roleName, teamId: savedTeam.id },
+      });
+
+      if (creatorRole) {
+        // Создаем членство в новой системе (team_memberships)
+        const membership = this.teamMembershipRepo.create({
+          userId: creatorId,
+          teamId: savedTeam.id,
+          roleId: creatorRole.id,
+          invitedBy: creatorId,
+        });
+
+        await this.teamMembershipRepo.save(membership);
+
+        // Добавляем в старую систему (user_teams)
+        await this.teamRepo
+          .createQueryBuilder()
+          .insert()
+          .into('user_teams')
+          .values({
+            user_id: creatorId,
+            team_id: savedTeam.id,
+          })
+          .orIgnore() // Игнорируем, если уже существует
+          .execute();
+
+        console.log(`✅ Added creator ${creatorId} as ${roleName} to team ${savedTeam.id}`);
+      } else {
+        console.warn(`⚠️ ${roleName} role not found for team ${savedTeam.id}, creator not added automatically`);
+      }
+    } catch (error) {
+      console.error(`❌ Error adding creator to team:`, error);
+      // Не прерываем создание команды, если не удалось добавить создателя
+    }
+
+    // Команда создается с создателем - остальные участники добавляются через приглашения
+    console.log(`✅ Team created with creator as admin: ${savedTeam.name} (ID: ${savedTeam.id})`);
 
     return savedTeam;
   }
@@ -79,7 +130,68 @@ export class TeamsService {
   private async createSystemRoles(teamId: string): Promise<void> {
     console.log(`🔧 Creating system roles for team: ${teamId}`);
     
-    // Получаем все глобальные роли (системные и кастомные)
+    // Проверяем, есть ли у команды организация
+    const team = await this.teamRepo.findOne({ where: { id: teamId } });
+    const isTeamWithoutOrg = !team?.organizationId;
+    
+    // Для команд без организации создаем только admin и viewer
+    if (isTeamWithoutOrg) {
+      console.log(`🔧 Creating simplified roles (admin, viewer) for team without organization: ${teamId}`);
+      
+      // Получаем глобальные роли admin и viewer
+      const adminRole = await this.rolesRepo.findOne({
+        where: { name: 'admin', isGlobal: true },
+        relations: ['permissions'],
+      });
+      
+      const viewerRole = await this.rolesRepo.findOne({
+        where: { name: 'viewer', isGlobal: true },
+        relations: ['permissions'],
+      });
+      
+      const rolesToCreate = [adminRole, viewerRole].filter(Boolean);
+      
+      for (const globalRole of rolesToCreate) {
+        if (!globalRole) continue;
+        
+        try {
+          // Проверяем, нет ли уже такой роли
+          const existingRole = await this.teamRoleRepo.findOne({
+            where: { teamId, name: globalRole.name },
+          });
+
+          if (existingRole) {
+            const newPermissionNames = globalRole.permissions?.map(p => p.name) || [];
+            existingRole.permissions = newPermissionNames;
+            existingRole.isSystem = globalRole.isSystem || false;
+            existingRole.level = globalRole.name === 'admin' ? 80 : 20;
+            await this.teamRoleRepo.save(existingRole);
+            console.log(`✅ [TeamsService] Synced role ${globalRole.name} in team ${teamId}`);
+            continue;
+          }
+
+          const teamRole = this.teamRoleRepo.create({
+            name: globalRole.name,
+            description: globalRole.description || '',
+            teamId,
+            permissions: globalRole.permissions?.map(p => p.name) || [],
+            level: globalRole.name === 'admin' ? 80 : 20,
+            isSystem: globalRole.isSystem || false,
+          });
+
+          const savedRole = await this.teamRoleRepo.save(teamRole);
+          console.log(`✅ [TeamsService] Created role ${savedRole.name} (level ${savedRole.level}) for team ${teamId}`);
+        } catch (error) {
+          console.error(`❌ [TeamsService] Error creating role ${globalRole.name}:`, error);
+          throw error;
+        }
+      }
+      
+      console.log(`✅ [TeamsService] Created ${rolesToCreate.length} roles for team without organization ${teamId}`);
+      return;
+    }
+    
+    // Для команд с организацией - копируем все глобальные роли
     const globalRoles = await this.rolesRepo.find({
       where: { isGlobal: true },
       relations: ['permissions'],
@@ -382,7 +494,7 @@ export class TeamsService {
    * Получить все доступные команды пользователя
    * Включает команды, где пользователь является участником или создателем организации
    */
-  async getAccessibleTeams(userId: string): Promise<Team[]> {
+  async getAccessibleTeams(userId: string): Promise<Array<Team & { myRole?: string }>> {
     try {
       // 1. Получаем команды, где пользователь является участником
       const userMemberships = await this.teamMembershipRepo.find({
@@ -390,9 +502,43 @@ export class TeamsService {
         relations: ['team', 'team.organization', 'role'],
       });
 
-      const userTeams = userMemberships.map(membership => membership.team);
+      const userTeamsWithRole = userMemberships.map(membership => ({
+        ...membership.team,
+        myRole: membership.role?.name || 'member',
+      }));
 
-      // 2. Получаем команды организаций, где пользователь является создателем или участником
+      // 2. Получаем команды, где пользователь является создателем (createdBy)
+      const createdTeams = await this.teamRepo.find({
+        where: { createdBy: userId },
+        relations: ['organization'],
+      });
+
+      // Для созданных команд проверяем, есть ли уже членство
+      const createdTeamsWithRole = await Promise.all(
+        createdTeams.map(async (team) => {
+          // Проверяем, есть ли уже членство
+          const membership = await this.teamMembershipRepo.findOne({
+            where: { userId, teamId: team.id },
+            relations: ['role'],
+          });
+          
+          if (membership) {
+            return {
+              ...team,
+              myRole: membership.role?.name || 'owner',
+            };
+          }
+          
+          // Если членства нет, но пользователь создатель
+          // Для команд без организации - admin, для команд с организацией - owner
+          return {
+            ...team,
+            myRole: team.organizationId ? 'owner' : 'admin',
+          };
+        })
+      );
+
+      // 3. Получаем команды организаций, где пользователь является создателем или участником
       // Используем более простой подход через OrganizationMembership
       const orgMemberships = await this.teamRepo
         .createQueryBuilder('team')
@@ -401,17 +547,44 @@ export class TeamsService {
         .where('orgMembership.userId = :userId', { userId })
         .getMany();
 
+      // Для команд организаций определяем роль пользователя
+      const orgTeamsWithRole = await Promise.all(
+        orgMemberships.map(async (team) => {
+          // Проверяем членство в команде
+          const membership = await this.teamMembershipRepo.findOne({
+            where: { userId, teamId: team.id },
+            relations: ['role'],
+          });
+          
+          if (membership) {
+            return {
+              ...team,
+              myRole: membership.role?.name || 'member',
+            };
+          }
+          
+          // Если нет членства, но команда в организации пользователя - роль по умолчанию
+          return {
+            ...team,
+            myRole: 'member',
+          };
+        })
+      );
+
       // Объединяем команды и убираем дубликаты
-      const allTeams = [...userTeams, ...orgMemberships];
+      const allTeams = [...userTeamsWithRole, ...createdTeamsWithRole, ...orgTeamsWithRole];
       const uniqueTeams = allTeams.filter((team, index, self) => 
         index === self.findIndex(t => t.id === team.id)
       );
+
+      console.log(`[getAccessibleTeams] Found ${uniqueTeams.length} teams for user ${userId} (${userTeamsWithRole.length} from memberships, ${createdTeamsWithRole.length} created by user)`);
 
       return uniqueTeams;
     } catch (error) {
       console.error('Error in getAccessibleTeams:', error);
       // В случае ошибки возвращаем только команды пользователя
-      return this.getUserTeams(userId);
+      const userTeams = await this.getUserTeams(userId);
+      return userTeams.map(team => ({ ...team, myRole: 'member' }));
     }
   }
 
@@ -455,32 +628,200 @@ export class TeamsService {
   }
 
   /**
+   * Генерировать многоразовую ссылку приглашения в команду
+   */
+  async generateTeamInviteLink(
+    teamId: string,
+    roleName: string,
+    createdBy: string,
+  ): Promise<{ invitationLink: string; token: string }> {
+    const team = await this.getTeamById(teamId);
+
+    // Проверяем права на приглашение
+    const canInvite = await this.roleHierarchyService.canInviteUsers(createdBy, { 
+      organizationId: team.organizationId || undefined,
+      teamId,
+    });
+    if (!canInvite) {
+      throw new ForbiddenException('Недостаточно прав для создания приглашения');
+    }
+
+    // Для команд без организации - убеждаемся, что роли admin и viewer существуют
+    if (!team.organizationId) {
+      await this.ensureSimplifiedRoles(teamId);
+    }
+
+    // Находим роль
+    let role = await this.teamRoleRepo.findOne({
+      where: { name: roleName, teamId },
+    });
+
+    // Если роль не найдена и это команда без организации, пытаемся создать недостающую роль
+    if (!role && !team.organizationId) {
+      console.log(`⚠️ Role ${roleName} not found for team ${teamId} without organization, attempting to create...`);
+      await this.ensureSimplifiedRoles(teamId);
+      role = await this.teamRoleRepo.findOne({
+        where: { name: roleName, teamId },
+      });
+    }
+
+    if (!role) {
+      throw new NotFoundException(`Роль ${roleName} не найдена в команде`);
+    }
+
+    // Создаем приглашение в базе данных через InvitationsService
+    // Это создаст многоразовую ссылку приглашения
+    // Используем специальный email формат для многоразовых ссылок
+    const reusableEmail = `reusable-${teamId}@teams.local`;
+    const invitation = await this.invitationsService.createInvitation(createdBy, {
+      type: InvitationType.TEAM,
+      teamId: teamId,
+      roleId: role.id,
+      roleName: roleName,
+      email: reusableEmail, // Специальный email для многоразовой ссылки
+      expiresInDays: 365, // Срок действия 1 год
+    });
+
+    // Формируем ссылку с токеном из созданного приглашения
+    const frontendUrl = process.env.FRONTEND_URL || 'https://loginus.startapus.com';
+    const invitationLink = `${frontendUrl}/invitation?token=${invitation.token}&type=team&teamId=${teamId}&roleName=${roleName}`;
+
+    return {
+      invitationLink,
+      token: invitation.token,
+    };
+  }
+
+  /**
+   * Убедиться, что для команды без организации созданы роли admin и viewer
+   */
+  private async ensureSimplifiedRoles(teamId: string): Promise<void> {
+    const team = await this.teamRepo.findOne({ where: { id: teamId } });
+    if (!team || team.organizationId) {
+      return; // Только для команд без организации
+    }
+
+    // Получаем глобальные роли admin и viewer
+    const adminRole = await this.rolesRepo.findOne({
+      where: { name: 'admin', isGlobal: true },
+      relations: ['permissions'],
+    });
+    
+    const viewerRole = await this.rolesRepo.findOne({
+      where: { name: 'viewer', isGlobal: true },
+      relations: ['permissions'],
+    });
+
+    if (!adminRole || !viewerRole) {
+      console.error(`❌ Global roles admin or viewer not found`);
+      return;
+    }
+
+    // Создаем или обновляем роль admin
+    let teamAdminRole = await this.teamRoleRepo.findOne({
+      where: { name: 'admin', teamId },
+    });
+
+    if (!teamAdminRole) {
+      teamAdminRole = this.teamRoleRepo.create({
+        name: 'admin',
+        description: adminRole.description || '',
+        teamId,
+        permissions: adminRole.permissions?.map(p => p.name) || [],
+        level: 80,
+        isSystem: true,
+      });
+      await this.teamRoleRepo.save(teamAdminRole);
+      console.log(`✅ Created admin role for team ${teamId}`);
+    }
+
+    // Создаем или обновляем роль viewer
+    let teamViewerRole = await this.teamRoleRepo.findOne({
+      where: { name: 'viewer', teamId },
+    });
+
+    if (!teamViewerRole) {
+      teamViewerRole = this.teamRoleRepo.create({
+        name: 'viewer',
+        description: viewerRole.description || '',
+        teamId,
+        permissions: viewerRole.permissions?.map(p => p.name) || [],
+        level: 20,
+        isSystem: true,
+      });
+      await this.teamRoleRepo.save(teamViewerRole);
+      console.log(`✅ Created viewer role for team ${teamId}`);
+    }
+  }
+
+  /**
    * Удалить команду
    */
   async deleteTeam(id: string, deletedBy: string): Promise<void> {
-    const team = await this.getTeamById(id);
+    try {
+      console.log(`🗑️ Attempting to delete team ${id} by user ${deletedBy}`);
+      const team = await this.getTeamById(id);
+      console.log(`📋 Team found: ${team.name}, organizationId: ${team.organizationId}, createdBy: ${team.createdBy}`);
 
-    // Проверяем права на удаление
-    const userRole = await this.roleHierarchyService.getUserEffectiveRole(deletedBy, { 
-      organizationId: team.organizationId || undefined,
-      teamId: id,
-    });
-    if (!['super_admin', 'admin', 'manager'].includes(userRole.role)) {
-      throw new ForbiddenException('Недостаточно прав для удаления команды');
+      // Для команд без организации - проверяем, является ли пользователь создателем или admin
+      if (!team.organizationId) {
+        if (team.createdBy !== deletedBy) {
+          // Также проверяем, является ли пользователь admin через членство
+          const membership = await this.teamMembershipRepo.findOne({
+            where: { userId: deletedBy, teamId: id },
+            relations: ['role'],
+          });
+          
+          const isAdmin = membership?.role?.name === 'admin';
+          console.log(`🔍 Membership check: isAdmin=${isAdmin}, createdBy=${team.createdBy}, deletedBy=${deletedBy}`);
+          
+          if (!isAdmin && team.createdBy !== deletedBy) {
+            throw new ForbiddenException('Недостаточно прав для удаления команды');
+          }
+        }
+      } else {
+        // Для команд с организацией - проверяем права через roleHierarchyService
+        const userRole = await this.roleHierarchyService.getUserEffectiveRole(deletedBy, { 
+          organizationId: team.organizationId,
+          teamId: id,
+        });
+        if (!['super_admin', 'admin', 'manager'].includes(userRole.role)) {
+          throw new ForbiddenException('Недостаточно прав для удаления команды');
+        }
+      }
+
+      console.log(`✅ Permission check passed, proceeding with deletion...`);
+
+      // Удаляем все связанные записи перед удалением команды
+      // 1. Удаляем членство пользователей в команде (новая система)
+      console.log(`🗑️ Deleting team memberships...`);
+      await this.teamMembershipRepo.delete({ teamId: id });
+
+      // 2. Удаляем роли команды
+      console.log(`🗑️ Deleting team roles...`);
+      await this.teamRoleRepo.delete({ teamId: id });
+
+      // 3. Удаляем записи из старой системы ManyToMany (user_teams)
+      console.log(`🗑️ Deleting user_teams relations...`);
+      try {
+        await this.teamRepo.query('DELETE FROM user_teams WHERE team_id = $1', [id]);
+      } catch (error) {
+        console.warn(`⚠️ Error deleting from user_teams (might not exist):`, error);
+        // Продолжаем, даже если таблица не существует
+      }
+
+      // 4. Удаляем саму команду
+      console.log(`🗑️ Deleting team...`);
+      await this.teamRepo.delete(id);
+      
+      console.log(`✅ Team ${id} deleted successfully by user ${deletedBy}`);
+    } catch (error) {
+      console.error(`❌ Error deleting team ${id}:`, error);
+      if (error instanceof ForbiddenException || error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new Error(`Ошибка при удалении команды: ${error.message}`);
     }
-
-    // Удаляем все связанные записи перед удалением команды
-    // 1. Удаляем членство пользователей в команде (новая система)
-    await this.teamMembershipRepo.delete({ teamId: id });
-
-    // 2. Удаляем роли команды
-    await this.teamRoleRepo.delete({ teamId: id });
-
-    // 3. Удаляем записи из старой системы ManyToMany (user_teams)
-    await this.teamRepo.query('DELETE FROM user_teams WHERE team_id = $1', [id]);
-
-    // 4. Удаляем саму команду
-    await this.teamRepo.delete(id);
   }
 
   /**

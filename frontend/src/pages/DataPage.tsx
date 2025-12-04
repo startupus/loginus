@@ -230,6 +230,9 @@ const DataPage: React.FC = () => {
   const refreshData = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: personalDataQueryKey });
     queryClient.invalidateQueries({ queryKey: ['profile'] });
+    // Также инвалидируем отдельные запросы для страниц документов и адресов
+    queryClient.invalidateQueries({ queryKey: ['personal-documents'] });
+    queryClient.invalidateQueries({ queryKey: ['personal-addresses'] });
   }, [queryClient]);
 
   const handleAddDocument = useCallback((type?: string | DocumentType) => {

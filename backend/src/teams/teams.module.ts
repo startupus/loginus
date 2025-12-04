@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TeamsService } from './teams.service';
 import { TeamsController } from './teams.controller';
@@ -10,6 +10,7 @@ import { User } from '../users/entities/user.entity';
 import { UserRoleAssignment } from '../users/entities/user-role-assignment.entity';
 import { Role } from '../rbac/entities/role.entity';
 import { RoleHierarchyService } from '../rbac/role-hierarchy.service';
+import { InvitationsModule } from '../auth/micro-modules/invitations/invitations.module';
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import { RoleHierarchyService } from '../rbac/role-hierarchy.service';
       User, 
       UserRoleAssignment,
       Role
-    ])
+    ]),
+    forwardRef(() => InvitationsModule),
   ],
   controllers: [TeamsController],
   providers: [TeamsService, RoleHierarchyService],

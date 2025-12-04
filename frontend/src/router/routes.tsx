@@ -26,6 +26,7 @@ const PersonalDocumentsPage = lazy(() => import('@/pages/PersonalDocumentsPage')
 const PersonalAddressesPage = lazy(() => import('@/pages/PersonalAddressesPage'));
 const FamilyPage = lazy(() => import('@/pages/FamilyPage'));
 const FamilyInvitePage = lazy(() => import('@/pages/FamilyInvitePage'));
+const TeamInvitePage = lazy(() => import('@/pages/TeamInvitePage'));
 const WorkPage = lazy(() => import('@/pages/WorkPage'));
 const SecurityPage = lazy(() => import('@/pages/SecurityPage'));
 
@@ -89,6 +90,7 @@ export {
   PersonalAddressesPage,
   FamilyPage,
   FamilyInvitePage,
+  TeamInvitePage,
   WorkPage,
   SecurityPage,
   RecoveryMethodsPage, // ✅ NEW

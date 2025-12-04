@@ -34,3 +34,12 @@ export type { EditFamilyMemberAvatarModalProps } from './EditFamilyMemberAvatarM
 export { AuthMethodsModal } from './AuthMethodsModal';
 export type { AuthMethodsModalProps, AuthFactor, AuthFactorType, AuthPath } from './AuthMethodsModal';
 
+export { CreateTeamModal } from './CreateTeamModal';
+export type { CreateTeamModalProps } from './CreateTeamModal';
+
+export { EditTeamModal } from './EditTeamModal';
+export type { EditTeamModalProps } from './EditTeamModal';
+
+export { InviteTeamMemberModal } from './InviteTeamMemberModal';
+export type { InviteTeamMemberModalProps } from './InviteTeamMemberModal';
+
